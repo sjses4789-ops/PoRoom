@@ -1,25 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { createWork, deleteWork } from "@/lib/works";
-
-const LINE_COLORS = [
-  "#0ea5e9",
-  "#f43f5e",
-  "#10b981",
-  "#f59e0b",
-  "#8b5cf6",
-  "#84cc16",
-  "#d946ef",
-  "#06b6d4",
-  "#ec4899",
-  "#6366f1",
-  "#14b8a6",
-  "#eab308",
-  "#f97316",
-  "#a855f7",
-  "#22c55e",
-];
+import { WORK_LINE_COLORS as LINE_COLORS } from "@/lib/work-colors";
 
 export type WorkMeta = { id: string; title: string };
 export type WorkRecordPoint = { workId: string; date: string; chars: number };
@@ -38,7 +20,7 @@ const STEP_X = 44;
 const CHART_HEIGHT = 140;
 
 export function WorkChart({
-  works: initialWorks,
+  works,
   records,
   entries,
 }: {
@@ -47,89 +29,18 @@ export function WorkChart({
   entries: WorkEntryPoint[];
 }) {
   const [period, setPeriod] = useState<"entry" | "day" | "month">("day");
-  const [works, setWorks] = useState<WorkMeta[]>(initialWorks);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [adding, setAdding] = useState(false);
-  const [newTitle, setNewTitle] = useState("");
-  const [pending, setPending] = useState(false);
 
-  const confirmAdd = async () => {
-    const title = newTitle.trim();
-    if (!title) return;
-    setPending(true);
-    const result = await createWork(title);
-    setPending(false);
-    if ("error" in result) return;
-    setWorks((prev) => [...prev, { id: result.id, title: result.title }]);
-    setNewTitle("");
-    setAdding(false);
-  };
-
-  const removeSelected = async () => {
-    if (!selectedId) return;
-    const work = works.find((w) => w.id === selectedId);
-    if (!work) return;
-    if (!window.confirm(`"${work.title}" 작품을 삭제할까요? 그래프에서도 사라져요.`)) return;
-    await deleteWork(selectedId);
-    setWorks((prev) => prev.filter((w) => w.id !== selectedId));
-    setSelectedId(null);
-  };
-
-  const managementHeader = (
-    <div className="flex flex-col gap-1.5">
-      <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
-          작품별 글자수
-        </h2>
-        <div className="flex items-center gap-1.5">
-          <button
-            type="button"
-            onClick={() => setAdding((v) => !v)}
-            title="작품 추가"
-            className="flex h-6 w-6 items-center justify-center rounded-full border border-neutral-200 text-neutral-500 transition hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
-          >
-            +
-          </button>
-          <button
-            type="button"
-            onClick={removeSelected}
-            disabled={!selectedId}
-            title="선택한 작품 삭제 (아래에서 작품을 먼저 선택하세요)"
-            className="flex h-6 w-6 items-center justify-center rounded-full border border-neutral-200 text-neutral-500 transition hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-30 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
-          >
-            −
-          </button>
-        </div>
-      </div>
-      {adding && (
-        <div className="flex gap-1.5">
-          <input
-            autoFocus
-            value={newTitle}
-            onChange={(e) => setNewTitle(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && confirmAdd()}
-            placeholder="작품 이름"
-            className="flex-1 rounded-md border border-neutral-200 px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
-          />
-          <button
-            type="button"
-            onClick={confirmAdd}
-            disabled={pending}
-            className="rounded-md bg-neutral-900 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-neutral-700 disabled:opacity-50 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
-          >
-            추가
-          </button>
-        </div>
-      )}
-    </div>
+  const header = (
+    <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">작품별 글자수</h2>
   );
 
   if (works.length === 0) {
     return (
       <div className="flex flex-col gap-3">
-        {managementHeader}
+        {header}
         <p className="text-xs text-neutral-400">
-          등록된 작품이 없습니다. + 버튼으로 작품을 추가해보세요.
+          등록된 작품이 없습니다. 오른쪽 작품 목록에서 추가해보세요.
         </p>
       </div>
     );
@@ -200,7 +111,7 @@ export function WorkChart({
 
     return (
       <div className="flex flex-col gap-3">
-        {managementHeader}
+        {header}
         <div className="flex items-center gap-2">
           <span className="text-[12px] text-neutral-500 dark:text-neutral-400">
             {activeWork?.title}의 입력별 변동
@@ -304,7 +215,7 @@ export function WorkChart({
 
   return (
     <div className="flex flex-col gap-3">
-      {managementHeader}
+      {header}
       <div className="flex items-center gap-2">
         <span className="text-[12px] text-neutral-500 dark:text-neutral-400">기준</span>
         {periodSelector}

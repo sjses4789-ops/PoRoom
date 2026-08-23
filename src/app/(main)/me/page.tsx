@@ -11,7 +11,7 @@ import { AttendanceCalendar } from "./attendance-calendar";
 import { ChallengeRecordPanel } from "./challenge-record-panel";
 import { SystemChallengeRecordPanel } from "./system-challenge-record-panel";
 import { RankingStatusPanel } from "./ranking-status-panel";
-import { WorkChart } from "./work-chart";
+import { WorksPanel } from "./works-panel";
 import { TodoList, type Todo } from "@/components/todo-list";
 import { ensureChallengeTodos, type SystemChallengeKind } from "@/lib/system-challenges";
 
@@ -54,29 +54,38 @@ export default async function MePage() {
     redirect("/login");
   }
 
-  const { data: myProfile } = await supabase
-    .from("users")
-    .select("name,character_id")
-    .eq("id", user.id)
-    .maybeSingle<{ name: string | null; character_id: string | null }>();
-
-  const { data: myRoomRowsRaw } = await supabase
-    .from("room_members")
-    .select("room_id,rooms(name,is_system)")
-    .eq("user_id", user.id)
-    .returns<MyRoomRow[]>();
+  // 서로 의존하지 않는 조회는 한 번에 병렬로 보내서 왕복 횟수를 줄인다 —
+  // [개인] 페이지 전환이 느리다는 피드백의 대부분은 이 페이지가 필요한
+  // 쿼리들을 순차적으로(하나씩 기다렸다가 다음 것) 보내고 있던 게 원인.
+  const [{ data: myProfile }, { data: myRoomRowsRaw }, { data: myChallengeRows }] =
+    await Promise.all([
+      supabase
+        .from("users")
+        .select("name,character_id")
+        .eq("id", user.id)
+        .maybeSingle<{ name: string | null; character_id: string | null }>(),
+      supabase
+        .from("room_members")
+        .select("room_id,rooms(name,is_system)")
+        .eq("user_id", user.id)
+        .returns<MyRoomRow[]>(),
+      supabase
+        .from("challenge_participants")
+        .select("challenge_id")
+        .eq("user_id", user.id)
+        .returns<{ challenge_id: string }[]>(),
+    ]);
 
   // 마감방/새벽반은 상시 시스템 방이라 "입장한 방 목록"/"방 기준" 랭킹에서
   // 제외한다.
   const myRoomRows = (myRoomRowsRaw ?? []).filter((r) => !r.rooms?.is_system);
   const myRoomIds = myRoomRows.map((r) => r.room_id);
-
-  const { data: myChallengeRows } = await supabase
-    .from("challenge_participants")
-    .select("challenge_id")
-    .eq("user_id", user.id)
-    .returns<{ challenge_id: string }[]>();
   const myChallengeIds = (myChallengeRows ?? []).map((r) => r.challenge_id);
+
+  // 결과가 필요 없는(할 일 목록에 반영만 되면 되는) 작업이라, await하지
+  // 않고 아래 큰 Promise.all과 동시에 진행시킨 뒤 todos를 읽기 직전에만
+  // 완료를 기다린다.
+  const ensureTodosPromise = ensureChallengeTodos(supabase, user.id);
 
   const [
     { data: membersOfMyRooms },
@@ -86,6 +95,10 @@ export default async function MePage() {
     { data: goalRows },
     { data: myChallenges },
     { data: myChallengeParticipants },
+    { data: milestoneLogs },
+    { data: workRows },
+    { data: workRecordRows },
+    { data: workEntryRows },
   ] = await Promise.all([
     myRoomIds.length
       ? supabase
@@ -125,6 +138,28 @@ export default async function MePage() {
           .in("challenge_id", myChallengeIds)
           .returns<ChallengeParticipantRow[]>()
       : Promise.resolve({ data: [] as ChallengeParticipantRow[] }),
+    supabase
+      .from("activity_logs")
+      .select("type")
+      .eq("user_id", user.id)
+      .in("type", ["milestone_5k", "milestone_10k", "draft_done"])
+      .returns<{ type: string }[]>(),
+    supabase
+      .from("works")
+      .select("id,title")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: true })
+      .returns<{ id: string; title: string }[]>(),
+    supabase
+      .from("work_records")
+      .select("work_id,record_date,chars")
+      .eq("user_id", user.id)
+      .returns<{ work_id: string; record_date: string; chars: number }[]>(),
+    supabase
+      .from("work_record_entries")
+      .select("work_id,delta,created_at")
+      .eq("user_id", user.id)
+      .returns<{ work_id: string; delta: number; created_at: string }[]>(),
   ]);
 
   const memberCountByRoom = new Map<string, number>();
@@ -185,12 +220,6 @@ export default async function MePage() {
     ])
   ) as Record<SystemChallengeKind, boolean>;
 
-  const { data: milestoneLogs } = await supabase
-    .from("activity_logs")
-    .select("type")
-    .eq("user_id", user.id)
-    .in("type", ["milestone_5k", "milestone_10k", "draft_done"])
-    .returns<{ type: string }[]>();
   const systemChallengeSuccessCounts: Record<SystemChallengeKind, number> = {
     daily5k: (milestoneLogs ?? []).filter((l) => l.type === "milestone_5k").length,
     daily10k: (milestoneLogs ?? []).filter((l) => l.type === "milestone_10k").length,
@@ -205,25 +234,6 @@ export default async function MePage() {
     };
   };
 
-  const [{ data: workRows }, { data: workRecordRows }, { data: workEntryRows }] =
-    await Promise.all([
-      supabase
-        .from("works")
-        .select("id,title")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: true })
-        .returns<{ id: string; title: string }[]>(),
-      supabase
-        .from("work_records")
-        .select("work_id,record_date,chars")
-        .eq("user_id", user.id)
-        .returns<{ work_id: string; record_date: string; chars: number }[]>(),
-      supabase
-        .from("work_record_entries")
-        .select("work_id,delta,created_at")
-        .eq("user_id", user.id)
-        .returns<{ work_id: string; delta: number; created_at: string }[]>(),
-    ]);
   const works = workRows ?? [];
   const workRecords = (workRecordRows ?? []).map((r) => ({
     workId: r.work_id,
@@ -236,7 +246,7 @@ export default async function MePage() {
     createdAt: r.created_at,
   }));
 
-  await ensureChallengeTodos(supabase, user.id);
+  await ensureTodosPromise;
   const { data: todoRows } = await supabase
     .from("todos")
     .select("id,content")
@@ -357,9 +367,7 @@ export default async function MePage() {
       </section>
 
       <section className="flex flex-col gap-3">
-        <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800 dark:bg-neutral-900">
-          <WorkChart works={works} records={workRecords} entries={workEntries} />
-        </div>
+        <WorksPanel works={works} records={workRecords} entries={workEntries} />
       </section>
     </div>
     </PageAdRail>

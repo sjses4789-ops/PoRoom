@@ -41,8 +41,10 @@ export default async function MainPage() {
 
   // 참여 중인 챌린지가 있으면 "매일 5천자 쓰기" 같은 항목을 할 일
   // 목록에 오늘치로 채워둔다 (없을 때만 추가되므로 매일 방문할 때마다
-  // 자연스럽게 새로 나타난다).
-  await ensureChallengeTodos(supabase, user!.id);
+  // 자연스럽게 새로 나타난다). 아래 배치와 동시에 진행시키고, todos를
+  // 읽기 직전에만 완료를 기다린다 — todos 조회는 이 작업 결과에
+  // 실제로 의존하므로 그것만은 순서를 지켜야 한다.
+  const ensureTodosPromise = ensureChallengeTodos(supabase, user!.id);
 
   const [
     { data: rooms },
@@ -51,7 +53,6 @@ export default async function MainPage() {
     { data: globalRecords },
     { data: myGoalRows },
     { count: totalUsers },
-    { data: todoRows },
   ] = await Promise.all([
     supabase
       .from("rooms")
@@ -80,13 +81,15 @@ export default async function MainPage() {
       .eq("period", "month")
       .maybeSingle<{ target_chars: number }>(),
     supabase.from("users").select("*", { count: "exact", head: true }),
-    supabase
-      .from("todos")
-      .select("id,content")
-      .eq("user_id", user!.id)
-      .order("created_at", { ascending: true })
-      .returns<TodoRow[]>(),
   ]);
+
+  await ensureTodosPromise;
+  const { data: todoRows } = await supabase
+    .from("todos")
+    .select("id,content")
+    .eq("user_id", user!.id)
+    .order("created_at", { ascending: true })
+    .returns<TodoRow[]>();
 
   const memberCountMap = new Map<string, number>();
   for (const m of allMemberships ?? []) {
@@ -162,7 +165,7 @@ export default async function MainPage() {
   }
 
   const systemRoomSection = (
-    <div className="grid grid-cols-2 gap-3">
+    <div className="grid grid-cols-1 gap-3">
       <section className="flex h-full flex-col items-stretch justify-between gap-3 rounded-lg border border-neutral-200/60 bg-[#faf3f3] px-3 py-4 text-center dark:border-neutral-800 dark:bg-[#231a1a]">
         <div className="flex flex-col gap-1">
           <p className="text-sm font-medium text-neutral-900 dark:text-white">마감방</p>

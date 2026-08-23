@@ -64,7 +64,7 @@ export function GoalPanel({
 
       <form action={formAction} className="flex flex-col gap-2 sm:flex-row sm:items-end">
         <input type="hidden" name="period" value={period} />
-        <label className="flex flex-1 flex-col gap-1 text-[12px] text-neutral-500">
+        <label className="flex w-20 shrink-0 flex-col gap-1 text-[12px] text-neutral-500">
           목표 글자수
           <input
             name="targetChars"
@@ -72,10 +72,10 @@ export function GoalPanel({
             min={0}
             defaultValue={goal.targetChars}
             key={`${period}-chars-${goal.targetChars}`}
-            className="rounded-md border border-neutral-200 px-2 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
+            className="w-full rounded-md border border-neutral-200 px-2 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
           />
         </label>
-        <label className="flex flex-1 flex-col gap-1 text-[12px] text-neutral-500">
+        <label className="flex w-16 shrink-0 flex-col gap-1 text-[12px] text-neutral-500">
           목표 시간(분)
           <input
             name="targetMinutes"
@@ -83,7 +83,7 @@ export function GoalPanel({
             min={0}
             defaultValue={goal.targetMinutes}
             key={`${period}-minutes-${goal.targetMinutes}`}
-            className="rounded-md border border-neutral-200 px-2 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
+            className="w-full rounded-md border border-neutral-200 px-2 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
           />
         </label>
         <button

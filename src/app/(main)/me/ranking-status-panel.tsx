@@ -107,10 +107,15 @@ export function RankingStatusPanel({
           {roomRanks.length === 0 ? (
             <p className="mt-1 text-sm text-neutral-400">입장한 방 없음</p>
           ) : (
-            <ul className="mt-1 flex flex-col gap-1">
+            <ul className="mt-1 flex flex-col gap-2">
               {roomRanks.map((room) => (
-                <li key={room.id} className="text-sm text-neutral-900 dark:text-white">
-                  {room.name} 내 {room.rank}위 / {room.memberCount}명
+                <li key={room.id} className="flex flex-col gap-1">
+                  <span className="w-fit rounded-full bg-neutral-100 px-2.5 py-1 text-sm font-medium text-neutral-900 dark:bg-neutral-800 dark:text-white">
+                    {room.name}
+                  </span>
+                  <span className="pl-1 text-xs text-neutral-500 dark:text-neutral-400">
+                    내 {room.rank}위 / {room.memberCount}명
+                  </span>
                 </li>
               ))}
             </ul>

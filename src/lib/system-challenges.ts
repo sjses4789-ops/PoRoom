@@ -59,10 +59,13 @@ export async function ensureSystemChallenge(
 
   if (existing) {
     if (existing.start_date !== window.start || existing.end_date !== window.end) {
+      // 새 주/달로 넘어가는 리셋 — 참여 여부도 함께 초기화해서, 지난
+      // 기간에 참여했더라도 이번 기간엔 다시 참여해야 하도록 한다.
       await supabase
         .from("challenges")
         .update({ start_date: window.start, end_date: window.end })
         .eq("id", existing.id);
+      await supabase.from("challenge_participants").delete().eq("challenge_id", existing.id);
     }
     return existing.id;
   }
@@ -119,21 +122,29 @@ export async function ensureChallengeTodos(supabase: SupabaseClient, userId: str
     .in("id", challengeIds)
     .not("kind", "is", null)
     .returns<{ kind: SystemChallengeKind }[]>();
+  if (!challengeRows?.length) return;
 
-  for (const c of challengeRows ?? []) {
-    const forDate = c.kind === "monthly_draft" ? monthStart : today;
-    const content = CHALLENGE_TODO_CONTENT[c.kind];
+  const wanted = challengeRows.map((c) => ({
+    content: CHALLENGE_TODO_CONTENT[c.kind],
+    forDate: c.kind === "monthly_draft" ? monthStart : today,
+  }));
 
-    const { data: existing } = await supabase
-      .from("todos")
-      .select("id")
-      .eq("user_id", userId)
-      .eq("content", content)
-      .eq("for_date", forDate)
-      .maybeSingle();
-    if (existing) continue;
+  // 오늘치(초단 완고는 이번 달치)가 이미 있는지 한 번의 쿼리로 확인한 뒤,
+  // 없는 것만 한 번에 추가한다 — 종류별로 왕복하지 않는다.
+  const { data: existingRows } = await supabase
+    .from("todos")
+    .select("content,for_date")
+    .eq("user_id", userId)
+    .in("for_date", [...new Set(wanted.map((w) => w.forDate))])
+    .returns<{ content: string; for_date: string }[]>();
+  const existingSet = new Set((existingRows ?? []).map((r) => `${r.content}|${r.for_date}`));
 
-    await supabase.from("todos").insert({ user_id: userId, content, for_date: forDate });
+  const toInsert = wanted
+    .filter((w) => !existingSet.has(`${w.content}|${w.forDate}`))
+    .map((w) => ({ user_id: userId, content: w.content, for_date: w.forDate }));
+
+  if (toInsert.length) {
+    await supabase.from("todos").insert(toInsert);
   }
 }
 
