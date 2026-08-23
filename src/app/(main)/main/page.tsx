@@ -165,7 +165,7 @@ export default async function MainPage() {
   }
 
   const systemRoomSection = (
-    <div className="grid w-1/2 grid-cols-1 gap-3">
+    <div className="grid grid-cols-1 gap-3">
       <section className="flex h-full flex-col items-stretch justify-between gap-3 rounded-lg border border-neutral-200/60 bg-[#faf3f3] px-3 py-4 text-center dark:border-neutral-800 dark:bg-[#231a1a]">
         <div className="flex flex-col gap-1">
           <p className="text-sm font-medium text-neutral-900 dark:text-white">마감방</p>
@@ -198,7 +198,7 @@ export default async function MainPage() {
   return (
     <PageAdRail>
     <div className="flex flex-col gap-10">
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[3fr_2fr]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[4fr_1fr]">
         <MainDashboard
           todayChars={selfTodayChars}
           year={todayYear}
