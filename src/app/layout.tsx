@@ -32,6 +32,20 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="ko"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      {/* 애드센스 사이트 소유권 확인은 JS를 실행하지 않고 원본 HTML의
+          <head> 안에서 <script> 태그를 그대로 찾는다 — next/script의
+          afterInteractive 전략은 그 태그를 하이드레이션 이후에야 DOM에
+          꽂아 넣어서 원본 HTML에는 preload 힌트만 남고 실제 <script>는
+          없었다. 그래서 여기 <head>에 순수 HTML 태그로 직접 박아 넣는다. */}
+      {ADSENSE_CLIENT_ID && (
+        <head>
+          <script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT_ID}`}
+            crossOrigin="anonymous"
+          />
+        </head>
+      )}
       <body className="min-h-full flex flex-col">
         <Script id="theme-init" strategy="beforeInteractive">
           {`try {
@@ -41,14 +55,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           } catch (e) {}`}
         </Script>
         {children}
-        {ADSENSE_CLIENT_ID && (
-          <Script
-            async
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT_ID}`}
-            crossOrigin="anonymous"
-            strategy="afterInteractive"
-          />
-        )}
       </body>
     </html>
   );
