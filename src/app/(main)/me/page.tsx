@@ -4,6 +4,7 @@ import { inPeriod, inRange } from "@/lib/records";
 import { computeStreakDays } from "@/lib/attendance";
 import { todayKst } from "@/lib/time";
 import { NicknameForm } from "@/components/nickname-form";
+import { PageAdRail } from "@/components/page-ad-rail";
 import { GoalPanel, type PeriodGoal, type PeriodProgress } from "./goal-panel";
 import { CharacterSection } from "./character-section";
 import { AttendanceCalendar } from "./attendance-calendar";
@@ -263,6 +264,7 @@ export default async function MePage() {
   };
 
   return (
+    <PageAdRail>
     <div className="flex flex-col gap-10">
       <h1 className="text-lg font-semibold tracking-tight text-neutral-900 dark:text-white">
         개인
@@ -360,5 +362,6 @@ export default async function MePage() {
         </div>
       </section>
     </div>
+    </PageAdRail>
   );
 }

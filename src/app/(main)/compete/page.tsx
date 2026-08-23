@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { inRange } from "@/lib/records";
+import { PageAdRail } from "@/components/page-ad-rail";
 import CreateChallengeButton from "./create-challenge-button";
 import JoinByCodeButton from "./join-by-code-button";
 import { ChallengeCard, type ChallengeParticipant } from "./challenge-card";
@@ -156,6 +157,7 @@ export default async function CompetePage() {
   const draftDoneThisMonth = (draftLogs ?? []).length > 0;
 
   return (
+    <PageAdRail>
     <div className="flex flex-col gap-8">
       <h1 className="text-lg font-semibold tracking-tight text-neutral-900 dark:text-white">
         대결
@@ -266,5 +268,6 @@ export default async function CompetePage() {
         </section>
       </div>
     </div>
+    </PageAdRail>
   );
 }

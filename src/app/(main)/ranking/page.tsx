@@ -2,7 +2,9 @@ import { createClient } from "@/lib/supabase/server";
 import { inRange } from "@/lib/records";
 import RankingTabs, { type RankingRecord } from "./ranking-tabs";
 import { WinLossRanking, type WinLossRow } from "./win-loss-ranking";
+import { ChallengeRanking, type ChallengeRankingRow } from "./challenge-ranking";
 import { todayKst } from "@/lib/time";
+import { PageAdRail } from "@/components/page-ad-rail";
 
 type DailyRecordRow = {
   room_id: string | null;
@@ -110,12 +112,39 @@ export default async function RankingPage() {
     .slice(0, 20)
     .map((r, i) => ({ rank: i + 1, ...r }));
 
+  // 챌린지 랭킹: 매일 5천자·매일 1만자·초단 완고 성공(milestone_5k/
+  // milestone_10k/draft_done) 횟수를 종류 구분 없이 동일하게 합산해서
+  // 집계한다.
+  const { data: milestoneLogs } = await supabase
+    .from("activity_logs")
+    .select("user_id")
+    .in("type", ["milestone_5k", "milestone_10k", "draft_done"])
+    .returns<{ user_id: string }[]>();
+
+  const challengeSuccessByUser = new Map<string, number>();
+  for (const l of milestoneLogs ?? []) {
+    challengeSuccessByUser.set(l.user_id, (challengeSuccessByUser.get(l.user_id) ?? 0) + 1);
+  }
+
+  const challengeRankingRows: ChallengeRankingRow[] = Array.from(
+    challengeSuccessByUser.entries()
+  )
+    .map(([userId, successCount]) => ({
+      userId,
+      name: userNames[userId] ?? "알 수 없음",
+      successCount,
+    }))
+    .sort((a, b) => b.successCount - a.successCount)
+    .slice(0, 20)
+    .map((r, i) => ({ rank: i + 1, ...r }));
+
   return (
+    <PageAdRail>
     <div className="flex flex-col gap-10 pb-14">
       <h1 className="text-lg font-semibold tracking-tight text-neutral-900 dark:text-white">
         랭킹
       </h1>
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[2fr_1fr_1fr]">
         <RankingTabs
           records={records}
           roomNames={roomNames}
@@ -124,7 +153,9 @@ export default async function RankingPage() {
           selfId={user!.id}
         />
         <WinLossRanking rows={winLossRows} />
+        <ChallengeRanking rows={challengeRankingRows} />
       </div>
     </div>
+    </PageAdRail>
   );
 }

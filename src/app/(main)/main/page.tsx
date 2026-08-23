@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { PageAdRail } from "@/components/page-ad-rail";
 import { computeStreakDays } from "@/lib/attendance";
 import { todayKst } from "@/lib/time";
 import { ensureChallengeTodos } from "@/lib/system-challenges";
@@ -192,6 +193,7 @@ export default async function MainPage() {
   );
 
   return (
+    <PageAdRail>
     <div className="flex flex-col gap-10">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[3fr_2fr]">
         <MainDashboard
@@ -211,5 +213,6 @@ export default async function MainPage() {
 
       <MainRoomLists initialRooms={roomItems} />
     </div>
+    </PageAdRail>
   );
 }
