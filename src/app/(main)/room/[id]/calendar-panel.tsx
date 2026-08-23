@@ -1,0 +1,331 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import { createEvent, celebrateEvent } from "@/lib/room-events";
+import { paletteDot } from "@/lib/palette";
+
+export type EventCategory = { id: string; name: string; color: string };
+
+export type RoomEvent = {
+  id: string;
+  title: string;
+  eventDate: string; // YYYY-MM-DD
+  memo: string | null;
+  // 출간 카테고리 일정은 항상 익명이라 서버에서부터 null로 내려온다.
+  authorName: string | null;
+  categoryId: string | null;
+  celebrationCount: number;
+  selfCelebrated: boolean;
+};
+
+const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
+
+function toDateKey(y: number, m: number, d: number) {
+  return `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+}
+
+export function CalendarPanel({
+  roomId,
+  initialEvents,
+  categories,
+}: {
+  roomId: string;
+  initialEvents: RoomEvent[];
+  categories: EventCategory[];
+}) {
+  const [events, setEvents] = useState<RoomEvent[]>(initialEvents);
+  const today = new Date();
+  const todayKey = toDateKey(today.getFullYear(), today.getMonth(), today.getDate());
+  const [viewYear, setViewYear] = useState(today.getFullYear());
+  const [viewMonth, setViewMonth] = useState(today.getMonth()); // 0-indexed
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [title, setTitle] = useState("");
+  const [memo, setMemo] = useState("");
+  const [categoryId, setCategoryId] = useState<string>("");
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const categoryMap = useMemo(
+    () => new Map(categories.map((c) => [c.id, c])),
+    [categories]
+  );
+
+  const eventsByDate = useMemo(() => {
+    const map = new Map<string, RoomEvent[]>();
+    for (const e of events) {
+      const list = map.get(e.eventDate) ?? [];
+      list.push(e);
+      map.set(e.eventDate, list);
+    }
+    return map;
+  }, [events]);
+
+  const upcoming = useMemo(
+    () =>
+      [...events]
+        .filter((e) => e.eventDate >= todayKey)
+        .sort((a, b) => a.eventDate.localeCompare(b.eventDate)),
+    [events, todayKey]
+  );
+
+  const firstWeekday = new Date(viewYear, viewMonth, 1).getDay();
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+  const cells: (number | null)[] = [
+    ...Array(firstWeekday).fill(null),
+    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
+  ];
+
+  const goMonth = (delta: number) => {
+    let y = viewYear;
+    let m = viewMonth + delta;
+    if (m < 0) {
+      m = 11;
+      y -= 1;
+    } else if (m > 11) {
+      m = 0;
+      y += 1;
+    }
+    setViewYear(y);
+    setViewMonth(m);
+  };
+
+  const submitEvent = async () => {
+    if (!selectedDate) return;
+    if (!title.trim()) {
+      setError("일정 제목을 입력해주세요.");
+      return;
+    }
+    setPending(true);
+    setError(null);
+    const result = await createEvent(
+      roomId,
+      title,
+      selectedDate,
+      memo,
+      categoryId || null
+    );
+    setPending(false);
+    if ("error" in result) {
+      setError(result.error);
+      return;
+    }
+    const category = result.categoryId ? categoryMap.get(result.categoryId) : null;
+    const isAnnouncement = category?.name === "출간";
+    setEvents((prev) => [
+      ...prev,
+      {
+        ...result,
+        authorName: isAnnouncement ? null : "나",
+        celebrationCount: 0,
+        selfCelebrated: false,
+      },
+    ]);
+    setTitle("");
+    setMemo("");
+    setCategoryId("");
+  };
+
+  const celebrate = async (eventId: string) => {
+    setEvents((prev) =>
+      prev.map((e) =>
+        e.id === eventId && !e.selfCelebrated
+          ? { ...e, celebrationCount: e.celebrationCount + 1, selfCelebrated: true }
+          : e
+      )
+    );
+    await celebrateEvent(roomId, eventId);
+  };
+
+  const selectedEvents = selectedDate ? eventsByDate.get(selectedDate) ?? [] : [];
+
+  return (
+    <div className="grid grid-cols-1 gap-4 rounded-lg border border-neutral-200 p-4 lg:grid-cols-[220px_1fr] dark:border-neutral-800 dark:bg-neutral-900">
+      <div className="flex flex-col gap-2 lg:border-r lg:border-neutral-100 lg:pr-4 dark:lg:border-neutral-800">
+        <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">다가오는 일정</h2>
+        {upcoming.length === 0 ? (
+          <p className="text-xs text-neutral-400">예정된 일정이 없습니다.</p>
+        ) : (
+          <ul className="flex flex-col gap-1.5">
+            {upcoming.map((e) => {
+              const category = e.categoryId ? categoryMap.get(e.categoryId) : null;
+              const isAnnouncement = category?.name === "출간";
+              return (
+                <li key={e.id} className="rounded-md bg-neutral-50 px-2.5 py-2 text-xs dark:bg-neutral-800">
+                  <div className="flex items-center justify-between gap-1.5">
+                    <div className="flex min-w-0 items-center gap-1.5">
+                      {category && (
+                        <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${paletteDot(category.color)}`} />
+                      )}
+                      <span className="min-w-0 truncate font-medium text-neutral-900 dark:text-white">
+                        {e.title}
+                      </span>
+                    </div>
+                    {isAnnouncement && (
+                      <button
+                        onClick={() => celebrate(e.id)}
+                        disabled={e.selfCelebrated}
+                        className="shrink-0 rounded-full border border-rose-200 px-1.5 py-0.5 text-[11px] font-medium text-rose-600 transition hover:bg-rose-50 disabled:opacity-70 dark:border-rose-900/50 dark:text-rose-400"
+                      >
+                        🎉 {e.celebrationCount}
+                      </button>
+                    )}
+                  </div>
+                  <p className="mt-0.5 text-neutral-400">
+                    {e.eventDate === todayKey ? "오늘" : e.eventDate}
+                    {category ? ` · ${category.name}` : ""}
+                  </p>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-sm text-neutral-500">
+            <button onClick={() => goMonth(-1)} className="rounded-md px-2 py-1 hover:bg-neutral-100 dark:hover:bg-neutral-800">
+              ←
+            </button>
+            <span className="font-medium text-neutral-900 dark:text-white">
+              {viewYear}년 {viewMonth + 1}월
+            </span>
+            <button onClick={() => goMonth(1)} className="rounded-md px-2 py-1 hover:bg-neutral-100 dark:hover:bg-neutral-800">
+              →
+            </button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-7 gap-1 text-center text-xs text-neutral-400">
+          {WEEKDAYS.map((w) => (
+            <div key={w} className="py-1">
+              {w}
+            </div>
+          ))}
+          {cells.map((day, i) => {
+            if (day === null) return <div key={`empty-${i}`} />;
+            const dateKey = toDateKey(viewYear, viewMonth, day);
+            const dayEvents = eventsByDate.get(dateKey) ?? [];
+            const isSelected = dateKey === selectedDate;
+            const isToday = dateKey === todayKey;
+            return (
+              <button
+                key={dateKey}
+                onClick={() => setSelectedDate(dateKey)}
+                className={`flex flex-col items-center gap-0.5 rounded-md py-1.5 text-sm transition ${
+                  isSelected
+                    ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900"
+                    : isToday
+                      ? "bg-neutral-100 text-neutral-900 dark:bg-neutral-800 dark:text-white"
+                      : "text-neutral-700 hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-neutral-800"
+                }`}
+              >
+                <span>{day}</span>
+                <span className="flex gap-0.5">
+                  {dayEvents.slice(0, 3).map((e) => {
+                    const category = e.categoryId ? categoryMap.get(e.categoryId) : null;
+                    return (
+                      <span
+                        key={e.id}
+                        className={`h-1 w-1 rounded-full ${
+                          isSelected
+                            ? "bg-white"
+                            : category
+                              ? paletteDot(category.color)
+                              : "bg-emerald-500"
+                        }`}
+                      />
+                    );
+                  })}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {selectedDate && (
+          <div className="flex flex-col gap-2 border-t border-neutral-100 pt-3 dark:border-neutral-800">
+            <h3 className="text-xs font-medium text-neutral-500">{selectedDate} 일정</h3>
+            {selectedEvents.length === 0 ? (
+              <p className="text-xs text-neutral-400">등록된 일정이 없습니다.</p>
+            ) : (
+              <ul className="flex flex-col gap-1.5">
+                {selectedEvents.map((e) => {
+                  const category = e.categoryId ? categoryMap.get(e.categoryId) : null;
+                  const isAnnouncement = category?.name === "출간";
+                  return (
+                    <li
+                      key={e.id}
+                      className="flex flex-col gap-0.5 rounded-md bg-neutral-50 px-3 py-2 text-sm dark:bg-neutral-800"
+                    >
+                      <div className="flex items-center justify-between gap-1.5">
+                        <div className="flex min-w-0 items-center gap-1.5">
+                          {category && (
+                            <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${paletteDot(category.color)}`} />
+                          )}
+                          <span className="min-w-0 truncate font-medium text-neutral-900 dark:text-white">
+                            {e.title}
+                          </span>
+                        </div>
+                        {isAnnouncement && (
+                          <button
+                            onClick={() => celebrate(e.id)}
+                            disabled={e.selfCelebrated}
+                            className="shrink-0 rounded-full border border-rose-200 px-1.5 py-0.5 text-[11px] font-medium text-rose-600 transition hover:bg-rose-50 disabled:opacity-70 dark:border-rose-900/50 dark:text-rose-400"
+                          >
+                            🎉 {e.celebrationCount}
+                          </button>
+                        )}
+                      </div>
+                      {e.memo && <span className="text-xs text-neutral-500">{e.memo}</span>}
+                      {e.authorName && (
+                        <span className="text-[12px] text-neutral-400">{e.authorName}</span>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+
+            <div className="flex flex-col gap-2 pt-2">
+              <input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="일정 제목"
+                className="rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
+              />
+              <input
+                value={memo}
+                onChange={(e) => setMemo(e.target.value)}
+                placeholder="메모 (선택)"
+                className="rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
+              />
+              {categories.length > 0 && (
+                <select
+                  value={categoryId}
+                  onChange={(e) => setCategoryId(e.target.value)}
+                  className="rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-700 outline-none focus:border-neutral-400 dark:text-neutral-100"
+                >
+                  <option value="">카테고리 없음</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              )}
+              {error && <p className="text-xs text-red-500">{error}</p>}
+              <button
+                onClick={submitEvent}
+                disabled={pending}
+                className="self-start rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-neutral-700 disabled:opacity-50"
+              >
+                {pending ? "추가 중..." : "일정 추가"}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

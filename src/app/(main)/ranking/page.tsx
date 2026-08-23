@@ -1,0 +1,129 @@
+import { createClient } from "@/lib/supabase/server";
+import { inRange } from "@/lib/records";
+import RankingTabs, { type RankingRecord } from "./ranking-tabs";
+import { WinLossRanking, type WinLossRow } from "./win-loss-ranking";
+
+type DailyRecordRow = {
+  room_id: string | null;
+  user_id: string;
+  record_date: string;
+  chars: number;
+  focus_minutes: number;
+};
+type RoomRow = { id: string; name: string };
+type UserRow = { id: string; name: string | null; email: string };
+
+type UserChallengeRow = {
+  id: string;
+  metric: "chars" | "minutes";
+  start_date: string;
+  end_date: string;
+};
+type ParticipantRow = { challenge_id: string; user_id: string | null };
+
+export default async function RankingPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const [{ data: dailyRecords }, { data: rooms }, { data: users }] =
+    await Promise.all([
+      supabase
+        .from("daily_records")
+        .select("room_id,user_id,record_date,chars,focus_minutes")
+        .returns<DailyRecordRow[]>(),
+      supabase.from("rooms").select("id,name").returns<RoomRow[]>(),
+      supabase.from("users").select("id,name,email").returns<UserRow[]>(),
+    ]);
+
+  const roomNames: Record<string, string> = {};
+  for (const r of rooms ?? []) roomNames[r.id] = r.name;
+  const userNames: Record<string, string> = {};
+  for (const u of users ?? []) userNames[u.id] = u.name || u.email;
+
+  const records: RankingRecord[] = (dailyRecords ?? []).map((r) => ({
+    roomId: r.room_id,
+    userId: r.user_id,
+    date: r.record_date,
+    chars: r.chars,
+    minutes: r.focus_minutes,
+  }));
+
+  const today = new Date().toISOString().slice(0, 10);
+
+  // 대결 승패 랭킹: 종료된 개인 간(1:1 이상) 대결에서 기간 내 값이 가장
+  // 높은 참가자가 승, 나를 포함해 공동 1위면 무, 그 외엔 패 — 이걸 볼 수
+  // 있는 모든 대결(RLS상 공개방이거나 내가 참여한 대결)에 대해 집계한다.
+  const { data: userChallenges } = await supabase
+    .from("challenges")
+    .select("id,metric,start_date,end_date")
+    .eq("type", "user")
+    .returns<UserChallengeRow[]>();
+
+  const completedChallenges = (userChallenges ?? []).filter((c) => c.end_date < today);
+  const completedIds = completedChallenges.map((c) => c.id);
+
+  const { data: challengeParticipants } = completedIds.length
+    ? await supabase
+        .from("challenge_participants")
+        .select("challenge_id,user_id")
+        .in("challenge_id", completedIds)
+        .returns<ParticipantRow[]>()
+    : { data: [] as ParticipantRow[] };
+
+  const winLossByUser = new Map<string, { wins: number; losses: number; draws: number }>();
+  for (const c of completedChallenges) {
+    const rows = (challengeParticipants ?? []).filter(
+      (p) => p.challenge_id === c.id && p.user_id
+    );
+    if (rows.length < 2) continue;
+
+    const values = rows.map((r) => {
+      const matching = (dailyRecords ?? []).filter(
+        (rec) =>
+          rec.user_id === r.user_id && inRange(rec.record_date, c.start_date, c.end_date)
+      );
+      const value = matching.reduce(
+        (sum, rec) => sum + (c.metric === "chars" ? rec.chars : rec.focus_minutes),
+        0
+      );
+      return { userId: r.user_id!, value };
+    });
+
+    const maxValue = Math.max(...values.map((v) => v.value));
+    const leaders = values.filter((v) => v.value === maxValue).length;
+
+    for (const v of values) {
+      const entry = winLossByUser.get(v.userId) ?? { wins: 0, losses: 0, draws: 0 };
+      if (v.value !== maxValue) entry.losses++;
+      else if (leaders > 1) entry.draws++;
+      else entry.wins++;
+      winLossByUser.set(v.userId, entry);
+    }
+  }
+
+  const winLossRows: WinLossRow[] = Array.from(winLossByUser.entries())
+    .map(([userId, rec]) => ({ userId, name: userNames[userId] ?? "알 수 없음", ...rec }))
+    .sort((a, b) => b.wins - a.wins || a.losses - b.losses)
+    .slice(0, 20)
+    .map((r, i) => ({ rank: i + 1, ...r }));
+
+  return (
+    <div className="flex flex-col gap-10 pb-14">
+      <h1 className="text-lg font-semibold tracking-tight text-neutral-900 dark:text-white">
+        랭킹
+      </h1>
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+        <RankingTabs
+          records={records}
+          roomNames={roomNames}
+          userNames={userNames}
+          today={today}
+          selfId={user!.id}
+        />
+        <WinLossRanking rows={winLossRows} />
+      </div>
+    </div>
+  );
+}
