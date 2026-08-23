@@ -1,10 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
-import { inRange } from "@/lib/records";
 import RankingTabs, { type RankingRecord } from "./ranking-tabs";
 import { WinLossRanking, type WinLossRow } from "./win-loss-ranking";
 import { ChallengeRanking, type ChallengeRankingRow } from "./challenge-ranking";
 import { todayKst } from "@/lib/time";
 import { PageAdRail } from "@/components/page-ad-rail";
+import { computeWinLossByUser, type UserChallengeRow } from "@/lib/challenge-rankings";
 
 type DailyRecordRow = {
   room_id: string | null;
@@ -16,12 +16,6 @@ type DailyRecordRow = {
 type RoomRow = { id: string; name: string };
 type UserRow = { id: string; name: string | null; email: string };
 
-type UserChallengeRow = {
-  id: string;
-  metric: "chars" | "minutes";
-  start_date: string;
-  end_date: string;
-};
 type ParticipantRow = { challenge_id: string; user_id: string | null };
 
 export default async function RankingPage() {
@@ -75,36 +69,11 @@ export default async function RankingPage() {
         .returns<ParticipantRow[]>()
     : { data: [] as ParticipantRow[] };
 
-  const winLossByUser = new Map<string, { wins: number; losses: number; draws: number }>();
-  for (const c of completedChallenges) {
-    const rows = (challengeParticipants ?? []).filter(
-      (p) => p.challenge_id === c.id && p.user_id
-    );
-    if (rows.length < 2) continue;
-
-    const values = rows.map((r) => {
-      const matching = (dailyRecords ?? []).filter(
-        (rec) =>
-          rec.user_id === r.user_id && inRange(rec.record_date, c.start_date, c.end_date)
-      );
-      const value = matching.reduce(
-        (sum, rec) => sum + (c.metric === "chars" ? rec.chars : rec.focus_minutes),
-        0
-      );
-      return { userId: r.user_id!, value };
-    });
-
-    const maxValue = Math.max(...values.map((v) => v.value));
-    const leaders = values.filter((v) => v.value === maxValue).length;
-
-    for (const v of values) {
-      const entry = winLossByUser.get(v.userId) ?? { wins: 0, losses: 0, draws: 0 };
-      if (v.value !== maxValue) entry.losses++;
-      else if (leaders > 1) entry.draws++;
-      else entry.wins++;
-      winLossByUser.set(v.userId, entry);
-    }
-  }
+  const winLossByUser = computeWinLossByUser(
+    completedChallenges,
+    challengeParticipants ?? [],
+    dailyRecords ?? []
+  );
 
   const winLossRows: WinLossRow[] = Array.from(winLossByUser.entries())
     .map(([userId, rec]) => ({ userId, name: userNames[userId] ?? "알 수 없음", ...rec }))

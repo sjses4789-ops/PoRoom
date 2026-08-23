@@ -18,6 +18,10 @@ export function RankingStatusPanel({
   roomRecords,
   globalRecords,
   totalUsers,
+  winLossRank,
+  winLossTotal,
+  challengeRank,
+  challengeTotal,
 }: {
   selfId: string;
   rooms: RoomMeta[];
@@ -25,6 +29,10 @@ export function RankingStatusPanel({
   roomRecords: RoomRecordRow[];
   globalRecords: GlobalRecordRow[];
   totalUsers: number;
+  winLossRank: number | null;
+  winLossTotal: number;
+  challengeRank: number | null;
+  challengeTotal: number;
 }) {
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
@@ -125,6 +133,14 @@ export function RankingStatusPanel({
           <p className="text-xs text-neutral-500 dark:text-neutral-400">전체 기준</p>
           <p className="mt-1 text-sm text-neutral-900 dark:text-white">
             전체 {overallRank}위 / {totalUsers}명
+          </p>
+          <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+            {winLossRank === null ? "대결 기록 없음" : `대결 ${winLossRank}위 / ${winLossTotal}명`}
+          </p>
+          <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+            {challengeRank === null
+              ? "챌린지 기록 없음"
+              : `챌린지 ${challengeRank}위 / ${challengeTotal}명`}
           </p>
         </div>
       </div>

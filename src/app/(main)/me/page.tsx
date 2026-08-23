@@ -14,6 +14,10 @@ import { RankingStatusPanel } from "./ranking-status-panel";
 import { WorksPanel } from "./works-panel";
 import { TodoList, type Todo } from "@/components/todo-list";
 import { ensureChallengeTodos, type SystemChallengeKind } from "@/lib/system-challenges";
+import {
+  computeWinLossByUser,
+  type UserChallengeRow as GlobalUserChallengeRow,
+} from "@/lib/challenge-rankings";
 
 const SYSTEM_CHALLENGE_KINDS: SystemChallengeKind[] = ["daily5k", "daily10k", "monthly_draft"];
 
@@ -95,7 +99,8 @@ export default async function MePage() {
     { data: goalRows },
     { data: myChallenges },
     { data: myChallengeParticipants },
-    { data: milestoneLogs },
+    { data: allUserChallenges },
+    { data: globalMilestoneLogs },
     { data: workRows },
     { data: workRecordRows },
     { data: workEntryRows },
@@ -138,12 +143,18 @@ export default async function MePage() {
           .in("challenge_id", myChallengeIds)
           .returns<ChallengeParticipantRow[]>()
       : Promise.resolve({ data: [] as ChallengeParticipantRow[] }),
+    // 대결 랭킹/챌린지 랭킹은 전체 유저를 대상으로 내 순위를 매겨야 해서,
+    // "type=user" 대결과 마일스톤 로그는 나로 한정하지 않고 전체를 가져온다.
+    supabase
+      .from("challenges")
+      .select("id,metric,start_date,end_date")
+      .eq("type", "user")
+      .returns<GlobalUserChallengeRow[]>(),
     supabase
       .from("activity_logs")
-      .select("type")
-      .eq("user_id", user.id)
+      .select("user_id,type")
       .in("type", ["milestone_5k", "milestone_10k", "draft_done"])
-      .returns<{ type: string }[]>(),
+      .returns<{ user_id: string; type: string }[]>(),
     supabase
       .from("works")
       .select("id,title")
@@ -176,6 +187,20 @@ export default async function MePage() {
   const today = todayKst();
   const [todayYear, todayMonth] = today.split("-").map(Number);
   const myGlobalRecords = (allRecords ?? []).filter((r) => r.user_id === user.id);
+  const myMilestoneLogs = (globalMilestoneLogs ?? []).filter((l) => l.user_id === user.id);
+
+  // 대결 랭킹(전체 유저 대상 승패 순위)을 위해 종료된 모든 개인 대결의
+  // 참가자가 필요하다 — 아래 배치와 동시에 진행시키고, todos를 기다릴 때
+  // 함께 기다린다.
+  const completedUserChallenges = (allUserChallenges ?? []).filter((c) => c.end_date < today);
+  const completedChallengeIds = completedUserChallenges.map((c) => c.id);
+  const allParticipantsPromise = completedChallengeIds.length
+    ? supabase
+        .from("challenge_participants")
+        .select("challenge_id,user_id")
+        .in("challenge_id", completedChallengeIds)
+        .returns<ChallengeParticipantRow[]>()
+    : Promise.resolve({ data: [] as ChallengeParticipantRow[] });
 
   const attendedDates = new Set(
     myGlobalRecords
@@ -221,9 +246,9 @@ export default async function MePage() {
   ) as Record<SystemChallengeKind, boolean>;
 
   const systemChallengeSuccessCounts: Record<SystemChallengeKind, number> = {
-    daily5k: (milestoneLogs ?? []).filter((l) => l.type === "milestone_5k").length,
-    daily10k: (milestoneLogs ?? []).filter((l) => l.type === "milestone_10k").length,
-    monthly_draft: (milestoneLogs ?? []).filter((l) => l.type === "draft_done").length,
+    daily5k: myMilestoneLogs.filter((l) => l.type === "milestone_5k").length,
+    daily10k: myMilestoneLogs.filter((l) => l.type === "milestone_10k").length,
+    monthly_draft: myMilestoneLogs.filter((l) => l.type === "draft_done").length,
   };
 
   const computeProgress = (period: "month" | "year"): PeriodProgress => {
@@ -246,7 +271,10 @@ export default async function MePage() {
     createdAt: r.created_at,
   }));
 
-  await ensureTodosPromise;
+  const [, { data: allChallengeParticipants }] = await Promise.all([
+    ensureTodosPromise,
+    allParticipantsPromise,
+  ]);
   const { data: todoRows } = await supabase
     .from("todos")
     .select("id,content")
@@ -254,6 +282,33 @@ export default async function MePage() {
     .order("created_at", { ascending: true })
     .returns<Todo[]>();
   const todos = todoRows ?? [];
+
+  // 대결 랭킹: /ranking과 동일한 규칙(computeWinLossByUser)으로 전체 유저의
+  // 승/패/무를 집계한 뒤, 그 안에서 내 순위를 찾는다.
+  const winLossByUser = computeWinLossByUser(
+    completedUserChallenges,
+    allChallengeParticipants ?? [],
+    allRecords ?? []
+  );
+  const winLossRanked = Array.from(winLossByUser.entries()).sort(
+    (a, b) => b[1].wins - a[1].wins || a[1].losses - b[1].losses
+  );
+  const winLossRankIndex = winLossRanked.findIndex(([uid]) => uid === user.id);
+  const winLossRank = winLossRankIndex === -1 ? null : winLossRankIndex + 1;
+  const winLossTotal = winLossRanked.length;
+
+  // 챌린지 랭킹: 매일 5천자·매일 1만자·초단 완고 성공 횟수를 종류 구분 없이
+  // 합산한 전체 순위 중 내 순위를 찾는다.
+  const challengeSuccessByUser = new Map<string, number>();
+  for (const l of globalMilestoneLogs ?? []) {
+    challengeSuccessByUser.set(l.user_id, (challengeSuccessByUser.get(l.user_id) ?? 0) + 1);
+  }
+  const challengeRanked = Array.from(challengeSuccessByUser.entries()).sort(
+    (a, b) => b[1] - a[1]
+  );
+  const challengeRankIndex = challengeRanked.findIndex(([uid]) => uid === user.id);
+  const challengeRank = challengeRankIndex === -1 ? null : challengeRankIndex + 1;
+  const challengeTotal = challengeRanked.length;
 
   const goalMap = new Map((goalRows ?? []).map((g) => [g.period, g]));
   const buildGoal = (period: "month" | "year"): PeriodGoal => {
@@ -344,6 +399,10 @@ export default async function MePage() {
               roomRecords={recordsInMyRooms ?? []}
               globalRecords={allRecords ?? []}
               totalUsers={totalUsers ?? 0}
+              winLossRank={winLossRank}
+              winLossTotal={winLossTotal}
+              challengeRank={challengeRank}
+              challengeTotal={challengeTotal}
             />
           </div>
           <div className="flex flex-col gap-3">

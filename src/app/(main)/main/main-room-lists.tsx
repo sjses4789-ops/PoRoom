@@ -195,8 +195,13 @@ export function MainRoomLists({ initialRooms }: { initialRooms: RoomListItem[] }
 
   // "전체/추천 방"은 내가 이미 입장한 방을 포함해 생성된 모든 방을 보여준다
   // (별도 요청: "생성되어있는 방의 전체 목록이 나타나도록").
+  // 태그를 2개 이상 고르면, 그 태그를 전부 가진 방만 보여준다(AND 조건).
   const allRooms = rooms
-    .filter((r) => selectedTags.size === 0 || r.tags.some((t) => selectedTags.has(t)))
+    .filter(
+      (r) =>
+        selectedTags.size === 0 ||
+        Array.from(selectedTags).every((t) => r.tags.includes(t))
+    )
     .sort(sortFn);
 
   return (
