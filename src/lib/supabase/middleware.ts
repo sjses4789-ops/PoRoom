@@ -29,11 +29,16 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isAuthRoute =
+  // "/"는 로그인 여부와 무관하게 항상 리다이렉트 없이 그대로 통과시킨다
+  // (비로그인 방문자·구글 애드센스 크롤러도 리다이렉트 없이 콘텐츠와
+  // 애드센스 스크립트를 바로 받아야 소유권 확인이 되기 때문) — 로그인
+  // 여부에 따른 분기는 "/" 페이지 컴포넌트 자신이 처리한다.
+  const isPublicRoute =
+    request.nextUrl.pathname === "/" ||
     request.nextUrl.pathname.startsWith("/login") ||
     request.nextUrl.pathname.startsWith("/auth");
 
-  if (!user && !isAuthRoute) {
+  if (!user && !isPublicRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
