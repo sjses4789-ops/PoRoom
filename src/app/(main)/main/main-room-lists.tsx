@@ -95,7 +95,7 @@ function MyRoomCard({
   );
 }
 
-export function ForumRoomLists({ initialRooms }: { initialRooms: RoomListItem[] }) {
+export function MainRoomLists({ initialRooms }: { initialRooms: RoomListItem[] }) {
   const [rooms, setRooms] = useState(initialRooms);
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
   const [sortMode, setSortMode] = useState<SortMode>("chars");
@@ -122,7 +122,7 @@ export function ForumRoomLists({ initialRooms }: { initialRooms: RoomListItem[] 
   useEffect(() => {
     const supabase = createClient();
     const channel = supabase
-      .channel("forum-rooms")
+      .channel("main-rooms")
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "rooms", filter: "is_system=eq.false" },

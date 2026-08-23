@@ -16,7 +16,7 @@ export async function setNickname(
   if (!user) return { error: "로그인이 필요합니다." };
 
   const nickname = String(formData.get("nickname") ?? "").trim();
-  const redirectTo = String(formData.get("redirectTo") ?? "/forum");
+  const redirectTo = String(formData.get("redirectTo") ?? "/main");
 
   if (!nickname) return { error: "닉네임을 입력해주세요." };
   if (nickname.length > 20) return { error: "닉네임은 20자 이내로 입력해주세요." };

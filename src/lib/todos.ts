@@ -24,7 +24,7 @@ export async function createTodo(content: string): Promise<CreateTodoResult> {
   if (error || !data) return { error: error?.message ?? "추가에 실패했습니다." };
 
   revalidatePath("/me");
-  revalidatePath("/forum");
+  revalidatePath("/main");
   return { id: data.id, content: data.content };
 }
 
@@ -45,7 +45,7 @@ export async function updateTodo(id: string, content: string) {
     .eq("user_id", user.id);
 
   revalidatePath("/me");
-  revalidatePath("/forum");
+  revalidatePath("/main");
 }
 
 export async function deleteTodo(id: string) {
@@ -58,5 +58,5 @@ export async function deleteTodo(id: string) {
   await supabase.from("todos").delete().eq("id", id).eq("user_id", user.id);
 
   revalidatePath("/me");
-  revalidatePath("/forum");
+  revalidatePath("/main");
 }

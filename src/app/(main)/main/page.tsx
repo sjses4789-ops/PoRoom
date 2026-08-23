@@ -1,8 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { computeStreakDays } from "@/lib/attendance";
 import { SystemRoomButton } from "./system-room-buttons";
-import { ForumRoomLists } from "./forum-room-lists";
-import { ForumDashboard } from "./forum-dashboard";
+import { MainRoomLists } from "./main-room-lists";
+import { MainDashboard } from "./main-dashboard";
 import { type RoomListItem } from "./room-card";
 
 type RoomRow = {
@@ -30,7 +30,7 @@ function pad2(n: number) {
   return String(n).padStart(2, "0");
 }
 
-export default async function ForumPage() {
+export default async function MainPage() {
   const supabase = await createClient();
   const {
     data: { user },
@@ -191,7 +191,7 @@ export default async function ForumPage() {
   return (
     <div className="flex flex-col gap-10">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[3fr_2fr]">
-        <ForumDashboard
+        <MainDashboard
           todayChars={selfTodayChars}
           year={now.getFullYear()}
           month={now.getMonth()}
@@ -206,7 +206,7 @@ export default async function ForumPage() {
         {systemRoomSection}
       </div>
 
-      <ForumRoomLists initialRooms={roomItems} />
+      <MainRoomLists initialRooms={roomItems} />
     </div>
   );
 }

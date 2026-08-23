@@ -188,7 +188,7 @@ export async function leaveRoom(roomId: string) {
     }
   }
 
-  revalidatePath("/forum");
+  revalidatePath("/main");
 }
 
 export async function touchLastSeen(roomId: string) {
@@ -234,7 +234,7 @@ export async function toggleFavoriteRoom(roomId: string, favorite: boolean) {
     .eq("room_id", roomId)
     .eq("user_id", user.id);
 
-  revalidatePath("/forum");
+  revalidatePath("/main");
 }
 
 function todayUtc() {
@@ -294,7 +294,7 @@ export async function recordChars(
   await checkDailyMilestones(supabase, user.id, date, newTotal - delta, newTotal);
 
   revalidatePath(`/room/${roomId}`);
-  revalidatePath("/forum");
+  revalidatePath("/main");
 }
 
 export async function recordFocusMinutes(
@@ -339,5 +339,5 @@ export async function recordFocusMinutes(
   await logActivity(roomId, "focus_recorded", delta);
 
   revalidatePath(`/room/${roomId}`);
-  revalidatePath("/forum");
+  revalidatePath("/main");
 }

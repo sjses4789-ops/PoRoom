@@ -426,7 +426,7 @@ export function RoomSettingsButton({
                         // DB-change replication.
                         await new Promise<void>((resolve) => {
                           const supabase = createClient();
-                          const channel = supabase.channel("forum-rooms");
+                          const channel = supabase.channel("main-rooms");
                           let done = false;
                           const finish = () => {
                             if (done) return;
@@ -453,7 +453,7 @@ export function RoomSettingsButton({
                           setTimeout(finish, 1500);
                         });
 
-                        router.push("/forum");
+                        router.push("/main");
                       }}
                       className="flex-1 rounded-md bg-red-600 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-40"
                     >

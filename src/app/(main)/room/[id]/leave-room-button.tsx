@@ -44,7 +44,7 @@ export function LeaveRoomButton({ roomId, selfId }: { roomId: string; selfId: st
         });
 
         await leaveRoom(roomId);
-        router.push("/forum");
+        router.push("/main");
       }}
       className="rounded-md border border-red-200/70 px-3 py-1.5 text-xs font-medium text-red-400/80 transition hover:border-red-300 hover:bg-red-50 hover:text-red-500 disabled:opacity-50"
     >

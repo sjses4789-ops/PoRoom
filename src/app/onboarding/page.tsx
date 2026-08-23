@@ -15,7 +15,7 @@ export default async function OnboardingPage() {
     .eq("id", user.id)
     .maybeSingle<{ name: string | null }>();
 
-  if (profile?.name) redirect("/forum");
+  if (profile?.name) redirect("/main");
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-white px-6">
@@ -28,7 +28,7 @@ export default async function OnboardingPage() {
           이름으로 보여요.
         </p>
       </div>
-      <NicknameForm redirectTo="/forum" submitLabel="시작하기" />
+      <NicknameForm redirectTo="/main" submitLabel="시작하기" />
     </main>
   );
 }

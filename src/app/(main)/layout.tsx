@@ -37,7 +37,7 @@ export default async function MainLayout({
     <div className="flex min-h-screen flex-col bg-white dark:bg-neutral-950">
       <header className="flex flex-col gap-3 border-b border-neutral-100 px-4 py-3 sm:px-6 md:flex-row md:items-center md:justify-between md:px-8 md:py-4 dark:border-neutral-800">
         <div className="flex items-center justify-between gap-4 md:justify-start md:gap-8">
-          <Link href="/forum" className="flex shrink-0 items-center gap-2">
+          <Link href="/main" className="flex shrink-0 items-center gap-2">
             <Image src="/poroom-icon.png" alt="" width={24} height={24} />
             <span className="text-sm font-semibold tracking-tight text-neutral-900 dark:text-white">
               PoRoom

@@ -42,7 +42,7 @@ export async function updateRoomSettings(
   if (error) return { error: error.message };
 
   revalidatePath(`/room/${roomId}`);
-  revalidatePath("/forum");
+  revalidatePath("/main");
   return null;
 }
 
@@ -62,7 +62,7 @@ export async function deleteRoom(roomId: string) {
 
   if (error) return { error: error.message };
 
-  revalidatePath("/forum");
+  revalidatePath("/main");
   return null;
 }
 

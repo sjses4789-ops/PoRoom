@@ -2,7 +2,7 @@ import { AttendanceCalendar } from "../me/attendance-calendar";
 import GoalBar from "../me/goal-bar";
 import { TodoList, type Todo } from "@/components/todo-list";
 
-export function ForumDashboard({
+export function MainDashboard({
   todayChars,
   year,
   month,

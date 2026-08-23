@@ -378,7 +378,7 @@ export default async function RoomPage({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <Link
-            href="/forum"
+            href="/main"
             className="text-xs text-neutral-400 hover:underline"
           >
             ← 포룸으로

@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { ThemeToggle } from "./theme-toggle";
 
 const TABS = [
-  { href: "/forum", label: "포룸" },
+  { href: "/main", label: "포룸" },
   { href: "/compete", label: "대결" },
   { href: "/ranking", label: "랭킹" },
   { href: "/me", label: "개인" },
