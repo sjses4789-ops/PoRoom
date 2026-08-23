@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { todayKst, kstDayRangeUtc } from "@/lib/time";
 
 export type SystemChallengeKind = "daily5k" | "daily10k" | "monthly_draft";
 
@@ -13,9 +14,11 @@ export const SYSTEM_CHALLENGE_META: Record<
   monthly_draft: { title: "매 달 초단 1완고 챌린지", resetLabel: "매 달 1일 리셋" },
 };
 
-export function todayUtc() {
-  return new Date().toISOString().slice(0, 10);
-}
+const CHALLENGE_TODO_CONTENT: Record<SystemChallengeKind, string> = {
+  daily5k: "매일 5천자 쓰기",
+  daily10k: "매일 1만자 쓰기",
+  monthly_draft: "초단 완고 치기",
+};
 
 function pad2(n: number) {
   return String(n).padStart(2, "0");
@@ -44,7 +47,7 @@ export async function ensureSystemChallenge(
   kind: SystemChallengeKind,
   creatorId: string
 ): Promise<string | null> {
-  const today = todayUtc();
+  const today = todayKst();
   const window = challengeWindow(kind, today);
   const meta = SYSTEM_CHALLENGE_META[kind];
 
@@ -92,19 +95,62 @@ export async function ensureSystemChallenge(
   return created.id;
 }
 
+/**
+ * 참여 중인 시스템 챌린지마다 "매일 5천자 쓰기" 같은 항목을 할 일 목록에
+ * 자동으로 넣어준다 — 하루(초단 완고는 그 달) 단위로 다시 나타나야 하므로
+ * for_date로 이미 오늘치가 있는지 확인 후 없을 때만 추가한다. 체크해서
+ * 지워도 그날 다시 추가되진 않고, 다음 날짜가 되면 새로 추가된다.
+ */
+export async function ensureChallengeTodos(supabase: SupabaseClient, userId: string) {
+  const today = todayKst();
+  const monthStart = `${today.slice(0, 7)}-01`;
+
+  const { data: participantRows } = await supabase
+    .from("challenge_participants")
+    .select("challenge_id")
+    .eq("user_id", userId)
+    .returns<{ challenge_id: string }[]>();
+  const challengeIds = (participantRows ?? []).map((r) => r.challenge_id);
+  if (!challengeIds.length) return;
+
+  const { data: challengeRows } = await supabase
+    .from("challenges")
+    .select("kind")
+    .in("id", challengeIds)
+    .not("kind", "is", null)
+    .returns<{ kind: SystemChallengeKind }[]>();
+
+  for (const c of challengeRows ?? []) {
+    const forDate = c.kind === "monthly_draft" ? monthStart : today;
+    const content = CHALLENGE_TODO_CONTENT[c.kind];
+
+    const { data: existing } = await supabase
+      .from("todos")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("content", content)
+      .eq("for_date", forDate)
+      .maybeSingle();
+    if (existing) continue;
+
+    await supabase.from("todos").insert({ user_id: userId, content, for_date: forDate });
+  }
+}
+
 async function alreadyLoggedToday(
   supabase: SupabaseClient,
   userId: string,
   type: string,
   date: string
 ) {
+  const { startUtc, endUtc } = kstDayRangeUtc(date);
   const { data } = await supabase
     .from("activity_logs")
     .select("id")
     .eq("user_id", userId)
     .eq("type", type)
-    .gte("created_at", `${date}T00:00:00.000Z`)
-    .lte("created_at", `${date}T23:59:59.999Z`)
+    .gte("created_at", startUtc)
+    .lte("created_at", endUtc)
     .limit(1);
   return (data ?? []).length > 0;
 }

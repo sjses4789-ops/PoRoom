@@ -2,10 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-
-function todayUtc() {
-  return new Date().toISOString().slice(0, 10);
-}
+import { todayKst } from "@/lib/time";
 
 export type CreateWorkResult = { error: string } | { id: string; title: string };
 
@@ -55,7 +52,7 @@ export async function recordWorkChars(
   } = await supabase.auth.getUser();
   if (!user) return;
 
-  const date = dateOverride ?? todayUtc();
+  const date = dateOverride ?? todayKst();
   const { data: existing } = await supabase
     .from("work_records")
     .select("id,chars")

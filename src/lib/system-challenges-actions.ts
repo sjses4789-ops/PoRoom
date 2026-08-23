@@ -2,7 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { ensureSystemChallenge, todayUtc } from "@/lib/system-challenges";
+import { ensureSystemChallenge } from "@/lib/system-challenges";
+import { todayKst, kstDayRangeUtc } from "@/lib/time";
 
 export type MarkDraftDoneResult = { error: string } | { ok: true };
 
@@ -24,14 +25,14 @@ export async function markDraftDone(): Promise<MarkDraftDoneResult> {
     .maybeSingle();
   if (!participant) return { error: "먼저 챌린지에 참여해주세요." };
 
-  const today = todayUtc();
+  const today = todayKst();
   const monthStart = `${today.slice(0, 7)}-01`;
   const { data: existing } = await supabase
     .from("activity_logs")
     .select("id")
     .eq("user_id", user.id)
     .eq("type", "draft_done")
-    .gte("created_at", `${monthStart}T00:00:00.000Z`)
+    .gte("created_at", kstDayRangeUtc(monthStart).startUtc)
     .limit(1);
   if ((existing ?? []).length > 0) {
     return { error: "이미 이번 달 초단 완고를 기록했습니다." };

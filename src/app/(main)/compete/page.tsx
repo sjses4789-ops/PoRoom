@@ -10,6 +10,7 @@ import {
   ensureSystemChallenge,
   type SystemChallengeKind,
 } from "@/lib/system-challenges";
+import { todayKst, kstDayRangeUtc } from "@/lib/time";
 
 const SYSTEM_CHALLENGE_KINDS: SystemChallengeKind[] = ["daily5k", "daily10k", "monthly_draft"];
 
@@ -139,7 +140,7 @@ export default async function CompetePage() {
       c.kind !== null
   );
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayKst();
   const myTodayChars = (records ?? [])
     .filter((r) => r.user_id === user!.id && r.record_date === today)
     .reduce((sum, r) => sum + r.chars, 0);
@@ -150,7 +151,7 @@ export default async function CompetePage() {
     .select("id")
     .eq("user_id", user!.id)
     .eq("type", "draft_done")
-    .gte("created_at", `${monthStart}T00:00:00.000Z`)
+    .gte("created_at", kstDayRangeUtc(monthStart).startUtc)
     .limit(1);
   const draftDoneThisMonth = (draftLogs ?? []).length > 0;
 

@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { logActivity } from "@/lib/activity";
 import { isRoomTag } from "@/lib/room-tags";
 import { checkDailyMilestones } from "@/lib/system-challenges";
+import { todayKst } from "@/lib/time";
 
 const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
@@ -237,10 +238,6 @@ export async function toggleFavoriteRoom(roomId: string, favorite: boolean) {
   revalidatePath("/main");
 }
 
-function todayUtc() {
-  return new Date().toISOString().slice(0, 10);
-}
-
 export async function recordChars(
   roomId: string,
   delta: number,
@@ -253,7 +250,7 @@ export async function recordChars(
   } = await supabase.auth.getUser();
   if (!user) return;
 
-  const date = dateOverride ?? todayUtc();
+  const date = dateOverride ?? todayKst();
   const { data: existing } = await supabase
     .from("daily_records")
     .select("id,chars")
@@ -309,7 +306,7 @@ export async function recordFocusMinutes(
   } = await supabase.auth.getUser();
   if (!user) return;
 
-  const date = dateOverride ?? todayUtc();
+  const date = dateOverride ?? todayKst();
   const { data: existing } = await supabase
     .from("daily_records")
     .select("id,focus_minutes")

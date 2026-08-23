@@ -2,6 +2,32 @@ function pad2(n: number) {
   return String(n).padStart(2, "0");
 }
 
+const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
+
+// PoRoom is a Korean app, so "오늘"/"이번 주"/"이번 달" always mean Korea
+// Standard Time (UTC+9) — not the server's local time, and not raw UTC
+// (Date#toISOString() is UTC, which lags KST by 9 hours: a user checking
+// the site at, say, 00:30 KST would otherwise still see "today" as the
+// previous UTC day, since UTC midnight only arrives at 09:00 KST).
+export function todayKst(date = new Date()): string {
+  return new Date(date.getTime() + KST_OFFSET_MS).toISOString().slice(0, 10);
+}
+
+// activity_logs.created_at처럼 timestamptz 컬럼을 "KST 기준 하루"로 범위
+// 조회할 때 쓴다 — `${date}T00:00:00.000Z`처럼 그냥 Z를 붙이면 그 날짜를
+// UTC 하루로 취급해버려 KST와 9시간 어긋난다.
+export function kstDatePlusDays(days: number, from = todayKst()): string {
+  const [y, m, d] = from.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d + days)).toISOString().slice(0, 10);
+}
+
+export function kstDayRangeUtc(dateKst: string) {
+  return {
+    startUtc: new Date(`${dateKst}T00:00:00+09:00`).toISOString(),
+    endUtc: new Date(`${dateKst}T23:59:59.999+09:00`).toISOString(),
+  };
+}
+
 export function toLocalDateKey(d: Date) {
   return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
 }

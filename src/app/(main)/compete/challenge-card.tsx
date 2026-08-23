@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { todayKst } from "@/lib/time";
 
 export type ChallengeParticipant = {
   id: string;
@@ -33,7 +34,7 @@ export function ChallengeCard({
   /** 지정하면 참여자 값의 최대치 대신 이 값을 막대의 100% 기준으로 쓴다. */
   target?: number;
 }) {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayKst();
   const status =
     today < startDate ? "예정" : today > endDate ? "종료" : "진행 중";
   const ranked = [...participants].sort((a, b) => b.value - a.value);

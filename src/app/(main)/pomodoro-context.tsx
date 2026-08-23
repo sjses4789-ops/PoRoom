@@ -6,11 +6,13 @@ import { logActivity } from "@/lib/activity";
 import { effectiveRecordDate } from "@/lib/time";
 import type { Phase } from "./room/[id]/use-pomodoro";
 
-type ActiveRoom = { id: string; name: string } | null;
+type ActiveRoom = { id: string; name: string; isSystemRoom: boolean } | null;
 
 type PomodoroContextValue = {
   activeRoomId: string | null;
   activeRoomName: string | null;
+  // 마감방/새벽방은 미니 팝업으로 노출되는 대상에서 제외한다.
+  activeRoomIsSystem: boolean;
   phase: Phase | "idle";
   running: boolean;
   started: boolean;
@@ -21,7 +23,10 @@ type PomodoroContextValue = {
   breakMinutes: number;
   setFocusMinutes: (n: number) => void;
   setBreakMinutes: (n: number) => void;
-  start: (room: { id: string; name: string }, initialFocusSeconds: number) => void;
+  start: (
+    room: { id: string; name: string; isSystemRoom: boolean },
+    initialFocusSeconds: number
+  ) => void;
   pause: () => void;
   reset: () => void;
 };
@@ -75,7 +80,10 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
   }, [accumulatedFocusSeconds, activeRoom]);
 
   const doStart = useCallback(
-    (room: { id: string; name: string }, initialFocusSeconds: number) => {
+    (
+      room: { id: string; name: string; isSystemRoom: boolean },
+      initialFocusSeconds: number
+    ) => {
       const isNewRoom = activeRoom?.id !== room.id;
       if (isNewRoom || !started) {
         const duration = (phase === "focus" ? focusMinutes : breakMinutes) * 60;
@@ -123,6 +131,7 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
   const value: PomodoroContextValue = {
     activeRoomId: activeRoom?.id ?? null,
     activeRoomName: activeRoom?.name ?? null,
+    activeRoomIsSystem: activeRoom?.isSystemRoom ?? false,
     phase: displayPhase,
     running,
     started,

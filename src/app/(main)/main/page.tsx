@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { computeStreakDays } from "@/lib/attendance";
+import { todayKst } from "@/lib/time";
+import { ensureChallengeTodos } from "@/lib/system-challenges";
 import { SystemRoomButton } from "./system-room-buttons";
 import { MainRoomLists } from "./main-room-lists";
 import { MainDashboard } from "./main-dashboard";
@@ -26,19 +28,20 @@ type TodoRow = { id: string; content: string };
 
 const SYSTEM_ROOM_CAPACITY = 30;
 
-function pad2(n: number) {
-  return String(n).padStart(2, "0");
-}
-
 export default async function MainPage() {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const today = new Date().toISOString().slice(0, 10);
-  const now = new Date();
-  const monthPrefix = `${now.getFullYear()}-${pad2(now.getMonth() + 1)}`;
+  const today = todayKst();
+  const monthPrefix = today.slice(0, 7);
+  const [todayYear, todayMonth] = today.split("-").map(Number);
+
+  // 참여 중인 챌린지가 있으면 "매일 5천자 쓰기" 같은 항목을 할 일
+  // 목록에 오늘치로 채워둔다 (없을 때만 추가되므로 매일 방문할 때마다
+  // 자연스럽게 새로 나타난다).
+  await ensureChallengeTodos(supabase, user!.id);
 
   const [
     { data: rooms },
@@ -193,8 +196,8 @@ export default async function MainPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[3fr_2fr]">
         <MainDashboard
           todayChars={selfTodayChars}
-          year={now.getFullYear()}
-          month={now.getMonth()}
+          year={todayYear}
+          month={todayMonth - 1}
           attendedDates={selfAttendedDates}
           streakDays={streakDays}
           monthGoalChars={myGoalRows?.target_chars ?? 0}

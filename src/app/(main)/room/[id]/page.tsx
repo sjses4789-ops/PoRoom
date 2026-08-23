@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { RoomView, type Member } from "./room-view";
 import type { ChatMessage } from "./chat-panel";
 import type { DailyRecord } from "@/lib/records";
-import { formatRelativeTime } from "@/lib/time";
+import { formatRelativeTime, todayKst } from "@/lib/time";
 import { ShareRecordsToggle } from "./share-records-toggle";
 import { RoomTabs } from "./room-tabs";
 import { RoomRecordsPanel } from "./room-records-panel";
@@ -241,7 +241,7 @@ export default async function RoomPage({
       focusMinutes: r.focus_minutes,
     }));
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayKst();
   const selfToday = dailyRecords.find(
     (r) => r.userId === user!.id && r.date === today
   );
@@ -426,6 +426,7 @@ export default async function RoomPage({
           <RoomView
             roomId={room.id}
             roomName={room.name}
+            isSystemRoom={room.is_system}
             selfId={user!.id}
             selfName={selfMember?.name ?? user!.email ?? "나"}
             members={members}

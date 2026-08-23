@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { inRange } from "@/lib/records";
 import RankingTabs, { type RankingRecord } from "./ranking-tabs";
 import { WinLossRanking, type WinLossRow } from "./win-loss-ranking";
+import { todayKst } from "@/lib/time";
 
 type DailyRecordRow = {
   room_id: string | null;
@@ -50,7 +51,7 @@ export default async function RankingPage() {
     minutes: r.focus_minutes,
   }));
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayKst();
 
   // 대결 승패 랭킹: 종료된 개인 간(1:1 이상) 대결에서 기간 내 값이 가장
   // 높은 참가자가 승, 나를 포함해 공동 1위면 무, 그 외엔 패 — 이걸 볼 수

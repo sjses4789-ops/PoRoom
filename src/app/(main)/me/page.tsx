@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { inPeriod, inRange } from "@/lib/records";
 import { computeStreakDays } from "@/lib/attendance";
+import { todayKst } from "@/lib/time";
 import { NicknameForm } from "@/components/nickname-form";
 import { GoalPanel, type PeriodGoal, type PeriodProgress } from "./goal-panel";
 import { CharacterSection } from "./character-section";
@@ -11,7 +12,7 @@ import { SystemChallengeRecordPanel } from "./system-challenge-record-panel";
 import { RankingStatusPanel } from "./ranking-status-panel";
 import { WorkChart } from "./work-chart";
 import { TodoList, type Todo } from "@/components/todo-list";
-import type { SystemChallengeKind } from "@/lib/system-challenges";
+import { ensureChallengeTodos, type SystemChallengeKind } from "@/lib/system-challenges";
 
 const SYSTEM_CHALLENGE_KINDS: SystemChallengeKind[] = ["daily5k", "daily10k", "monthly_draft"];
 
@@ -136,7 +137,8 @@ export default async function MePage() {
     memberCount: memberCountByRoom.get(r.room_id) ?? 0,
   }));
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayKst();
+  const [todayYear, todayMonth] = today.split("-").map(Number);
   const myGlobalRecords = (allRecords ?? []).filter((r) => r.user_id === user.id);
 
   const attendedDates = new Set(
@@ -145,7 +147,6 @@ export default async function MePage() {
       .map((r) => r.record_date)
   );
   const streakDays = computeStreakDays(attendedDates, today);
-  const now = new Date();
 
   // 종료된 개인 간(1:1 이상) 대결의 승/패/무를 집계한다 — 기간 내 값이
   // 가장 높은 참가자가 승, 나 포함 공동 1위면 무, 그 외엔 패.
@@ -234,6 +235,7 @@ export default async function MePage() {
     createdAt: r.created_at,
   }));
 
+  await ensureChallengeTodos(supabase, user.id);
   const { data: todoRows } = await supabase
     .from("todos")
     .select("id,content")
@@ -298,8 +300,8 @@ export default async function MePage() {
             <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">출석일</h2>
             <div className="rounded-lg border border-neutral-200 p-3">
               <AttendanceCalendar
-                year={now.getFullYear()}
-                month={now.getMonth()}
+                year={todayYear}
+                month={todayMonth - 1}
                 attendedDates={attendedDates}
                 streakDays={streakDays}
               />

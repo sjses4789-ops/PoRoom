@@ -14,6 +14,7 @@ export function PomodoroMiniWidget() {
   const router = useRouter();
 
   if (!pomodoro.activeRoomId || !pomodoro.started) return null;
+  if (pomodoro.activeRoomIsSystem) return null;
   if (pathname === `/room/${pomodoro.activeRoomId}`) return null;
 
   const mm = String(Math.floor(pomodoro.remainingSeconds / 60)).padStart(2, "0");

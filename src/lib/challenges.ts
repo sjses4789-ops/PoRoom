@@ -4,7 +4,8 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionResult } from "@/lib/rooms";
-import { SYSTEM_CHALLENGE_CAPACITY } from "@/lib/system-challenges";
+import { SYSTEM_CHALLENGE_CAPACITY, ensureChallengeTodos } from "@/lib/system-challenges";
+import { todayKst } from "@/lib/time";
 
 const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
@@ -102,7 +103,7 @@ export async function joinChallenge(challengeId: string): Promise<JoinChallengeR
 
   if (!challenge) return { error: "존재하지 않는 대결입니다." };
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayKst();
   if (today > challenge.end_date) return { error: "이미 종료된 대결입니다." };
 
   if (challenge.kind) {
@@ -120,6 +121,11 @@ export async function joinChallenge(challengeId: string): Promise<JoinChallengeR
     .insert({ challenge_id: challengeId, user_id: user.id });
 
   if (error && error.code !== "23505") return { error: error.message };
+
+  if (challenge.kind) {
+    await ensureChallengeTodos(supabase, user.id);
+    revalidatePath("/main");
+  }
 
   revalidatePath("/compete");
   return { ok: true };
@@ -149,7 +155,7 @@ export async function joinChallengeByCode(
   if (error) return { error: error.message };
   if (!challenge) return { error: "존재하지 않는 초대코드입니다." };
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayKst();
   if (today > challenge.end_date) return { error: "이미 종료된 대결입니다." };
 
   const { error: joinError } = await supabase

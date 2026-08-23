@@ -26,6 +26,7 @@ const LAST_SEEN_HEARTBEAT_MS = 30000;
 export function RoomView({
   roomId,
   roomName,
+  isSystemRoom,
   selfId,
   selfName,
   members: initialMembers,
@@ -42,6 +43,7 @@ export function RoomView({
 }: {
   roomId: string;
   roomName: string;
+  isSystemRoom: boolean;
   selfId: string;
   selfName: string;
   members: Member[];
@@ -114,7 +116,8 @@ export function RoomView({
     recordChars(roomId, n, effectiveRecordDate(sessionStartRef.current));
   };
 
-  const handleStart = () => pomodoro.start({ id: roomId, name: roomName }, selfTodayFocusMinutes * 60);
+  const handleStart = () =>
+    pomodoro.start({ id: roomId, name: roomName, isSystemRoom }, selfTodayFocusMinutes * 60);
   const handlePause = () => pomodoro.pause();
   const handleReset = () => pomodoro.reset();
 

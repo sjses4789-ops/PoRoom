@@ -194,8 +194,9 @@ export function WorkChart({
     const maxAbs = Math.max(1, ...workEntries.map((e) => Math.abs(e.delta)));
     const chartWidth = Math.max(STEP_X, STEP_X * workEntries.length);
     const zeroY = CHART_HEIGHT / 2;
-    const barMaxHeight = CHART_HEIGHT / 2 - 8;
-    const barWidth = 16;
+    const halfHeight = CHART_HEIGHT / 2 - 8;
+    const xFor = (i: number) => i * STEP_X + STEP_X / 2;
+    const yFor = (delta: number) => zeroY - (delta / maxAbs) * halfHeight;
 
     return (
       <div className="flex flex-col gap-3">
@@ -226,22 +227,23 @@ export function WorkChart({
                 strokeWidth={1}
                 className="text-neutral-200 dark:text-neutral-700"
               />
-              {workEntries.map((e, i) => {
-                const h = Math.max(1, (Math.abs(e.delta) / maxAbs) * barMaxHeight);
-                const x = i * STEP_X + STEP_X / 2 - barWidth / 2;
-                const y = e.delta >= 0 ? zeroY - h : zeroY;
-                return (
-                  <rect
-                    key={i}
-                    x={x}
-                    y={y}
-                    width={barWidth}
-                    height={h}
-                    rx={2}
-                    fill={e.delta >= 0 ? activeColor : "#ef4444"}
-                  />
-                );
-              })}
+              <polyline
+                points={workEntries.map((e, i) => `${xFor(i)},${yFor(e.delta)}`).join(" ")}
+                fill="none"
+                stroke={activeColor}
+                strokeWidth={2}
+                strokeLinejoin="round"
+                strokeLinecap="round"
+              />
+              {workEntries.map((e, i) => (
+                <circle
+                  key={i}
+                  cx={xFor(i)}
+                  cy={yFor(e.delta)}
+                  r={3}
+                  fill={e.delta >= 0 ? activeColor : "#ef4444"}
+                />
+              ))}
             </svg>
             <div className="flex" style={{ width: chartWidth }}>
               {workEntries.map((e, i) => (

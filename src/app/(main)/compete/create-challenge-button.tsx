@@ -3,12 +3,7 @@
 import { useActionState, useState } from "react";
 import { createChallenge } from "@/lib/challenges";
 import type { ActionResult } from "@/lib/rooms";
-
-function todayPlus(days: number) {
-  const d = new Date();
-  d.setDate(d.getDate() + days);
-  return d.toISOString().slice(0, 10);
-}
+import { kstDatePlusDays } from "@/lib/time";
 
 export default function CreateChallengeButton() {
   const [open, setOpen] = useState(false);
@@ -99,13 +94,13 @@ export default function CreateChallengeButton() {
               <input
                 name="startDate"
                 type="date"
-                defaultValue={todayPlus(0)}
+                defaultValue={kstDatePlusDays(0)}
                 className="w-1/2 rounded-md border border-neutral-200 px-2.5 py-1.5 text-xs text-neutral-700 outline-none focus:border-neutral-400"
               />
               <input
                 name="endDate"
                 type="date"
-                defaultValue={todayPlus(7)}
+                defaultValue={kstDatePlusDays(7)}
                 className="w-1/2 rounded-md border border-neutral-200 px-2.5 py-1.5 text-xs text-neutral-700 outline-none focus:border-neutral-400"
               />
             </div>

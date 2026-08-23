@@ -13,6 +13,7 @@ import {
   ensureSystemChallenge,
   type SystemChallengeKind,
 } from "@/lib/system-challenges";
+import { todayKst, kstDayRangeUtc } from "@/lib/time";
 
 type ChallengeRow = {
   id: string;
@@ -89,8 +90,8 @@ export default async function ChallengeDetailPage({
     .filter((v): v is string => Boolean(v));
   const iAmParticipant = participantIds.includes(user!.id);
 
-  const startTs = `${challenge.start_date}T00:00:00.000Z`;
-  const endTs = `${challenge.end_date}T23:59:59.999Z`;
+  const startTs = kstDayRangeUtc(challenge.start_date).startUtc;
+  const endTs = kstDayRangeUtc(challenge.end_date).endUtc;
 
   const [{ data: users }, { data: records }, { data: logs }, { data: chatRows }] =
     await Promise.all([
@@ -133,7 +134,7 @@ export default async function ChallengeDetailPage({
   const userNameMap = new Map((users ?? []).map((u) => [u.id, u.name || u.email]));
   const userCharacterMap = new Map((users ?? []).map((u) => [u.id, u.character_id]));
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayKst();
   const isDailyKind = challenge.kind === "daily5k" || challenge.kind === "daily10k";
   const isDraftKind = challenge.kind === "monthly_draft";
   const isSystemKind = Boolean(challenge.kind);
@@ -161,7 +162,7 @@ export default async function ChallengeDetailPage({
           .select("user_id")
           .in("user_id", participantIds)
           .eq("type", "draft_done")
-          .gte("created_at", `${monthStart}T00:00:00.000Z`)
+          .gte("created_at", kstDayRangeUtc(monthStart).startUtc)
           .returns<{ user_id: string }[]>()
       : { data: [] as { user_id: string }[] };
   const draftDoneSet = new Set((draftLogs ?? []).map((r) => r.user_id));
