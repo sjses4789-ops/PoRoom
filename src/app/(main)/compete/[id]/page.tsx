@@ -70,6 +70,7 @@ export default async function ChallengeDetailPage({
 }) {
   const { id } = await params;
   const t = await getTranslations("compete.challengeDetailPage");
+  const tMeta = await getTranslations("compete.systemChallengeMeta");
   const supabase = await createClient();
   const {
     data: { user },
@@ -231,10 +232,10 @@ export default async function ChallengeDetailPage({
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-neutral-200 p-4 dark:border-neutral-700">
           <div className="flex flex-col gap-0.5">
             <span className="text-sm font-semibold text-neutral-900 dark:text-white">
-              {challenge.title}
+              {challenge.kind ? tMeta(`${challenge.kind}.title`) : challenge.title}
             </span>
             <span className="text-[12px] text-neutral-400">
-              {SYSTEM_CHALLENGE_META[challenge.kind!].resetLabel}
+              {challenge.kind ? tMeta(`${challenge.kind}.resetLabel`) : ""}
               {dailyTarget && t("dailyTargetSuffix", { target: dailyTarget.toLocaleString() })}
             </span>
           </div>

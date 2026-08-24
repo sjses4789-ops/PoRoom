@@ -54,6 +54,7 @@ const CHALLENGE_SELECT =
 
 export default async function CompetePage() {
   const t = await getTranslations("compete.page");
+  const tMeta = await getTranslations("compete.systemChallengeMeta");
   const supabase = await createClient();
   const {
     data: { user },
@@ -212,9 +213,12 @@ export default async function CompetePage() {
         </section>
 
         <section className="flex flex-col gap-4">
-          <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
-            {t("joinedSystemHeading")}
-          </h2>
+          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
+              {t("joinedSystemHeading")}
+            </h2>
+            <span className="text-[11px] text-neutral-400">{t("resetHint")}</span>
+          </div>
           {joinedSystemChallenges.length === 0 ? (
             <p className="text-xs text-neutral-400">
               {t("joinedSystemEmpty")}
@@ -227,8 +231,8 @@ export default async function CompetePage() {
                   <JoinedSystemChallengeCard
                     key={c.id}
                     id={c.id}
-                    title={meta?.title ?? c.title}
-                    subLabel={meta?.resetLabel ?? t("adminEventLabel")}
+                    title={c.kind ? tMeta(`${c.kind}.title`) : c.title}
+                    subLabel={c.kind ? tMeta(`${c.kind}.resetLabel`) : t("adminEventLabel")}
                     startDate={c.start_date ?? today}
                     endDate={c.end_date ?? today}
                     myTodayChars={myTodayChars}
@@ -276,9 +280,12 @@ export default async function CompetePage() {
         </section>
 
         <section className="flex flex-col gap-4">
-          <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
-            {t("openSystemHeading")}
-          </h2>
+          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
+              {t("openSystemHeading")}
+            </h2>
+            <span className="text-[11px] text-neutral-400">{t("resetHint")}</span>
+          </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {openSystemChallenges.map((c) => {
               const meta = c.kind ? SYSTEM_CHALLENGE_META[c.kind] : null;
@@ -286,8 +293,8 @@ export default async function CompetePage() {
                 <OpenSystemChallengeCard
                   key={c.id}
                   id={c.id}
-                  title={meta?.title ?? c.title}
-                  subLabel={meta?.resetLabel ?? t("adminEventLabel")}
+                  title={c.kind ? tMeta(`${c.kind}.title`) : c.title}
+                  subLabel={c.kind ? tMeta(`${c.kind}.resetLabel`) : t("adminEventLabel")}
                   startDate={c.start_date ?? today}
                   endDate={c.end_date ?? today}
                   participantCount={c.participantCount}

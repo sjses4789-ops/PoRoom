@@ -8,8 +8,14 @@
     "openHeading": "可加入的公开对决",
     "openEmpty": "目前没有可加入的公开对决。",
     "openSystemHeading": "挑战列表",
+    "resetHint": "挑战房按韩国时间重置。",
     "adminEventLabel": "官方活动",
     "unknownUser": "未知用户"
+  },
+  "systemChallengeMeta": {
+    "daily5k": { "title": "每日5000字写作挑战", "resetLabel": "每周一重置" },
+    "daily10k": { "title": "每日1万字写作挑战", "resetLabel": "每周一重置" },
+    "monthly_draft": { "title": "每月初稿完成挑战", "resetLabel": "每月1日重置" }
   },
   "challengeDetailPage": {
     "backLink": "← 返回对决列表",

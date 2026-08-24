@@ -1,6 +1,12 @@
 -- PoRoom: (1) 채팅 귓속말/삭제, (2)(3) 대결방(challenges) 설정·시작 대기·
 -- 인원/색상, (4) 관리자(임시 챌린지, 채팅/방 삭제) 기능을 위한 스키마.
 
+-- ── 0. 관리자 계정 플래그 ───────────────────────────────────────────
+-- 아래 챌린지 insert 정책이 이 컬럼을 참조하므로, 그 정책보다 먼저
+-- 만들어야 한다("column u.is_admin does not exist" 오류 방지).
+alter table public.users add column if not exists is_admin boolean not null default false;
+update public.users set is_admin = true where email = 'sjses4789@gmail.com';
+
 -- ── 1. 채팅 귓속말 + 방장/부방장 메시지 삭제 ────────────────────────
 alter table public.chat_messages
   add column if not exists target_user_id uuid references public.users (id) on delete cascade;
@@ -74,10 +80,7 @@ create policy "authenticated users can create challenges"
     )
   );
 
--- ── 4. 관리자 계정 플래그 + 방/챌린지 삭제 권한 ────────────────────
-alter table public.users add column if not exists is_admin boolean not null default false;
-update public.users set is_admin = true where email = 'sjses4789@gmail.com';
-
+-- ── 4. 관리자 방/챌린지/채팅 삭제 권한 ─────────────────────────────
 drop policy if exists "admins can delete any room" on public.rooms;
 create policy "admins can delete any room"
   on public.rooms for delete

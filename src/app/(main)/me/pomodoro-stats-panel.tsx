@@ -76,9 +76,21 @@ export function PomodoroStatsPanel({
       sum + siteTime.filter((s) => inBucket(s.date, b.key)).reduce((s, r) => s + r.seconds, 0),
     0
   );
+  // 체류시간 추적은 이 기능을 배포한 시점부터만 쌓이는데, 집중시간
+  // (daily_records.focus_minutes)은 그보다 훨씬 이전 기록도 남아있다.
+  // 그래서 기간 전체 집중시간을 그대로 분자로 쓰면 "체류 기록이 없는
+  // 과거 날짜의 집중시간"까지 섞여 비율이 비정상적으로 높게(심하면
+  // 100%로 고정) 나온다 — 체류시간이 실제로 기록된 날짜의 집중시간만
+  // 분자로 써서 같은 날짜끼리 공정하게 비교한다.
+  const trackedDates = new Set(
+    buckets.flatMap((b) => siteTime.filter((s) => inBucket(s.date, b.key)).map((s) => s.date))
+  );
+  const comparableFocusMinutes = minutes
+    .filter((m) => trackedDates.has(m.date))
+    .reduce((sum, m) => sum + m.focusMinutes, 0);
   const focusVsSiteRatio =
     periodTotalSiteSeconds > 0
-      ? Math.min(100, Math.round(((periodTotalFocus * 60) / periodTotalSiteSeconds) * 100))
+      ? Math.min(100, Math.round(((comparableFocusMinutes * 60) / periodTotalSiteSeconds) * 100))
       : null;
 
   const maxCount = Math.max(1, ...dataByBucket.map((d) => d.count));

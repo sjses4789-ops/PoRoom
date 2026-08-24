@@ -8,8 +8,14 @@
     "openHeading": "参加できる公開対決",
     "openEmpty": "参加できる公開対決がありません。",
     "openSystemHeading": "チャレンジ一覧",
+    "resetHint": "チャレンジルームは韓国時間基準でリセットされます。",
     "adminEventLabel": "運営イベント",
     "unknownUser": "不明"
+  },
+  "systemChallengeMeta": {
+    "daily5k": { "title": "毎日5千文字執筆チャレンジ", "resetLabel": "毎週月曜日リセット" },
+    "daily10k": { "title": "毎日1万文字執筆チャレンジ", "resetLabel": "毎週月曜日リセット" },
+    "monthly_draft": { "title": "毎月初稿完成チャレンジ", "resetLabel": "毎月1日リセット" }
   },
   "challengeDetailPage": {
     "backLink": "← 対決一覧へ",
