@@ -5,6 +5,7 @@
   "eventNamePlaceholder": "Event name",
   "metricChars": "Characters",
   "metricMinutes": "Focus time",
+  "metricAchievement": "Pass/fail",
   "creating": "Creating...",
   "createEvent": "Create event",
   "deleteEvent": "Delete",
@@ -13,5 +14,12 @@
   "memberCount": "{count} members",
   "deleteRoom": "Delete room",
   "deleteRoomConfirm": "Delete room \"{name}\"? This cannot be undone.",
-  "deleting": "Deleting..."
+  "deleting": "Deleting...",
+  "membersHeading": "Member management",
+  "membersHint": "Ban an account here to stop bad-faith users from signing in again.",
+  "bannedTag": "Banned",
+  "ban": "Ban",
+  "unban": "Unban",
+  "banConfirm": "Ban \"{name}\"? They won't be able to sign in again.",
+  "unbanConfirm": "Unban \"{name}\"?"
 }

@@ -1,4 +1,5 @@
 {
   "tagline": "一緒に集中するオンライン・ポモドーロ作業室",
-  "google": "Googleでログイン"
+  "google": "Googleでログイン",
+  "bannedNotice": "利用が制限されたアカウントです。再ログインできません。"
 }

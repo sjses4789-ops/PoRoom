@@ -5,6 +5,7 @@
   "eventNamePlaceholder": "イベント名",
   "metricChars": "文字数",
   "metricMinutes": "作業時間",
+  "metricAchievement": "達成可否",
   "creating": "作成中...",
   "createEvent": "イベントを作成",
   "deleteEvent": "削除",
@@ -13,5 +14,12 @@
   "memberCount": "{count}人",
   "deleteRoom": "ルーム削除",
   "deleteRoomConfirm": "「{name}」ルームを削除しますか？元に戻せません。",
-  "deleting": "削除中..."
+  "deleting": "削除中...",
+  "membersHeading": "会員管理",
+  "membersHint": "不適切な意図で接続したアカウントは、ここで再ログインできないようにブロックできます。",
+  "bannedTag": "ブロック済み",
+  "ban": "ブロック",
+  "unban": "ブロック解除",
+  "banConfirm": "「{name}」アカウントをブロックしますか？再ログインできなくなります。",
+  "unbanConfirm": "「{name}」アカウントのブロックを解除しますか？"
 }

@@ -58,6 +58,7 @@
     "pendingLine": "以{metric}为准 · 等待开始",
     "metricChars": "字数",
     "metricMinutes": "专注时长",
+    "metricAchievement": "达成与否",
     "joined": "已加入",
     "joining": "加入中...",
     "join": "加入"
@@ -89,6 +90,12 @@
     "placeholder": "输入消息...",
     "send": "发送"
   },
+  "achievementRoster": {
+    "self": "我",
+    "achieved": "已达成",
+    "markAchieved": "标记为已达成",
+    "notAchieved": "未达成"
+  },
   "challengeParticipantCard": {
     "charsLine": "{chars}字",
     "charsLineWithTarget": "{chars} / {target}字",
@@ -103,6 +110,7 @@
     "metricLabel": "个人对决 · {metric}",
     "metricChars": "字数",
     "metricMinutes": "专注时长",
+    "metricAchievement": "达成与否",
     "visibilityOpen": "公开房",
     "visibilityPrivate": "私密房",
     "inviteCode": "邀请码 {code}",

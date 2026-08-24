@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { inRange } from "@/lib/records";
 import { ChallengeCard, type ChallengeParticipant } from "../challenge-card";
 import { ChallengeRankingBars } from "../challenge-ranking-bars";
+import { AchievementRoster } from "./achievement-roster";
 import { StartChallengeButton } from "../start-challenge-button";
 import { ChallengeSettingsButton } from "./challenge-settings-button";
 import { ActivityLogList, type LogEntry } from "./activity-log-list";
@@ -22,7 +23,7 @@ import { todayKst, kstDayRangeUtc } from "@/lib/time";
 type ChallengeRow = {
   id: string;
   title: string;
-  metric: "chars" | "minutes";
+  metric: "chars" | "minutes" | "achievement";
   visibility: "open" | "private";
   invite_code: string | null;
   start_date: string | null;
@@ -95,16 +96,22 @@ export default async function ChallengeDetailPage({
 
   const { data: participantRows } = await supabase
     .from("challenge_participants")
-    .select("user_id")
+    .select("user_id,achieved")
     .eq("challenge_id", id)
-    .returns<{ user_id: string | null }[]>();
+    .returns<{ user_id: string | null; achieved: boolean }[]>();
 
   const participantIds = (participantRows ?? [])
     .map((p) => p.user_id)
     .filter((v): v is string => Boolean(v));
+  const achievedByUser = new Map(
+    (participantRows ?? [])
+      .filter((p): p is { user_id: string; achieved: boolean } => Boolean(p.user_id))
+      .map((p) => [p.user_id, p.achieved])
+  );
   const iAmParticipant = participantIds.includes(user!.id);
   const isCreator = challenge.created_by === user!.id;
   const isPending = !challenge.kind && !challenge.started_at;
+  const isAchievementMetric = challenge.metric === "achievement";
 
   // 아직 시작 전이면(대기 상태) 기간 자체가 없으니 로그/기록 범위 조회를
   // 건너뛴다.
@@ -288,7 +295,19 @@ export default async function ChallengeDetailPage({
               <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
                 {t("participantsHeading")}
               </h2>
-              <ChallengeRankingBars participants={participants} metric={challenge.metric} />
+              {isAchievementMetric ? (
+                <AchievementRoster
+                  challengeId={challenge.id}
+                  selfId={user!.id}
+                  participants={participantIds.map((uid) => ({
+                    id: uid,
+                    name: userNameMap.get(uid) ?? t("unknownUser"),
+                    achieved: achievedByUser.get(uid) ?? false,
+                  }))}
+                />
+              ) : (
+                <ChallengeRankingBars participants={participants} metric={challenge.metric} />
+              )}
             </section>
           )}
         </div>

@@ -14,7 +14,7 @@ export function OpenChallengeCard({
 }: {
   id: string;
   title: string;
-  metric: "chars" | "minutes";
+  metric: "chars" | "minutes" | "achievement";
   startDate: string | null;
   endDate: string | null;
   participantCount: number;
@@ -39,10 +39,20 @@ export function OpenChallengeCard({
           ? t("metaLine", {
               startDate,
               endDate,
-              metric: metric === "chars" ? t("metricChars") : t("metricMinutes"),
+              metric:
+                metric === "chars"
+                  ? t("metricChars")
+                  : metric === "minutes"
+                    ? t("metricMinutes")
+                    : t("metricAchievement"),
             })
           : t("pendingLine", {
-              metric: metric === "chars" ? t("metricChars") : t("metricMinutes"),
+              metric:
+                metric === "chars"
+                  ? t("metricChars")
+                  : metric === "minutes"
+                    ? t("metricMinutes")
+                    : t("metricAchievement"),
             })}
       </p>
       <button

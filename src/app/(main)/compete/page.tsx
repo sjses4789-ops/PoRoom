@@ -24,7 +24,7 @@ const SYSTEM_CHALLENGE_KINDS: SystemChallengeKind[] = ["daily5k", "daily10k", "m
 type ChallengeRow = {
   id: string;
   title: string;
-  metric: "chars" | "minutes";
+  metric: "chars" | "minutes" | "achievement";
   visibility: "open" | "private";
   invite_code: string | null;
   start_date: string | null;

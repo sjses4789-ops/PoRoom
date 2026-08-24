@@ -28,9 +28,17 @@ export default async function MainLayout({
 
   const { data: profile } = await supabase
     .from("users")
-    .select("name")
+    .select("name,is_banned")
     .eq("id", user.id)
-    .maybeSingle<{ name: string | null }>();
+    .maybeSingle<{ name: string | null; is_banned: boolean }>();
+
+  // 서비스 키 없이 관리자 플래그(users.is_banned)만으로 계정을 막는
+  // 방식이라, 매 요청마다 여기서 확인해서 걸리면 세션을 끊는다 —
+  // 그래야 다시 로그인해도 곧바로 다시 튕겨나간다.
+  if (profile?.is_banned) {
+    await supabase.auth.signOut();
+    redirect("/login?banned=1");
+  }
 
   if (!profile?.name) {
     redirect("/onboarding");

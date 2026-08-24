@@ -58,6 +58,7 @@
     "pendingLine": "{metric}基準 · 開始待ち",
     "metricChars": "文字数",
     "metricMinutes": "作業時間",
+    "metricAchievement": "達成可否",
     "joined": "参加済み",
     "joining": "参加中...",
     "join": "参加する"
@@ -89,6 +90,12 @@
     "placeholder": "メッセージを入力...",
     "send": "送信"
   },
+  "achievementRoster": {
+    "self": "自分",
+    "achieved": "達成済み",
+    "markAchieved": "達成をチェック",
+    "notAchieved": "未達成"
+  },
   "challengeParticipantCard": {
     "charsLine": "{chars}文字",
     "charsLineWithTarget": "{chars} / {target}文字",
@@ -103,6 +110,7 @@
     "metricLabel": "個人間 · {metric}",
     "metricChars": "文字数",
     "metricMinutes": "作業時間",
+    "metricAchievement": "達成可否",
     "visibilityOpen": "公開部屋",
     "visibilityPrivate": "非公開部屋",
     "inviteCode": "コード {code}",

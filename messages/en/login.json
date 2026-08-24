@@ -1,4 +1,5 @@
 {
   "tagline": "An online Pomodoro workspace to focus together",
-  "google": "Sign in with Google"
+  "google": "Sign in with Google",
+  "bannedNotice": "This account has been suspended and can no longer sign in."
 }

@@ -58,6 +58,7 @@
     "pendingLine": "{metric} 기준 · 시작 대기 중",
     "metricChars": "글자수",
     "metricMinutes": "작업시간",
+    "metricAchievement": "달성 여부",
     "joined": "참여 완료",
     "joining": "참여 중...",
     "join": "참여하기"
@@ -89,6 +90,12 @@
     "placeholder": "메시지 입력...",
     "send": "전송"
   },
+  "achievementRoster": {
+    "self": "나",
+    "achieved": "달성 완료",
+    "markAchieved": "달성 체크하기",
+    "notAchieved": "미달성"
+  },
   "challengeParticipantCard": {
     "charsLine": "{chars}자",
     "charsLineWithTarget": "{chars} / {target}자",
@@ -103,6 +110,7 @@
     "metricLabel": "개인 간 · {metric}",
     "metricChars": "글자수",
     "metricMinutes": "작업시간",
+    "metricAchievement": "달성 여부",
     "visibilityOpen": "공개방",
     "visibilityPrivate": "비공개방",
     "inviteCode": "코드 {code}",

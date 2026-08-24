@@ -29,7 +29,7 @@ export async function ChallengeCard({
 }: {
   id: string;
   title: string;
-  metric: "chars" | "minutes";
+  metric: "chars" | "minutes" | "achievement";
   visibility: "open" | "private";
   inviteCode?: string | null;
   startDate: string | null;
@@ -72,7 +72,14 @@ export async function ChallengeCard({
             {title}
           </span>
           <span className="rounded border border-neutral-200 px-1.5 py-0.5 text-[11px] text-neutral-400">
-            {t("metricLabel", { metric: metric === "chars" ? t("metricChars") : t("metricMinutes") })}
+            {t("metricLabel", {
+              metric:
+                metric === "chars"
+                  ? t("metricChars")
+                  : metric === "minutes"
+                    ? t("metricMinutes")
+                    : t("metricAchievement"),
+            })}
           </span>
           <span className="rounded border border-neutral-200 px-1.5 py-0.5 text-[11px] text-neutral-400">
             {visibility === "open" ? t("visibilityOpen") : t("visibilityPrivate")}

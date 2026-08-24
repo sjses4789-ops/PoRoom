@@ -10,13 +10,13 @@ export async function ChallengeRankingBars({
   target,
 }: {
   participants: ChallengeParticipant[];
-  metric: "chars" | "minutes";
+  metric: "chars" | "minutes" | "achievement";
   target?: number;
 }) {
   const t = await getTranslations("compete.challengeCard");
   const ranked = [...participants].sort((a, b) => b.value - a.value);
   const max = target ?? Math.max(1, ...ranked.map((p) => p.value));
-  const unit = metric === "chars" ? t("unitChars") : t("unitMinutes");
+  const unit = metric === "chars" ? t("unitChars") : metric === "minutes" ? t("unitMinutes") : "";
 
   return (
     <div className="flex flex-col gap-2">

@@ -39,11 +39,17 @@ export async function createAdminChallengeEvent(
   const title = String(formData.get("title") ?? "").trim();
   const startDate = String(formData.get("startDate") ?? "");
   const endDate = String(formData.get("endDate") ?? "");
-  const metric = String(formData.get("metric") ?? "chars") as "chars" | "minutes";
+  const metric = String(formData.get("metric") ?? "chars") as
+    | "chars"
+    | "minutes"
+    | "achievement";
 
   if (!title) return { error: "이벤트 이름을 입력해주세요." };
   if (!startDate || !endDate) return { error: "기간을 선택해주세요." };
   if (endDate < startDate) return { error: "종료일이 시작일보다 빠릅니다." };
+  if (!["chars", "minutes", "achievement"].includes(metric)) {
+    return { error: "잘못된 기준입니다." };
+  }
 
   const { error } = await supabase.from("challenges").insert({
     title,
@@ -76,4 +82,32 @@ export async function adminDeleteRoom(roomId: string) {
   await supabase.from("rooms").delete().eq("id", roomId);
   revalidatePath("/admin");
   revalidatePath("/main");
+}
+
+// 서비스 키가 없어서 Supabase Auth 자체의 계정 정지 기능은 못 쓴다 —
+// 대신 우리 쪽 users.is_banned 플래그를 관리자가 켜고, (main)
+// layout.tsx가 매 요청마다 이 값을 확인해서 켜져 있으면 즉시
+// 로그아웃시키는 방식으로 "다시 로그인해도 못 들어오게" 막는다.
+export async function adminSetBanned(userId: string, banned: boolean) {
+  const supabase = await createClient();
+  await supabase.from("users").update({ is_banned: banned }).eq("id", userId);
+  revalidatePath("/admin");
+}
+
+// 관리자가 만든 "달성 여부" 챌린지에서, 참가자 본인이 달성 완료를
+// 체크한다(초단 완고 챌린지의 자가 신고 체크와 같은 패턴).
+export async function setChallengeAchieved(challengeId: string, achieved: boolean) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return;
+
+  await supabase
+    .from("challenge_participants")
+    .update({ achieved })
+    .eq("challenge_id", challengeId)
+    .eq("user_id", user.id);
+
+  revalidatePath(`/compete/${challengeId}`);
 }

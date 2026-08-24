@@ -29,6 +29,10 @@ export function AdminEventForm() {
           <input type="radio" name="metric" value="minutes" className="accent-neutral-900" />
           {t("metricMinutes")}
         </label>
+        <label className="flex items-center gap-1.5 text-xs text-neutral-700 dark:text-neutral-300">
+          <input type="radio" name="metric" value="achievement" className="accent-neutral-900" />
+          {t("metricAchievement")}
+        </label>
       </div>
       <div className="flex gap-2">
         <input

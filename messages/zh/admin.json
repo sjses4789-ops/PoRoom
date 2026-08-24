@@ -5,6 +5,7 @@
   "eventNamePlaceholder": "活动名称",
   "metricChars": "字数",
   "metricMinutes": "专注时长",
+  "metricAchievement": "达成与否",
   "creating": "创建中...",
   "createEvent": "创建活动",
   "deleteEvent": "删除",
@@ -13,5 +14,12 @@
   "memberCount": "{count}人",
   "deleteRoom": "删除房间",
   "deleteRoomConfirm": "确定删除房间「{name}」吗？此操作无法撤销。",
-  "deleting": "删除中..."
+  "deleting": "删除中...",
+  "membersHeading": "会员管理",
+  "membersHint": "可以在这里封禁恶意接入的账号，使其无法再次登录。",
+  "bannedTag": "已封禁",
+  "ban": "封禁",
+  "unban": "解除封禁",
+  "banConfirm": "确定封禁「{name}」账号吗？该账号将无法再次登录。",
+  "unbanConfirm": "确定解除「{name}」账号的封禁吗？"
 }

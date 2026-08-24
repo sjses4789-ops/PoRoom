@@ -58,6 +58,7 @@
     "pendingLine": "By {metric} · waiting to start",
     "metricChars": "characters",
     "metricMinutes": "focus time",
+    "metricAchievement": "pass/fail",
     "joined": "Joined",
     "joining": "Joining...",
     "join": "Join"
@@ -89,6 +90,12 @@
     "placeholder": "Type a message...",
     "send": "Send"
   },
+  "achievementRoster": {
+    "self": "Me",
+    "achieved": "Achieved",
+    "markAchieved": "Mark as achieved",
+    "notAchieved": "Not yet"
+  },
   "challengeParticipantCard": {
     "charsLine": "{chars} chars",
     "charsLineWithTarget": "{chars} / {target} chars",
@@ -103,6 +110,7 @@
     "metricLabel": "1:1 · {metric}",
     "metricChars": "characters",
     "metricMinutes": "focus time",
+    "metricAchievement": "pass/fail",
     "visibilityOpen": "Open",
     "visibilityPrivate": "Private",
     "inviteCode": "Code {code}",

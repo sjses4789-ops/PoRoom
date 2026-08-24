@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 
-export function AuthLanding() {
+export function AuthLanding({ banned = false }: { banned?: boolean }) {
   const t = useTranslations("login");
   const handleGoogleLogin = async () => {
     const supabase = createClient();
@@ -29,6 +29,9 @@ export function AuthLanding() {
         />
         <p className="text-sm text-neutral-500">{t("tagline")}</p>
       </div>
+      {banned && (
+        <p className="max-w-xs text-center text-sm text-red-500">{t("bannedNotice")}</p>
+      )}
       <button
         onClick={handleGoogleLogin}
         className="flex items-center gap-3 rounded-md border border-neutral-200 px-5 py-2.5 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50"
