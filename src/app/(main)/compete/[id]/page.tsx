@@ -250,6 +250,7 @@ export default async function ChallengeDetailPage({
           startDate={challenge.start_date}
           endDate={challenge.end_date}
           durationDays={challenge.duration_days}
+          color={challenge.color}
           participants={participants}
           linkable={false}
           showRanking={false}

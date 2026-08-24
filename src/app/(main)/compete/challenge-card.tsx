@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { todayKst } from "@/lib/time";
+import { paletteBg } from "@/lib/palette";
 import { ChallengeRankingBars } from "./challenge-ranking-bars";
 
 export type ChallengeParticipant = {
@@ -24,6 +25,7 @@ export async function ChallengeCard({
   target,
   startSlot,
   showRanking = true,
+  color,
 }: {
   id: string;
   title: string;
@@ -32,6 +34,8 @@ export async function ChallengeCard({
   inviteCode?: string | null;
   startDate: string | null;
   endDate: string | null;
+  /** 방장이 설정에서 고른 카드 색상(팔레트 키) — 없으면 기본 흰 배경. */
+  color?: string | null;
   /** 아직 시작 전(startDate가 null)일 때 기간 안내에 쓴다. */
   durationDays?: number;
   participants: ChallengeParticipant[];
@@ -57,7 +61,11 @@ export async function ChallengeCard({
         : t("statusOngoing");
 
   const content = (
-    <div className="flex flex-col gap-3 overflow-hidden rounded-lg border border-neutral-200 p-4 transition hover:border-neutral-300">
+    <div
+      className={`flex flex-col gap-3 overflow-hidden rounded-lg border border-neutral-200/60 p-4 transition hover:border-neutral-300 ${
+        color ? paletteBg(color) : ""
+      }`}
+    >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex min-w-0 flex-wrap items-center gap-2">
           <span className="min-w-0 break-words text-sm font-semibold text-neutral-900 dark:text-white">

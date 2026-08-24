@@ -198,6 +198,7 @@ export default async function CompetePage() {
                   startDate={c.start_date}
                   endDate={c.end_date}
                   durationDays={c.duration_days}
+                  color={c.color}
                   participants={c.participants}
                   startSlot={
                     !c.started_at && c.created_by === user!.id ? (
