@@ -13,7 +13,10 @@
     "inputPlaceholder": "Type here",
     "readyHint": "Start typing to see your live speed",
     "liveCpm": "{cpm} cpm live",
-    "lastResult": "Last: {cpm} cpm · {accuracy}% accuracy"
+    "lastResult": "Last: {cpm} cpm · {accuracy}% accuracy",
+    "cpmValue": "{cpm} cpm",
+    "accuracyValue": "{accuracy}% accuracy",
+    "pressEnterNext": "Press Enter for the next sentence"
   },
   "board": {
     "category": {

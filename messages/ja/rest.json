@@ -13,7 +13,10 @@
     "inputPlaceholder": "ここに入力してください",
     "readyHint": "入力を始めるとリアルタイム速度が表示されます",
     "liveCpm": "リアルタイム {cpm}打/分",
-    "lastResult": "直前の記録 {cpm}打/分 · 正確度 {accuracy}%"
+    "lastResult": "直前の記録 {cpm}打/分 · 正確度 {accuracy}%",
+    "cpmValue": "{cpm}打/分",
+    "accuracyValue": "正確度 {accuracy}%",
+    "pressEnterNext": "エンターキーで次の文章へ"
   },
   "board": {
     "category": {

@@ -13,7 +13,10 @@
     "inputPlaceholder": "请在此输入",
     "readyHint": "开始输入即可看到实时速度",
     "liveCpm": "实时 {cpm}字/分",
-    "lastResult": "上一次 {cpm}字/分 · 准确率 {accuracy}%"
+    "lastResult": "上一次 {cpm}字/分 · 准确率 {accuracy}%",
+    "cpmValue": "{cpm}字/分",
+    "accuracyValue": "准确率 {accuracy}%",
+    "pressEnterNext": "按回车进入下一句"
   },
   "board": {
     "category": {
