@@ -6,12 +6,12 @@ import { useTranslations } from "next-intl";
 import { ThemeToggle } from "./theme-toggle";
 import { LanguageSwitcher } from "./language-switcher";
 
-const TAB_HREFS = ["/main", "/compete", "/ranking", "/me"] as const;
-const TAB_KEYS: Record<(typeof TAB_HREFS)[number], "main" | "compete" | "ranking" | "me"> = {
+const TAB_HREFS = ["/main", "/compete", "/ranking", "/rest"] as const;
+const TAB_KEYS: Record<(typeof TAB_HREFS)[number], "main" | "compete" | "ranking" | "rest"> = {
   "/main": "main",
   "/compete": "compete",
   "/ranking": "ranking",
-  "/me": "me",
+  "/rest": "rest",
 };
 
 export default function NavTabs() {

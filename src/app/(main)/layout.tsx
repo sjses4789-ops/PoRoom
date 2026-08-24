@@ -56,9 +56,12 @@ export default async function MainLayout({
           </Link>
           <div className="flex items-center gap-3 text-sm text-neutral-500 dark:text-neutral-400 md:hidden">
             <TierBadgeButton isPremium={profile.is_premium} />
-            <Link href="/me" className="max-w-[100px] truncate hover:underline">
-            {profile.name}
-          </Link>
+            <Link
+              href="/me"
+              className="max-w-[100px] truncate font-bold text-neutral-900 hover:underline dark:text-white"
+            >
+              {profile.name}
+            </Link>
             <LogoutButton />
           </div>
         </div>
@@ -67,7 +70,10 @@ export default async function MainLayout({
         </div>
         <div className="hidden items-center gap-3 text-sm text-neutral-500 dark:text-neutral-400 md:flex">
           <TierBadgeButton isPremium={profile.is_premium} />
-          <Link href="/me" className="max-w-[160px] truncate hover:underline">
+          <Link
+            href="/me"
+            className="max-w-[160px] truncate font-bold text-neutral-900 hover:underline dark:text-white"
+          >
             {profile.name}
           </Link>
           <LogoutButton />

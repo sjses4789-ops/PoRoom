@@ -1,0 +1,38 @@
+{
+  "page": {
+    "title": "休憩",
+    "subtitle": "少し休みながらタイピング練習をしたり、他の作家と交流してみましょう。"
+  },
+  "nav": {
+    "typing": "タイピング練習"
+  },
+  "typing": {
+    "title": "タイピング練習",
+    "myBest": "自己ベスト {cpm}打/分",
+    "noBestYet": "まだ記録がありません",
+    "inputPlaceholder": "ここに入力してください",
+    "saving": "記録を保存中...",
+    "resultSaved": "記録が保存されました！",
+    "cpmValue": "{cpm}打/分",
+    "accuracyValue": "正確度 {accuracy}%",
+    "nextSentence": "次の文章"
+  },
+  "board": {
+    "category": {
+      "자유": "自由",
+      "정보": "情報",
+      "인원 모집": "メンバー募集"
+    },
+    "write": "書く",
+    "cancel": "キャンセル",
+    "titlePlaceholder": "タイトル",
+    "contentPlaceholder": "内容",
+    "submit": "登録",
+    "submitting": "登録中...",
+    "save": "保存",
+    "edit": "編集",
+    "delete": "削除",
+    "deleteConfirm": "この投稿を削除しますか？",
+    "noPosts": "まだ投稿がありません。"
+  }
+}

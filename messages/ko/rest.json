@@ -1,0 +1,38 @@
+{
+  "page": {
+    "title": "휴식",
+    "subtitle": "잠깐 쉬어가며 타자 연습을 하거나, 다른 작가들과 이야기를 나눠보세요."
+  },
+  "nav": {
+    "typing": "타자 연습"
+  },
+  "typing": {
+    "title": "타자 연습",
+    "myBest": "내 최고 기록 {cpm}타",
+    "noBestYet": "아직 기록이 없어요",
+    "inputPlaceholder": "여기에 입력하세요",
+    "saving": "기록 저장 중...",
+    "resultSaved": "기록이 저장됐어요!",
+    "cpmValue": "{cpm}타/분",
+    "accuracyValue": "정확도 {accuracy}%",
+    "nextSentence": "다음 문장"
+  },
+  "board": {
+    "category": {
+      "자유": "자유",
+      "정보": "정보",
+      "인원 모집": "인원 모집"
+    },
+    "write": "글쓰기",
+    "cancel": "취소",
+    "titlePlaceholder": "제목",
+    "contentPlaceholder": "내용",
+    "submit": "등록",
+    "submitting": "등록 중...",
+    "save": "저장",
+    "edit": "수정",
+    "delete": "삭제",
+    "deleteConfirm": "이 글을 삭제할까요?",
+    "noPosts": "아직 등록된 글이 없습니다."
+  }
+}

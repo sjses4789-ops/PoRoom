@@ -13,8 +13,8 @@
     "colDraws": "D"
   },
   "rankingTabs": {
-    "scopeRoom": "Overall ranking by room",
-    "scopeUser": "Overall ranking by user",
+    "scopeRoom": "Room",
+    "scopeUser": "User",
     "periodDay": "Daily",
     "periodMonth": "Monthly",
     "periodYear": "Yearly",
@@ -39,5 +39,13 @@
     "colName": "Name",
     "colSuccess": "Score",
     "successSuffix": "{count}pt"
+  },
+  "typingRanking": {
+    "heading": "Typing practice ranking",
+    "empty": "No typing practice records yet.",
+    "colRank": "Rank",
+    "colName": "Name",
+    "colCpm": "Best speed",
+    "cpmSuffix": "{count} cpm"
   }
 }

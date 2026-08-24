@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import RankingTabs, { type RankingRecord } from "./ranking-tabs";
 import { WinLossRanking, type WinLossRow } from "./win-loss-ranking";
 import { ChallengeRanking, type ChallengeRankingRow } from "./challenge-ranking";
+import { TypingRanking, type TypingRankingRow } from "./typing-ranking";
 import { todayKst } from "@/lib/time";
 import { PageAdRail } from "@/components/page-ad-rail";
 import {
@@ -79,6 +80,11 @@ export default async function RankingPage() {
         .returns<{ user_id: string | null }[]>()
     : { data: [] as { user_id: string | null }[] };
 
+  const { data: typingScoreRows } = await supabase
+    .from("typing_scores")
+    .select("user_id,cpm")
+    .returns<{ user_id: string; cpm: number }[]>();
+
   const roomNames: Record<string, string> = {};
   for (const r of rooms ?? []) roomNames[r.id] = r.name;
   const userNames: Record<string, string> = {};
@@ -134,13 +140,23 @@ export default async function RankingPage() {
     .slice(0, 20)
     .map((r, i) => ({ rank: i + 1, ...r }));
 
+  const bestCpmByUser = new Map<string, number>();
+  for (const r of typingScoreRows ?? []) {
+    bestCpmByUser.set(r.user_id, Math.max(bestCpmByUser.get(r.user_id) ?? 0, r.cpm));
+  }
+  const typingRankingRows: TypingRankingRow[] = Array.from(bestCpmByUser.entries())
+    .map(([userId, cpm]) => ({ userId, name: userNames[userId] ?? t("unknownUser"), cpm }))
+    .sort((a, b) => b.cpm - a.cpm)
+    .slice(0, 20)
+    .map((r, i) => ({ rank: i + 1, ...r }));
+
   return (
     <PageAdRail>
     <div className="flex flex-col gap-10 pb-14">
       <h1 className="text-lg font-semibold tracking-tight text-neutral-900 dark:text-white">
         {t("title")}
       </h1>
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[2fr_1fr_1fr]">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[2fr_1fr_1fr_1fr]">
         <RankingTabs
           records={records}
           roomNames={roomNames}
@@ -150,6 +166,7 @@ export default async function RankingPage() {
         />
         <WinLossRanking rows={winLossRows} />
         <ChallengeRanking rows={challengeRankingRows} />
+        <TypingRanking rows={typingRankingRows} />
       </div>
     </div>
     </PageAdRail>

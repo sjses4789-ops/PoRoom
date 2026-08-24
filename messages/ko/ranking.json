@@ -13,8 +13,8 @@
     "colDraws": "무"
   },
   "rankingTabs": {
-    "scopeRoom": "방 기준 전체 랭킹",
-    "scopeUser": "개인 기준 전체 랭킹",
+    "scopeRoom": "방",
+    "scopeUser": "개인",
     "periodDay": "일별",
     "periodMonth": "월별",
     "periodYear": "연별",
@@ -39,5 +39,13 @@
     "colName": "이름",
     "colSuccess": "점수",
     "successSuffix": "{count}점"
+  },
+  "typingRanking": {
+    "heading": "타자 연습 랭킹",
+    "empty": "아직 타자 연습 기록이 없습니다.",
+    "colRank": "순위",
+    "colName": "이름",
+    "colCpm": "최고 속도",
+    "cpmSuffix": "{count}타/분"
   }
 }

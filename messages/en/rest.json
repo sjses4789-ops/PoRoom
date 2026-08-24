@@ -1,0 +1,38 @@
+{
+  "page": {
+    "title": "Break",
+    "subtitle": "Take a short break — practice typing or chat with other writers."
+  },
+  "nav": {
+    "typing": "Typing Practice"
+  },
+  "typing": {
+    "title": "Typing Practice",
+    "myBest": "Your best: {cpm} cpm",
+    "noBestYet": "No record yet",
+    "inputPlaceholder": "Type here",
+    "saving": "Saving score...",
+    "resultSaved": "Score saved!",
+    "cpmValue": "{cpm} cpm",
+    "accuracyValue": "{accuracy}% accuracy",
+    "nextSentence": "Next sentence"
+  },
+  "board": {
+    "category": {
+      "자유": "Free",
+      "정보": "Info",
+      "인원 모집": "Recruiting"
+    },
+    "write": "Write",
+    "cancel": "Cancel",
+    "titlePlaceholder": "Title",
+    "contentPlaceholder": "Content",
+    "submit": "Post",
+    "submitting": "Posting...",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleteConfirm": "Delete this post?",
+    "noPosts": "No posts yet."
+  }
+}

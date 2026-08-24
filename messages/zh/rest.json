@@ -1,0 +1,38 @@
+{
+  "page": {
+    "title": "休息",
+    "subtitle": "稍作休息，练习打字或与其他作者交流。"
+  },
+  "nav": {
+    "typing": "打字练习"
+  },
+  "typing": {
+    "title": "打字练习",
+    "myBest": "我的最佳 {cpm}字/分",
+    "noBestYet": "还没有记录",
+    "inputPlaceholder": "请在此输入",
+    "saving": "保存记录中...",
+    "resultSaved": "记录已保存！",
+    "cpmValue": "{cpm}字/分",
+    "accuracyValue": "准确率 {accuracy}%",
+    "nextSentence": "下一句"
+  },
+  "board": {
+    "category": {
+      "자유": "自由",
+      "정보": "信息",
+      "인원 모집": "招募成员"
+    },
+    "write": "写帖子",
+    "cancel": "取消",
+    "titlePlaceholder": "标题",
+    "contentPlaceholder": "内容",
+    "submit": "发布",
+    "submitting": "发布中...",
+    "save": "保存",
+    "edit": "编辑",
+    "delete": "删除",
+    "deleteConfirm": "确定删除这篇帖子吗？",
+    "noPosts": "还没有帖子。"
+  }
+}

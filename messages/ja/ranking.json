@@ -13,8 +13,8 @@
     "colDraws": "分"
   },
   "rankingTabs": {
-    "scopeRoom": "部屋基準の全体ランキング",
-    "scopeUser": "個人基準の全体ランキング",
+    "scopeRoom": "部屋",
+    "scopeUser": "個人",
     "periodDay": "日別",
     "periodMonth": "月別",
     "periodYear": "年別",
@@ -39,5 +39,13 @@
     "colName": "名前",
     "colSuccess": "得点",
     "successSuffix": "{count}点"
+  },
+  "typingRanking": {
+    "heading": "タイピング練習ランキング",
+    "empty": "まだタイピング練習の記録がありません。",
+    "colRank": "順位",
+    "colName": "名前",
+    "colCpm": "最高速度",
+    "cpmSuffix": "{count}打/分"
   }
 }

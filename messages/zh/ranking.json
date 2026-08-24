@@ -13,8 +13,8 @@
     "colDraws": "平"
   },
   "rankingTabs": {
-    "scopeRoom": "按房间统计的总排行榜",
-    "scopeUser": "按个人统计的总排行榜",
+    "scopeRoom": "房间",
+    "scopeUser": "个人",
     "periodDay": "按日",
     "periodMonth": "按月",
     "periodYear": "按年",
@@ -39,5 +39,13 @@
     "colName": "姓名",
     "colSuccess": "积分",
     "successSuffix": "{count}分"
+  },
+  "typingRanking": {
+    "heading": "打字练习排行榜",
+    "empty": "还没有打字练习记录。",
+    "colRank": "排名",
+    "colName": "姓名",
+    "colCpm": "最高速度",
+    "cpmSuffix": "{count}字/分"
   }
 }

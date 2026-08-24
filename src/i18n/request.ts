@@ -19,6 +19,7 @@ const NAMESPACES = [
   "room",
   "tags",
   "admin",
+  "rest",
 ] as const;
 
 // URL은 그대로 두고(경로에 언어를 넣지 않음) 쿠키로만 언어를 구분한다 —
