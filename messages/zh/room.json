@@ -86,6 +86,7 @@
   },
   "chatPanel": {
     "title": "聊天",
+    "bubbleColorLabel": "气泡颜色",
     "inputPlaceholder": "输入消息...",
     "whisperInputPlaceholder": "输入悄悄话...",
     "send": "发送",

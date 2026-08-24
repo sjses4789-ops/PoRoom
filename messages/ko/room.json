@@ -86,6 +86,7 @@
   },
   "chatPanel": {
     "title": "채팅",
+    "bubbleColorLabel": "말풍선 색상",
     "inputPlaceholder": "메시지 입력...",
     "whisperInputPlaceholder": "귓속말 입력...",
     "send": "전송",

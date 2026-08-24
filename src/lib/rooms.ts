@@ -206,6 +206,20 @@ export async function touchLastSeen(roomId: string) {
     .eq("user_id", user.id);
 }
 
+// "상태설정"은 방(room_members)이 아니라 계정(users)에 저장한다 —
+// 방을 나갔다 들어와도, 다른 페이지에 가 있어도 그대로 유지되어야
+// 하기 때문. 다른 참여자 화면에는 users 테이블을 구독하는 실시간
+// 리스너(useLiveMembers)를 통해 그대로 전파된다.
+export async function setWorkStatus(status: string | null) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return;
+
+  await supabase.from("users").update({ work_status: status }).eq("id", user.id);
+}
+
 export async function updateShareRecords(roomId: string, share: boolean) {
   const supabase = await createClient();
   const {

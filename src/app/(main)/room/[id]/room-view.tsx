@@ -10,7 +10,7 @@ import { ChatPanel, type ChatMessage, type LatestNotice } from "./chat-panel";
 import { PomodoroPanel } from "./pomodoro-panel";
 import { CharInput, type WorkItem } from "./char-input";
 import { sumTotals, type DailyRecord } from "@/lib/records";
-import { recordChars, touchLastSeen, type RecordVisibility } from "@/lib/rooms";
+import { recordChars, touchLastSeen, setWorkStatus, type RecordVisibility } from "@/lib/rooms";
 import { effectiveRecordDate, toLocalDateKey } from "@/lib/time";
 
 export type Member = {
@@ -20,6 +20,7 @@ export type Member = {
   chatColor: string | null;
   recordsVisible: boolean;
   lastSeenLabel: string | null;
+  workStatus: string | null;
 };
 
 const LAST_SEEN_HEARTBEAT_MS = 30000;
@@ -62,14 +63,32 @@ export function RoomView({
   initialWorks: WorkItem[];
 }) {
   const t = useTranslations("room.roomView");
-  const members = useLiveMembers(roomId, selfId, initialMembers, recordVisibility);
+  const { members, updateSelfWorkStatus } = useLiveMembers(
+    roomId,
+    selfId,
+    initialMembers,
+    recordVisibility
+  );
   const pomodoro = usePomodoroContext();
   const isActiveRoom = pomodoro.activeRoomId === roomId;
 
   const [chars, setChars] = useState(selfTodayChars);
   const [todayChars, setTodayChars] = useState(selfTodayGlobalChars);
-  const { reportTyping, getStatus, getWorkStatus, setWorkStatus, setPomodoroState, getPomodoroState } =
-    useRoomPresence(roomId, selfId, selfName);
+  const { reportTyping, getStatus, setPomodoroState, getPomodoroState } = useRoomPresence(
+    roomId,
+    selfId,
+    selfName
+  );
+
+  // "상태설정"은 presence(그 방 세션 동안만 사는 실시간 상태)가 아니라
+  // users.work_status에 영구 저장한다 — 방을 나갔다 들어와도, 다른
+  // 페이지에 가 있어도 유지되어야 하기 때문. 낙관적으로 먼저 로컬
+  // 상태를 바꾸고, 서버에도 반영한다(다른 참여자에게는
+  // useLiveMembers의 users 테이블 실시간 구독을 통해 전파된다).
+  const handleChangeWorkStatus = (status: string | null) => {
+    updateSelfWorkStatus(status);
+    setWorkStatus(status);
+  };
 
   // any keystroke anywhere on the room page counts as activity, not just
   // the chat/char inputs — a browser tab can't see keystrokes made in
@@ -174,7 +193,7 @@ export function RoomView({
       presence: getStatus(selfId),
       recordsVisible: true,
       lastSeenLabel: null,
-      workStatus: getWorkStatus(selfId),
+      workStatus: selfMember?.workStatus ?? null,
     },
     ...otherMembers.map((m) => {
       const totals = sumTotals(dailyRecords, m.id);
@@ -192,7 +211,7 @@ export function RoomView({
         presence: getStatus(m.id),
         recordsVisible: m.recordsVisible,
         lastSeenLabel: m.lastSeenLabel,
-        workStatus: getWorkStatus(m.id),
+        workStatus: m.workStatus,
       };
     }),
   ];
@@ -284,7 +303,7 @@ export function RoomView({
               <ParticipantCard
                 key={p.id}
                 data={p}
-                onChangeWorkStatus={p.isSelf ? setWorkStatus : undefined}
+                onChangeWorkStatus={p.isSelf ? handleChangeWorkStatus : undefined}
               />
             ))}
           </div>

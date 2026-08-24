@@ -86,6 +86,7 @@
   },
   "chatPanel": {
     "title": "Chat",
+    "bubbleColorLabel": "Bubble color",
     "inputPlaceholder": "Type a message...",
     "whisperInputPlaceholder": "Type a whisper...",
     "send": "Send",

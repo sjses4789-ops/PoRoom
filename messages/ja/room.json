@@ -86,6 +86,7 @@
   },
   "chatPanel": {
     "title": "チャット",
+    "bubbleColorLabel": "吹き出しの色",
     "inputPlaceholder": "メッセージを入力...",
     "whisperInputPlaceholder": "ひそひそ話を入力...",
     "send": "送信",

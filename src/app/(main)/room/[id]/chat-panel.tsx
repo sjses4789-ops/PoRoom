@@ -155,7 +155,10 @@ export function ChatPanel({
     <div className="flex h-full flex-col overflow-hidden rounded-sm border border-neutral-400 dark:border-neutral-600">
       <div className="flex items-center justify-between border-b border-neutral-100 px-4 py-3 dark:border-neutral-800">
         <span className="text-sm font-semibold text-neutral-900 dark:text-white">{t("title")}</span>
-        <ChatColorPicker current={selfColor} onChange={setSelfColorOverride} />
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs text-neutral-400">{t("bubbleColorLabel")}</span>
+          <ChatColorPicker current={selfColor} onChange={setSelfColorOverride} />
+        </div>
       </div>
       <div ref={listRef} className="chat-scroll flex-1 space-y-3 overflow-y-auto px-4 py-3">
         {messages.map((m) => {

@@ -50,6 +50,7 @@ type MemberRow = {
     email: string;
     character_id: string | null;
     chat_color: string | null;
+    work_status: string | null;
   } | null;
 };
 
@@ -134,7 +135,7 @@ export default async function RoomPage({
   const { data: memberRows } = await supabase
     .from("room_members")
     .select(
-      "user_id,share_records,last_seen_at,is_vice,users(name,email,character_id,chat_color)"
+      "user_id,share_records,last_seen_at,is_vice,users(name,email,character_id,chat_color,work_status)"
     )
     .eq("room_id", id)
     .returns<MemberRow[]>();
@@ -154,6 +155,7 @@ export default async function RoomPage({
       m.user_id === user!.id ||
       (room.record_visibility === "free" && shareRecordsMap.get(m.user_id) === true),
     lastSeenLabel: formatRelativeTime(m.last_seen_at),
+    workStatus: m.users?.work_status ?? null,
   }));
 
   const nameMap = new Map(members.map((m) => [m.id, m.name]));

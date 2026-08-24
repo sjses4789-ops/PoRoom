@@ -12,6 +12,7 @@ type MemberRoomRow = {
     email: string;
     character_id: string | null;
     chat_color: string | null;
+    work_status: string | null;
   } | null;
 };
 
@@ -33,13 +34,21 @@ export function useLiveMembers(
     setMembers(initialMembers);
   }
 
+  // "상태설정"을 누른 사람 본인 화면은 서버 왕복(및 users 테이블 realtime
+  // 전파)을 기다리지 않고 곧바로 반영되도록 낙관적으로 갱신한다.
+  const updateSelfWorkStatus = (status: string | null) => {
+    setMembers((prev) =>
+      prev.map((m) => (m.id === selfId ? { ...m, workStatus: status } : m))
+    );
+  };
+
   useEffect(() => {
     const supabase = createClient();
 
     const addMember = async (userId: string) => {
       const { data: row } = await supabase
         .from("room_members")
-        .select("share_records,users(name,email,character_id,chat_color)")
+        .select("share_records,users(name,email,character_id,chat_color,work_status)")
         .eq("room_id", roomId)
         .eq("user_id", userId)
         .maybeSingle<MemberRoomRow>();
@@ -61,6 +70,7 @@ export function useLiveMembers(
             chatColor: row.users?.chat_color ?? null,
             recordsVisible,
             lastSeenLabel: null,
+            workStatus: row.users?.work_status ?? null,
           },
         ];
       });
@@ -118,6 +128,7 @@ export function useLiveMembers(
             email: string;
             character_id: string | null;
             chat_color: string | null;
+            work_status: string | null;
           };
           setMembers((prev) =>
             prev.map((m) =>
@@ -127,6 +138,7 @@ export function useLiveMembers(
                     name: row.name || row.email || m.name,
                     characterId: row.character_id ?? null,
                     chatColor: row.chat_color ?? null,
+                    workStatus: row.work_status ?? null,
                   }
                 : m
             )
@@ -144,5 +156,5 @@ export function useLiveMembers(
     };
   }, [roomId, selfId, recordVisibility]);
 
-  return members;
+  return { members, updateSelfWorkStatus };
 }

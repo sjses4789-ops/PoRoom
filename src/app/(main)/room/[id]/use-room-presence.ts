@@ -25,7 +25,6 @@ type PomodoroPhase = "focus" | "break" | "idle";
 type PresencePayload = {
   name: string;
   lastTypedAt: number | null;
-  workStatus: string | null;
   pomodoroPhase: PomodoroPhase;
   pomodoroElapsedFraction: number;
 };
@@ -62,7 +61,6 @@ export function useRoomPresence(
   const selfPayloadRef = useRef<PresencePayload>({
     name: selfName,
     lastTypedAt: null,
-    workStatus: null,
     pomodoroPhase: "idle",
     pomodoroElapsedFraction: 0,
   });
@@ -176,18 +174,6 @@ export function useRoomPresence(
     trackSafely(selfPayloadRef.current);
   }, [selfName, trackSafely]);
 
-  const setWorkStatus = useCallback(
-    (workStatus: string | null) => {
-      selfPayloadRef.current = {
-        ...selfPayloadRef.current,
-        name: selfName,
-        workStatus,
-      };
-      trackSafely(selfPayloadRef.current);
-    },
-    [selfName, trackSafely]
-  );
-
   // 다른 참여자 카드에 내 뽀모도로 진행 상태(집중/휴식/대기)가 실시간으로
   // 보이도록 presence에 함께 실어 보낸다 — 이전엔 이 값이 전혀 공유되지
   // 않아서 다른 사람 눈엔 항상 "대기"로만 보였다.
@@ -232,11 +218,6 @@ export function useRoomPresence(
     [effectivePresence]
   );
 
-  const getWorkStatus = useCallback(
-    (userId: string): string | null => effectivePresence(userId)?.workStatus ?? null,
-    [effectivePresence]
-  );
-
   const getPomodoroState = useCallback(
     (userId: string) => {
       const p = effectivePresence(userId);
@@ -251,8 +232,6 @@ export function useRoomPresence(
   return {
     reportTyping,
     getStatus,
-    getWorkStatus,
-    setWorkStatus,
     setPomodoroState,
     getPomodoroState,
   };
