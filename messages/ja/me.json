@@ -1,0 +1,17 @@
+{
+  "pomodoroStats": {
+    "title": "ポモドーロ統計",
+    "byDay": "日別",
+    "byMonth": "月別",
+    "monthLabel": "{month}月",
+    "sessionCount": "ポモドーロ回数",
+    "focusMinutes": "集中時間",
+    "breakMinutes": "休憩時間",
+    "totalFocus": "累計集中時間",
+    "totalBreak": "累計休憩時間",
+    "focusVsSiteTime": "滞在時間に対する集中時間",
+    "noSiteTimeData": "データなし",
+    "hourUnit": "時間",
+    "minuteUnit": "分"
+  }
+}

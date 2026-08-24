@@ -8,6 +8,7 @@ import LogoutButton from "./logout-button";
 import { SiteFooter } from "./site-footer";
 import { PomodoroProvider } from "./pomodoro-context";
 import { PomodoroMiniWidget } from "./pomodoro-mini-widget";
+import { SiteTimeTracker } from "./site-time-tracker";
 
 export default async function MainLayout({
   children,
@@ -87,6 +88,7 @@ export default async function MainLayout({
       <main className="flex-1 px-4 py-6 sm:px-6 md:px-8 md:py-8">{children}</main>
       <SiteFooter />
       <PomodoroMiniWidget />
+      <SiteTimeTracker />
     </div>
     </PomodoroProvider>
   );

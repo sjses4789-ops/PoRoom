@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
-import { recordFocusMinutes } from "@/lib/rooms";
+import { recordFocusMinutes, recordBreakMinutes } from "@/lib/rooms";
 import { logActivity } from "@/lib/activity";
 import { effectiveRecordDate } from "@/lib/time";
 import type { Phase } from "./room/[id]/use-pomodoro";
@@ -45,10 +45,12 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
   const [phase, setPhase] = useState<Phase>("focus");
   const [tickingSeconds, setTickingSeconds] = useState(25 * 60);
   const [accumulatedFocusSeconds, setAccumulatedFocusSeconds] = useState(0);
+  const [accumulatedBreakSeconds, setAccumulatedBreakSeconds] = useState(0);
 
   const remainingRef = useRef(tickingSeconds);
   const sessionStartRef = useRef(0);
   const lastFlushedMinutesRef = useRef(0);
+  const lastFlushedBreakMinutesRef = useRef(0);
 
   useEffect(() => {
     if (!running) return;
@@ -58,6 +60,7 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
         remainingRef.current = next;
         setTickingSeconds(next);
         if (phase === "focus") setAccumulatedFocusSeconds((s) => s + 1);
+        else setAccumulatedBreakSeconds((s) => s + 1);
         return;
       }
       const nextPhase: Phase = phase === "focus" ? "break" : "focus";
@@ -79,6 +82,16 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
     }
   }, [accumulatedFocusSeconds, activeRoom]);
 
+  useEffect(() => {
+    if (!activeRoom) return;
+    const currentMinutes = Math.floor(accumulatedBreakSeconds / 60);
+    if (currentMinutes > lastFlushedBreakMinutesRef.current) {
+      const delta = currentMinutes - lastFlushedBreakMinutesRef.current;
+      lastFlushedBreakMinutesRef.current = currentMinutes;
+      recordBreakMinutes(activeRoom.id, delta, effectiveRecordDate(sessionStartRef.current));
+    }
+  }, [accumulatedBreakSeconds, activeRoom]);
+
   const doStart = useCallback(
     (
       room: { id: string; name: string; isSystemRoom: boolean },
@@ -94,6 +107,8 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
         setActiveRoom(room);
         setAccumulatedFocusSeconds(initialFocusSeconds);
         lastFlushedMinutesRef.current = Math.floor(initialFocusSeconds / 60);
+        setAccumulatedBreakSeconds(0);
+        lastFlushedBreakMinutesRef.current = 0;
         sessionStartRef.current = Date.now();
       }
       if (isNewRoom || !started) {
@@ -121,6 +136,8 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
     setActiveRoom(null);
     setAccumulatedFocusSeconds(0);
     lastFlushedMinutesRef.current = 0;
+    setAccumulatedBreakSeconds(0);
+    lastFlushedBreakMinutesRef.current = 0;
   }, [activeRoom, started, focusMinutes]);
 
   const phaseDuration = (phase === "focus" ? focusMinutes : breakMinutes) * 60;

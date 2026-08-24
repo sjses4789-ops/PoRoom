@@ -338,3 +338,45 @@ export async function recordFocusMinutes(
   revalidatePath(`/room/${roomId}`);
   revalidatePath("/main");
 }
+
+// recordFocusMinutes와 동일한 방식으로 휴식 분을 하루 단위로 누적한다 —
+// [개인] 페이지의 뽀모도로 통계(누적 휴식시간)에서 사용.
+export async function recordBreakMinutes(
+  roomId: string,
+  delta: number,
+  dateOverride?: string
+) {
+  if (delta <= 0) return;
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const date = dateOverride ?? todayKst();
+  const { data: existing } = await supabase
+    .from("daily_records")
+    .select("id,break_minutes")
+    .eq("user_id", user.id)
+    .eq("room_id", roomId)
+    .eq("record_date", date)
+    .maybeSingle<{ id: string; break_minutes: number }>();
+
+  if (existing) {
+    await supabase
+      .from("daily_records")
+      .update({
+        break_minutes: existing.break_minutes + delta,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", existing.id);
+  } else {
+    await supabase.from("daily_records").insert({
+      user_id: user.id,
+      room_id: roomId,
+      record_date: date,
+      chars: 0,
+      break_minutes: delta,
+    });
+  }
+}

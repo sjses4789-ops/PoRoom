@@ -1,0 +1,17 @@
+{
+  "pomodoroStats": {
+    "title": "Pomodoro stats",
+    "byDay": "By day",
+    "byMonth": "By month",
+    "monthLabel": "M{month}",
+    "sessionCount": "Pomodoro sessions",
+    "focusMinutes": "Focus time",
+    "breakMinutes": "Break time",
+    "totalFocus": "Total focus time",
+    "totalBreak": "Total break time",
+    "focusVsSiteTime": "Focus time vs. time on site",
+    "noSiteTimeData": "No data",
+    "hourUnit": "h",
+    "minuteUnit": "m"
+  }
+}

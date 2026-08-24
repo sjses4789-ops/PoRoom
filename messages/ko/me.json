@@ -1,0 +1,17 @@
+{
+  "pomodoroStats": {
+    "title": "뽀모도로 통계",
+    "byDay": "일별",
+    "byMonth": "월별",
+    "monthLabel": "{month}월",
+    "sessionCount": "뽀모도로 횟수",
+    "focusMinutes": "집중시간",
+    "breakMinutes": "휴식시간",
+    "totalFocus": "누적 집중시간",
+    "totalBreak": "누적 휴식시간",
+    "focusVsSiteTime": "체류시간 대비 집중시간",
+    "noSiteTimeData": "데이터 없음",
+    "hourUnit": "시간",
+    "minuteUnit": "분"
+  }
+}
