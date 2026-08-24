@@ -56,16 +56,20 @@ export function TypingPractice({ myBestCpm }: { myBestCpm: number | null }) {
       ? Math.round(typingSpeedUnits(input) / Math.max((now - startedAt) / 60000, 1 / 60))
       : null;
 
-  // 1번째 엔터(또는 문장을 정확히 다 쳤을 때): 그 시점까지의 기록을
-  // 평가해서 예문이 있던 자리에 보여준다. 아직 다음 문장으로는 넘어가지
-  // 않는다.
-  const evaluate = () => {
-    if (startedAt === null || input.length === 0) return;
+  // 1번째 엔터(또는 문장을 정확히 다 쳤을 때): 그 시점까지 "완성된"
+  // 입력값과 예문을 비교해 정확도를 매긴다 — 타이핑 도중 오타를 내고
+  // 백스페이스로 고쳐도, 최종적으로 완성된 문자열만 비교하므로 정확도에
+  // 영향이 없다. onChange에서 문장이 완성된 순간 곧바로 부를 때는
+  // setInput(value)가 아직 반영되기 전이라(리액트 상태 갱신은 비동기)
+  // 클로저의 input이 한 글자 이전 값을 가리키는 문제가 있었다 — 그래서
+  // 평가할 최종 문자열을 인자로 명시적으로 받는다.
+  const evaluate = (finalInput: string) => {
+    if (startedAt === null || finalInput.length === 0) return;
     const elapsedMinutes = Math.max((Date.now() - startedAt) / 60000, 1 / 60);
-    const cpm = Math.round(typingSpeedUnits(input) / elapsedMinutes);
+    const cpm = Math.round(typingSpeedUnits(finalInput) / elapsedMinutes);
     let correct = 0;
     for (let i = 0; i < sentence.length; i++) {
-      if (input[i] === sentence[i]) correct++;
+      if (finalInput[i] === sentence[i]) correct++;
     }
     const accuracy = Math.round((correct / sentence.length) * 100);
 
@@ -100,13 +104,13 @@ export function TypingPractice({ myBestCpm }: { myBestCpm: number | null }) {
       setNow(start);
     }
     setInput(value);
-    if (value === sentence) evaluate();
+    if (value === sentence) evaluate(value);
   };
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key !== "Enter") return;
     e.preventDefault();
-    if (stage === "typing") evaluate();
+    if (stage === "typing") evaluate(input);
     else advance();
   };
 
