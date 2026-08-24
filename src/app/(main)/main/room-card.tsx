@@ -1,11 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { joinOpenRoom } from "@/lib/rooms";
 import { paletteDot, paletteBg } from "@/lib/palette";
-import { createClient } from "@/lib/supabase/client";
 
 export type RoomListItem = {
   id: string;
@@ -68,29 +66,12 @@ function RoomCardBody({ room }: { room: RoomListItem }) {
   );
 }
 
-async function roomStillExists(roomId: string) {
-  const supabase = createClient();
-  const { data } = await supabase.from("rooms").select("id").eq("id", roomId).maybeSingle();
-  return !!data;
-}
-
 export default function RoomCard({ room }: { room: RoomListItem }) {
   const [joining, setJoining] = useState(false);
-  const router = useRouter();
 
   if (room.isMember) {
     return (
-      <Link
-        href={`/room/${room.id}`}
-        onClick={async (e) => {
-          e.preventDefault();
-          if (await roomStillExists(room.id)) {
-            router.push(`/room/${room.id}`);
-          } else {
-            window.alert("이미 삭제된 방입니다.");
-          }
-        }}
-      >
+      <Link href={`/room/${room.id}`}>
         <RoomCardBody room={room} />
       </Link>
     );
@@ -104,11 +85,7 @@ export default function RoomCard({ room }: { room: RoomListItem }) {
           disabled={joining}
           onClick={async () => {
             setJoining(true);
-            if (await roomStillExists(room.id)) {
-              await joinOpenRoom(room.id);
-            } else {
-              window.alert("이미 삭제된 방입니다.");
-            }
+            await joinOpenRoom(room.id);
             setJoining(false);
           }}
           className="self-start rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-neutral-700 disabled:opacity-50"

@@ -198,7 +198,9 @@ export default async function MainPage() {
   return (
     <PageAdRail>
     <div className="flex flex-col gap-10">
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[4fr_1fr]">
+      {/* 마감방/새벽방 칸은 고정 폭으로 둬서, 랜딩 폭이 늘어나면 그만큼
+          내 현황 쪽(1fr)이 전부 넓어지도록 한다. */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_220px]">
         <MainDashboard
           todayChars={selfTodayChars}
           year={todayYear}

@@ -5,7 +5,7 @@ import { AdSlot } from "./ad-slot";
 // 본문을 밀어내지 않도록 xl 이상에서만 보여준다.
 export function PageAdRail({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mx-auto flex w-full max-w-5xl gap-12">
+    <div className="mx-auto flex w-full max-w-6xl gap-12">
       <div className="min-w-0 flex-1">{children}</div>
       <aside className="hidden shrink-0 xl:block">
         {/* top-[50vh] + -translate-y-1/2로 뷰포트 세로 가운데에 고정한다 —

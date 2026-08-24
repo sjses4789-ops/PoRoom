@@ -24,15 +24,36 @@ export default async function RankingPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const [{ data: dailyRecords }, { data: rooms }, { data: users }] =
-    await Promise.all([
-      supabase
-        .from("daily_records")
-        .select("room_id,user_id,record_date,chars,focus_minutes")
-        .returns<DailyRecordRow[]>(),
-      supabase.from("rooms").select("id,name").returns<RoomRow[]>(),
-      supabase.from("users").select("id,name,email").returns<UserRow[]>(),
-    ]);
+  const [
+    { data: dailyRecords },
+    { data: rooms },
+    { data: users },
+    { data: userChallenges },
+    { data: milestoneLogs },
+  ] = await Promise.all([
+    supabase
+      .from("daily_records")
+      .select("room_id,user_id,record_date,chars,focus_minutes")
+      .returns<DailyRecordRow[]>(),
+    supabase.from("rooms").select("id,name").returns<RoomRow[]>(),
+    supabase.from("users").select("id,name,email").returns<UserRow[]>(),
+    // 대결 승패 랭킹: 종료된 개인 간(1:1 이상) 대결에서 기간 내 값이 가장
+    // 높은 참가자가 승, 나를 포함해 공동 1위면 무, 그 외엔 패 — 이걸 볼 수
+    // 있는 모든 대결(RLS상 공개방이거나 내가 참여한 대결)에 대해 집계한다.
+    supabase
+      .from("challenges")
+      .select("id,metric,start_date,end_date")
+      .eq("type", "user")
+      .returns<UserChallengeRow[]>(),
+    // 챌린지 랭킹: 매일 5천자·매일 1만자·초단 완고 성공(milestone_5k/
+    // milestone_10k/draft_done) 횟수를 종류 구분 없이 동일하게 합산해서
+    // 집계한다. 위 조회들과 서로 무관해서 같은 배치로 함께 보낸다.
+    supabase
+      .from("activity_logs")
+      .select("user_id")
+      .in("type", ["milestone_5k", "milestone_10k", "draft_done"])
+      .returns<{ user_id: string }[]>(),
+  ]);
 
   const roomNames: Record<string, string> = {};
   for (const r of rooms ?? []) roomNames[r.id] = r.name;
@@ -48,15 +69,6 @@ export default async function RankingPage() {
   }));
 
   const today = todayKst();
-
-  // 대결 승패 랭킹: 종료된 개인 간(1:1 이상) 대결에서 기간 내 값이 가장
-  // 높은 참가자가 승, 나를 포함해 공동 1위면 무, 그 외엔 패 — 이걸 볼 수
-  // 있는 모든 대결(RLS상 공개방이거나 내가 참여한 대결)에 대해 집계한다.
-  const { data: userChallenges } = await supabase
-    .from("challenges")
-    .select("id,metric,start_date,end_date")
-    .eq("type", "user")
-    .returns<UserChallengeRow[]>();
 
   const completedChallenges = (userChallenges ?? []).filter((c) => c.end_date < today);
   const completedIds = completedChallenges.map((c) => c.id);
@@ -80,15 +92,6 @@ export default async function RankingPage() {
     .sort((a, b) => b.wins - a.wins || a.losses - b.losses)
     .slice(0, 20)
     .map((r, i) => ({ rank: i + 1, ...r }));
-
-  // 챌린지 랭킹: 매일 5천자·매일 1만자·초단 완고 성공(milestone_5k/
-  // milestone_10k/draft_done) 횟수를 종류 구분 없이 동일하게 합산해서
-  // 집계한다.
-  const { data: milestoneLogs } = await supabase
-    .from("activity_logs")
-    .select("user_id")
-    .in("type", ["milestone_5k", "milestone_10k", "draft_done"])
-    .returns<{ user_id: string }[]>();
 
   const challengeSuccessByUser = new Map<string, number>();
   for (const l of milestoneLogs ?? []) {

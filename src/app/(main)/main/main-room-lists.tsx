@@ -6,7 +6,6 @@ import { ROOM_TAGS } from "@/lib/room-tags";
 import { paletteDot, paletteBg } from "@/lib/palette";
 import { toggleFavoriteRoom } from "@/lib/rooms";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import CreateRoomButton from "./create-room-button";
 import InviteCodeButton from "./invite-code-button";
 import RoomCard, { type RoomListItem } from "./room-card";
@@ -30,12 +29,6 @@ const SORT_OPTIONS: { key: SortMode; label: string }[] = [
   { key: "created", label: "생성 날짜순" },
 ];
 
-async function roomStillExists(roomId: string) {
-  const supabase = createClient();
-  const { data } = await supabase.from("rooms").select("id").eq("id", roomId).maybeSingle();
-  return !!data;
-}
-
 function MyRoomCard({
   room,
   onToggleFavorite,
@@ -43,7 +36,6 @@ function MyRoomCard({
   room: RoomListItem;
   onToggleFavorite: (roomId: string, next: boolean) => void;
 }) {
-  const router = useRouter();
   return (
     <div
       className={`relative overflow-hidden rounded-lg border border-neutral-200/60 transition hover:border-neutral-300 ${paletteBg(room.color)}`}
@@ -63,14 +55,6 @@ function MyRoomCard({
       </button>
       <Link
         href={`/room/${room.id}`}
-        onClick={async (e) => {
-          e.preventDefault();
-          if (await roomStillExists(room.id)) {
-            router.push(`/room/${room.id}`);
-          } else {
-            window.alert("이미 삭제된 방입니다.");
-          }
-        }}
         className="flex flex-col gap-1.5 px-3 py-2.5 pr-8 text-sm"
       >
         <span className="flex min-w-0 items-center gap-1.5">

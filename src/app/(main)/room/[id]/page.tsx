@@ -158,6 +158,11 @@ export default async function RoomPage({
   const isVice = viceMap.get(user!.id) ?? false;
   const canPostNotice = isOwner || isVice;
 
+  const today = todayKst();
+
+  // 서로 의존하지 않는 조회는 전부 한 배치로 보낸다 — 방 입장이 느리다는
+  // 피드백의 원인은 이 페이지가 필요한 조회 중 상당수를 이전 조회 결과와
+  // 무관한데도 순차적으로(하나씩 기다렸다가 다음 것) 보내고 있던 것.
   const [
     { data: messageRows },
     { data: recordRows },
@@ -165,6 +170,9 @@ export default async function RoomPage({
     { data: postRows },
     { data: categoryRows },
     { data: pollRows },
+    { data: selfTodayGlobalRows },
+    { data: goalRows },
+    { data: workRows },
   ] = await Promise.all([
     supabase
       .from("chat_messages")
@@ -200,26 +208,59 @@ export default async function RoomPage({
       .eq("room_id", id)
       .order("created_at", { ascending: false })
       .returns<PollRow[]>(),
+    // "오늘의 글자수"는 이 방만이 아니라 그날 어느 방에서 입력했든 합산되는
+    // 개인 기록이다 — 방이 나중에 삭제돼도 사라지지 않는다.
+    supabase
+      .from("daily_records")
+      .select("chars")
+      .eq("user_id", user!.id)
+      .eq("record_date", today)
+      .returns<{ chars: number }[]>(),
+    // 오늘 적용되는 목표 글자수 — 오늘 또는 그 이전 날짜에 설정된 값 중
+    // 가장 최근 것.
+    supabase
+      .from("daily_char_goals")
+      .select("target_chars")
+      .eq("user_id", user!.id)
+      .lte("effective_date", today)
+      .order("effective_date", { ascending: false })
+      .limit(1)
+      .returns<{ target_chars: number }[]>(),
+    supabase
+      .from("works")
+      .select("id,title,last_current_chars")
+      .eq("user_id", user!.id)
+      .order("created_at", { ascending: true })
+      .returns<{ id: string; title: string; last_current_chars: number }[]>(),
   ]);
 
   const pollIds = (pollRows ?? []).map((p) => p.id);
-  const [{ data: pollOptionRows }, { data: pollVoteRows }] = await Promise.all([
-    pollIds.length
-      ? supabase
-          .from("poll_options")
-          .select("id,poll_id,label,position")
-          .in("poll_id", pollIds)
-          .order("position", { ascending: true })
-          .returns<PollOptionRow[]>()
-      : Promise.resolve({ data: [] as PollOptionRow[] }),
-    pollIds.length
-      ? supabase
-          .from("poll_votes")
-          .select("poll_id,option_id,voter_id")
-          .in("poll_id", pollIds)
-          .returns<PollVoteRow[]>()
-      : Promise.resolve({ data: [] as PollVoteRow[] }),
-  ]);
+  const eventIds = (eventRows ?? []).map((e) => e.id);
+  const [{ data: pollOptionRows }, { data: pollVoteRows }, { data: celebrationRows }] =
+    await Promise.all([
+      pollIds.length
+        ? supabase
+            .from("poll_options")
+            .select("id,poll_id,label,position")
+            .in("poll_id", pollIds)
+            .order("position", { ascending: true })
+            .returns<PollOptionRow[]>()
+        : Promise.resolve({ data: [] as PollOptionRow[] }),
+      pollIds.length
+        ? supabase
+            .from("poll_votes")
+            .select("poll_id,option_id,voter_id")
+            .in("poll_id", pollIds)
+            .returns<PollVoteRow[]>()
+        : Promise.resolve({ data: [] as PollVoteRow[] }),
+      eventIds.length
+        ? supabase
+            .from("event_celebrations")
+            .select("event_id,user_id")
+            .in("event_id", eventIds)
+            .returns<{ event_id: string; user_id: string }[]>()
+        : Promise.resolve({ data: [] as { event_id: string; user_id: string }[] }),
+    ]);
 
   const initialMessages: ChatMessage[] = (messageRows ?? []).map((m) => ({
     id: m.id,
@@ -241,42 +282,16 @@ export default async function RoomPage({
       focusMinutes: r.focus_minutes,
     }));
 
-  const today = todayKst();
   const selfToday = dailyRecords.find(
     (r) => r.userId === user!.id && r.date === today
   );
 
-  // "오늘의 글자수"는 이 방만이 아니라 그날 어느 방에서 입력했든 합산되는
-  // 개인 기록이다 — 방이 나중에 삭제돼도 사라지지 않는다.
-  const { data: selfTodayGlobalRows } = await supabase
-    .from("daily_records")
-    .select("chars")
-    .eq("user_id", user!.id)
-    .eq("record_date", today)
-    .returns<{ chars: number }[]>();
   const selfTodayGlobalChars = (selfTodayGlobalRows ?? []).reduce(
     (sum, r) => sum + r.chars,
     0
   );
-
-  // 오늘 적용되는 목표 글자수 — 오늘 또는 그 이전 날짜에 설정된 값 중
-  // 가장 최근 것.
-  const { data: goalRows } = await supabase
-    .from("daily_char_goals")
-    .select("target_chars")
-    .eq("user_id", user!.id)
-    .lte("effective_date", today)
-    .order("effective_date", { ascending: false })
-    .limit(1)
-    .returns<{ target_chars: number }[]>();
   const selfTodayGoalChars = goalRows?.[0]?.target_chars ?? 0;
 
-  const { data: workRows } = await supabase
-    .from("works")
-    .select("id,title,last_current_chars")
-    .eq("user_id", user!.id)
-    .order("created_at", { ascending: true })
-    .returns<{ id: string; title: string; last_current_chars: number }[]>();
   const works = (workRows ?? []).map((w) => ({
     id: w.id,
     title: w.title,
@@ -285,14 +300,6 @@ export default async function RoomPage({
 
   const categoryNameById = new Map((categoryRows ?? []).map((c) => [c.id, c.name]));
 
-  const eventIds = (eventRows ?? []).map((e) => e.id);
-  const { data: celebrationRows } = eventIds.length
-    ? await supabase
-        .from("event_celebrations")
-        .select("event_id,user_id")
-        .in("event_id", eventIds)
-        .returns<{ event_id: string; user_id: string }[]>()
-    : { data: [] as { event_id: string; user_id: string }[] };
   const celebrationCountMap = new Map<string, number>();
   const selfCelebratedSet = new Set<string>();
   for (const c of celebrationRows ?? []) {

@@ -73,7 +73,10 @@ export default async function CompetePage() {
 
   const challengeIds = (challenges ?? []).map((c) => c.id);
 
-  const [{ data: participants }, { data: users }, { data: records }] =
+  const today = todayKst();
+  const monthStart = `${today.slice(0, 7)}-01`;
+
+  const [{ data: participants }, { data: users }, { data: records }, { data: draftLogs }] =
     await Promise.all([
       challengeIds.length
         ? supabase
@@ -87,6 +90,13 @@ export default async function CompetePage() {
         .from("daily_records")
         .select("user_id,record_date,chars,focus_minutes")
         .returns<RecordRow[]>(),
+      supabase
+        .from("activity_logs")
+        .select("id")
+        .eq("user_id", user!.id)
+        .eq("type", "draft_done")
+        .gte("created_at", kstDayRangeUtc(monthStart).startUtc)
+        .limit(1),
     ]);
 
   const userNameMap = new Map((users ?? []).map((u) => [u.id, u.name || u.email]));
@@ -141,19 +151,10 @@ export default async function CompetePage() {
       c.kind !== null
   );
 
-  const today = todayKst();
   const myTodayChars = (records ?? [])
     .filter((r) => r.user_id === user!.id && r.record_date === today)
     .reduce((sum, r) => sum + r.chars, 0);
 
-  const monthStart = `${today.slice(0, 7)}-01`;
-  const { data: draftLogs } = await supabase
-    .from("activity_logs")
-    .select("id")
-    .eq("user_id", user!.id)
-    .eq("type", "draft_done")
-    .gte("created_at", kstDayRangeUtc(monthStart).startUtc)
-    .limit(1);
   const draftDoneThisMonth = (draftLogs ?? []).length > 0;
 
   return (
