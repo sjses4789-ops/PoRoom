@@ -124,7 +124,7 @@ export function BoardPanel({
   const visiblePosts = posts.filter((p) => p.category === activeCategory);
 
   return (
-    <div className="grid grid-cols-1 gap-4 border border-neutral-400 p-4 lg:grid-cols-[140px_1fr] dark:border-neutral-600">
+    <div className="grid grid-cols-1 gap-4 overflow-hidden rounded-sm border border-neutral-400 p-4 lg:grid-cols-[140px_1fr] dark:border-neutral-600">
       <div className="flex flex-row flex-wrap gap-1.5 lg:flex-col lg:flex-nowrap lg:border-r lg:border-neutral-100 lg:pr-4 dark:lg:border-neutral-800">
         {visibleCategories.map((c) => (
           <button
@@ -189,7 +189,7 @@ export function BoardPanel({
         {visiblePosts.length === 0 ? (
           <p className="text-xs text-neutral-400">{t("noPosts")}</p>
         ) : (
-          <ul className="flex flex-col divide-y divide-neutral-400 border border-neutral-400 dark:divide-neutral-600 dark:border-neutral-600">
+          <ul className="flex flex-col divide-y divide-neutral-400 overflow-hidden rounded-sm border border-neutral-400 dark:divide-neutral-600 dark:border-neutral-600">
             {visiblePosts.map((p) => {
               const isOpen = openId === p.id;
               const isEditing = editingId === p.id;

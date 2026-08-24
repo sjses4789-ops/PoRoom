@@ -111,7 +111,7 @@ export function RankingStatusPanel({
         </button>
         </div>
       </div>
-      <div className="grid grid-cols-1 divide-y divide-neutral-400 border border-neutral-400 dark:divide-neutral-600 dark:border-neutral-600 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+      <div className="grid grid-cols-1 divide-y divide-neutral-400 overflow-hidden rounded-md border border-neutral-400 dark:divide-neutral-600 dark:border-neutral-600 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
         <div className="p-4">
           <p className="text-xs text-neutral-500 dark:text-neutral-400">{t("byRoom")}</p>
           {roomRanks.length === 0 ? (

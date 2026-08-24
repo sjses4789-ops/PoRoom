@@ -130,7 +130,7 @@ export function PomodoroStatsPanel({
         {periodSelector}
       </div>
 
-      <div className="grid grid-cols-1 divide-y divide-neutral-400 border border-neutral-400 dark:divide-neutral-600 dark:border-neutral-600 lg:grid-cols-2 lg:divide-x lg:divide-y-0">
+      <div className="grid grid-cols-1 divide-y divide-neutral-400 overflow-hidden rounded-md border border-neutral-400 dark:divide-neutral-600 dark:border-neutral-600 lg:grid-cols-2 lg:divide-x lg:divide-y-0">
         <div className="p-4">
           <p className="mb-2 text-xs text-neutral-500 dark:text-neutral-400">{t("sessionCount")}</p>
           <div className="overflow-x-auto pb-1">
@@ -234,7 +234,7 @@ export function PomodoroStatsPanel({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 divide-y divide-neutral-400 border border-neutral-400 dark:divide-neutral-600 dark:border-neutral-600 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+      <div className="grid grid-cols-1 divide-y divide-neutral-400 overflow-hidden rounded-md border border-neutral-400 dark:divide-neutral-600 dark:border-neutral-600 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
         <div className="p-4 text-center">
           <p className="text-[12px] text-neutral-500 dark:text-neutral-400">{t("totalFocus")}</p>
           <p className="mt-1 text-lg font-semibold text-neutral-900 dark:text-white">

@@ -52,7 +52,7 @@ function PollCard({
   const isEnded = poll.endsAt !== null && new Date(poll.endsAt) <= new Date();
 
   return (
-    <div className="flex flex-col gap-3 border border-neutral-400 p-4 dark:border-neutral-600">
+    <div className="flex flex-col gap-3 overflow-hidden rounded-sm border border-neutral-400 p-4 dark:border-neutral-600">
       <div className="flex items-start justify-between gap-2">
         <div className="flex flex-col gap-1">
           <span className="text-sm font-semibold text-neutral-900 dark:text-white">
@@ -260,7 +260,7 @@ export function PollPanel({
       </div>
 
       {creating && (
-        <div className="flex flex-col gap-3 border border-neutral-400 p-4 dark:border-neutral-600">
+        <div className="flex flex-col gap-3 overflow-hidden rounded-sm border border-neutral-400 p-4 dark:border-neutral-600">
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}

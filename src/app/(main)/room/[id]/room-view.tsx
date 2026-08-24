@@ -214,7 +214,7 @@ export function RoomView({
         </div>
 
         <div className="flex flex-col gap-3 lg:order-2">
-          <div className="flex items-center justify-between gap-3 border border-neutral-400 px-3 py-2 dark:border-neutral-600">
+          <div className="flex items-center justify-between gap-3 overflow-hidden rounded-sm border border-neutral-400 px-3 py-2 dark:border-neutral-600">
             <div className="flex min-w-0 items-center gap-2">
               <span aria-hidden className="text-neutral-400">
                 👥

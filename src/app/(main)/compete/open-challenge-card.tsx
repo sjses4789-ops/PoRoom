@@ -25,7 +25,7 @@ export function OpenChallengeCard({
   const [error, setError] = useState<string | null>(null);
 
   return (
-    <div className="flex flex-col gap-2 overflow-hidden border border-neutral-400 p-4">
+    <div className="flex flex-col gap-2 overflow-hidden rounded-lg border border-neutral-200 p-4">
       <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
         <span className="min-w-0 truncate text-sm font-medium text-neutral-900 dark:text-white">
           {title}

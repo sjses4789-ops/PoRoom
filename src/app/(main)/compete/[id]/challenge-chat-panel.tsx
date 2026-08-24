@@ -81,7 +81,7 @@ export function ChallengeChatPanel({
   };
 
   return (
-    <div className="flex h-[420px] flex-col border border-neutral-400 dark:border-neutral-600">
+    <div className="flex h-[420px] flex-col overflow-hidden rounded-md border border-neutral-400 dark:border-neutral-600">
       <div className="border-b border-neutral-100 px-4 py-3 dark:border-neutral-800">
         <span className="text-sm font-semibold text-neutral-900 dark:text-white">{t("title")}</span>
       </div>

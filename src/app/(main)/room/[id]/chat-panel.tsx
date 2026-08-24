@@ -152,7 +152,7 @@ export function ChatPanel({
   };
 
   return (
-    <div className="flex h-full flex-col border border-neutral-400 dark:border-neutral-600">
+    <div className="flex h-full flex-col overflow-hidden rounded-sm border border-neutral-400 dark:border-neutral-600">
       <div className="flex items-center justify-between border-b border-neutral-100 px-4 py-3 dark:border-neutral-800">
         <span className="text-sm font-semibold text-neutral-900 dark:text-white">{t("title")}</span>
         <ChatColorPicker current={selfColor} onChange={setSelfColorOverride} />

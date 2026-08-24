@@ -44,7 +44,7 @@ export function PomodoroPanel({
   );
 
   return (
-    <div className="flex flex-col items-center gap-4 border border-neutral-400 p-6 dark:border-neutral-600">
+    <div className="flex flex-col items-center gap-4 overflow-hidden rounded-sm border border-neutral-400 p-6 dark:border-neutral-600">
       <div className="flex flex-col items-center gap-2">
         <PomodoroDonut
           progress={elapsedFraction}

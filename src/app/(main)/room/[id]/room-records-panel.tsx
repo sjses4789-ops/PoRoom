@@ -113,7 +113,7 @@ export function RoomRecordsPanel({
     .slice(0, 10);
 
   return (
-    <div className="flex flex-col gap-3 border border-neutral-400 p-4 dark:border-neutral-600">
+    <div className="flex flex-col gap-3 overflow-hidden rounded-sm border border-neutral-400 p-4 dark:border-neutral-600">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("title")}</h2>
         <div className="flex items-center gap-3">

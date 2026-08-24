@@ -13,6 +13,16 @@ const TRACK_TIMEOUT_MS = 4000;
 // 위 타임아웃으로도 놓친 갱신이 있을 수 있으니, 주기적으로 현재 상태를
 // 다시 track()해서 다른 참여자 화면이 스스로 복구되도록 한다.
 const RETRACK_INTERVAL_MS = 15000;
+// 브라우저는 백그라운드 탭의 setInterval/setTimeout을 강하게 쓰로틀링한다
+// (Chrome은 몇 분만 지나도 1분에 한 번 수준으로 줄인다) — supabase-js
+// realtime 클라이언트의 heartbeat도 내부적으로 타이머 기반이라, 참여자가
+// 다른 탭이나 집필 프로그램으로 옮겨가 방 탭이 백그라운드에 오래 머물면
+// 하트비트가 지연되어 서버가 그 연결을 끊어버리고, presence 상태에서
+// 빠지는 경우가 실제로 있다. 그렇다고 바로 "비접속"으로 보여주면, 실제로는
+// 계속 접속해 있는 사람이 화면에서만 끊긴 것처럼 보이는 문제가 생긴다 —
+// 그래서 presence에서 잠깐 빠지더라도 이 유예 시간 동안은 마지막으로 알려진
+// 상태를 그대로 보여주고, 이 시간을 넘겨야만 실제 비접속으로 표시한다.
+const PRESENCE_GRACE_MS = 5 * 60 * 1000;
 
 type PomodoroPhase = "focus" | "break" | "idle";
 
@@ -36,6 +46,10 @@ export function useRoomPresence(
   >({});
   const channelRef = useRef<RealtimeChannel | null>(null);
   const lastTrackedRef = useRef(0);
+  // presence에서 실제로 빠진 뒤에도 유예 시간 동안은 마지막으로 알려진
+  // 상태를 보여주기 위한 캐시.
+  const lastSeenAtRef = useRef<Map<string, number>>(new Map());
+  const lastKnownPayloadRef = useRef<Map<string, PresencePayload>>(new Map());
   // Realtime Presence의 track()을 겹쳐서(빠르게 연달아) 호출하면 일부
   // 호출이 유실되거나 순서가 뒤바뀌어, 이후 track()이 더는 서버 상태에
   // 반영되지 않는 것처럼 보이는 문제가 있었다 — 항상 하나씩 순서대로
@@ -70,10 +84,15 @@ export function useRoomPresence(
     const syncFromState = () => {
       const state = channel.presenceState<PresencePayload>();
       const next: Record<string, PresencePayload> = {};
+      const now = Date.now();
       for (const key of Object.keys(state)) {
         const entries = state[key];
         const latest = entries[entries.length - 1];
-        if (latest) next[key] = latest;
+        if (latest) {
+          next[key] = latest;
+          lastSeenAtRef.current.set(key, now);
+          lastKnownPayloadRef.current.set(key, latest);
+        }
       }
       setPresenceMap(next);
     };
@@ -113,10 +132,23 @@ export function useRoomPresence(
       trackSafely(selfPayloadRef.current);
     }, RETRACK_INTERVAL_MS);
 
+    // 탭이 백그라운드에 있는 동안은 위 setInterval 자체가 쓰로틀링돼서
+    // 늦게(또는 거의 안) 실행되므로, 탭이 다시 보이거나 포커스를 받는
+    // 순간 즉시 재track해서 최대한 빨리 "접속중"으로 복구되게 한다.
+    const onVisible = () => {
+      if (document.visibilityState === "visible") {
+        trackSafely(selfPayloadRef.current);
+      }
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", onVisible);
+
     return () => {
       if (retrySubscribeId) clearTimeout(retrySubscribeId);
       clearInterval(tickId);
       clearInterval(retrackId);
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", onVisible);
       supabase.removeChannel(channel);
     };
   }, [roomId, selfId, selfName, trackSafely]);
@@ -161,32 +193,48 @@ export function useRoomPresence(
     [selfName, trackSafely]
   );
 
+  // presence에 지금 없어도 유예 시간 안이면 마지막으로 알려진 값을
+  // 그대로 쓴다 — 백그라운드 탭에서 하트비트가 지연돼 잠깐 presence에서
+  // 빠지더라도 화면상으론 계속 접속 중인 것처럼 보이게 한다.
+  const effectivePresence = useCallback(
+    (userId: string): PresencePayload | null => {
+      const live = presenceMap[userId];
+      if (live) return live;
+      const lastSeen = lastSeenAtRef.current.get(userId);
+      if (lastSeen && Date.now() - lastSeen < PRESENCE_GRACE_MS) {
+        return lastKnownPayloadRef.current.get(userId) ?? null;
+      }
+      return null;
+    },
+    [presenceMap]
+  );
+
   const getStatus = useCallback(
     (userId: string): PresenceStatus => {
-      const p = presenceMap[userId];
+      const p = effectivePresence(userId);
       if (!p) return "offline";
       if (p.lastTypedAt && Date.now() - p.lastTypedAt < TYPING_WINDOW_MS) {
         return "typing";
       }
       return "idle";
     },
-    [presenceMap]
+    [effectivePresence]
   );
 
   const getWorkStatus = useCallback(
-    (userId: string): string | null => presenceMap[userId]?.workStatus ?? null,
-    [presenceMap]
+    (userId: string): string | null => effectivePresence(userId)?.workStatus ?? null,
+    [effectivePresence]
   );
 
   const getPomodoroState = useCallback(
     (userId: string) => {
-      const p = presenceMap[userId];
+      const p = effectivePresence(userId);
       return {
         phase: p?.pomodoroPhase ?? "idle",
         elapsedFraction: p?.pomodoroPhase && p.pomodoroPhase !== "idle" ? p.pomodoroElapsedFraction : 0,
       };
     },
-    [presenceMap]
+    [effectivePresence]
   );
 
   return {

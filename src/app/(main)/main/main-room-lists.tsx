@@ -35,7 +35,7 @@ function MyRoomCard({
   const tTags = useTranslations("tags");
   return (
     <div
-      className={`relative overflow-hidden border border-neutral-400 transition hover:border-neutral-500 dark:border-neutral-600 dark:hover:border-neutral-400 ${paletteBg(room.color)}`}
+      className={`relative overflow-hidden rounded-lg border border-neutral-200/60 transition hover:border-neutral-300 ${paletteBg(room.color)}`}
     >
       <button
         type="button"
@@ -193,8 +193,8 @@ export function MainRoomLists({ initialRooms }: { initialRooms: RoomListItem[] }
     .sort(sortFn);
 
   return (
-    <div className="grid grid-cols-1 divide-y divide-neutral-400 dark:divide-neutral-600 lg:grid-cols-[260px_1fr] lg:divide-x lg:divide-y-0">
-      <section className="flex flex-col gap-3 p-4">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[260px_1fr]">
+      <section className="flex flex-col gap-3">
         <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
           {t("myRooms")}
         </h2>
@@ -219,7 +219,7 @@ export function MainRoomLists({ initialRooms }: { initialRooms: RoomListItem[] }
         )}
       </section>
 
-      <section className="flex flex-col gap-3 p-4">
+      <section className="flex flex-col gap-3">
         <div className="flex flex-wrap gap-1.5">
           {selectedTags.size > 0 && (
             <button

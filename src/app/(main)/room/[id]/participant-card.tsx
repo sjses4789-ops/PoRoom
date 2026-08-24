@@ -58,7 +58,7 @@ export function ParticipantCard({
 
   return (
     <div
-      className={`flex flex-col gap-2 overflow-hidden rounded-lg border p-3 ${
+      className={`flex flex-col gap-2 overflow-hidden rounded-sm border p-3 ${
         data.isSelf ? "border-neutral-900 dark:border-white" : "border-neutral-200 dark:border-neutral-700"
       } ${cardBg ? "" : "bg-white dark:bg-neutral-900"}`}
       style={cardBg ? { backgroundColor: cardBg } : undefined}

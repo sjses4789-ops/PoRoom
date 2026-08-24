@@ -62,7 +62,7 @@ export async function ChallengeCard({
 
   const content = (
     <div
-      className={`flex flex-col gap-3 overflow-hidden border border-neutral-400 p-4 transition hover:border-neutral-500 dark:border-neutral-600 dark:hover:border-neutral-400 ${
+      className={`flex flex-col gap-3 overflow-hidden rounded-lg border border-neutral-200/60 p-4 transition hover:border-neutral-300 ${
         color ? paletteBg(color) : ""
       }`}
     >

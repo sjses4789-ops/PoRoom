@@ -400,7 +400,7 @@ export default async function MePage() {
 
       <section className="flex flex-col gap-3">
         <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("accountInfo")}</h2>
-        <div className="grid grid-cols-1 divide-y divide-neutral-400 border border-neutral-400 dark:divide-neutral-600 dark:border-neutral-600 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+        <div className="grid grid-cols-1 divide-y divide-neutral-400 overflow-hidden rounded-md border border-neutral-400 dark:divide-neutral-600 dark:border-neutral-600 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
           <div className="p-4 text-sm">
             <div className="flex flex-col gap-1">
               <span className="text-neutral-900 dark:text-white">{myProfile?.name ?? t("noNickname")}</span>
@@ -425,7 +425,7 @@ export default async function MePage() {
       </section>
 
       <section className="flex flex-col gap-3">
-        <div className="grid grid-cols-1 divide-y divide-neutral-400 border border-neutral-400 dark:divide-neutral-600 dark:border-neutral-600 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+        <div className="grid grid-cols-1 divide-y divide-neutral-400 overflow-hidden rounded-md border border-neutral-400 dark:divide-neutral-600 dark:border-neutral-600 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
           <div className="flex flex-col gap-3 p-4">
             <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("attendance")}</h2>
             <AttendanceCalendar
@@ -449,7 +449,7 @@ export default async function MePage() {
       </section>
 
       <section className="flex flex-col gap-3">
-        <div className="grid grid-cols-1 divide-y divide-neutral-400 border border-neutral-400 dark:divide-neutral-600 dark:border-neutral-600 sm:grid-cols-2 sm:divide-x sm:divide-y-0 lg:grid-cols-3">
+        <div className="grid grid-cols-1 divide-y divide-neutral-400 overflow-hidden rounded-md border border-neutral-400 dark:divide-neutral-600 dark:border-neutral-600 sm:grid-cols-2 sm:divide-x sm:divide-y-0 lg:grid-cols-3">
           <div className="p-4">
             <RankingStatusPanel
               selfId={user.id}

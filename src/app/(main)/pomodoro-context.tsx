@@ -36,6 +36,36 @@ type PomodoroContextValue = {
 
 const PomodoroContext = createContext<PomodoroContextValue | null>(null);
 
+// 뽀모도로 진행 중에 새로고침해도 진행 상황이 그대로 유지되도록,
+// 상태가 바뀔 때마다 localStorage에 스냅샷을 남기고 마운트 시 복원한다.
+const STORAGE_KEY = "poroom:pomodoro-state";
+
+type StoredPomodoroState = {
+  activeRoom: ActiveRoom;
+  focusMinutes: number;
+  breakMinutes: number;
+  running: boolean;
+  started: boolean;
+  phase: Phase;
+  tickingSeconds: number;
+  accumulatedFocusSeconds: number;
+  accumulatedBreakSeconds: number;
+  lastFlushedMinutes: number;
+  lastFlushedBreakMinutes: number;
+  sessionStart: number;
+};
+
+function readStoredPomodoro(): StoredPomodoroState | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as StoredPomodoroState;
+  } catch {
+    return null;
+  }
+}
+
 // 방 페이지를 벗어나도(=이 프로바이더가 걸려있는 (main) 레이아웃 자체는
 // 계속 살아있으므로) 뽀모도로가 멈추지 않고 계속 흘러가도록, 타이머
 // 상태와 매분 서버 기록 로직을 방 페이지 트리 바깥(레이아웃)으로 끌어올렸다.
@@ -49,11 +79,51 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
   const [tickingSeconds, setTickingSeconds] = useState(25 * 60);
   const [accumulatedFocusSeconds, setAccumulatedFocusSeconds] = useState(0);
   const [accumulatedBreakSeconds, setAccumulatedBreakSeconds] = useState(0);
+  // 새로고침 직후 저장된 상태를 복원하는 동안에는(마운트 첫 렌더가
+  // 아직 기본값일 때) 저장 effect가 그 기본값을 스냅샷으로 덮어써
+  // 지워버리면 안 된다 — ref가 아니라 state로 둬서, 복원이 실제로
+  // 반영된 "다음" 렌더에서만 저장 effect가 true를 보게 한다(같은
+  // 커밋 안에서 ref를 미리 true로 바꿔버리면 activeRoom은 아직
+  // 기본값인 채로 저장 effect가 돌아버리는 문제가 있었다).
+  const [hydrated, setHydrated] = useState(false);
 
   const remainingRef = useRef(tickingSeconds);
   const sessionStartRef = useRef(0);
   const lastFlushedMinutesRef = useRef(0);
   const lastFlushedBreakMinutesRef = useRef(0);
+
+  // 뽀모도로 진행 중에 새로고침해도 이어지도록, 마운트 시(클라이언트에서만)
+  // localStorage에 저장된 스냅샷을 읽어 복원한다. 서버 렌더링 시점엔
+  // localStorage가 없어 이 값을 미리 알 수 없으므로, 초기 state는 항상
+  // 기본값으로 두고 hydration 이후 이 effect에서 한 번만 덮어쓴다
+  // (그래야 서버/클라이언트 첫 렌더 결과가 어긋나는 hydration mismatch가
+  // 생기지 않는다).
+  /* eslint-disable react-hooks/set-state-in-effect -- this is a one-time
+     restore of client-only persisted state (localStorage) after mount,
+     which is exactly the "subscribe to an external system" case the rule
+     itself carves out; consolidating these into a single state atom would
+     mean rewriting every setter call throughout this file's carefully
+     tuned ref-mirrored interval logic for no behavioral benefit. */
+  useEffect(() => {
+    const restored = readStoredPomodoro();
+    if (restored) {
+      setActiveRoom(restored.activeRoom);
+      setFocusMinutes(restored.focusMinutes);
+      setBreakMinutes(restored.breakMinutes);
+      setRunning(restored.running);
+      setStarted(restored.started);
+      setPhase(restored.phase);
+      setTickingSeconds(restored.tickingSeconds);
+      remainingRef.current = restored.tickingSeconds;
+      setAccumulatedFocusSeconds(restored.accumulatedFocusSeconds);
+      setAccumulatedBreakSeconds(restored.accumulatedBreakSeconds);
+      lastFlushedMinutesRef.current = restored.lastFlushedMinutes;
+      lastFlushedBreakMinutesRef.current = restored.lastFlushedBreakMinutes;
+      sessionStartRef.current = restored.sessionStart;
+    }
+    setHydrated(true);
+  }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // phase/focusMinutes/breakMinutes를 인터벌 effect의 의존성에 넣으면
   // 집중↔휴식이 바뀔 때마다(=phase가 바뀔 때마다) setInterval이 해체되고
@@ -95,6 +165,45 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
     }, 1000);
     return () => clearInterval(id);
   }, [running]);
+
+  // 새로고침해도 진행 상황이 이어지도록, 관련 상태가 바뀔 때마다
+  // localStorage에 그대로 스냅샷을 남긴다 — 위 hydrate effect가 아직
+  // 복원을 끝내기 전(state가 기본값인 첫 렌더) 이 effect가 먼저 돌면
+  // 방금 읽어들인 저장값을 기본값(activeRoom=null)으로 덮어써 지워버릴
+  // 수 있으므로, 복원이 끝나기 전까지는 아무것도 쓰지 않는다.
+  useEffect(() => {
+    if (!hydrated) return;
+    if (!activeRoom) {
+      window.localStorage.removeItem(STORAGE_KEY);
+      return;
+    }
+    const snapshot: StoredPomodoroState = {
+      activeRoom,
+      focusMinutes,
+      breakMinutes,
+      running,
+      started,
+      phase,
+      tickingSeconds,
+      accumulatedFocusSeconds,
+      accumulatedBreakSeconds,
+      lastFlushedMinutes: lastFlushedMinutesRef.current,
+      lastFlushedBreakMinutes: lastFlushedBreakMinutesRef.current,
+      sessionStart: sessionStartRef.current,
+    };
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
+  }, [
+    hydrated,
+    activeRoom,
+    focusMinutes,
+    breakMinutes,
+    running,
+    started,
+    phase,
+    tickingSeconds,
+    accumulatedFocusSeconds,
+    accumulatedBreakSeconds,
+  ]);
 
   useEffect(() => {
     if (!activeRoom) return;
@@ -205,6 +314,7 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
     lastFlushedMinutesRef.current = 0;
     setAccumulatedBreakSeconds(0);
     lastFlushedBreakMinutesRef.current = 0;
+    window.localStorage.removeItem(STORAGE_KEY);
   }, [activeRoom, started, focusMinutes]);
 
   const phaseDuration = (phase === "focus" ? focusMinutes : breakMinutes) * 60;

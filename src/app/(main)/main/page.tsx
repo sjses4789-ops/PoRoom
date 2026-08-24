@@ -221,10 +221,10 @@ export default async function MainPage() {
 
   return (
     <PageAdRail>
-    <div className="flex flex-col divide-y divide-neutral-400 border border-neutral-400 dark:divide-neutral-600 dark:border-neutral-600">
+    <div className="flex flex-col gap-10">
       {/* 마감방/새벽방 칸은 고정 폭으로 둬서, 랜딩 폭이 늘어나면 그만큼
           내 현황 쪽(1fr)이 전부 넓어지도록 한다. */}
-      <div className="grid grid-cols-1 divide-y divide-neutral-400 dark:divide-neutral-600 lg:grid-cols-[1fr_220px] lg:divide-x lg:divide-y-0">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_220px]">
         <MainDashboard
           todayChars={selfTodayChars}
           year={userTodayYear}
@@ -237,7 +237,7 @@ export default async function MainPage() {
           overallRank={overallRank}
           totalUsers={totalUsers ?? 0}
         />
-        <div className="p-4">{systemRoomSection}</div>
+        {systemRoomSection}
       </div>
 
       <MainRoomLists initialRooms={roomItems} />

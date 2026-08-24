@@ -68,7 +68,7 @@ export async function ActivityLogList({ entries }: { entries: LogEntry[] }) {
   }
 
   return (
-    <ul className="flex flex-col divide-y divide-neutral-400 border border-neutral-400">
+    <ul className="flex flex-col divide-y divide-neutral-400 overflow-hidden rounded-md border border-neutral-400">
       {entries.map((entry) => (
         <li
           key={entry.id}
