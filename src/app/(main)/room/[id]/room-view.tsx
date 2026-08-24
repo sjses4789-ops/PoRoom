@@ -68,11 +68,8 @@ export function RoomView({
 
   const [chars, setChars] = useState(selfTodayChars);
   const [todayChars, setTodayChars] = useState(selfTodayGlobalChars);
-  const { reportTyping, getStatus, getWorkStatus, setWorkStatus } = useRoomPresence(
-    roomId,
-    selfId,
-    selfName
-  );
+  const { reportTyping, getStatus, getWorkStatus, setWorkStatus, setPomodoroState, getPomodoroState } =
+    useRoomPresence(roomId, selfId, selfName);
 
   // any keystroke anywhere on the room page counts as activity, not just
   // the chat/char inputs — a browser tab can't see keystrokes made in
@@ -139,6 +136,26 @@ export function RoomView({
     ? pomodoro.accumulatedFocusSeconds / 60
     : selfTodayFocusMinutes;
 
+  // 다른 참여자 카드에도 내 뽀모도로 상태(집중/휴식/대기)가 보이도록
+  // presence로 실어 보낸다 — 전환 시점에 바로 한 번, 진행 중에는
+  // 주기적으로 다시 보내서(진행률 갱신 + 유실 복구) 화면이 오래
+  // 어긋나지 않게 한다.
+  const displayElapsedFractionRef = useRef(displayElapsedFraction);
+  useEffect(() => {
+    displayElapsedFractionRef.current = displayElapsedFraction;
+  }, [displayElapsedFraction]);
+
+  useEffect(() => {
+    setPomodoroState(displayPhase, displayElapsedFractionRef.current);
+  }, [displayPhase, setPomodoroState]);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setPomodoroState(displayPhase, displayElapsedFractionRef.current);
+    }, 10000);
+    return () => clearInterval(id);
+  }, [displayPhase, setPomodoroState]);
+
   const otherMembers = members.filter((m) => m.id !== selfId);
   const selfMember = members.find((m) => m.id === selfId);
 
@@ -161,12 +178,13 @@ export function RoomView({
     },
     ...otherMembers.map((m) => {
       const totals = sumTotals(dailyRecords, m.id);
+      const pomodoroState = getPomodoroState(m.id);
       return {
         id: m.id,
         name: m.name,
         characterId: m.characterId,
-        phase: "idle" as const,
-        elapsedFraction: 0,
+        phase: pomodoroState.phase,
+        elapsedFraction: pomodoroState.elapsedFraction,
         focusMinutes: 25,
         breakMinutes: 5,
         accumulatedFocusMinutes: totals.focusMinutes,

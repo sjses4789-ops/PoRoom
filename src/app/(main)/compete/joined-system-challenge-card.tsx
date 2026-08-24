@@ -10,6 +10,7 @@ export async function JoinedSystemChallengeCard({
   myTodayChars,
   dailyTarget,
   draftDoneThisMonth,
+  bgClass,
   isAdminEvent,
 }: {
   id: string;
@@ -20,6 +21,8 @@ export async function JoinedSystemChallengeCard({
   myTodayChars: number;
   dailyTarget?: number;
   draftDoneThisMonth?: boolean;
+  /** 종류별로 다른 파스텔 채움색 — 카드끼리 구분되도록 호출부에서 정해서 넘긴다. */
+  bgClass: string;
   isAdminEvent: boolean;
 }) {
   const t = await getTranslations("compete.joinedSystemChallengeCard");
@@ -29,9 +32,9 @@ export async function JoinedSystemChallengeCard({
       href={`/compete/${id}`}
       className={`flex flex-col gap-2 rounded-lg border p-4 transition ${
         isAdminEvent
-          ? "border-red-200/60 bg-[#faf0f0] hover:border-red-300 dark:border-red-900/60 dark:bg-[#2a1c1c] dark:hover:border-red-800"
-          : "border-neutral-200/60 bg-[#fbf8ef] hover:border-neutral-300 dark:border-neutral-700 dark:bg-[#242216] dark:hover:border-neutral-600"
-      }`}
+          ? "border-red-200/60 hover:border-red-300 dark:border-red-900/60 dark:hover:border-red-800"
+          : "border-neutral-200/60 hover:border-neutral-300 dark:border-neutral-700 dark:hover:border-neutral-600"
+      } ${bgClass}`}
     >
       <div className="flex items-center justify-between gap-2">
         <span className="min-w-0 truncate text-sm font-medium text-neutral-900 dark:text-white">

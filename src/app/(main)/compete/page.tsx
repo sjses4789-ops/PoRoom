@@ -12,8 +12,11 @@ import { StartChallengeButton } from "./start-challenge-button";
 import {
   ensureSystemChallenge,
   SYSTEM_CHALLENGE_META,
+  SYSTEM_CHALLENGE_CARD_BG,
   type SystemChallengeKind,
 } from "@/lib/system-challenges";
+
+const ADMIN_EVENT_CARD_BG = "bg-[#faf0f0] dark:bg-[#2a1c1c]";
 import { todayKst, kstDayRangeUtc } from "@/lib/time";
 
 const SYSTEM_CHALLENGE_KINDS: SystemChallengeKind[] = ["daily5k", "daily10k", "monthly_draft"];
@@ -238,6 +241,7 @@ export default async function CompetePage() {
                     myTodayChars={myTodayChars}
                     dailyTarget={meta?.dailyTarget}
                     draftDoneThisMonth={c.kind === "monthly_draft" ? draftDoneThisMonth : undefined}
+                    bgClass={c.kind ? SYSTEM_CHALLENGE_CARD_BG[c.kind] : ADMIN_EVENT_CARD_BG}
                     isAdminEvent={c.is_admin_event}
                   />
                 );
@@ -299,6 +303,7 @@ export default async function CompetePage() {
                   endDate={c.end_date ?? today}
                   participantCount={c.participantCount}
                   dailyTarget={meta?.dailyTarget}
+                  bgClass={c.kind ? SYSTEM_CHALLENGE_CARD_BG[c.kind] : ADMIN_EVENT_CARD_BG}
                   isAdminEvent={c.is_admin_event}
                 />
               );

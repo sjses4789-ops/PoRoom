@@ -12,6 +12,16 @@ export const SYSTEM_CHALLENGE_META: Record<
   monthly_draft: { title: "매 달 초단 1완고 챌린지", resetLabel: "매 달 1일 리셋" },
 };
 
+// 챌린지 목록 카드가 전부 같은 색이라 구분이 어렵다는 피드백 — 종류별로
+// 옅은 파스텔을 다르게 준다(관리자 임시 이벤트는 별도로 항상 빨간
+// 계열을 쓰므로 여기 포함하지 않음, open/joined-system-challenge-card
+// 참고).
+export const SYSTEM_CHALLENGE_CARD_BG: Record<SystemChallengeKind, string> = {
+  daily5k: "bg-[#fdf6e3] dark:bg-[#2a2410]",
+  daily10k: "bg-[#eaf7ef] dark:bg-[#122a1c]",
+  monthly_draft: "bg-[#f2effa] dark:bg-[#211c2e]",
+};
+
 const CHALLENGE_TODO_CONTENT: Record<SystemChallengeKind, string> = {
   daily5k: "매일 5천자 쓰기",
   daily10k: "매일 1만자 쓰기",

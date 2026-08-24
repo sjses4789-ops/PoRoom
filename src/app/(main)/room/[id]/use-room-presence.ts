@@ -6,11 +6,22 @@ import { createClient } from "@/lib/supabase/client";
 
 const TYPING_WINDOW_MS = 5000;
 const TRACK_THROTTLE_MS = 2000;
+// track() 호출이 응답 없이 멈추면(네트워크 순간 단절 등) 뒤이은 모든
+// track()이 큐에 걸려 영원히 반영되지 않는 문제가 있었다 — 일정 시간
+// 안에 끝나지 않으면 그냥 다음 큐로 넘어가도록 타임아웃을 둔다.
+const TRACK_TIMEOUT_MS = 4000;
+// 위 타임아웃으로도 놓친 갱신이 있을 수 있으니, 주기적으로 현재 상태를
+// 다시 track()해서 다른 참여자 화면이 스스로 복구되도록 한다.
+const RETRACK_INTERVAL_MS = 15000;
+
+type PomodoroPhase = "focus" | "break" | "idle";
 
 type PresencePayload = {
   name: string;
   lastTypedAt: number | null;
   workStatus: string | null;
+  pomodoroPhase: PomodoroPhase;
+  pomodoroElapsedFraction: number;
 };
 
 export type PresenceStatus = "offline" | "typing" | "idle";
@@ -33,12 +44,19 @@ export function useRoomPresence(
   const trackSafely = useCallback((payload: PresencePayload) => {
     trackQueueRef.current = trackQueueRef.current
       .catch(() => {})
-      .then(() => channelRef.current?.track(payload));
+      .then(() =>
+        Promise.race([
+          channelRef.current?.track(payload) ?? Promise.resolve(),
+          new Promise((resolve) => setTimeout(resolve, TRACK_TIMEOUT_MS)),
+        ])
+      );
   }, []);
   const selfPayloadRef = useRef<PresencePayload>({
     name: selfName,
     lastTypedAt: null,
     workStatus: null,
+    pomodoroPhase: "idle",
+    pomodoroElapsedFraction: 0,
   });
   const [, setTick] = useState(0);
 
@@ -71,12 +89,19 @@ export function useRoomPresence(
       });
 
     const tickId = setInterval(() => setTick((t) => t + 1), 1000);
+    // track() 하나가 유실돼도 다른 참여자 화면이 오래(다음 상태 변경
+    // 전까지) 어긋난 채로 남지 않도록, 주기적으로 현재 상태를 다시
+    // 알린다.
+    const retrackId = setInterval(() => {
+      trackSafely(selfPayloadRef.current);
+    }, RETRACK_INTERVAL_MS);
 
     return () => {
       clearInterval(tickId);
+      clearInterval(retrackId);
       supabase.removeChannel(channel);
     };
-  }, [roomId, selfId, selfName]);
+  }, [roomId, selfId, selfName, trackSafely]);
 
   const reportTyping = useCallback(() => {
     const now = Date.now();
@@ -102,6 +127,22 @@ export function useRoomPresence(
     [selfName, trackSafely]
   );
 
+  // 다른 참여자 카드에 내 뽀모도로 진행 상태(집중/휴식/대기)가 실시간으로
+  // 보이도록 presence에 함께 실어 보낸다 — 이전엔 이 값이 전혀 공유되지
+  // 않아서 다른 사람 눈엔 항상 "대기"로만 보였다.
+  const setPomodoroState = useCallback(
+    (phase: PomodoroPhase, elapsedFraction: number) => {
+      selfPayloadRef.current = {
+        ...selfPayloadRef.current,
+        name: selfName,
+        pomodoroPhase: phase,
+        pomodoroElapsedFraction: elapsedFraction,
+      };
+      trackSafely(selfPayloadRef.current);
+    },
+    [selfName, trackSafely]
+  );
+
   const getStatus = useCallback(
     (userId: string): PresenceStatus => {
       const p = presenceMap[userId];
@@ -119,5 +160,23 @@ export function useRoomPresence(
     [presenceMap]
   );
 
-  return { reportTyping, getStatus, getWorkStatus, setWorkStatus };
+  const getPomodoroState = useCallback(
+    (userId: string) => {
+      const p = presenceMap[userId];
+      return {
+        phase: p?.pomodoroPhase ?? "idle",
+        elapsedFraction: p?.pomodoroPhase && p.pomodoroPhase !== "idle" ? p.pomodoroElapsedFraction : 0,
+      };
+    },
+    [presenceMap]
+  );
+
+  return {
+    reportTyping,
+    getStatus,
+    getWorkStatus,
+    setWorkStatus,
+    setPomodoroState,
+    getPomodoroState,
+  };
 }

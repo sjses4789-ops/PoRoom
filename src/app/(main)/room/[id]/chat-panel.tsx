@@ -255,9 +255,11 @@ export function ChatPanel({
         />
         <button
           onClick={send}
-          className="rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-neutral-700"
+          title={t("send")}
+          aria-label={t("send")}
+          className="rounded-md bg-neutral-900 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-neutral-700"
         >
-          {t("send")}
+          ⌂
         </button>
       </div>
       <div className="h-14 overflow-hidden border-t border-neutral-100 dark:border-neutral-800">

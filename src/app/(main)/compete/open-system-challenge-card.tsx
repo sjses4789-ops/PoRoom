@@ -12,6 +12,7 @@ export function OpenSystemChallengeCard({
   endDate,
   participantCount,
   dailyTarget,
+  bgClass,
   isAdminEvent,
 }: {
   id: string;
@@ -21,6 +22,8 @@ export function OpenSystemChallengeCard({
   endDate: string;
   participantCount: number;
   dailyTarget?: number;
+  /** 종류별로 다른 파스텔 채움색 — 카드끼리 구분되도록 호출부에서 정해서 넘긴다. */
+  bgClass: string;
   isAdminEvent: boolean;
 }) {
   const t = useTranslations("compete.openSystemChallengeCard");
@@ -31,10 +34,8 @@ export function OpenSystemChallengeCard({
   return (
     <div
       className={`flex flex-col gap-2 overflow-hidden rounded-lg border p-4 ${
-        isAdminEvent
-          ? "border-red-200/60 bg-[#faf0f0] dark:border-red-900/60 dark:bg-[#2a1c1c]"
-          : "border-neutral-200/60 bg-[#fbf8ef] dark:border-neutral-700 dark:bg-[#242216]"
-      }`}
+        isAdminEvent ? "border-red-200/60 dark:border-red-900/60" : "border-neutral-200/60 dark:border-neutral-700"
+      } ${bgClass}`}
     >
       <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
         <span className="min-w-0 truncate text-sm font-medium text-neutral-900 dark:text-white">
