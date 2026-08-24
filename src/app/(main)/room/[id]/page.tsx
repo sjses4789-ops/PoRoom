@@ -22,6 +22,7 @@ import {
 import { LeaveRoomButton } from "./leave-room-button";
 import { SystemRoomLeaveGuard } from "./system-room-leave-guard";
 import { paletteDot } from "@/lib/palette";
+import { isCurrentUserAdmin } from "@/lib/admin";
 
 type RecordVisibility = "shared" | "private" | "free";
 type JoinType = "invite" | "open";
@@ -160,6 +161,10 @@ export default async function RoomPage({
   const isOwner = !room.is_system && room.owner_id === user!.id;
   const isVice = viceMap.get(user!.id) ?? false;
   const canPostNotice = isOwner || isVice;
+  // 사이트 관리자는 방장/부방장이 아니어도 어느 방에서나 채팅을 지울 수
+  // 있다(불순한 의도의 채팅 신고 대응용) — 공지 작성 권한과는 별개.
+  const isSiteAdmin = await isCurrentUserAdmin();
+  const canModerateChat = canPostNotice || isSiteAdmin;
 
   const today = todayKst();
 
@@ -444,7 +449,7 @@ export default async function RoomPage({
             recordVisibility={room.record_visibility}
             capacity={room.capacity}
             initialMessages={initialMessages}
-            canModerate={canPostNotice}
+            canModerate={canModerateChat}
             latestNotice={latestNotice}
             dailyRecords={dailyRecords}
             selfTodayChars={selfToday?.chars ?? 0}

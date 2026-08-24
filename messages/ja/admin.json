@@ -1,0 +1,17 @@
+{
+  "title": "管理者",
+  "createEventHeading": "臨時チャレンジイベントを作成",
+  "createEventHint": "出版社の非定期公募展や投稿期間のオープンなど、特定期間だけ開くチャレンジを作成できます。作成するとすぐに公開され、[対決]ページのチャレンジ一覧に薄い赤色のカードで表示されます。",
+  "eventNamePlaceholder": "イベント名",
+  "metricChars": "文字数",
+  "metricMinutes": "作業時間",
+  "creating": "作成中...",
+  "createEvent": "イベントを作成",
+  "deleteEvent": "削除",
+  "roomsHeading": "ルーム管理",
+  "roomsHint": "不適切な意図のルームを見つけたら、ここから削除できます。",
+  "memberCount": "{count}人",
+  "deleteRoom": "ルーム削除",
+  "deleteRoomConfirm": "「{name}」ルームを削除しますか？元に戻せません。",
+  "deleting": "削除中..."
+}

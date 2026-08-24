@@ -1,0 +1,17 @@
+{
+  "title": "管理员",
+  "createEventHeading": "创建临时挑战活动",
+  "createEventHint": "可以创建只在特定期间开放的挑战，例如出版社的不定期征稿或投稿开放期。创建后立即生效，会以浅红色卡片显示在[对决]页面的挑战列表中。",
+  "eventNamePlaceholder": "活动名称",
+  "metricChars": "字数",
+  "metricMinutes": "专注时长",
+  "creating": "创建中...",
+  "createEvent": "创建活动",
+  "deleteEvent": "删除",
+  "roomsHeading": "房间管理",
+  "roomsHint": "发现恶意房间时，可以在这里直接删除。",
+  "memberCount": "{count}人",
+  "deleteRoom": "删除房间",
+  "deleteRoomConfirm": "确定删除房间「{name}」吗？此操作无法撤销。",
+  "deleting": "删除中..."
+}

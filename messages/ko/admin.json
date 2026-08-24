@@ -1,0 +1,17 @@
+{
+  "title": "관리자",
+  "createEventHeading": "임시 챌린지 이벤트 만들기",
+  "createEventHint": "출판사 비정기 공모전, 투고 기간 오픈 등 특정 기간에만 여는 챌린지를 만들 수 있어요. 만들면 즉시 열리고, 참여자는 [대결] 페이지의 챌린지 목록에서 옅은 빨간색 카드로 볼 수 있어요.",
+  "eventNamePlaceholder": "이벤트 이름",
+  "metricChars": "글자수",
+  "metricMinutes": "작업시간",
+  "creating": "만드는 중...",
+  "createEvent": "이벤트 만들기",
+  "deleteEvent": "삭제",
+  "roomsHeading": "방 관리",
+  "roomsHint": "불순한 의도의 방을 발견하면 여기서 바로 삭제할 수 있어요.",
+  "memberCount": "{count}명",
+  "deleteRoom": "방 삭제",
+  "deleteRoomConfirm": "\"{name}\" 방을 삭제할까요? 되돌릴 수 없습니다.",
+  "deleting": "삭제 중..."
+}

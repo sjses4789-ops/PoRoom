@@ -3,8 +3,6 @@ import { todayKst, kstDayRangeUtc } from "@/lib/time";
 
 export type SystemChallengeKind = "daily5k" | "daily10k" | "monthly_draft";
 
-export const SYSTEM_CHALLENGE_CAPACITY = 50;
-
 export const SYSTEM_CHALLENGE_META: Record<
   SystemChallengeKind,
   { title: string; resetLabel: string; dailyTarget?: number }

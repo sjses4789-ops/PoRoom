@@ -1,0 +1,17 @@
+{
+  "title": "Admin",
+  "createEventHeading": "Create a temporary challenge event",
+  "createEventHint": "Create a challenge that only runs for a specific window — e.g. a publisher's one-off contest or submission period. It goes live immediately and appears in the [Compete] challenge list as a light red card.",
+  "eventNamePlaceholder": "Event name",
+  "metricChars": "Characters",
+  "metricMinutes": "Focus time",
+  "creating": "Creating...",
+  "createEvent": "Create event",
+  "deleteEvent": "Delete",
+  "roomsHeading": "Room management",
+  "roomsHint": "Delete a room here as soon as you spot bad-faith intent.",
+  "memberCount": "{count} members",
+  "deleteRoom": "Delete room",
+  "deleteRoomConfirm": "Delete room \"{name}\"? This cannot be undone.",
+  "deleting": "Deleting..."
+}
