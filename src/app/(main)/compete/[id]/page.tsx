@@ -4,6 +4,9 @@ import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { inRange } from "@/lib/records";
 import { ChallengeCard, type ChallengeParticipant } from "../challenge-card";
+import { ChallengeRankingBars } from "../challenge-ranking-bars";
+import { StartChallengeButton } from "../start-challenge-button";
+import { ChallengeSettingsButton } from "./challenge-settings-button";
 import { ActivityLogList, type LogEntry } from "./activity-log-list";
 import { JoinChallengeButton } from "./join-challenge-button";
 import { DraftCheckButton } from "../draft-check-button";
@@ -22,9 +25,15 @@ type ChallengeRow = {
   metric: "chars" | "minutes";
   visibility: "open" | "private";
   invite_code: string | null;
-  start_date: string;
-  end_date: string;
+  start_date: string | null;
+  end_date: string | null;
   kind: SystemChallengeKind | null;
+  created_by: string;
+  color: string | null;
+  capacity: number | null;
+  duration_days: number;
+  started_at: string | null;
+  is_admin_event: boolean;
 };
 
 type UserRow = {
@@ -69,7 +78,9 @@ export default async function ChallengeDetailPage({
   // RLS already hides private challenges I'm not a participant/creator of.
   const { data: challenge } = await supabase
     .from("challenges")
-    .select("id,title,metric,visibility,invite_code,start_date,end_date,kind")
+    .select(
+      "id,title,metric,visibility,invite_code,start_date,end_date,kind,created_by,color,capacity,duration_days,started_at,is_admin_event"
+    )
     .eq("id", id)
     .maybeSingle<ChallengeRow>();
 
@@ -91,9 +102,13 @@ export default async function ChallengeDetailPage({
     .map((p) => p.user_id)
     .filter((v): v is string => Boolean(v));
   const iAmParticipant = participantIds.includes(user!.id);
+  const isCreator = challenge.created_by === user!.id;
+  const isPending = !challenge.kind && !challenge.started_at;
 
-  const startTs = kstDayRangeUtc(challenge.start_date).startUtc;
-  const endTs = kstDayRangeUtc(challenge.end_date).endUtc;
+  // 아직 시작 전이면(대기 상태) 기간 자체가 없으니 로그/기록 범위 조회를
+  // 건너뛴다.
+  const startTs = challenge.start_date ? kstDayRangeUtc(challenge.start_date).startUtc : null;
+  const endTs = challenge.end_date ? kstDayRangeUtc(challenge.end_date).endUtc : null;
 
   const [{ data: users }, { data: records }, { data: logs }, { data: chatRows }] =
     await Promise.all([
@@ -111,7 +126,7 @@ export default async function ChallengeDetailPage({
             .in("user_id", participantIds)
             .returns<RecordRow[]>()
         : Promise.resolve({ data: [] as RecordRow[] }),
-      iAmParticipant && participantIds.length
+      iAmParticipant && participantIds.length && startTs && endTs
         ? supabase
             .from("activity_logs")
             .select("id,user_id,type,amount,created_at")
@@ -147,7 +162,9 @@ export default async function ChallengeDetailPage({
         r.user_id === uid &&
         (isDailyKind
           ? r.record_date === today
-          : inRange(r.record_date, challenge.start_date, challenge.end_date))
+          : challenge.start_date && challenge.end_date
+            ? inRange(r.record_date, challenge.start_date, challenge.end_date)
+            : false)
     );
     const value = matching.reduce(
       (sum, r) => sum + (challenge.metric === "chars" ? r.chars : r.focus_minutes),
@@ -194,9 +211,21 @@ export default async function ChallengeDetailPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <Link href="/compete" className="text-xs text-neutral-400 hover:underline">
-        {t("backLink")}
-      </Link>
+      <div className="flex items-center justify-between gap-2">
+        <Link href="/compete" className="text-xs text-neutral-400 hover:underline">
+          {t("backLink")}
+        </Link>
+        {!isSystemKind && isCreator && (
+          <ChallengeSettingsButton
+            challengeId={challenge.id}
+            currentTitle={challenge.title}
+            currentColor={challenge.color}
+            currentCapacity={challenge.capacity}
+            currentDurationDays={challenge.duration_days}
+            started={Boolean(challenge.started_at)}
+          />
+        )}
+      </div>
 
       {isSystemKind ? (
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-neutral-200 p-4 dark:border-neutral-700">
@@ -220,8 +249,15 @@ export default async function ChallengeDetailPage({
           inviteCode={challenge.invite_code}
           startDate={challenge.start_date}
           endDate={challenge.end_date}
+          durationDays={challenge.duration_days}
           participants={participants}
           linkable={false}
+          showRanking={false}
+          startSlot={
+            isPending && isCreator ? (
+              <StartChallengeButton challengeId={challenge.id} participantCount={participantIds.length} />
+            ) : undefined
+          }
         />
       )}
 
@@ -230,7 +266,7 @@ export default async function ChallengeDetailPage({
       )}
 
       {iAmParticipant && (
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div className={`grid grid-cols-1 gap-4 ${isSystemKind ? "lg:grid-cols-2" : "lg:grid-cols-3"}`}>
           <ChallengeChatPanel
             challengeId={challenge.id}
             selfId={user!.id}
@@ -245,6 +281,14 @@ export default async function ChallengeDetailPage({
               <ActivityLogList entries={logEntries} />
             </div>
           </section>
+          {!isSystemKind && (
+            <section className="flex flex-col gap-3">
+              <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
+                {t("participantsHeading")}
+              </h2>
+              <ChallengeRankingBars participants={participants} metric={challenge.metric} />
+            </section>
+          )}
         </div>
       )}
 

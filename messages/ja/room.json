@@ -87,7 +87,17 @@
   "chatPanel": {
     "title": "チャット",
     "inputPlaceholder": "メッセージを入力...",
-    "send": "送信"
+    "whisperInputPlaceholder": "ひそひそ話を入力...",
+    "send": "送信",
+    "whisperButton": "ひそひそ話",
+    "whisperPickTitle": "ひそひそ話の相手を選択",
+    "whisperOff": "ひそひそ話をオフ",
+    "whisperNoOthers": "一緒にいる他の参加者がいません。",
+    "whisperingTo": "{name}さんにひそひそ話中",
+    "whisperToLabel": "→ {name}さんへのひそひそ話",
+    "whisperTag": "ひそひそ話",
+    "deleteMessage": "メッセージ削除",
+    "deleteConfirm": "このメッセージを削除しますか？"
   },
   "pollPanel": {
     "title": "投票",

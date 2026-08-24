@@ -34,6 +34,7 @@ export function RoomView({
   recordVisibility,
   capacity,
   initialMessages,
+  canModerate,
   latestNotice,
   dailyRecords,
   selfTodayChars,
@@ -51,6 +52,7 @@ export function RoomView({
   recordVisibility: RecordVisibility;
   capacity: number | null;
   initialMessages: ChatMessage[];
+  canModerate: boolean;
   latestNotice: LatestNotice | null;
   dailyRecords: DailyRecord[];
   selfTodayChars: number;
@@ -188,6 +190,7 @@ export function RoomView({
             selfId={selfId}
             members={members}
             initialMessages={initialMessages}
+            canModerate={canModerate}
             onActivity={reportTyping}
           />
         </div>

@@ -1,59 +1,66 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import type { SystemChallengeKind } from "@/lib/system-challenges";
-import { SYSTEM_CHALLENGE_META } from "@/lib/system-challenges";
 
 export async function JoinedSystemChallengeCard({
   id,
-  kind,
+  title,
+  subLabel,
   startDate,
   endDate,
   myTodayChars,
+  dailyTarget,
   draftDoneThisMonth,
+  isAdminEvent,
 }: {
   id: string;
-  kind: SystemChallengeKind;
+  title: string;
+  subLabel: string;
   startDate: string;
   endDate: string;
   myTodayChars: number;
-  draftDoneThisMonth: boolean;
+  dailyTarget?: number;
+  draftDoneThisMonth?: boolean;
+  isAdminEvent: boolean;
 }) {
   const t = await getTranslations("compete.joinedSystemChallengeCard");
-  const meta = SYSTEM_CHALLENGE_META[kind];
 
   return (
     <Link
       href={`/compete/${id}`}
-      className="flex flex-col gap-2 rounded-lg border border-neutral-200 p-4 transition hover:border-neutral-300 dark:border-neutral-700 dark:hover:border-neutral-600"
+      className={`flex flex-col gap-2 rounded-lg border p-4 transition ${
+        isAdminEvent
+          ? "border-red-200/60 bg-[#faf0f0] hover:border-red-300 dark:border-red-900/60 dark:bg-[#2a1c1c] dark:hover:border-red-800"
+          : "border-neutral-200/60 bg-[#fbf8ef] hover:border-neutral-300 dark:border-neutral-700 dark:bg-[#242216] dark:hover:border-neutral-600"
+      }`}
     >
       <div className="flex items-center justify-between gap-2">
         <span className="min-w-0 truncate text-sm font-medium text-neutral-900 dark:text-white">
-          {meta.title}
+          {title}
         </span>
-        <span className="shrink-0 text-[12px] text-neutral-400">{meta.resetLabel}</span>
+        <span className="shrink-0 text-[12px] text-neutral-400">{subLabel}</span>
       </div>
       <p className="text-[12px] text-neutral-400">
         {startDate} ~ {endDate}
       </p>
 
-      {meta.dailyTarget ? (
+      {dailyTarget ? (
         <div className="flex flex-col gap-1">
           <div className="h-2 w-full overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800">
             <div
               className={`h-full rounded-full ${
-                myTodayChars >= meta.dailyTarget ? "bg-emerald-500" : "bg-neutral-900 dark:bg-white"
+                myTodayChars >= dailyTarget ? "bg-emerald-500" : "bg-neutral-900 dark:bg-white"
               }`}
-              style={{ width: `${Math.min(100, (myTodayChars / meta.dailyTarget) * 100)}%` }}
+              style={{ width: `${Math.min(100, (myTodayChars / dailyTarget) * 100)}%` }}
             />
           </div>
           <span className="text-[12px] text-neutral-500 dark:text-neutral-400">
             {t("todayProgress", {
               today: myTodayChars.toLocaleString(),
-              target: meta.dailyTarget.toLocaleString(),
+              target: dailyTarget.toLocaleString(),
             })}
           </span>
         </div>
-      ) : (
+      ) : draftDoneThisMonth !== undefined ? (
         <span
           className={`self-start rounded-full px-2 py-0.5 text-[12px] font-medium ${
             draftDoneThisMonth
@@ -63,7 +70,7 @@ export async function JoinedSystemChallengeCard({
         >
           {draftDoneThisMonth ? t("doneThisMonth") : t("notDoneThisMonth")}
         </span>
-      )}
+      ) : null}
     </Link>
   );
 }

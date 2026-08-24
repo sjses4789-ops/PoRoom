@@ -8,6 +8,7 @@
     "openHeading": "可加入的公开对决",
     "openEmpty": "目前没有可加入的公开对决。",
     "openSystemHeading": "挑战列表",
+    "adminEventLabel": "官方活动",
     "unknownUser": "未知用户"
   },
   "challengeDetailPage": {
@@ -16,6 +17,7 @@
     "feedHeading": "动态",
     "logHeading": "对决日志",
     "participantsHeading": "参与者列表",
+    "settings": "设置",
     "unknownUser": "未知用户"
   },
   "joinByCodeButton": {
@@ -33,6 +35,12 @@
     "joining": "加入中...",
     "join": "加入这个对决"
   },
+  "startChallengeButton": {
+    "start": "开始对决",
+    "starting": "开始中...",
+    "needMoreParticipants": "参与者达到2人以上即可开始。",
+    "readyHint": "现在开始的话，将从今天起计算周期。"
+  },
   "joinedSystemChallengeCard": {
     "todayProgress": "今日 {today} / {target}字",
     "doneThisMonth": "本月初稿已完成 ✅",
@@ -41,6 +49,7 @@
   "openChallengeCard": {
     "participantsSuffix": "{count}人参与中",
     "metaLine": "{startDate} ~ {endDate} · 以{metric}为准",
+    "pendingLine": "以{metric}为准 · 等待开始",
     "metricChars": "字数",
     "metricMinutes": "专注时长",
     "joined": "已加入",
@@ -48,7 +57,7 @@
     "join": "加入"
   },
   "openSystemChallengeCard": {
-    "participantsSuffix": "{count}/{capacity}人参与中",
+    "participantsSuffix": "{count}人参与中",
     "metaLine": "{startDate} ~ {endDate} · {resetLabel}",
     "dailyTargetSuffix": " · 每日{target}字目标",
     "joined": "已加入",
@@ -81,6 +90,7 @@
     "notAchieved": "未达成"
   },
   "challengeCard": {
+    "statusPending": "等待开始",
     "statusUpcoming": "未开始",
     "statusEnded": "已结束",
     "statusOngoing": "进行中",
@@ -91,6 +101,7 @@
     "visibilityPrivate": "私密房",
     "inviteCode": "邀请码 {code}",
     "dateRange": "{startDate} ~ {endDate}",
+    "pendingHint": "开始后将进行{days}天 · 参与者聚齐后由房主开始",
     "unitChars": "字",
     "unitMinutes": "分钟"
   },
@@ -103,8 +114,24 @@
     "visibilityLabel": "公开设置",
     "visibilityOpen": "公开房",
     "visibilityPrivate": "私密房（邀请码）",
-    "hint": "创建对决后会自动加入。公开房任何人都可以从对决列表加入，私密房只能通过邀请码加入。",
+    "durationLabel": "对决时长",
+    "durationDays": "{count}天",
+    "colorLabel": "房间颜色",
+    "capacityPlaceholder": "人数上限（留空为不限）",
+    "hint": "创建对决后不会立即开始。参与者聚齐后由房主开始，从那一刻起计算周期。公开房任何人都可以从对决列表加入，私密房只能通过邀请码加入。",
     "creating": "创建中...",
     "create": "创建"
+  },
+  "challengeSettingsButton": {
+    "trigger": "设置",
+    "title": "对决设置",
+    "nameLabel": "对决名称",
+    "colorLabel": "房间颜色",
+    "capacityLabel": "人数上限（留空为不限）",
+    "durationLabel": "对决时长",
+    "durationDays": "{count}天",
+    "durationHintStarted": "该对决已经开始，修改时长会重新计算结束日期。",
+    "saving": "保存中...",
+    "save": "保存"
   }
 }

@@ -8,6 +8,7 @@
     "openHeading": "참여 가능한 공개 대결",
     "openEmpty": "참여할 수 있는 공개 대결이 없습니다.",
     "openSystemHeading": "챌린지 목록",
+    "adminEventLabel": "관리자 지정 이벤트",
     "unknownUser": "알 수 없음"
   },
   "challengeDetailPage": {
@@ -16,6 +17,7 @@
     "feedHeading": "피드",
     "logHeading": "대결 로그",
     "participantsHeading": "참여자 목록",
+    "settings": "설정",
     "unknownUser": "알 수 없음"
   },
   "joinByCodeButton": {
@@ -33,6 +35,12 @@
     "joining": "참여 중...",
     "join": "이 대결에 참여하기"
   },
+  "startChallengeButton": {
+    "start": "대결 시작하기",
+    "starting": "시작하는 중...",
+    "needMoreParticipants": "참여자가 2명 이상 모이면 시작할 수 있어요.",
+    "readyHint": "지금 시작하면 오늘부터 기간이 계산돼요."
+  },
   "joinedSystemChallengeCard": {
     "todayProgress": "오늘 {today} / {target}자",
     "doneThisMonth": "이번 달 초단 완고 ✅",
@@ -41,6 +49,7 @@
   "openChallengeCard": {
     "participantsSuffix": "{count}명 참여중",
     "metaLine": "{startDate} ~ {endDate} · {metric} 기준",
+    "pendingLine": "{metric} 기준 · 시작 대기 중",
     "metricChars": "글자수",
     "metricMinutes": "작업시간",
     "joined": "참여 완료",
@@ -48,7 +57,7 @@
     "join": "참여하기"
   },
   "openSystemChallengeCard": {
-    "participantsSuffix": "{count}/{capacity}명 참여중",
+    "participantsSuffix": "{count}명 참여중",
     "metaLine": "{startDate} ~ {endDate} · {resetLabel}",
     "dailyTargetSuffix": " · 하루 {target}자 목표",
     "joined": "참여 완료",
@@ -81,6 +90,7 @@
     "notAchieved": "미달성"
   },
   "challengeCard": {
+    "statusPending": "시작 대기",
     "statusUpcoming": "예정",
     "statusEnded": "종료",
     "statusOngoing": "진행 중",
@@ -91,6 +101,7 @@
     "visibilityPrivate": "비공개방",
     "inviteCode": "코드 {code}",
     "dateRange": "{startDate} ~ {endDate}",
+    "pendingHint": "{days}일간 진행 예정 · 참여자가 모이면 방장이 시작해요",
     "unitChars": "자",
     "unitMinutes": "분"
   },
@@ -103,8 +114,24 @@
     "visibilityLabel": "공개 설정",
     "visibilityOpen": "공개방",
     "visibilityPrivate": "비공개방 (초대코드)",
-    "hint": "대결을 만들면 자동으로 참가하게 돼요. 공개방은 대결 목록에서 누구나 참여할 수 있고, 비공개방은 초대코드로만 참여할 수 있어요.",
+    "durationLabel": "대결 기간",
+    "durationDays": "{count}일",
+    "colorLabel": "방 색상",
+    "capacityPlaceholder": "인원 제한 (비우면 무제한)",
+    "hint": "대결은 만들자마자 시작되지 않아요. 참여자가 모이면 방장이 직접 시작해야 그때부터 기간이 계산돼요. 공개방은 대결 목록에서 누구나 참여할 수 있고, 비공개방은 초대코드로만 참여할 수 있어요.",
     "creating": "만드는 중...",
     "create": "만들기"
+  },
+  "challengeSettingsButton": {
+    "trigger": "설정",
+    "title": "대결 설정",
+    "nameLabel": "대결 이름",
+    "colorLabel": "방 색상",
+    "capacityLabel": "인원 제한 (비우면 무제한)",
+    "durationLabel": "대결 기간",
+    "durationDays": "{count}일",
+    "durationHintStarted": "이미 시작된 대결이라, 기간을 바꾸면 종료일이 다시 계산돼요.",
+    "saving": "저장 중...",
+    "save": "저장"
   }
 }

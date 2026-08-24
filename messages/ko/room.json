@@ -87,7 +87,17 @@
   "chatPanel": {
     "title": "채팅",
     "inputPlaceholder": "메시지 입력...",
-    "send": "전송"
+    "whisperInputPlaceholder": "귓속말 입력...",
+    "send": "전송",
+    "whisperButton": "귓속말",
+    "whisperPickTitle": "귓속말 상대 선택",
+    "whisperOff": "귓속말 끄기",
+    "whisperNoOthers": "함께 있는 다른 참여자가 없습니다.",
+    "whisperingTo": "{name}님에게 귓속말 중",
+    "whisperToLabel": "→ {name}님에게 귓속말",
+    "whisperTag": "귓속말",
+    "deleteMessage": "메시지 삭제",
+    "deleteConfirm": "이 메시지를 삭제할까요?"
   },
   "pollPanel": {
     "title": "투표",

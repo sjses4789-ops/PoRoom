@@ -15,8 +15,8 @@ export function OpenChallengeCard({
   id: string;
   title: string;
   metric: "chars" | "minutes";
-  startDate: string;
-  endDate: string;
+  startDate: string | null;
+  endDate: string | null;
   participantCount: number;
 }) {
   const t = useTranslations("compete.openChallengeCard");
@@ -35,11 +35,15 @@ export function OpenChallengeCard({
         </span>
       </div>
       <p className="text-[12px] text-neutral-400">
-        {t("metaLine", {
-          startDate,
-          endDate,
-          metric: metric === "chars" ? t("metricChars") : t("metricMinutes"),
-        })}
+        {startDate && endDate
+          ? t("metaLine", {
+              startDate,
+              endDate,
+              metric: metric === "chars" ? t("metricChars") : t("metricMinutes"),
+            })
+          : t("pendingLine", {
+              metric: metric === "chars" ? t("metricChars") : t("metricMinutes"),
+            })}
       </p>
       <button
         disabled={joining || joined}

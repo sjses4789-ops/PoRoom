@@ -4,11 +4,14 @@ import { useActionState, useState } from "react";
 import { useTranslations } from "next-intl";
 import { createChallenge } from "@/lib/challenges";
 import type { ActionResult } from "@/lib/rooms";
-import { kstDatePlusDays } from "@/lib/time";
+import { PALETTE, paletteDot } from "@/lib/palette";
+
+const DURATION_OPTIONS = [3, 7, 14, 30] as const;
 
 export default function CreateChallengeButton() {
   const t = useTranslations("compete.createChallengeButton");
   const [open, setOpen] = useState(false);
+  const [color, setColor] = useState<string>(PALETTE[0].key);
   const [state, formAction, pending] = useActionState<ActionResult, FormData>(
     createChallenge,
     null
@@ -92,20 +95,58 @@ export default function CreateChallengeButton() {
               </div>
             </div>
 
-            <div className="flex gap-2">
-              <input
-                name="startDate"
-                type="date"
-                defaultValue={kstDatePlusDays(0)}
-                className="w-1/2 rounded-md border border-neutral-200 px-2.5 py-1.5 text-xs text-neutral-700 outline-none focus:border-neutral-400"
-              />
-              <input
-                name="endDate"
-                type="date"
-                defaultValue={kstDatePlusDays(7)}
-                className="w-1/2 rounded-md border border-neutral-200 px-2.5 py-1.5 text-xs text-neutral-700 outline-none focus:border-neutral-400"
-              />
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[12px] font-medium text-neutral-500 dark:text-neutral-400">
+                {t("durationLabel")}
+              </span>
+              <div className="flex gap-3">
+                {DURATION_OPTIONS.map((d, i) => (
+                  <label
+                    key={d}
+                    className="flex items-center gap-1.5 text-xs text-neutral-700 dark:text-neutral-300"
+                  >
+                    <input
+                      type="radio"
+                      name="durationDays"
+                      value={d}
+                      defaultChecked={i === 1}
+                      className="accent-neutral-900"
+                    />
+                    {t("durationDays", { count: d })}
+                  </label>
+                ))}
+              </div>
             </div>
+
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[12px] font-medium text-neutral-500 dark:text-neutral-400">
+                {t("colorLabel")}
+              </span>
+              <input type="hidden" name="color" value={color} />
+              <div className="flex flex-wrap gap-1.5">
+                {PALETTE.map((p) => (
+                  <button
+                    key={p.key}
+                    type="button"
+                    onClick={() => setColor(p.key)}
+                    title={p.label}
+                    className={`h-6 w-6 rounded-full ${paletteDot(p.key)} transition ${
+                      color === p.key
+                        ? "ring-2 ring-neutral-900 ring-offset-2"
+                        : "opacity-70 hover:opacity-100"
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <input
+              name="capacity"
+              type="number"
+              min={2}
+              placeholder={t("capacityPlaceholder")}
+              className="rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
+            />
 
             <p className="text-[12px] text-neutral-400">
               {t("hint")}

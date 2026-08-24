@@ -8,6 +8,7 @@
     "openHeading": "参加できる公開対決",
     "openEmpty": "参加できる公開対決がありません。",
     "openSystemHeading": "チャレンジ一覧",
+    "adminEventLabel": "運営イベント",
     "unknownUser": "不明"
   },
   "challengeDetailPage": {
@@ -16,6 +17,7 @@
     "feedHeading": "フィード",
     "logHeading": "対決ログ",
     "participantsHeading": "参加者一覧",
+    "settings": "設定",
     "unknownUser": "不明"
   },
   "joinByCodeButton": {
@@ -33,6 +35,12 @@
     "joining": "参加中...",
     "join": "この対決に参加する"
   },
+  "startChallengeButton": {
+    "start": "対決を開始する",
+    "starting": "開始中...",
+    "needMoreParticipants": "参加者が2人以上集まると開始できます。",
+    "readyHint": "今開始すると、今日から期間の計算が始まります。"
+  },
   "joinedSystemChallengeCard": {
     "todayProgress": "今日 {today} / {target}文字",
     "doneThisMonth": "今月の初稿完成 ✅",
@@ -41,6 +49,7 @@
   "openChallengeCard": {
     "participantsSuffix": "{count}人参加中",
     "metaLine": "{startDate} ~ {endDate} · {metric}基準",
+    "pendingLine": "{metric}基準 · 開始待ち",
     "metricChars": "文字数",
     "metricMinutes": "作業時間",
     "joined": "参加済み",
@@ -48,7 +57,7 @@
     "join": "参加する"
   },
   "openSystemChallengeCard": {
-    "participantsSuffix": "{count}/{capacity}人参加中",
+    "participantsSuffix": "{count}人参加中",
     "metaLine": "{startDate} ~ {endDate} · {resetLabel}",
     "dailyTargetSuffix": " · 1日{target}文字が目標",
     "joined": "参加済み",
@@ -81,6 +90,7 @@
     "notAchieved": "未達成"
   },
   "challengeCard": {
+    "statusPending": "開始待ち",
     "statusUpcoming": "予定",
     "statusEnded": "終了",
     "statusOngoing": "進行中",
@@ -91,6 +101,7 @@
     "visibilityPrivate": "非公開部屋",
     "inviteCode": "コード {code}",
     "dateRange": "{startDate} ~ {endDate}",
+    "pendingHint": "開始すると{days}日間進行 · 参加者が集まると主催者が開始します",
     "unitChars": "文字",
     "unitMinutes": "分"
   },
@@ -103,8 +114,24 @@
     "visibilityLabel": "公開設定",
     "visibilityOpen": "公開部屋",
     "visibilityPrivate": "非公開部屋（招待コード）",
-    "hint": "対決を作成すると自動的に参加します。公開部屋は対決一覧から誰でも参加でき、非公開部屋は招待コードでのみ参加できます。",
+    "durationLabel": "対決期間",
+    "durationDays": "{count}日間",
+    "colorLabel": "部屋の色",
+    "capacityPlaceholder": "人数制限（空欄なら無制限）",
+    "hint": "対決は作成しても即座には始まりません。参加者が集まったら主催者が開始した時点から期間が計算されます。公開部屋は対決一覧から誰でも参加でき、非公開部屋は招待コードでのみ参加できます。",
     "creating": "作成中...",
     "create": "作成する"
+  },
+  "challengeSettingsButton": {
+    "trigger": "設定",
+    "title": "対決設定",
+    "nameLabel": "対決名",
+    "colorLabel": "部屋の色",
+    "capacityLabel": "人数制限（空欄なら無制限）",
+    "durationLabel": "対決期間",
+    "durationDays": "{count}日間",
+    "durationHintStarted": "すでに開始済みの対決です。期間を変更すると終了日が再計算されます。",
+    "saving": "保存中...",
+    "save": "保存"
   }
 }

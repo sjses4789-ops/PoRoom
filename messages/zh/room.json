@@ -87,7 +87,17 @@
   "chatPanel": {
     "title": "聊天",
     "inputPlaceholder": "输入消息...",
-    "send": "发送"
+    "whisperInputPlaceholder": "输入悄悄话...",
+    "send": "发送",
+    "whisperButton": "悄悄话",
+    "whisperPickTitle": "选择悄悄话对象",
+    "whisperOff": "关闭悄悄话",
+    "whisperNoOthers": "暂无其他在场成员。",
+    "whisperingTo": "正在对{name}说悄悄话",
+    "whisperToLabel": "→ 对{name}说悄悄话",
+    "whisperTag": "悄悄话",
+    "deleteMessage": "删除消息",
+    "deleteConfirm": "确定删除这条消息吗？"
   },
   "pollPanel": {
     "title": "投票",

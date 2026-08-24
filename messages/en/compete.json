@@ -8,6 +8,7 @@
     "openHeading": "Open challenges to join",
     "openEmpty": "There are no open challenges to join right now.",
     "openSystemHeading": "Challenge list",
+    "adminEventLabel": "Admin-run event",
     "unknownUser": "Unknown"
   },
   "challengeDetailPage": {
@@ -16,6 +17,7 @@
     "feedHeading": "Feed",
     "logHeading": "Challenge log",
     "participantsHeading": "Participants",
+    "settings": "Settings",
     "unknownUser": "Unknown"
   },
   "joinByCodeButton": {
@@ -33,6 +35,12 @@
     "joining": "Joining...",
     "join": "Join this challenge"
   },
+  "startChallengeButton": {
+    "start": "Start the challenge",
+    "starting": "Starting...",
+    "needMoreParticipants": "You can start once at least 2 people have joined.",
+    "readyHint": "Starting now begins the period from today."
+  },
   "joinedSystemChallengeCard": {
     "todayProgress": "Today {today} / {target} characters",
     "doneThisMonth": "Draft finished this month ✅",
@@ -41,6 +49,7 @@
   "openChallengeCard": {
     "participantsSuffix": "{count} joined",
     "metaLine": "{startDate} ~ {endDate} · by {metric}",
+    "pendingLine": "By {metric} · waiting to start",
     "metricChars": "characters",
     "metricMinutes": "focus time",
     "joined": "Joined",
@@ -48,7 +57,7 @@
     "join": "Join"
   },
   "openSystemChallengeCard": {
-    "participantsSuffix": "{count}/{capacity} joined",
+    "participantsSuffix": "{count} joined",
     "metaLine": "{startDate} ~ {endDate} · {resetLabel}",
     "dailyTargetSuffix": " · {target} characters a day goal",
     "joined": "Joined",
@@ -81,6 +90,7 @@
     "notAchieved": "Not achieved"
   },
   "challengeCard": {
+    "statusPending": "Waiting to start",
     "statusUpcoming": "Upcoming",
     "statusEnded": "Ended",
     "statusOngoing": "Ongoing",
@@ -91,6 +101,7 @@
     "visibilityPrivate": "Private",
     "inviteCode": "Code {code}",
     "dateRange": "{startDate} ~ {endDate}",
+    "pendingHint": "Runs for {days} days once started · the host starts it after people join",
     "unitChars": "chars",
     "unitMinutes": "min"
   },
@@ -103,8 +114,24 @@
     "visibilityLabel": "Visibility",
     "visibilityOpen": "Open",
     "visibilityPrivate": "Private (invite code)",
-    "hint": "You'll join automatically when you create a challenge. Anyone can join an open challenge from the list, while a private challenge can only be joined with an invite code.",
+    "durationLabel": "Duration",
+    "durationDays": "{count} days",
+    "colorLabel": "Room color",
+    "capacityPlaceholder": "Capacity (blank = unlimited)",
+    "hint": "The challenge doesn't start the moment you create it — you (the host) start it once enough people have joined, and the period is counted from that moment. Anyone can join an open challenge from the list, while a private challenge can only be joined with an invite code.",
     "creating": "Creating...",
     "create": "Create"
+  },
+  "challengeSettingsButton": {
+    "trigger": "Settings",
+    "title": "Challenge settings",
+    "nameLabel": "Challenge name",
+    "colorLabel": "Room color",
+    "capacityLabel": "Capacity (blank = unlimited)",
+    "durationLabel": "Duration",
+    "durationDays": "{count} days",
+    "durationHintStarted": "This challenge has already started — changing the duration recalculates the end date.",
+    "saving": "Saving...",
+    "save": "Save"
   }
 }

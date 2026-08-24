@@ -87,7 +87,17 @@
   "chatPanel": {
     "title": "Chat",
     "inputPlaceholder": "Type a message...",
-    "send": "Send"
+    "whisperInputPlaceholder": "Type a whisper...",
+    "send": "Send",
+    "whisperButton": "Whisper",
+    "whisperPickTitle": "Choose who to whisper to",
+    "whisperOff": "Turn off whisper",
+    "whisperNoOthers": "No other members here right now.",
+    "whisperingTo": "Whispering to {name}",
+    "whisperToLabel": "→ whisper to {name}",
+    "whisperTag": "Whisper",
+    "deleteMessage": "Delete message",
+    "deleteConfirm": "Delete this message?"
   },
   "pollPanel": {
     "title": "Polls",

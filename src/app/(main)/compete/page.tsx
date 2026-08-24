@@ -8,8 +8,10 @@ import { ChallengeCard, type ChallengeParticipant } from "./challenge-card";
 import { OpenChallengeCard } from "./open-challenge-card";
 import { OpenSystemChallengeCard } from "./open-system-challenge-card";
 import { JoinedSystemChallengeCard } from "./joined-system-challenge-card";
+import { StartChallengeButton } from "./start-challenge-button";
 import {
   ensureSystemChallenge,
+  SYSTEM_CHALLENGE_META,
   type SystemChallengeKind,
 } from "@/lib/system-challenges";
 import { todayKst, kstDayRangeUtc } from "@/lib/time";
@@ -22,9 +24,15 @@ type ChallengeRow = {
   metric: "chars" | "minutes";
   visibility: "open" | "private";
   invite_code: string | null;
-  start_date: string;
-  end_date: string;
+  start_date: string | null;
+  end_date: string | null;
   kind: SystemChallengeKind | null;
+  created_by: string;
+  color: string | null;
+  capacity: number | null;
+  duration_days: number;
+  started_at: string | null;
+  is_admin_event: boolean;
 };
 
 type ParticipantRow = {
@@ -41,6 +49,9 @@ type RecordRow = {
   focus_minutes: number;
 };
 
+const CHALLENGE_SELECT =
+  "id,title,metric,visibility,invite_code,start_date,end_date,kind,created_by,color,capacity,duration_days,started_at,is_admin_event";
+
 export default async function CompetePage() {
   const t = await getTranslations("compete.page");
   const supabase = await createClient();
@@ -55,19 +66,21 @@ export default async function CompetePage() {
   );
 
   // RLS already limits this to challenges that are open, or that I created,
-  // or that I'm already a participant of. 시스템 챌린지는 오래된
-  // created_at을 가진 영구 행이라 개수 제한과 별도로 조회한다.
+  // or that I'm already a participant of. 시스템 챌린지(관리자 임시
+  // 이벤트 포함)는 오래된 created_at을 가진 영구/장기 행이라 개수 제한과
+  // 별도로 조회한다. kind가 없어도 is_admin_event=true인 행은 "챌린지"
+  // 쪽으로 묶어야 해서 나중에 JS에서 다시 나눈다.
   const [{ data: userChallenges }, { data: systemChallenges }] = await Promise.all([
     supabase
       .from("challenges")
-      .select("id,title,metric,visibility,invite_code,start_date,end_date,kind")
+      .select(CHALLENGE_SELECT)
       .is("kind", null)
       .order("created_at", { ascending: false })
       .limit(40)
       .returns<ChallengeRow[]>(),
     supabase
       .from("challenges")
-      .select("id,title,metric,visibility,invite_code,start_date,end_date,kind")
+      .select(CHALLENGE_SELECT)
       .not("kind", "is", null)
       .returns<ChallengeRow[]>(),
   ]);
@@ -110,7 +123,7 @@ export default async function CompetePage() {
     participantsByChallenge.set(p.challenge_id, list);
   }
 
-  const joined: Array<ChallengeRow & { participants: ChallengeParticipant[] }> = [];
+  const joined: Array<ChallengeRow & { participants: ChallengeParticipant[]; participantCount: number }> = [];
   const openToJoin: Array<ChallengeRow & { participantCount: number }> = [];
 
   for (const c of challenges) {
@@ -121,11 +134,14 @@ export default async function CompetePage() {
       const participantList: ChallengeParticipant[] = rows
         .filter((r) => r.user_id)
         .map((r) => {
-          const matching = (records ?? []).filter(
-            (rec) =>
-              rec.user_id === r.user_id &&
-              inRange(rec.record_date, c.start_date, c.end_date)
-          );
+          const matching =
+            c.start_date && c.end_date
+              ? (records ?? []).filter(
+                  (rec) =>
+                    rec.user_id === r.user_id &&
+                    inRange(rec.record_date, c.start_date!, c.end_date!)
+                )
+              : [];
           const value = matching.reduce(
             (sum, rec) => sum + (c.metric === "chars" ? rec.chars : rec.focus_minutes),
             0
@@ -136,22 +152,16 @@ export default async function CompetePage() {
             value,
           };
         });
-      joined.push({ ...c, participants: participantList });
+      joined.push({ ...c, participants: participantList, participantCount: rows.length });
     } else if (c.visibility === "open") {
       openToJoin.push({ ...c, participantCount: rows.length });
     }
   }
 
-  const joinedChallenges = joined.filter((c) => !c.kind);
-  const joinedSystemChallenges = joined.filter(
-    (c): c is ChallengeRow & { participants: ChallengeParticipant[]; kind: SystemChallengeKind } =>
-      c.kind !== null
-  );
-  const openChallenges = openToJoin.filter((c) => !c.kind);
-  const openSystemChallenges = openToJoin.filter(
-    (c): c is ChallengeRow & { participantCount: number; kind: SystemChallengeKind } =>
-      c.kind !== null
-  );
+  const joinedChallenges = joined.filter((c) => !c.kind && !c.is_admin_event);
+  const joinedSystemChallenges = joined.filter((c) => c.kind !== null || c.is_admin_event);
+  const openChallenges = openToJoin.filter((c) => !c.kind && !c.is_admin_event);
+  const openSystemChallenges = openToJoin.filter((c) => c.kind !== null || c.is_admin_event);
 
   const myTodayChars = (records ?? [])
     .filter((r) => r.user_id === user!.id && r.record_date === today)
@@ -187,7 +197,13 @@ export default async function CompetePage() {
                   inviteCode={c.invite_code}
                   startDate={c.start_date}
                   endDate={c.end_date}
+                  durationDays={c.duration_days}
                   participants={c.participants}
+                  startSlot={
+                    !c.started_at && c.created_by === user!.id ? (
+                      <StartChallengeButton challengeId={c.id} participantCount={c.participantCount} />
+                    ) : undefined
+                  }
                 />
               ))}
             </div>
@@ -204,17 +220,23 @@ export default async function CompetePage() {
             </p>
           ) : (
             <div className="grid grid-cols-1 gap-4">
-              {joinedSystemChallenges.map((c) => (
-                <JoinedSystemChallengeCard
-                  key={c.id}
-                  id={c.id}
-                  kind={c.kind}
-                  startDate={c.start_date}
-                  endDate={c.end_date}
-                  myTodayChars={myTodayChars}
-                  draftDoneThisMonth={draftDoneThisMonth}
-                />
-              ))}
+              {joinedSystemChallenges.map((c) => {
+                const meta = c.kind ? SYSTEM_CHALLENGE_META[c.kind] : null;
+                return (
+                  <JoinedSystemChallengeCard
+                    key={c.id}
+                    id={c.id}
+                    title={meta?.title ?? c.title}
+                    subLabel={meta?.resetLabel ?? t("adminEventLabel")}
+                    startDate={c.start_date ?? today}
+                    endDate={c.end_date ?? today}
+                    myTodayChars={myTodayChars}
+                    dailyTarget={meta?.dailyTarget}
+                    draftDoneThisMonth={c.kind === "monthly_draft" ? draftDoneThisMonth : undefined}
+                    isAdminEvent={c.is_admin_event}
+                  />
+                );
+              })}
             </div>
           )}
         </section>
@@ -257,16 +279,22 @@ export default async function CompetePage() {
             {t("openSystemHeading")}
           </h2>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {openSystemChallenges.map((c) => (
-              <OpenSystemChallengeCard
-                key={c.id}
-                id={c.id}
-                kind={c.kind}
-                startDate={c.start_date}
-                endDate={c.end_date}
-                participantCount={c.participantCount}
-              />
-            ))}
+            {openSystemChallenges.map((c) => {
+              const meta = c.kind ? SYSTEM_CHALLENGE_META[c.kind] : null;
+              return (
+                <OpenSystemChallengeCard
+                  key={c.id}
+                  id={c.id}
+                  title={meta?.title ?? c.title}
+                  subLabel={meta?.resetLabel ?? t("adminEventLabel")}
+                  startDate={c.start_date ?? today}
+                  endDate={c.end_date ?? today}
+                  participantCount={c.participantCount}
+                  dailyTarget={meta?.dailyTarget}
+                  isAdminEvent={c.is_admin_event}
+                />
+              );
+            })}
           </div>
         </section>
       </div>
