@@ -14,7 +14,7 @@ export function AdminEventForm() {
   );
 
   return (
-    <form action={formAction} className="flex flex-col gap-3 rounded-lg border border-neutral-200 p-4 dark:border-neutral-700">
+    <form action={formAction} className="flex flex-col gap-3 border border-neutral-400 p-4 dark:border-neutral-600">
       <input
         name="title"
         placeholder={t("eventNamePlaceholder")}

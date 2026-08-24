@@ -13,7 +13,7 @@ export async function SystemChallengeRecordPanel({
   const t = await getTranslations("me.systemChallengeRecordPanel");
 
   return (
-    <div className="mt-1 flex flex-col divide-y divide-neutral-100 dark:divide-neutral-800">
+    <div className="mt-1 flex flex-col divide-y divide-neutral-400 dark:divide-neutral-600">
       {KINDS.map((kind) => {
         const meta = SYSTEM_CHALLENGE_META[kind];
         return (

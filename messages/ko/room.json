@@ -128,7 +128,15 @@
     "noPolls": "아직 만들어진 투표가 없습니다.",
     "voteCountPct": "{count}표 ({pct}%)",
     "multiSelectHint": "중복 선택 가능",
-    "totalVotes": "총 {total}표"
+    "totalVotes": "총 {total}표",
+    "deletePoll": "투표 삭제",
+    "deletePollConfirm": "이 투표를 삭제할까요?",
+    "durationLabel": "투표 기간",
+    "durationDays": "{count}일",
+    "durationUnlimited": "무기한",
+    "endsAt": "{date}까지",
+    "endedAt": "{date} 종료됨",
+    "noDeadline": "무기한"
   },
   "roomRecordsPanel": {
     "title": "방 기록",

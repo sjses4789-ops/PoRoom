@@ -35,7 +35,7 @@ function MyRoomCard({
   const tTags = useTranslations("tags");
   return (
     <div
-      className={`relative overflow-hidden rounded-lg border border-neutral-200/60 transition hover:border-neutral-300 ${paletteBg(room.color)}`}
+      className={`relative overflow-hidden border border-neutral-400 transition hover:border-neutral-500 dark:border-neutral-600 dark:hover:border-neutral-400 ${paletteBg(room.color)}`}
     >
       <button
         type="button"

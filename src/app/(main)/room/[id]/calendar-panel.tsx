@@ -142,7 +142,7 @@ export function CalendarPanel({
   const selectedEvents = selectedDate ? eventsByDate.get(selectedDate) ?? [] : [];
 
   return (
-    <div className="grid grid-cols-1 gap-4 rounded-lg border border-neutral-200 p-4 lg:grid-cols-[220px_1fr] dark:border-neutral-800 dark:bg-neutral-900">
+    <div className="grid grid-cols-1 gap-4 border border-neutral-400 p-4 lg:grid-cols-[220px_1fr] dark:border-neutral-600">
       <div className="flex flex-col gap-2 lg:border-r lg:border-neutral-100 lg:pr-4 dark:lg:border-neutral-800">
         <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("upcomingTitle")}</h2>
         {upcoming.length === 0 ? (

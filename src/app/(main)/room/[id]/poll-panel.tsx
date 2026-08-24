@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { createPoll, castVote, type PollType } from "@/lib/polls";
+import { createPoll, castVote, deletePoll, type PollType } from "@/lib/polls";
 
 export type PollOption = { id: string; label: string; count: number };
 export type Poll = {
@@ -11,10 +11,14 @@ export type Poll = {
   pollType: PollType;
   isAnonymousVote: boolean;
   authorName: string | null; // null → 익명 투표
+  createdBy: string;
   createdAt: string;
+  endsAt: string | null; // null → 무기한 투표
   options: PollOption[];
   selfVoteOptionIds: string[];
 };
+
+const POLL_DURATION_OPTIONS = [1, 3, 7] as const;
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("ko-KR", {
@@ -23,27 +27,60 @@ function formatDate(iso: string) {
   });
 }
 
+function formatDateTime(iso: string) {
+  return new Date(iso).toLocaleString("ko-KR", {
+    month: "numeric",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 function PollCard({
   poll,
+  canDelete,
   onVote,
+  onDelete,
 }: {
   poll: Poll;
+  canDelete: boolean;
   onVote: (pollId: string, optionId: string, pollType: PollType) => void;
+  onDelete: (pollId: string) => void;
 }) {
   const t = useTranslations("room.pollPanel");
   const total = poll.options.reduce((sum, o) => sum + o.count, 0);
+  const isEnded = poll.endsAt !== null && new Date(poll.endsAt) <= new Date();
 
   return (
-    <div className="flex flex-col gap-3 rounded-lg border border-neutral-200 p-4 dark:border-neutral-800 dark:bg-neutral-900">
-      <div className="flex flex-col gap-1">
-        <span className="text-sm font-semibold text-neutral-900 dark:text-white">
-          {poll.title}
-        </span>
-        <span className="text-[12px] text-neutral-400">
-          {poll.authorName ?? t("anonymous")} · {formatDate(poll.createdAt)} ·{" "}
-          {t(`type.${poll.pollType}`)}
-          {poll.isAnonymousVote ? ` · ${t("anonymousVote")}` : ""}
-        </span>
+    <div className="flex flex-col gap-3 border border-neutral-400 p-4 dark:border-neutral-600">
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex flex-col gap-1">
+          <span className="text-sm font-semibold text-neutral-900 dark:text-white">
+            {poll.title}
+          </span>
+          <span className="text-[12px] text-neutral-400">
+            {poll.authorName ?? t("anonymous")} · {formatDate(poll.createdAt)} ·{" "}
+            {t(`type.${poll.pollType}`)}
+            {poll.isAnonymousVote ? ` · ${t("anonymousVote")}` : ""}
+          </span>
+          <span className={`text-[12px] ${isEnded ? "font-medium text-red-500" : "text-neutral-400"}`}>
+            {poll.endsAt
+              ? isEnded
+                ? t("endedAt", { date: formatDateTime(poll.endsAt) })
+                : t("endsAt", { date: formatDateTime(poll.endsAt) })
+              : t("noDeadline")}
+          </span>
+        </div>
+        {canDelete && (
+          <button
+            type="button"
+            onClick={() => onDelete(poll.id)}
+            title={t("deletePoll")}
+            className="shrink-0 text-[11px] text-neutral-300 transition hover:text-red-500 dark:text-neutral-600"
+          >
+            ✕
+          </button>
+        )}
       </div>
 
       <div className="flex flex-col gap-1.5">
@@ -53,8 +90,9 @@ function PollCard({
           return (
             <button
               key={opt.id}
+              disabled={isEnded}
               onClick={() => onVote(poll.id, opt.id, poll.pollType)}
-              className={`relative overflow-hidden rounded-md border px-2.5 py-1.5 text-left text-xs transition ${
+              className={`relative overflow-hidden rounded-md border px-2.5 py-1.5 text-left text-xs transition disabled:cursor-not-allowed disabled:opacity-60 ${
                 isMine
                   ? "border-neutral-900 dark:border-white"
                   : "border-neutral-200 hover:bg-neutral-50 dark:border-neutral-700 dark:hover:bg-neutral-800"
@@ -91,11 +129,15 @@ function PollCard({
 
 export function PollPanel({
   roomId,
+  selfId,
   selfName,
+  canModerate,
   initialPolls,
 }: {
   roomId: string;
+  selfId: string;
   selfName: string;
+  canModerate: boolean;
   initialPolls: Poll[];
 }) {
   const t = useTranslations("room.pollPanel");
@@ -106,6 +148,7 @@ export function PollPanel({
   const [candidates, setCandidates] = useState(["", ""]);
   const [anonVote, setAnonVote] = useState(false);
   const [anonCreator, setAnonCreator] = useState(false);
+  const [durationDays, setDurationDays] = useState<number | null>(3);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -115,6 +158,7 @@ export function PollPanel({
     setCandidates(["", ""]);
     setAnonVote(false);
     setAnonCreator(false);
+    setDurationDays(3);
     setError(null);
   };
 
@@ -127,7 +171,8 @@ export function PollPanel({
       pollType,
       candidates,
       anonVote,
-      anonCreator
+      anonCreator,
+      durationDays
     );
     setPending(false);
     if ("error" in result) {
@@ -141,7 +186,9 @@ export function PollPanel({
         pollType: result.pollType,
         isAnonymousVote: result.isAnonymousVote,
         authorName: result.isAnonymousCreator ? null : selfName,
+        createdBy: selfId,
         createdAt: result.createdAt,
+        endsAt: result.endsAt,
         options: result.options.map((o) => ({ id: o.id, label: o.label, count: 0 })),
         selfVoteOptionIds: [],
       },
@@ -194,6 +241,12 @@ export function PollPanel({
     await castVote(roomId, pollId, optionId, pollType);
   };
 
+  const removePoll = async (pollId: string) => {
+    if (!window.confirm(t("deletePollConfirm"))) return;
+    setPolls((prev) => prev.filter((p) => p.id !== pollId));
+    await deletePoll(roomId, pollId);
+  };
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
@@ -207,7 +260,7 @@ export function PollPanel({
       </div>
 
       {creating && (
-        <div className="flex flex-col gap-3 rounded-lg border border-neutral-200 p-4 dark:border-neutral-800 dark:bg-neutral-900">
+        <div className="flex flex-col gap-3 border border-neutral-400 p-4 dark:border-neutral-600">
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -284,6 +337,37 @@ export function PollPanel({
           )}
 
           <div className="flex flex-col gap-1.5">
+            <span className="text-[12px] font-medium text-neutral-500 dark:text-neutral-400">
+              {t("durationLabel")}
+            </span>
+            <div className="flex flex-wrap gap-3">
+              {POLL_DURATION_OPTIONS.map((d) => (
+                <label
+                  key={d}
+                  className="flex items-center gap-1.5 text-xs text-neutral-700 dark:text-neutral-300"
+                >
+                  <input
+                    type="radio"
+                    checked={durationDays === d}
+                    onChange={() => setDurationDays(d)}
+                    className="accent-neutral-900"
+                  />
+                  {t("durationDays", { count: d })}
+                </label>
+              ))}
+              <label className="flex items-center gap-1.5 text-xs text-neutral-700 dark:text-neutral-300">
+                <input
+                  type="radio"
+                  checked={durationDays === null}
+                  onChange={() => setDurationDays(null)}
+                  className="accent-neutral-900"
+                />
+                {t("durationUnlimited")}
+              </label>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
             <label className="flex items-center gap-1.5 text-xs text-neutral-700 dark:text-neutral-300">
               <input
                 type="checkbox"
@@ -320,7 +404,13 @@ export function PollPanel({
       ) : (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {polls.map((poll) => (
-            <PollCard key={poll.id} poll={poll} onVote={vote} />
+            <PollCard
+              key={poll.id}
+              poll={poll}
+              canDelete={canModerate || poll.createdBy === selfId}
+              onVote={vote}
+              onDelete={removePoll}
+            />
           ))}
         </div>
       )}

@@ -30,7 +30,7 @@ function RoomCardBody({ room }: { room: RoomListItem }) {
   // 무관하게 항상 어두운 색으로 유지해야 읽힌다.
   return (
     <div
-      className={`flex flex-col gap-2 overflow-hidden rounded-lg border border-neutral-200/60 p-4 transition hover:border-neutral-300 ${paletteBg(room.color)}`}
+      className={`flex flex-col gap-2 overflow-hidden border border-neutral-400 p-4 transition hover:border-neutral-500 dark:border-neutral-600 dark:hover:border-neutral-400 ${paletteBg(room.color)}`}
     >
       <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
         <span className="flex min-w-0 items-center gap-1.5 truncate text-sm font-medium text-neutral-900">

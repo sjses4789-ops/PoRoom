@@ -17,10 +17,10 @@ export function WorksPanel({
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-[2fr_1fr]">
-      <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800 dark:bg-neutral-900">
+      <div className="border border-neutral-400 p-4 dark:border-neutral-600">
         <WorkChart works={works} records={records} entries={entries} />
       </div>
-      <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800 dark:bg-neutral-900">
+      <div className="border border-neutral-400 p-4 dark:border-neutral-600">
         <WorkList works={works} onWorksChange={setWorks} />
       </div>
     </div>

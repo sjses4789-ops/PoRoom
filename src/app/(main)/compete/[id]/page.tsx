@@ -244,7 +244,7 @@ export default async function ChallengeDetailPage({
       </div>
 
       {isSystemKind ? (
-        <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-neutral-200 p-4 dark:border-neutral-700">
+        <div className="flex flex-wrap items-center justify-between gap-2 border border-neutral-400 p-4 dark:border-neutral-600">
           <div className="flex flex-col gap-0.5">
             <span className="text-sm font-semibold text-neutral-900 dark:text-white">
               {challenge.kind ? tMeta(`${challenge.kind}.title`) : challenge.title}

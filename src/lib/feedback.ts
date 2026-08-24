@@ -54,3 +54,44 @@ export async function createFeedbackPost(
     createdAt: data.created_at,
   };
 }
+
+export type FeedbackCommentResult =
+  | { error: string }
+  | { id: string; content: string; createdAt: string };
+
+// 관리자만 답글을 달 수 있다 — RLS(0039_feedback_comments)로도 강제된다.
+export async function createFeedbackComment(
+  postId: string,
+  content: string
+): Promise<FeedbackCommentResult> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "로그인이 필요합니다." };
+
+  const trimmed = content.trim();
+  if (!trimmed) return { error: "댓글 내용을 입력해주세요." };
+
+  const { data, error } = await supabase
+    .from("feedback_comments")
+    .insert({ post_id: postId, user_id: user.id, content: trimmed })
+    .select("id,content,created_at")
+    .single();
+
+  if (error || !data) {
+    return { error: error?.message ?? "댓글 등록에 실패했습니다." };
+  }
+
+  revalidatePath("/feedback");
+
+  return { id: data.id, content: data.content, createdAt: data.created_at };
+}
+
+export async function deleteFeedbackComment(commentId: string): Promise<{ error: string } | null> {
+  const supabase = await createClient();
+  const { error } = await supabase.from("feedback_comments").delete().eq("id", commentId);
+  if (error) return { error: error.message };
+  revalidatePath("/feedback");
+  return null;
+}

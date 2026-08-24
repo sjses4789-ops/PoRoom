@@ -77,7 +77,7 @@ export function WorkList({
       {works.length === 0 ? (
         <p className="text-xs text-neutral-400">{t("noWorks")}</p>
       ) : (
-        <ul className="flex max-h-64 flex-col divide-y divide-neutral-100 overflow-y-auto dark:divide-neutral-800">
+        <ul className="flex max-h-64 flex-col divide-y divide-neutral-400 overflow-y-auto dark:divide-neutral-600">
           {works.map((w, i) => (
             <li key={w.id} className="flex items-center gap-2 py-2">
               <span

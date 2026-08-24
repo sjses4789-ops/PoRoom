@@ -128,7 +128,15 @@
     "noPolls": "まだ作成された投票がありません。",
     "voteCountPct": "{count}票 ({pct}%)",
     "multiSelectHint": "複数選択可能",
-    "totalVotes": "合計{total}票"
+    "totalVotes": "合計{total}票",
+    "deletePoll": "投票を削除",
+    "deletePollConfirm": "この投票を削除しますか？",
+    "durationLabel": "投票期間",
+    "durationDays": "{count}日",
+    "durationUnlimited": "無期限",
+    "endsAt": "{date}まで",
+    "endedAt": "{date}終了",
+    "noDeadline": "無期限"
   },
   "roomRecordsPanel": {
     "title": "ルーム記録",

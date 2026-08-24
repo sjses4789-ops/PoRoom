@@ -393,7 +393,7 @@ export default async function MePage() {
 
   return (
     <PageAdRail>
-    <div className="flex flex-col gap-10">
+    <div className="flex flex-col gap-6">
       <h1 className="text-lg font-semibold tracking-tight text-neutral-900 dark:text-white">
         {t("title")}
       </h1>
@@ -401,7 +401,7 @@ export default async function MePage() {
       <section className="flex flex-col gap-3">
         <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("accountInfo")}</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div className="rounded-lg border border-neutral-200 p-4 text-sm dark:border-neutral-800 dark:bg-neutral-900">
+          <div className="border border-neutral-400 p-4 text-sm dark:border-neutral-600">
             <div className="flex flex-col gap-1">
               <span className="text-neutral-900 dark:text-white">{myProfile?.name ?? t("noNickname")}</span>
               <span className="text-neutral-500">{user.email}</span>
@@ -411,7 +411,7 @@ export default async function MePage() {
             </div>
           </div>
           <CharacterSection initialCharacterId={myProfile?.character_id ?? null} />
-          <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800 dark:bg-neutral-900">
+          <div className="border border-neutral-400 p-4 dark:border-neutral-600">
             <h3 className="mb-2 text-xs font-semibold text-neutral-500">
               {t("changeNickname")}
             </h3>
@@ -428,7 +428,7 @@ export default async function MePage() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div className="flex flex-col gap-4">
             <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("attendance")}</h2>
-            <div className="rounded-lg border border-neutral-200 p-3 dark:border-neutral-800 dark:bg-neutral-900">
+            <div className="border border-neutral-400 p-3 dark:border-neutral-600">
               <AttendanceCalendar
                 year={userTodayYear}
                 month={userTodayMonth - 1}
@@ -439,7 +439,7 @@ export default async function MePage() {
           </div>
           <div className="flex flex-col gap-4">
             <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("todo")}</h2>
-            <div className="rounded-lg border border-neutral-200 p-3 dark:border-neutral-800 dark:bg-neutral-900">
+            <div className="border border-neutral-400 p-3 dark:border-neutral-600">
               <TodoList initialTodos={todos} />
             </div>
           </div>
@@ -470,14 +470,14 @@ export default async function MePage() {
           </div>
           <div className="flex flex-col gap-3">
             <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("competeStatus")}</h2>
-            <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800 dark:bg-neutral-900">
+            <div className="border border-neutral-400 p-4 dark:border-neutral-600">
               <p className="text-xs text-neutral-500">{t("competeStatusSubtitle")}</p>
               <ChallengeRecordPanel wins={wins} losses={losses} draws={draws} />
             </div>
           </div>
           <div className="flex flex-col gap-3">
             <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("challengeRecord")}</h2>
-            <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800 dark:bg-neutral-900">
+            <div className="border border-neutral-400 p-4 dark:border-neutral-600">
               <p className="text-xs text-neutral-500">{t("challengeRecordSubtitle")}</p>
               <SystemChallengeRecordPanel
                 joined={systemChallengeJoined}

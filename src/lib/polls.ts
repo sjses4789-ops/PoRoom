@@ -14,6 +14,7 @@ export type CreatePollResult =
       isAnonymousVote: boolean;
       isAnonymousCreator: boolean;
       createdAt: string;
+      endsAt: string | null;
       options: { id: string; label: string }[];
     };
 
@@ -23,7 +24,8 @@ export async function createPoll(
   pollType: PollType,
   candidateLabels: string[],
   isAnonymousVote: boolean,
-  isAnonymousCreator: boolean
+  isAnonymousCreator: boolean,
+  durationDays: number | null
 ): Promise<CreatePollResult> {
   const supabase = await createClient();
   const {
@@ -42,6 +44,14 @@ export async function createPoll(
   if (pollType !== "yesno" && labels.length < 2) {
     return { error: "선택지를 2개 이상 입력해주세요." };
   }
+  if (durationDays !== null && (!Number.isFinite(durationDays) || durationDays < 1)) {
+    return { error: "잘못된 투표 기간입니다." };
+  }
+
+  const endsAt =
+    durationDays !== null
+      ? new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000).toISOString()
+      : null;
 
   const { data: poll, error: pollError } = await supabase
     .from("polls")
@@ -52,8 +62,9 @@ export async function createPoll(
       poll_type: pollType,
       is_anonymous_vote: isAnonymousVote,
       is_anonymous_creator: isAnonymousCreator,
+      ends_at: endsAt,
     })
-    .select("id,title,poll_type,is_anonymous_vote,is_anonymous_creator,created_at")
+    .select("id,title,poll_type,is_anonymous_vote,is_anonymous_creator,created_at,ends_at")
     .single();
 
   if (pollError || !poll) {
@@ -78,6 +89,7 @@ export async function createPoll(
     isAnonymousVote: poll.is_anonymous_vote,
     isAnonymousCreator: poll.is_anonymous_creator,
     createdAt: poll.created_at,
+    endsAt: poll.ends_at,
     options,
   };
 }
@@ -95,6 +107,15 @@ export async function castVote(
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "로그인이 필요합니다." };
+
+  const { data: poll } = await supabase
+    .from("polls")
+    .select("ends_at")
+    .eq("id", pollId)
+    .maybeSingle<{ ends_at: string | null }>();
+  if (poll?.ends_at && new Date(poll.ends_at) <= new Date()) {
+    return { error: "종료된 투표입니다." };
+  }
 
   if (pollType === "multi") {
     const { data: existing } = await supabase
@@ -125,6 +146,18 @@ export async function castVote(
     if (error) return { error: error.message };
   }
 
+  revalidatePath(`/room/${roomId}`);
+  return null;
+}
+
+// 방장/부방장/투표 생성자만 삭제 가능 — RLS(0037_poll_delete)로도 강제된다.
+export async function deletePoll(
+  roomId: string,
+  pollId: string
+): Promise<{ error: string } | null> {
+  const supabase = await createClient();
+  const { error } = await supabase.from("polls").delete().eq("id", pollId);
+  if (error) return { error: error.message };
   revalidatePath(`/room/${roomId}`);
   return null;
 }

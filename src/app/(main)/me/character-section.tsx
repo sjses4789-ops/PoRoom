@@ -17,7 +17,7 @@ export function CharacterSection({
   const src = characterSrc(characterId);
 
   return (
-    <div className="flex flex-col items-center gap-3 rounded-lg border border-neutral-200 p-4 dark:border-neutral-800 dark:bg-neutral-900">
+    <div className="flex flex-col items-center gap-3 border border-neutral-400 p-4 dark:border-neutral-600">
       <div className="flex h-28 w-28 items-center justify-center overflow-hidden rounded-md bg-neutral-50 dark:bg-neutral-800">
         {src ? (
           <Image

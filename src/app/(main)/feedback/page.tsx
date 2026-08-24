@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
-import { FeedbackBoard, type FeedbackPost } from "./feedback-board";
+import { isCurrentUserAdmin } from "@/lib/admin";
+import { FeedbackBoard, type FeedbackPost, type FeedbackComment } from "./feedback-board";
 
 type PostRow = {
   id: string;
@@ -10,6 +11,7 @@ type PostRow = {
   created_at: string;
 };
 type UserRow = { id: string; name: string | null; email: string };
+type CommentRow = { id: string; post_id: string; user_id: string; content: string; created_at: string };
 
 export default async function FeedbackPage() {
   const supabase = await createClient();
@@ -17,22 +19,41 @@ export default async function FeedbackPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const [{ data: myProfile }, { data: postRows }, { data: users }] = await Promise.all([
-    supabase
-      .from("users")
-      .select("name")
-      .eq("id", user!.id)
-      .maybeSingle<{ name: string | null }>(),
-    supabase
-      .from("feedback_posts")
-      .select("id,user_id,category,title,content,created_at")
-      .order("created_at", { ascending: false })
-      .returns<PostRow[]>(),
-    supabase.from("users").select("id,name,email").returns<UserRow[]>(),
-  ]);
+  const [{ data: myProfile }, { data: postRows }, { data: users }, { data: commentRows }, isAdmin] =
+    await Promise.all([
+      supabase
+        .from("users")
+        .select("name")
+        .eq("id", user!.id)
+        .maybeSingle<{ name: string | null }>(),
+      supabase
+        .from("feedback_posts")
+        .select("id,user_id,category,title,content,created_at")
+        .order("created_at", { ascending: false })
+        .returns<PostRow[]>(),
+      supabase.from("users").select("id,name,email").returns<UserRow[]>(),
+      supabase
+        .from("feedback_comments")
+        .select("id,post_id,user_id,content,created_at")
+        .order("created_at", { ascending: true })
+        .returns<CommentRow[]>(),
+      isCurrentUserAdmin(),
+    ]);
 
   const userNames: Record<string, string> = {};
   for (const u of users ?? []) userNames[u.id] = u.name || u.email;
+
+  const commentsByPost = new Map<string, FeedbackComment[]>();
+  for (const c of commentRows ?? []) {
+    const list = commentsByPost.get(c.post_id) ?? [];
+    list.push({
+      id: c.id,
+      content: c.content,
+      createdAt: c.created_at,
+      authorName: userNames[c.user_id] ?? "알 수 없음",
+    });
+    commentsByPost.set(c.post_id, list);
+  }
 
   const posts: FeedbackPost[] = (postRows ?? []).map((p) => ({
     id: p.id,
@@ -41,6 +62,7 @@ export default async function FeedbackPage() {
     content: p.content,
     createdAt: p.created_at,
     authorName: userNames[p.user_id] ?? "알 수 없음",
+    comments: commentsByPost.get(p.id) ?? [],
   }));
 
   return (
@@ -56,6 +78,7 @@ export default async function FeedbackPage() {
       <FeedbackBoard
         selfName={myProfile?.name ?? user!.email ?? "나"}
         initialPosts={posts}
+        isAdmin={isAdmin}
       />
     </div>
   );

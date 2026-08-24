@@ -96,6 +96,7 @@ type PollRow = {
   is_anonymous_vote: boolean;
   is_anonymous_creator: boolean;
   created_at: string;
+  ends_at: string | null;
 };
 type PollOptionRow = { id: string; poll_id: string; label: string; position: number };
 type PollVoteRow = { poll_id: string; option_id: string; voter_id: string };
@@ -212,7 +213,7 @@ export default async function RoomPage({
       .returns<CategoryRow[]>(),
     supabase
       .from("polls")
-      .select("id,created_by,title,poll_type,is_anonymous_vote,is_anonymous_creator,created_at")
+      .select("id,created_by,title,poll_type,is_anonymous_vote,is_anonymous_creator,created_at,ends_at")
       .eq("room_id", id)
       .order("created_at", { ascending: false })
       .returns<PollRow[]>(),
@@ -376,7 +377,9 @@ export default async function RoomPage({
     pollType: p.poll_type,
     isAnonymousVote: p.is_anonymous_vote,
     authorName: p.is_anonymous_creator ? null : (nameMap.get(p.created_by) ?? tCommon("unknown")),
+    createdBy: p.created_by,
     createdAt: p.created_at,
+    endsAt: p.ends_at,
     options: (pollOptionRows ?? [])
       .filter((o) => o.poll_id === p.id)
       .map((o) => ({ id: o.id, label: o.label, count: votesByPollOption.get(o.id) ?? 0 })),
@@ -466,7 +469,9 @@ export default async function RoomPage({
         poll={
           <PollPanel
             roomId={room.id}
+            selfId={user!.id}
             selfName={selfMember?.name ?? user!.email ?? tCommon("self")}
+            canModerate={canPostNotice}
             initialPolls={polls}
           />
         }

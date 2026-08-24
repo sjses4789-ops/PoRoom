@@ -128,7 +128,15 @@
     "noPolls": "No polls yet.",
     "voteCountPct": "{count} votes ({pct}%)",
     "multiSelectHint": "Multiple choices allowed",
-    "totalVotes": "{total} votes total"
+    "totalVotes": "{total} votes total",
+    "deletePoll": "Delete poll",
+    "deletePollConfirm": "Delete this poll?",
+    "durationLabel": "Poll duration",
+    "durationDays": "{count} day(s)",
+    "durationUnlimited": "No deadline",
+    "endsAt": "Ends {date}",
+    "endedAt": "Ended {date}",
+    "noDeadline": "No deadline"
   },
   "roomRecordsPanel": {
     "title": "Room records",

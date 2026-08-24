@@ -128,7 +128,15 @@
     "noPolls": "还没有创建的投票。",
     "voteCountPct": "{count}票 ({pct}%)",
     "multiSelectHint": "可多选",
-    "totalVotes": "共{total}票"
+    "totalVotes": "共{total}票",
+    "deletePoll": "删除投票",
+    "deletePollConfirm": "确定删除这个投票吗？",
+    "durationLabel": "投票期限",
+    "durationDays": "{count}天",
+    "durationUnlimited": "无期限",
+    "endsAt": "截止{date}",
+    "endedAt": "已于{date}结束",
+    "noDeadline": "无期限"
   },
   "roomRecordsPanel": {
     "title": "房间记录",

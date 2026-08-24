@@ -1,7 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { createFeedbackPost, type FeedbackCategory } from "@/lib/feedback";
+import {
+  createFeedbackPost,
+  createFeedbackComment,
+  deleteFeedbackComment,
+  type FeedbackCategory,
+} from "@/lib/feedback";
+
+export type FeedbackComment = {
+  id: string;
+  content: string;
+  createdAt: string;
+  authorName: string;
+};
 
 export type FeedbackPost = {
   id: string;
@@ -10,6 +22,7 @@ export type FeedbackPost = {
   content: string;
   createdAt: string;
   authorName: string;
+  comments: FeedbackComment[];
 };
 
 const CATEGORY_LABEL: Record<FeedbackCategory, string> = {
@@ -35,9 +48,11 @@ function formatDate(iso: string) {
 export function FeedbackBoard({
   selfName,
   initialPosts,
+  isAdmin,
 }: {
   selfName: string;
   initialPosts: FeedbackPost[];
+  isAdmin: boolean;
 }) {
   const [posts, setPosts] = useState<FeedbackPost[]>(initialPosts);
   const [writing, setWriting] = useState(false);
@@ -47,6 +62,8 @@ export function FeedbackBoard({
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [openId, setOpenId] = useState<string | null>(null);
+  const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
+  const [replyPending, setReplyPending] = useState<string | null>(null);
 
   const submit = async () => {
     setPending(true);
@@ -57,14 +74,46 @@ export function FeedbackBoard({
       setError(result.error);
       return;
     }
-    setPosts((prev) => [{ ...result, authorName: selfName }, ...prev]);
+    setPosts((prev) => [{ ...result, authorName: selfName, comments: [] }, ...prev]);
     setTitle("");
     setContent("");
     setWriting(false);
   };
 
+  const submitReply = async (postId: string) => {
+    const draft = (replyDrafts[postId] ?? "").trim();
+    if (!draft) return;
+    setReplyPending(postId);
+    const result = await createFeedbackComment(postId, draft);
+    setReplyPending(null);
+    if ("error" in result) return;
+    setPosts((prev) =>
+      prev.map((p) =>
+        p.id === postId
+          ? {
+              ...p,
+              comments: [
+                ...p.comments,
+                { id: result.id, content: result.content, createdAt: result.createdAt, authorName: selfName },
+              ],
+            }
+          : p
+      )
+    );
+    setReplyDrafts((prev) => ({ ...prev, [postId]: "" }));
+  };
+
+  const removeComment = async (postId: string, commentId: string) => {
+    setPosts((prev) =>
+      prev.map((p) =>
+        p.id === postId ? { ...p, comments: p.comments.filter((c) => c.id !== commentId) } : p
+      )
+    );
+    await deleteFeedbackComment(commentId);
+  };
+
   return (
-    <div className="flex flex-col gap-4 rounded-lg border border-neutral-200 p-4">
+    <div className="flex flex-col gap-4 border border-neutral-400 p-4">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">전체 {posts.length}건</h2>
         <button
@@ -118,7 +167,7 @@ export function FeedbackBoard({
       {posts.length === 0 ? (
         <p className="text-xs text-neutral-400">아직 등록된 글이 없습니다.</p>
       ) : (
-        <ul className="flex flex-col divide-y divide-neutral-100 rounded-lg border border-neutral-200">
+        <ul className="flex flex-col divide-y divide-neutral-400 border border-neutral-400">
           {posts.map((p) => {
             const isOpen = openId === p.id;
             return (
@@ -136,15 +185,66 @@ export function FeedbackBoard({
                     <span className="min-w-0 truncate font-medium text-neutral-900 dark:text-white">
                       {p.title}
                     </span>
+                    {p.comments.length > 0 && (
+                      <span className="shrink-0 rounded px-1.5 py-0.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
+                        답변 {p.comments.length}
+                      </span>
+                    )}
                   </span>
                   <span className="shrink-0 whitespace-nowrap text-[12px] text-neutral-400">
                     {p.authorName} · {formatDate(p.createdAt)}
                   </span>
                 </button>
                 {isOpen && (
-                  <p className="whitespace-pre-wrap px-4 pb-3 text-sm text-neutral-600">
-                    {p.content}
-                  </p>
+                  <div className="flex flex-col gap-3 px-4 pb-3">
+                    <p className="whitespace-pre-wrap text-sm text-neutral-600">{p.content}</p>
+
+                    {p.comments.length > 0 && (
+                      <div className="flex flex-col gap-2 border-l-2 border-neutral-200 pl-3 dark:border-neutral-700">
+                        {p.comments.map((c) => (
+                          <div key={c.id} className="flex flex-col gap-0.5">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-[12px] font-medium text-neutral-500 dark:text-neutral-400">
+                                {c.authorName} · {formatDate(c.createdAt)}
+                              </span>
+                              {isAdmin && (
+                                <button
+                                  onClick={() => removeComment(p.id, c.id)}
+                                  className="text-[11px] text-neutral-300 hover:text-red-500 dark:text-neutral-600"
+                                >
+                                  삭제
+                                </button>
+                              )}
+                            </div>
+                            <p className="whitespace-pre-wrap text-sm text-neutral-700 dark:text-neutral-200">
+                              {c.content}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {isAdmin && (
+                      <div className="flex gap-2">
+                        <input
+                          value={replyDrafts[p.id] ?? ""}
+                          onChange={(e) =>
+                            setReplyDrafts((prev) => ({ ...prev, [p.id]: e.target.value }))
+                          }
+                          onKeyDown={(e) => e.key === "Enter" && submitReply(p.id)}
+                          placeholder="관리자 답글"
+                          className="min-w-0 flex-1 rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
+                        />
+                        <button
+                          onClick={() => submitReply(p.id)}
+                          disabled={replyPending === p.id}
+                          className="shrink-0 rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-neutral-700 disabled:opacity-50"
+                        >
+                          등록
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 )}
               </li>
             );

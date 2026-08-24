@@ -31,7 +31,7 @@ export function GoalPanel({
   const prog = progress[period];
 
   return (
-    <div className="flex flex-col gap-4 rounded-lg border border-neutral-200 p-4 dark:border-neutral-800 dark:bg-neutral-900">
+    <div className="flex flex-col gap-4 border border-neutral-400 p-4 dark:border-neutral-600">
       <div className="flex gap-1">
         {PERIODS.map((p) => (
           <button

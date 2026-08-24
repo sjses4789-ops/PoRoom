@@ -112,7 +112,7 @@ export function RankingStatusPanel({
         </div>
       </div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800 dark:bg-neutral-900">
+        <div className="border border-neutral-400 p-4 dark:border-neutral-600">
           <p className="text-xs text-neutral-500 dark:text-neutral-400">{t("byRoom")}</p>
           {roomRanks.length === 0 ? (
             <p className="mt-1 text-sm text-neutral-400">{t("noRooms")}</p>
@@ -131,7 +131,7 @@ export function RankingStatusPanel({
             </ul>
           )}
         </div>
-        <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800 dark:bg-neutral-900">
+        <div className="border border-neutral-400 p-4 dark:border-neutral-600">
           <p className="text-xs text-neutral-500 dark:text-neutral-400">{t("overall")}</p>
           <p className="mt-1 text-sm text-neutral-900 dark:text-white">
             {t("overallRank", { rank: overallRank, total: totalUsers })}
