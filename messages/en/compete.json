@@ -24,7 +24,8 @@
     "logHeading": "Challenge log",
     "participantsHeading": "Participants",
     "settings": "Settings",
-    "unknownUser": "Unknown"
+    "unknownUser": "Unknown",
+    "waitingForFull": "This will start automatically once capacity is reached."
   },
   "joinByCodeButton": {
     "trigger": "Join with invite code",
@@ -132,7 +133,11 @@
     "durationDays": "{count} days",
     "colorLabel": "Room color",
     "capacityPlaceholder": "Capacity (blank = unlimited)",
-    "hint": "The challenge doesn't start the moment you create it — you (the host) start it once enough people have joined, and the period is counted from that moment. Anyone can join an open challenge from the list, while a private challenge can only be joined with an invite code.",
+    "startModeLabel": "Start timing",
+    "startModeManual": "Manual start",
+    "startModeFull": "Auto-start when full",
+    "startModeFullDisabledHint": "Set a capacity to enable this option.",
+    "hint": "The challenge doesn't start the moment you create it. With manual start, you (the host) start it once enough people have joined; with auto-start when full, it starts automatically the moment capacity is reached. Anyone can join an open challenge from the list, while a private challenge can only be joined with an invite code.",
     "creating": "Creating...",
     "create": "Create"
   },

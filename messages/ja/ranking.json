@@ -33,10 +33,11 @@
   },
   "challengeRanking": {
     "heading": "チャレンジランキング",
+    "scoreHint": "5千文字チャレンジ成功1点・1万文字チャレンジ成功2点・初稿チャレンジ成功5点・管理者イベント成功7点で計算します。",
     "empty": "毎日5千文字・毎日1万文字・初稿完成の達成記録がまだありません。",
     "colRank": "順位",
     "colName": "名前",
-    "colSuccess": "達成",
-    "successSuffix": "{count}回"
+    "colSuccess": "得点",
+    "successSuffix": "{count}点"
   }
 }

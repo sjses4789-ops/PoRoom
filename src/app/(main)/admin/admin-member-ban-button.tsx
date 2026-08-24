@@ -23,6 +23,7 @@ export function AdminMemberBanButton({
       onClick={async () => {
         const confirmMsg = banned ? t("unbanConfirm", { name: userName }) : t("banConfirm", { name: userName });
         if (!window.confirm(confirmMsg)) return;
+        if (!banned && !window.confirm(t("banConfirm2"))) return;
         setPending(true);
         await adminSetBanned(userId, !banned);
         setPending(false);

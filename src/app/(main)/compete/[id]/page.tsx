@@ -35,6 +35,7 @@ type ChallengeRow = {
   duration_days: number;
   started_at: string | null;
   is_admin_event: boolean;
+  start_mode: "manual" | "full";
 };
 
 type UserRow = {
@@ -81,7 +82,7 @@ export default async function ChallengeDetailPage({
   const { data: challenge } = await supabase
     .from("challenges")
     .select(
-      "id,title,metric,visibility,invite_code,start_date,end_date,kind,created_by,color,capacity,duration_days,started_at,is_admin_event"
+      "id,title,metric,visibility,invite_code,start_date,end_date,kind,created_by,color,capacity,duration_days,started_at,is_admin_event,start_mode"
     )
     .eq("id", id)
     .maybeSingle<ChallengeRow>();
@@ -195,13 +196,20 @@ export default async function ChallengeDetailPage({
   const draftDoneSet = new Set((draftLogs ?? []).map((r) => r.user_id));
   const myDraftDone = draftDoneSet.has(user!.id);
 
-  const logEntries: LogEntry[] = (logs ?? []).map((l) => ({
-    id: l.id,
-    userName: userNameMap.get(l.user_id) ?? t("unknownUser"),
-    type: l.type,
-    amount: l.amount,
-    createdAt: l.created_at,
-  }));
+  // focus_recorded는 실제 뽀모도로 진행 중 1분마다 남는 기록이라(출석일
+  // 계산엔 계속 쓰지만) 피드에 그대로 보여주면 1분마다 "n분 집중했어요"가
+  // 계속 쌓여 시끄럽고, 심지어 이 챌린지와 무관한 다른 방에서 집중한
+  // 기록까지 섞여 보인다 — 피드에는 실제로 의미 있는 시작/집필 활동만
+  // 보여준다.
+  const logEntries: LogEntry[] = (logs ?? [])
+    .filter((l) => l.type !== "focus_recorded")
+    .map((l) => ({
+      id: l.id,
+      userName: userNameMap.get(l.user_id) ?? t("unknownUser"),
+      type: l.type,
+      amount: l.amount,
+      createdAt: l.created_at,
+    }));
 
   const chatMembers = (users ?? []).map((u) => ({
     id: u.id,
@@ -264,7 +272,11 @@ export default async function ChallengeDetailPage({
           showRanking={false}
           startSlot={
             isPending && isCreator ? (
-              <StartChallengeButton challengeId={challenge.id} participantCount={participantIds.length} />
+              challenge.start_mode === "full" ? (
+                <p className="text-[11px] text-neutral-400">{t("waitingForFull")}</p>
+              ) : (
+                <StartChallengeButton challengeId={challenge.id} participantCount={participantIds.length} />
+              )
             ) : undefined
           }
         />

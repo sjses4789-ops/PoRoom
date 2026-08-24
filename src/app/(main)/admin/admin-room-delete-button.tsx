@@ -14,6 +14,7 @@ export function AdminRoomDeleteButton({ roomId, roomName }: { roomId: string; ro
       disabled={pending}
       onClick={async () => {
         if (!window.confirm(t("deleteRoomConfirm", { name: roomName }))) return;
+        if (!window.confirm(t("deleteRoomConfirm2"))) return;
         setPending(true);
         await adminDeleteRoom(roomId);
         setPending(false);

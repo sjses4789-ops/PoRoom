@@ -8,7 +8,6 @@ import { ChallengeCard, type ChallengeParticipant } from "./challenge-card";
 import { OpenChallengeCard } from "./open-challenge-card";
 import { OpenSystemChallengeCard } from "./open-system-challenge-card";
 import { JoinedSystemChallengeCard } from "./joined-system-challenge-card";
-import { StartChallengeButton } from "./start-challenge-button";
 import {
   ensureSystemChallenge,
   SYSTEM_CHALLENGE_META,
@@ -204,11 +203,6 @@ export default async function CompetePage() {
                   durationDays={c.duration_days}
                   color={c.color}
                   participants={c.participants}
-                  startSlot={
-                    !c.started_at && c.created_by === user!.id ? (
-                      <StartChallengeButton challengeId={c.id} participantCount={c.participantCount} />
-                    ) : undefined
-                  }
                 />
               ))}
             </div>

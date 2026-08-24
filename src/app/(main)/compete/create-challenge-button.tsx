@@ -12,6 +12,9 @@ export default function CreateChallengeButton() {
   const t = useTranslations("compete.createChallengeButton");
   const [open, setOpen] = useState(false);
   const [color, setColor] = useState<string>(PALETTE[0].key);
+  const [capacity, setCapacity] = useState("");
+  const [startMode, setStartMode] = useState<"manual" | "full">("manual");
+  const hasCapacity = capacity.trim() !== "";
   const [state, formAction, pending] = useActionState<ActionResult, FormData>(
     createChallenge,
     null
@@ -144,9 +147,52 @@ export default function CreateChallengeButton() {
               name="capacity"
               type="number"
               min={2}
+              value={capacity}
+              onChange={(e) => {
+                const v = e.target.value;
+                setCapacity(v);
+                if (v.trim() === "") setStartMode("manual");
+              }}
               placeholder={t("capacityPlaceholder")}
               className="rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
             />
+
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[12px] font-medium text-neutral-500 dark:text-neutral-400">
+                {t("startModeLabel")}
+              </span>
+              <input type="hidden" name="startMode" value={startMode} />
+              <div className="flex flex-col gap-1">
+                <label className="flex items-center gap-1.5 text-xs text-neutral-700 dark:text-neutral-300">
+                  <input
+                    type="radio"
+                    checked={startMode === "manual"}
+                    onChange={() => setStartMode("manual")}
+                    className="accent-neutral-900"
+                  />
+                  {t("startModeManual")}
+                </label>
+                <label
+                  className={`flex items-center gap-1.5 text-xs ${
+                    hasCapacity
+                      ? "text-neutral-700 dark:text-neutral-300"
+                      : "text-neutral-300 dark:text-neutral-600"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    checked={startMode === "full"}
+                    disabled={!hasCapacity}
+                    onChange={() => setStartMode("full")}
+                    className="accent-neutral-900"
+                  />
+                  {t("startModeFull")}
+                </label>
+              </div>
+              {!hasCapacity && (
+                <p className="text-[11px] text-neutral-400">{t("startModeFullDisabledHint")}</p>
+              )}
+            </div>
 
             <p className="text-[12px] text-neutral-400">
               {t("hint")}

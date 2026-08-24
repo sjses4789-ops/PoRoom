@@ -201,6 +201,8 @@ export function RoomRecordsPanel({
         </div>
       )}
 
+      {top10.length > 0 && <hr className="border-neutral-200 dark:border-white" />}
+
       <div className="overflow-x-auto">
         <table className="w-full min-w-max border-separate border-spacing-0 text-left text-xs">
           <thead>

@@ -108,12 +108,12 @@
     "method": {
       "yesno": "찬반 투표 (찬성/반대)",
       "single": "단일 선택",
-      "multi": "다중 투표"
+      "multi": "복수 선택"
     },
     "type": {
       "yesno": "찬반 투표",
       "single": "단일 선택",
-      "multi": "다중 투표"
+      "multi": "복수 선택"
     },
     "anonymous": "익명",
     "anonymousVote": "익명 투표",

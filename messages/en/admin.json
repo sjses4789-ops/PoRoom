@@ -14,6 +14,7 @@
   "memberCount": "{count} members",
   "deleteRoom": "Delete room",
   "deleteRoomConfirm": "Delete room \"{name}\"? This cannot be undone.",
+  "deleteRoomConfirm2": "Are you sure? This cannot be undone.",
   "deleting": "Deleting...",
   "membersHeading": "Member management",
   "membersHint": "Ban an account here to stop bad-faith users from signing in again.",
@@ -21,5 +22,6 @@
   "ban": "Ban",
   "unban": "Unban",
   "banConfirm": "Ban \"{name}\"? They won't be able to sign in again.",
+  "banConfirm2": "Are you sure you want to ban this account?",
   "unbanConfirm": "Unban \"{name}\"?"
 }

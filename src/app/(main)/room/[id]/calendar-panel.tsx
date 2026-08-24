@@ -307,7 +307,7 @@ export function CalendarPanel({
                 <select
                   value={categoryId}
                   onChange={(e) => setCategoryId(e.target.value)}
-                  className="rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-700 outline-none focus:border-neutral-400 dark:text-neutral-100"
+                  className="rounded-md border border-neutral-200 bg-white px-2.5 py-1.5 text-sm text-neutral-700 outline-none focus:border-neutral-400 dark:border-neutral-700 dark:bg-black dark:text-neutral-100"
                 >
                   <option value="">{t("noCategory")}</option>
                   {categories.map((c) => (

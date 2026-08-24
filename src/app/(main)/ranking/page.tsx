@@ -5,7 +5,11 @@ import { WinLossRanking, type WinLossRow } from "./win-loss-ranking";
 import { ChallengeRanking, type ChallengeRankingRow } from "./challenge-ranking";
 import { todayKst } from "@/lib/time";
 import { PageAdRail } from "@/components/page-ad-rail";
-import { computeWinLossByUser, type UserChallengeRow } from "@/lib/challenge-rankings";
+import {
+  computeWinLossByUser,
+  computeChallengeScoreByUser,
+  type UserChallengeRow,
+} from "@/lib/challenge-rankings";
 
 type DailyRecordRow = {
   room_id: string | null;
@@ -52,10 +56,28 @@ export default async function RankingPage() {
     // 집계한다. 위 조회들과 서로 무관해서 같은 배치로 함께 보낸다.
     supabase
       .from("activity_logs")
-      .select("user_id")
+      .select("user_id,type")
       .in("type", ["milestone_5k", "milestone_10k", "draft_done"])
-      .returns<{ user_id: string }[]>(),
+      .returns<{ user_id: string; type: string }[]>(),
   ]);
+
+  // 관리자가 만든 "달성 여부" 임시 이벤트는 마일스톤 로그 대신
+  // challenge_participants.achieved 자가 신고로 성공 여부를 판단한다.
+  const { data: adminAchievementChallenges } = await supabase
+    .from("challenges")
+    .select("id")
+    .eq("is_admin_event", true)
+    .eq("metric", "achievement")
+    .returns<{ id: string }[]>();
+  const adminAchievementIds = (adminAchievementChallenges ?? []).map((c) => c.id);
+  const { data: adminAchievedRows } = adminAchievementIds.length
+    ? await supabase
+        .from("challenge_participants")
+        .select("user_id")
+        .in("challenge_id", adminAchievementIds)
+        .eq("achieved", true)
+        .returns<{ user_id: string | null }[]>()
+    : { data: [] as { user_id: string | null }[] };
 
   const roomNames: Record<string, string> = {};
   for (const r of rooms ?? []) roomNames[r.id] = r.name;
@@ -95,20 +117,20 @@ export default async function RankingPage() {
     .slice(0, 20)
     .map((r, i) => ({ rank: i + 1, ...r }));
 
-  const challengeSuccessByUser = new Map<string, number>();
-  for (const l of milestoneLogs ?? []) {
-    challengeSuccessByUser.set(l.user_id, (challengeSuccessByUser.get(l.user_id) ?? 0) + 1);
-  }
+  const challengeScoreByUser = computeChallengeScoreByUser(
+    milestoneLogs ?? [],
+    adminAchievedRows ?? []
+  );
 
   const challengeRankingRows: ChallengeRankingRow[] = Array.from(
-    challengeSuccessByUser.entries()
+    challengeScoreByUser.entries()
   )
-    .map(([userId, successCount]) => ({
+    .map(([userId, score]) => ({
       userId,
       name: userNames[userId] ?? t("unknownUser"),
-      successCount,
+      score,
     }))
-    .sort((a, b) => b.successCount - a.successCount)
+    .sort((a, b) => b.score - a.score)
     .slice(0, 20)
     .map((r, i) => ({ rank: i + 1, ...r }));
 

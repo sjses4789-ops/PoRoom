@@ -5,7 +5,7 @@ export type ChallengeRankingRow = {
   rank: number;
   userId: string;
   name: string;
-  successCount: number;
+  score: number;
 };
 
 export async function ChallengeRanking({ rows }: { rows: ChallengeRankingRow[] }) {
@@ -18,6 +18,7 @@ export async function ChallengeRanking({ rows }: { rows: ChallengeRankingRow[] }
           {t("heading")}
         </span>
       </div>
+      <p className="-mt-3 text-[11px] text-neutral-400">{t("scoreHint")}</p>
 
       {rows.length === 0 ? (
         <p className="text-xs text-neutral-400">
@@ -53,7 +54,7 @@ export async function ChallengeRanking({ rows }: { rows: ChallengeRankingRow[] }
                       {r.name}
                     </td>
                     <td className="py-2.5 text-right text-neutral-600 dark:text-neutral-300">
-                      {t("successSuffix", { count: r.successCount })}
+                      {t("successSuffix", { count: r.score })}
                     </td>
                   </tr>
                 );

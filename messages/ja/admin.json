@@ -14,6 +14,7 @@
   "memberCount": "{count}人",
   "deleteRoom": "ルーム削除",
   "deleteRoomConfirm": "「{name}」ルームを削除しますか？元に戻せません。",
+  "deleteRoomConfirm2": "本当に削除しますか？元に戻せません。",
   "deleting": "削除中...",
   "membersHeading": "会員管理",
   "membersHint": "不適切な意図で接続したアカウントは、ここで再ログインできないようにブロックできます。",
@@ -21,5 +22,6 @@
   "ban": "ブロック",
   "unban": "ブロック解除",
   "banConfirm": "「{name}」アカウントをブロックしますか？再ログインできなくなります。",
+  "banConfirm2": "本当にブロックしますか？",
   "unbanConfirm": "「{name}」アカウントのブロックを解除しますか？"
 }

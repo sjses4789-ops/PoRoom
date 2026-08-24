@@ -33,10 +33,11 @@
   },
   "challengeRanking": {
     "heading": "挑战排行榜",
+    "scoreHint": "计分方式：5千字挑战成功1分・1万字挑战成功2分・初稿挑战成功5分・管理员活动成功7分。",
     "empty": "还没有每日5千字、每日1万字或初稿完成的达成记录。",
     "colRank": "排名",
     "colName": "姓名",
-    "colSuccess": "达成次数",
-    "successSuffix": "{count}次"
+    "colSuccess": "积分",
+    "successSuffix": "{count}分"
   }
 }

@@ -67,7 +67,7 @@ export function PomodoroPanel({
             value={focusMinutes}
             disabled={started}
             onChange={(e) => onChangeFocus(Number(e.target.value) || 1)}
-            className="w-14 rounded-md border border-neutral-200 px-1.5 py-1 text-center text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400 disabled:bg-neutral-50"
+            className="w-14 rounded-md border border-neutral-200 bg-white px-1.5 py-1 text-center text-sm text-neutral-900 outline-none focus:border-neutral-400 disabled:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:disabled:bg-neutral-800 dark:disabled:text-neutral-300"
           />
         </label>
         <label className="flex flex-col items-center gap-1 text-[12px] text-neutral-500">
@@ -78,7 +78,7 @@ export function PomodoroPanel({
             value={breakMinutes}
             disabled={started}
             onChange={(e) => onChangeBreak(Number(e.target.value) || 1)}
-            className="w-14 rounded-md border border-neutral-200 px-1.5 py-1 text-center text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400 disabled:bg-neutral-50"
+            className="w-14 rounded-md border border-neutral-200 bg-white px-1.5 py-1 text-center text-sm text-neutral-900 outline-none focus:border-neutral-400 disabled:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:disabled:bg-neutral-800 dark:disabled:text-neutral-300"
           />
         </label>
       </div>

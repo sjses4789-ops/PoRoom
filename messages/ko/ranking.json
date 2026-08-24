@@ -33,10 +33,11 @@
   },
   "challengeRanking": {
     "heading": "챌린지 랭킹",
+    "scoreHint": "5천자 챌린지 성공 1점 · 1만자 챌린지 성공 2점 · 초단 챌린지 성공 5점 · 관리자 이벤트 성공 7점으로 계산해요.",
     "empty": "매일 5천자·매일 1만자·초단 완고 성공 기록이 아직 없습니다.",
     "colRank": "순위",
     "colName": "이름",
-    "colSuccess": "성공",
-    "successSuffix": "{count}회"
+    "colSuccess": "점수",
+    "successSuffix": "{count}점"
   }
 }

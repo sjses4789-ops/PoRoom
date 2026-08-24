@@ -14,6 +14,7 @@
   "memberCount": "{count}人",
   "deleteRoom": "删除房间",
   "deleteRoomConfirm": "确定删除房间「{name}」吗？此操作无法撤销。",
+  "deleteRoomConfirm2": "真的要删除吗？此操作无法撤销。",
   "deleting": "删除中...",
   "membersHeading": "会员管理",
   "membersHint": "可以在这里封禁恶意接入的账号，使其无法再次登录。",
@@ -21,5 +22,6 @@
   "ban": "封禁",
   "unban": "解除封禁",
   "banConfirm": "确定封禁「{name}」账号吗？该账号将无法再次登录。",
+  "banConfirm2": "真的要封禁吗？",
   "unbanConfirm": "确定解除「{name}」账号的封禁吗？"
 }

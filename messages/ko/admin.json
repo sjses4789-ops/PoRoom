@@ -14,6 +14,7 @@
   "memberCount": "{count}명",
   "deleteRoom": "방 삭제",
   "deleteRoomConfirm": "\"{name}\" 방을 삭제할까요? 되돌릴 수 없습니다.",
+  "deleteRoomConfirm2": "정말로 삭제할까요? 이 작업은 되돌릴 수 없습니다.",
   "deleting": "삭제 중...",
   "membersHeading": "회원 관리",
   "membersHint": "불순한 의도로 접속한 계정은 차단해서 다시 로그인하지 못하게 할 수 있어요.",
@@ -21,5 +22,6 @@
   "ban": "차단",
   "unban": "차단 해제",
   "banConfirm": "\"{name}\" 계정을 차단할까요? 다시 로그인할 수 없게 됩니다.",
+  "banConfirm2": "정말로 차단할까요?",
   "unbanConfirm": "\"{name}\" 계정의 차단을 해제할까요?"
 }

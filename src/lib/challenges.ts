@@ -19,6 +19,7 @@ function generateInviteCode(length = 6) {
 
 export type ChallengeMetric = "chars" | "minutes";
 export type ChallengeVisibility = "open" | "private";
+export type ChallengeStartMode = "manual" | "full";
 
 export async function createChallenge(
   _prevState: ActionResult,
@@ -39,6 +40,7 @@ export async function createChallenge(
   const color = String(formData.get("color") ?? "").trim() || null;
   const capacityRaw = String(formData.get("capacity") ?? "").trim();
   const capacity = capacityRaw ? Number(capacityRaw) : null;
+  const startModeRaw = String(formData.get("startMode") ?? "manual") as ChallengeStartMode;
 
   if (!title) return { error: "대결 이름을 입력해주세요." };
   if (!["chars", "minutes"].includes(metric)) {
@@ -53,6 +55,12 @@ export async function createChallenge(
   if (capacity !== null && (!Number.isFinite(capacity) || capacity < 2)) {
     return { error: "인원은 2명 이상으로 설정해주세요." };
   }
+  if (!["manual", "full"].includes(startModeRaw)) {
+    return { error: "잘못된 시작 시점입니다." };
+  }
+  // 정원이 무제한이면 "다 찼을 때"라는 기준 자체가 없으므로 무조건 수동
+  // 시작으로 취급한다.
+  const startMode: ChallengeStartMode = capacity === null ? "manual" : startModeRaw;
 
   let challengeId: string | null = null;
   const wantsCode = visibility === "private";
@@ -72,6 +80,7 @@ export async function createChallenge(
         duration_days: durationDays,
         color,
         capacity,
+        start_mode: startMode,
         created_by: user.id,
       })
       .select("id")
@@ -98,6 +107,43 @@ export async function createChallenge(
 
 export type JoinChallengeResult = { error: string } | { ok: true };
 
+// 방장이 "인원이 다 찼을 때" 모드를 골랐다면, 정원이 채워지는 순간
+// 참여자가 직접 "시작" 버튼을 누르지 않아도 자동으로 시작 처리한다.
+// startChallenge와 동일한 시작일/종료일 계산을 공유한다.
+async function autoStartIfFull(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  challenge: {
+    id: string;
+    kind: string | null;
+    capacity: number | null;
+    started_at: string | null;
+    start_mode: string;
+    duration_days: number;
+  }
+) {
+  if (
+    challenge.kind ||
+    challenge.started_at ||
+    challenge.start_mode !== "full" ||
+    challenge.capacity == null
+  ) {
+    return;
+  }
+
+  const { count } = await supabase
+    .from("challenge_participants")
+    .select("*", { count: "exact", head: true })
+    .eq("challenge_id", challenge.id);
+  if ((count ?? 0) < challenge.capacity) return;
+
+  const startDate = todayKst();
+  const endDate = kstDatePlusDays(challenge.duration_days - 1, startDate);
+  await supabase
+    .from("challenges")
+    .update({ start_date: startDate, end_date: endDate, started_at: new Date().toISOString() })
+    .eq("id", challenge.id);
+}
+
 export async function joinChallenge(challengeId: string): Promise<JoinChallengeResult> {
   const supabase = await createClient();
   const {
@@ -107,13 +153,16 @@ export async function joinChallenge(challengeId: string): Promise<JoinChallengeR
 
   const { data: challenge } = await supabase
     .from("challenges")
-    .select("id,end_date,kind,capacity")
+    .select("id,end_date,kind,capacity,started_at,start_mode,duration_days")
     .eq("id", challengeId)
     .maybeSingle<{
       id: string;
       end_date: string | null;
       kind: string | null;
       capacity: number | null;
+      started_at: string | null;
+      start_mode: string;
+      duration_days: number;
     }>();
 
   if (!challenge) return { error: "존재하지 않는 대결입니다." };
@@ -144,8 +193,11 @@ export async function joinChallenge(challengeId: string): Promise<JoinChallengeR
   if (challenge.kind) {
     await ensureChallengeTodos(supabase, user.id);
     revalidatePath("/main");
+  } else {
+    await autoStartIfFull(supabase, challenge);
   }
 
+  revalidatePath(`/compete/${challengeId}`);
   revalidatePath("/compete");
   return { ok: true };
 }
@@ -167,9 +219,17 @@ export async function joinChallengeByCode(
 
   const { data: challenge, error } = await supabase
     .from("challenges")
-    .select("id,end_date,capacity")
+    .select("id,end_date,kind,capacity,started_at,start_mode,duration_days")
     .eq("invite_code", code)
-    .maybeSingle<{ id: string; end_date: string | null; capacity: number | null }>();
+    .maybeSingle<{
+      id: string;
+      end_date: string | null;
+      kind: string | null;
+      capacity: number | null;
+      started_at: string | null;
+      start_mode: string;
+      duration_days: number;
+    }>();
 
   if (error) return { error: error.message };
   if (!challenge) return { error: "존재하지 않는 초대코드입니다." };
@@ -197,6 +257,9 @@ export async function joinChallengeByCode(
     return { error: joinError.message };
   }
 
+  await autoStartIfFull(supabase, challenge);
+
+  revalidatePath(`/compete/${challenge.id}`);
   revalidatePath("/compete");
   redirect("/compete");
 }
@@ -270,13 +333,14 @@ export async function updateChallengeSettings(
 
   const { data: challenge } = await supabase
     .from("challenges")
-    .select("id,created_by,started_at,start_date")
+    .select("id,created_by,started_at,start_date,start_mode")
     .eq("id", challengeId)
     .maybeSingle<{
       id: string;
       created_by: string;
       started_at: string | null;
       start_date: string | null;
+      start_mode: string;
     }>();
 
   if (!challenge) return { error: "존재하지 않는 대결입니다." };
@@ -295,6 +359,11 @@ export async function updateChallengeSettings(
       return { error: "인원은 2명 이상으로 설정해주세요." };
     }
     patch.capacity = updates.capacity;
+    // 인원 제한을 무제한으로 풀면 "다 찼을 때 시작" 기준 자체가 사라지므로
+    // 수동 시작으로 되돌린다.
+    if (updates.capacity === null && challenge.start_mode === "full") {
+      patch.start_mode = "manual";
+    }
   }
   if (updates.durationDays !== undefined) {
     if (!Number.isFinite(updates.durationDays) || updates.durationDays < 1) {

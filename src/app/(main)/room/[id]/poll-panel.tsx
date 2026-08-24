@@ -152,6 +152,15 @@ export function PollPanel({
   };
 
   const vote = async (pollId: string, optionId: string, pollType: PollType) => {
+    // yesno/single은 이미 내가 고른 선택지를 다시 눌러도 서버 쪽 투표는
+    // 1인 1표로 유지되는데, 낙관적 갱신에서 매 클릭마다 count를 +1 해버려서
+    // 화면상 득표수만 계속 불어나는 버그가 있었다 — 같은 선택지 재클릭은
+    // 아무 변화도 주지 않도록 한다(선택지를 바꾸는 것은 그대로 허용).
+    const target = polls.find((p) => p.id === pollId);
+    if (target && pollType !== "multi" && target.selfVoteOptionIds.includes(optionId)) {
+      return;
+    }
+
     setPolls((prev) =>
       prev.map((p) => {
         if (p.id !== pollId) return p;

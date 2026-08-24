@@ -33,10 +33,11 @@
   },
   "challengeRanking": {
     "heading": "Challenge ranking",
+    "scoreHint": "Scored as: daily 5k success = 1pt, daily 10k success = 2pt, draft-finish success = 5pt, admin event success = 7pt.",
     "empty": "No daily 5k, daily 10k, or draft-finish successes yet.",
     "colRank": "Rank",
     "colName": "Name",
-    "colSuccess": "Success",
-    "successSuffix": "{count}"
+    "colSuccess": "Score",
+    "successSuffix": "{count}pt"
   }
 }

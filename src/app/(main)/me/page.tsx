@@ -18,6 +18,7 @@ import { TodoList, type Todo } from "@/components/todo-list";
 import { ensureChallengeTodos, type SystemChallengeKind } from "@/lib/system-challenges";
 import {
   computeWinLossByUser,
+  computeChallengeScoreByUser,
   type UserChallengeRow as GlobalUserChallengeRow,
 } from "@/lib/challenge-rankings";
 
@@ -201,6 +202,24 @@ export default async function MePage() {
       .returns<{ type: string; created_at: string }[]>(),
   ]);
 
+  // 관리자가 만든 "달성 여부" 임시 이벤트는 마일스톤 로그 대신
+  // challenge_participants.achieved 자가 신고로 성공 여부를 판단한다.
+  const { data: adminAchievementChallenges } = await supabase
+    .from("challenges")
+    .select("id")
+    .eq("is_admin_event", true)
+    .eq("metric", "achievement")
+    .returns<{ id: string }[]>();
+  const adminAchievementIds = (adminAchievementChallenges ?? []).map((c) => c.id);
+  const { data: adminAchievedRows } = adminAchievementIds.length
+    ? await supabase
+        .from("challenge_participants")
+        .select("user_id")
+        .in("challenge_id", adminAchievementIds)
+        .eq("achieved", true)
+        .returns<{ user_id: string | null }[]>()
+    : { data: [] as { user_id: string | null }[] };
+
   const memberCountByRoom = new Map<string, number>();
   for (const m of membersOfMyRooms ?? []) {
     memberCountByRoom.set(m.room_id, (memberCountByRoom.get(m.room_id) ?? 0) + 1);
@@ -340,13 +359,14 @@ export default async function MePage() {
   const winLossRank = winLossRankIndex === -1 ? null : winLossRankIndex + 1;
   const winLossTotal = winLossRanked.length;
 
-  // 챌린지 랭킹: 매일 5천자·매일 1만자·초단 완고 성공 횟수를 종류 구분 없이
-  // 합산한 전체 순위 중 내 순위를 찾는다.
-  const challengeSuccessByUser = new Map<string, number>();
-  for (const l of globalMilestoneLogs ?? []) {
-    challengeSuccessByUser.set(l.user_id, (challengeSuccessByUser.get(l.user_id) ?? 0) + 1);
-  }
-  const challengeRanked = Array.from(challengeSuccessByUser.entries()).sort(
+  // 챌린지 랭킹: 종류별 가중치(5천자 1점·1만자 2점·초단 5점·관리자 이벤트
+  // 7점)로 합산한 점수 전체 순위 중 내 순위를 찾는다 — /ranking과 동일한
+  // 규칙을 공유한다.
+  const challengeScoreByUser = computeChallengeScoreByUser(
+    globalMilestoneLogs ?? [],
+    adminAchievedRows ?? []
+  );
+  const challengeRanked = Array.from(challengeScoreByUser.entries()).sort(
     (a, b) => b[1] - a[1]
   );
   const challengeRankIndex = challengeRanked.findIndex(([uid]) => uid === user.id);
@@ -381,7 +401,7 @@ export default async function MePage() {
       <section className="flex flex-col gap-3">
         <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("accountInfo")}</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div className="rounded-lg border border-neutral-200 p-4 text-sm">
+          <div className="rounded-lg border border-neutral-200 p-4 text-sm dark:border-neutral-800 dark:bg-neutral-900">
             <div className="flex flex-col gap-1">
               <span className="text-neutral-900 dark:text-white">{myProfile?.name ?? t("noNickname")}</span>
               <span className="text-neutral-500">{user.email}</span>
@@ -391,7 +411,7 @@ export default async function MePage() {
             </div>
           </div>
           <CharacterSection initialCharacterId={myProfile?.character_id ?? null} />
-          <div className="rounded-lg border border-neutral-200 p-4">
+          <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800 dark:bg-neutral-900">
             <h3 className="mb-2 text-xs font-semibold text-neutral-500">
               {t("changeNickname")}
             </h3>
@@ -408,7 +428,7 @@ export default async function MePage() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div className="flex flex-col gap-4">
             <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("attendance")}</h2>
-            <div className="rounded-lg border border-neutral-200 p-3">
+            <div className="rounded-lg border border-neutral-200 p-3 dark:border-neutral-800 dark:bg-neutral-900">
               <AttendanceCalendar
                 year={userTodayYear}
                 month={userTodayMonth - 1}
@@ -450,14 +470,14 @@ export default async function MePage() {
           </div>
           <div className="flex flex-col gap-3">
             <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("competeStatus")}</h2>
-            <div className="rounded-lg border border-neutral-200 p-4">
+            <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800 dark:bg-neutral-900">
               <p className="text-xs text-neutral-500">{t("competeStatusSubtitle")}</p>
               <ChallengeRecordPanel wins={wins} losses={losses} draws={draws} />
             </div>
           </div>
           <div className="flex flex-col gap-3">
             <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("challengeRecord")}</h2>
-            <div className="rounded-lg border border-neutral-200 p-4">
+            <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800 dark:bg-neutral-900">
               <p className="text-xs text-neutral-500">{t("challengeRecordSubtitle")}</p>
               <SystemChallengeRecordPanel
                 joined={systemChallengeJoined}
