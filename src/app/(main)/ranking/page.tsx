@@ -157,16 +157,24 @@ export default async function RankingPage() {
         {t("title")}
       </h1>
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-        <RankingTabs
-          records={records}
-          roomNames={roomNames}
-          userNames={userNames}
-          today={today}
-          selfId={user!.id}
-        />
-        <WinLossRanking rows={winLossRows} />
-        <ChallengeRanking rows={challengeRankingRows} />
-        <TypingRanking rows={typingRankingRows} />
+        <div className="overflow-hidden rounded-sm border border-neutral-400 p-4 dark:border-neutral-600">
+          <RankingTabs
+            records={records}
+            roomNames={roomNames}
+            userNames={userNames}
+            today={today}
+            selfId={user!.id}
+          />
+        </div>
+        <div className="overflow-hidden rounded-sm border border-neutral-400 p-4 dark:border-neutral-600">
+          <WinLossRanking rows={winLossRows} />
+        </div>
+        <div className="overflow-hidden rounded-sm border border-neutral-400 p-4 dark:border-neutral-600">
+          <ChallengeRanking rows={challengeRankingRows} />
+        </div>
+        <div className="overflow-hidden rounded-sm border border-neutral-400 p-4 dark:border-neutral-600">
+          <TypingRanking rows={typingRankingRows} />
+        </div>
       </div>
     </div>
     </PageAdRail>

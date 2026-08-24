@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { createPoll, castVote, deletePoll, type PollType } from "@/lib/polls";
 
@@ -38,18 +38,25 @@ function formatDateTime(iso: string) {
 
 function PollCard({
   poll,
+  now,
   canDelete,
   onVote,
   onDelete,
 }: {
   poll: Poll;
+  now: number;
   canDelete: boolean;
   onVote: (pollId: string, optionId: string, pollType: PollType) => void;
   onDelete: (pollId: string) => void;
 }) {
   const t = useTranslations("room.pollPanel");
   const total = poll.options.reduce((sum, o) => sum + o.count, 0);
-  const isEnded = poll.endsAt !== null && new Date(poll.endsAt) <= new Date();
+  // poll.endsAt로 딱 한 번만 계산하면, 방 탭은 전부 계속 마운트돼 있는데
+  // 정작 이 투표 카드는 다시 렌더링될 일이 없어서(다른 투표에 투표하거나
+  // 페이지를 새로고침하기 전까지) 마감 시간이 지나도 계속 "투표 가능"
+  // 상태로 보이는 문제가 있었다 — 부모가 주기적으로 넘겨주는 now를 써서
+  // 마감 여부가 시간이 지나면 저절로 갱신되게 한다.
+  const isEnded = poll.endsAt !== null && new Date(poll.endsAt).getTime() <= now;
 
   return (
     <div className="flex flex-col gap-3 overflow-hidden rounded-sm border border-neutral-400 p-4 dark:border-neutral-600">
@@ -142,7 +149,22 @@ export function PollPanel({
 }) {
   const t = useTranslations("room.pollPanel");
   const [polls, setPolls] = useState<Poll[]>(initialPolls);
+  // 탭을 옮겨도 이 패널은 계속 마운트돼 있어서, 새로 받은 initialPolls를
+  // 그냥 두면 다른 사람이 만들거나 삭제한 투표가 반영되지 않는다 — 탭을
+  // 다시 열 때(router.refresh()로 prop이 새로 내려올 때) 그 값으로 다시
+  // 맞춘다.
+  const [syncedInitialPolls, setSyncedInitialPolls] = useState(initialPolls);
+  if (initialPolls !== syncedInitialPolls) {
+    setSyncedInitialPolls(initialPolls);
+    setPolls(initialPolls);
+  }
+  const [now, setNow] = useState(() => Date.now());
   const [creating, setCreating] = useState(false);
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 10000);
+    return () => clearInterval(id);
+  }, []);
   const [title, setTitle] = useState("");
   const [pollType, setPollType] = useState<PollType>("yesno");
   const [candidates, setCandidates] = useState(["", ""]);
@@ -199,15 +221,25 @@ export function PollPanel({
   };
 
   const vote = async (pollId: string, optionId: string, pollType: PollType) => {
+    const target = polls.find((p) => p.id === pollId);
+    if (!target) return;
+    // 마감 시간이 지나면 버튼 자체를 막아두지만(disabled), 시간이 흘러도
+    // 이 컴포넌트가 다시 렌더링될 일이 없어 그 disabled 판정이 갱신되지
+    // 않는 경우를 대비해 여기서도 한 번 더 막는다.
+    if (target.endsAt !== null && new Date(target.endsAt).getTime() <= Date.now()) return;
+
     // yesno/single은 이미 내가 고른 선택지를 다시 눌러도 서버 쪽 투표는
     // 1인 1표로 유지되는데, 낙관적 갱신에서 매 클릭마다 count를 +1 해버려서
     // 화면상 득표수만 계속 불어나는 버그가 있었다 — 같은 선택지 재클릭은
     // 아무 변화도 주지 않도록 한다(선택지를 바꾸는 것은 그대로 허용).
-    const target = polls.find((p) => p.id === pollId);
-    if (target && pollType !== "multi" && target.selfVoteOptionIds.includes(optionId)) {
+    if (pollType !== "multi" && target.selfVoteOptionIds.includes(optionId)) {
       return;
     }
 
+    // 서버가 거부하면(예: 그 사이 마감됨) 낙관적으로 반영해둔 화면을
+    // 원래대로 되돌린다 — 안 그러면 실제로는 반영 안 된 투표가 계속
+    // 반영된 것처럼 보인다.
+    const previousPolls = polls;
     setPolls((prev) =>
       prev.map((p) => {
         if (p.id !== pollId) return p;
@@ -238,7 +270,8 @@ export function PollPanel({
         };
       })
     );
-    await castVote(roomId, pollId, optionId, pollType);
+    const result = await castVote(roomId, pollId, optionId, pollType);
+    if (result?.error) setPolls(previousPolls);
   };
 
   const removePoll = async (pollId: string) => {
@@ -407,6 +440,7 @@ export function PollPanel({
             <PollCard
               key={poll.id}
               poll={poll}
+              now={now}
               canDelete={canModerate || poll.createdBy === selfId}
               onVote={vote}
               onDelete={removePoll}

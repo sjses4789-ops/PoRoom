@@ -37,7 +37,11 @@ export function CharInput({
   const [workPending, setWorkPending] = useState(false);
 
   const baselineNum = Number(baseline) || 0;
-  const currentNum = Number(current) || 0;
+  // Number("")는 0이라서, "현재 글자수"를 아직 안 쳤을 때 currentNum이
+  // 그대로 0이 되어 delta가 -baselineNum(큰 음수)으로 나오는 문제가
+  // 있었다 — 비어있으면 시작 전 글자수와 같다고 보고(=변화 없음) 0을
+  // 유지한다.
+  const currentNum = current.trim() === "" ? baselineNum : Number(current) || 0;
   const delta = currentNum - baselineNum;
 
   const selectWork = (work: WorkItem | null) => {

@@ -211,7 +211,13 @@
     "memoPlaceholder": "Memo (optional)",
     "noCategory": "No category",
     "adding": "Adding...",
-    "addEvent": "Add event"
+    "addEvent": "Add event",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "saving": "Saving...",
+    "deleteEventConfirm": "Delete this event?"
   },
   "leaveRoomButton": {
     "confirmLeave": "Leave this room?",

@@ -211,7 +211,13 @@
     "memoPlaceholder": "メモ(任意)",
     "noCategory": "カテゴリなし",
     "adding": "追加中...",
-    "addEvent": "予定を追加"
+    "addEvent": "予定を追加",
+    "edit": "編集",
+    "delete": "削除",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "saving": "保存中...",
+    "deleteEventConfirm": "この予定を削除しますか？"
   },
   "leaveRoomButton": {
     "confirmLeave": "このルームを退出しますか?",

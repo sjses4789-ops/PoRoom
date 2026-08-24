@@ -218,7 +218,11 @@ export function RoomView({
 
   // 접속해 있는 사람이 항상 위로 오도록 정렬한다 — 원래 순서(나 먼저,
   // 그다음 참여 순)는 접속 여부가 같은 사람들끼리는 그대로 유지된다.
-  participants.sort((a, b) => Number(a.presence === "offline") - Number(b.presence === "offline"));
+  participants.sort((a, b) => {
+    const byPresence = Number(a.presence === "offline") - Number(b.presence === "offline");
+    if (byPresence !== 0) return byPresence;
+    return a.name.localeCompare(b.name, "ko");
+  });
 
   const onlineCount = participants.filter((p) => p.presence !== "offline").length;
   const [noticeOpen, setNoticeOpen] = useState(false);

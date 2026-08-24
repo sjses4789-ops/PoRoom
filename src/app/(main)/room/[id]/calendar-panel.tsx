@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { createEvent, celebrateEvent } from "@/lib/room-events";
+import { createEvent, celebrateEvent, updateEvent, deleteEvent } from "@/lib/room-events";
 import { paletteDot } from "@/lib/palette";
 
 export type EventCategory = { id: string; name: string; color: string };
@@ -17,6 +17,10 @@ export type RoomEvent = {
   categoryId: string | null;
   celebrationCount: number;
   selfCelebrated: boolean;
+  // 작성자 본인이거나 방장/부방장이면 true — 서버에서 이미 판정해서
+  // 내려준다(출간 일정 익명성이 깨지지 않도록 created_by 자체는
+  // 클라이언트에 보내지 않는다).
+  canModify: boolean;
 };
 
 const WEEKDAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
@@ -37,6 +41,15 @@ export function CalendarPanel({
   const t = useTranslations("room.calendarPanel");
   const tCommon = useTranslations("room.common");
   const [events, setEvents] = useState<RoomEvent[]>(initialEvents);
+  // 이 패널은 탭을 옮겨도 마운트가 풀리지 않아서, 새로 받은 initialEvents를
+  // 그냥 두면 다른 사람이 추가/수정한 일정이 반영되지 않는다 — 탭을 다시
+  // 열 때(page.tsx가 router.refresh()로 새로 렌더링될 때) prop 참조가
+  // 바뀌면 그 최신 값으로 다시 맞춘다.
+  const [syncedInitialEvents, setSyncedInitialEvents] = useState(initialEvents);
+  if (initialEvents !== syncedInitialEvents) {
+    setSyncedInitialEvents(initialEvents);
+    setEvents(initialEvents);
+  }
   const today = new Date();
   const todayKey = toDateKey(today.getFullYear(), today.getMonth(), today.getDate());
   const [viewYear, setViewYear] = useState(today.getFullYear());
@@ -47,6 +60,13 @@ export function CalendarPanel({
   const [categoryId, setCategoryId] = useState<string>("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [editingEventId, setEditingEventId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editMemo, setEditMemo] = useState("");
+  const [editCategoryId, setEditCategoryId] = useState("");
+  const [editPending, setEditPending] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
 
   const categoryMap = useMemo(
     () => new Map(categories.map((c) => [c.id, c])),
@@ -121,11 +141,61 @@ export function CalendarPanel({
         authorName: isAnnouncement ? null : tCommon("self"),
         celebrationCount: 0,
         selfCelebrated: false,
+        canModify: true,
       },
     ]);
     setTitle("");
     setMemo("");
     setCategoryId("");
+  };
+
+  const startEdit = (e: RoomEvent) => {
+    setEditingEventId(e.id);
+    setEditTitle(e.title);
+    setEditMemo(e.memo ?? "");
+    setEditCategoryId(e.categoryId ?? "");
+    setEditError(null);
+  };
+
+  const submitEdit = async (eventId: string) => {
+    if (!editTitle.trim()) {
+      setEditError(t("titleRequiredError"));
+      return;
+    }
+    setEditPending(true);
+    setEditError(null);
+    const result = await updateEvent(
+      roomId,
+      eventId,
+      editTitle,
+      selectedDate!,
+      editMemo,
+      editCategoryId || null
+    );
+    setEditPending(false);
+    if ("error" in result) {
+      setEditError(result.error);
+      return;
+    }
+    setEvents((prev) =>
+      prev.map((e) =>
+        e.id === eventId
+          ? {
+              ...e,
+              title: editTitle.trim(),
+              memo: editMemo.trim() || null,
+              categoryId: editCategoryId || null,
+            }
+          : e
+      )
+    );
+    setEditingEventId(null);
+  };
+
+  const removeEvent = async (eventId: string) => {
+    if (!window.confirm(t("deleteEventConfirm"))) return;
+    setEvents((prev) => prev.filter((e) => e.id !== eventId));
+    await deleteEvent(roomId, eventId);
   };
 
   const celebrate = async (eventId: string) => {
@@ -256,33 +326,100 @@ export function CalendarPanel({
                 {selectedEvents.map((e) => {
                   const category = e.categoryId ? categoryMap.get(e.categoryId) : null;
                   const isAnnouncement = category?.name === "출간";
+                  const isEditing = editingEventId === e.id;
                   return (
                     <li
                       key={e.id}
-                      className="flex flex-col gap-0.5 rounded-md bg-neutral-50 px-3 py-2 text-sm dark:bg-neutral-800"
+                      className="flex flex-col gap-1.5 rounded-md bg-neutral-50 px-3 py-2 text-sm dark:bg-neutral-800"
                     >
-                      <div className="flex items-center justify-between gap-1.5">
-                        <div className="flex min-w-0 items-center gap-1.5">
-                          {category && (
-                            <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${paletteDot(category.color)}`} />
+                      {isEditing ? (
+                        <div className="flex flex-col gap-1.5">
+                          <input
+                            value={editTitle}
+                            onChange={(ev) => setEditTitle(ev.target.value)}
+                            placeholder={t("titlePlaceholder")}
+                            className="rounded-md border border-neutral-200 px-2 py-1 text-sm text-neutral-900 dark:border-neutral-700 dark:text-white outline-none focus:border-neutral-400"
+                          />
+                          <input
+                            value={editMemo}
+                            onChange={(ev) => setEditMemo(ev.target.value)}
+                            placeholder={t("memoPlaceholder")}
+                            className="rounded-md border border-neutral-200 px-2 py-1 text-sm text-neutral-900 dark:border-neutral-700 dark:text-white outline-none focus:border-neutral-400"
+                          />
+                          {categories.length > 0 && (
+                            <select
+                              value={editCategoryId}
+                              onChange={(ev) => setEditCategoryId(ev.target.value)}
+                              className="rounded-md border border-neutral-200 bg-white px-2 py-1 text-sm text-neutral-700 outline-none focus:border-neutral-400 dark:border-neutral-700 dark:bg-black dark:text-neutral-100"
+                            >
+                              <option value="">{t("noCategory")}</option>
+                              {categories.map((c) => (
+                                <option key={c.id} value={c.id}>
+                                  {c.name}
+                                </option>
+                              ))}
+                            </select>
                           )}
-                          <span className="min-w-0 truncate font-medium text-neutral-900 dark:text-white">
-                            {e.title}
-                          </span>
+                          {editError && <p className="text-xs text-red-500">{editError}</p>}
+                          <div className="flex gap-1.5">
+                            <button
+                              onClick={() => submitEdit(e.id)}
+                              disabled={editPending}
+                              className="rounded-md bg-neutral-900 px-2.5 py-1 text-xs font-medium text-white transition hover:bg-neutral-700 disabled:opacity-50 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+                            >
+                              {editPending ? t("saving") : t("save")}
+                            </button>
+                            <button
+                              onClick={() => setEditingEventId(null)}
+                              className="rounded-md border border-neutral-200 px-2.5 py-1 text-xs text-neutral-600 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-700"
+                            >
+                              {t("cancel")}
+                            </button>
+                          </div>
                         </div>
-                        {isAnnouncement && (
-                          <button
-                            onClick={() => celebrate(e.id)}
-                            disabled={e.selfCelebrated}
-                            className="shrink-0 rounded-full border border-rose-200 px-1.5 py-0.5 text-[11px] font-medium text-rose-600 transition hover:bg-rose-50 disabled:opacity-70 dark:border-rose-900/50 dark:text-rose-400"
-                          >
-                            🎉 {e.celebrationCount}
-                          </button>
-                        )}
-                      </div>
-                      {e.memo && <span className="text-xs text-neutral-500">{e.memo}</span>}
-                      {e.authorName && (
-                        <span className="text-[12px] text-neutral-400">{e.authorName}</span>
+                      ) : (
+                        <>
+                          <div className="flex items-center justify-between gap-1.5">
+                            <div className="flex min-w-0 items-center gap-1.5">
+                              {category && (
+                                <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${paletteDot(category.color)}`} />
+                              )}
+                              <span className="min-w-0 truncate font-medium text-neutral-900 dark:text-white">
+                                {e.title}
+                              </span>
+                            </div>
+                            {isAnnouncement && (
+                              <button
+                                onClick={() => celebrate(e.id)}
+                                disabled={e.selfCelebrated}
+                                className="shrink-0 rounded-full border border-rose-200 px-1.5 py-0.5 text-[11px] font-medium text-rose-600 transition hover:bg-rose-50 disabled:opacity-70 dark:border-rose-900/50 dark:text-rose-400"
+                              >
+                                🎉 {e.celebrationCount}
+                              </button>
+                            )}
+                          </div>
+                          {e.memo && <span className="text-xs text-neutral-500">{e.memo}</span>}
+                          <div className="flex items-center justify-between gap-1.5">
+                            {e.authorName ? (
+                              <span className="text-[12px] text-neutral-400">{e.authorName}</span>
+                            ) : (
+                              <span />
+                            )}
+                            {e.canModify && (
+                              <div className="flex shrink-0 gap-2 text-[11px] text-neutral-400">
+                                <button
+                                  onClick={() => startEdit(e)}
+                                  className="hover:text-neutral-700 dark:hover:text-neutral-200"
+                                >
+                                  {t("edit")}
+                                </button>
+                                <button onClick={() => removeEvent(e.id)} className="hover:text-red-500">
+                                  {t("delete")}
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </>
                       )}
                     </li>
                   );

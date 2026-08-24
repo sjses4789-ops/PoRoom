@@ -334,6 +334,10 @@ export default async function RoomPage({
       categoryId: e.category_id,
       celebrationCount: celebrationCountMap.get(e.id) ?? 0,
       selfCelebrated: selfCelebratedSet.has(e.id),
+      // "출간" 카테고리 일정은 작성자를 감추므로, 익명성이 깨지지 않게
+      // created_by를 그대로 클라이언트에 보내지 않고 여기서 권한 여부만
+      // boolean으로 계산해서 넘긴다.
+      canModify: e.created_by === user!.id || canPostNotice,
     };
   });
 

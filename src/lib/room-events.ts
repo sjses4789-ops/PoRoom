@@ -57,6 +57,57 @@ export async function createEvent(
   };
 }
 
+export type EventEditResult = { error: string } | { ok: true };
+
+// RLS(0043_room_event_edit)가 작성자/방장/부방장만 허용한다.
+export async function updateEvent(
+  roomId: string,
+  eventId: string,
+  title: string,
+  eventDate: string,
+  memo: string,
+  categoryId: string | null
+): Promise<EventEditResult> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "로그인이 필요합니다." };
+
+  const trimmedTitle = title.trim();
+  if (!trimmedTitle) return { error: "일정 제목을 입력해주세요." };
+  if (!eventDate) return { error: "날짜를 선택해주세요." };
+
+  const { error } = await supabase
+    .from("room_events")
+    .update({
+      title: trimmedTitle,
+      event_date: eventDate,
+      memo: memo.trim() || null,
+      category_id: categoryId,
+    })
+    .eq("id", eventId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/room/${roomId}`);
+  return { ok: true };
+}
+
+export async function deleteEvent(roomId: string, eventId: string): Promise<EventEditResult> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "로그인이 필요합니다." };
+
+  const { error } = await supabase.from("room_events").delete().eq("id", eventId);
+  if (error) return { error: error.message };
+
+  revalidatePath(`/room/${roomId}`);
+  return { ok: true };
+}
+
 export async function celebrateEvent(roomId: string, eventId: string) {
   const supabase = await createClient();
   const {

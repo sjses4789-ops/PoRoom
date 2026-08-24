@@ -50,6 +50,15 @@ export function BoardPanel({
 }) {
   const t = useTranslations("room.boardPanel");
   const [posts, setPosts] = useState<RoomPost[]>(initialPosts);
+  // 탭을 옮겨도 이 패널은 계속 마운트돼 있어서, 새로 받은 initialPosts를
+  // 그냥 두면 다른 사람이 쓰거나 지운 글이 반영되지 않는다 — 탭을 다시
+  // 열 때(router.refresh()로 prop이 새로 내려올 때) 그 값으로 다시
+  // 맞춘다.
+  const [syncedInitialPosts, setSyncedInitialPosts] = useState(initialPosts);
+  if (initialPosts !== syncedInitialPosts) {
+    setSyncedInitialPosts(initialPosts);
+    setPosts(initialPosts);
+  }
   const visibleCategories = canPostNotice
     ? CATEGORIES
     : CATEGORIES.filter((c) => c !== "공지사항");

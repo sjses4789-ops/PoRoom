@@ -211,7 +211,13 @@
     "memoPlaceholder": "备注(可选)",
     "noCategory": "无分类",
     "adding": "添加中...",
-    "addEvent": "添加日程"
+    "addEvent": "添加日程",
+    "edit": "编辑",
+    "delete": "删除",
+    "save": "保存",
+    "cancel": "取消",
+    "saving": "保存中...",
+    "deleteEventConfirm": "确定删除这个日程吗？"
   },
   "leaveRoomButton": {
     "confirmLeave": "要退出这个房间吗?",
