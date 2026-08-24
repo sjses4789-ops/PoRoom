@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { inRange } from "@/lib/records";
 import { PageAdRail } from "@/components/page-ad-rail";
@@ -41,6 +42,7 @@ type RecordRow = {
 };
 
 export default async function CompetePage() {
+  const t = await getTranslations("compete.page");
   const supabase = await createClient();
   const {
     data: { user },
@@ -130,7 +132,7 @@ export default async function CompetePage() {
           );
           return {
             id: r.user_id!,
-            name: userNameMap.get(r.user_id!) ?? "알 수 없음",
+            name: userNameMap.get(r.user_id!) ?? t("unknownUser"),
             value,
           };
         });
@@ -161,17 +163,17 @@ export default async function CompetePage() {
     <PageAdRail>
     <div className="flex flex-col gap-8">
       <h1 className="text-lg font-semibold tracking-tight text-neutral-900 dark:text-white">
-        대결
+        {t("title")}
       </h1>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         <section className="flex flex-col gap-4">
           <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
-            참여 중인 대결
+            {t("joinedHeading")}
           </h2>
           {joinedChallenges.length === 0 ? (
             <p className="text-xs text-neutral-400">
-              아직 참여 중인 대결이 없습니다.
+              {t("joinedEmpty")}
             </p>
           ) : (
             <div className="grid grid-cols-1 gap-4">
@@ -194,11 +196,11 @@ export default async function CompetePage() {
 
         <section className="flex flex-col gap-4">
           <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
-            참여중인 챌린지
+            {t("joinedSystemHeading")}
           </h2>
           {joinedSystemChallenges.length === 0 ? (
             <p className="text-xs text-neutral-400">
-              아직 참여 중인 챌린지가 없습니다.
+              {t("joinedSystemEmpty")}
             </p>
           ) : (
             <div className="grid grid-cols-1 gap-4">
@@ -222,7 +224,7 @@ export default async function CompetePage() {
         <section className="flex flex-col gap-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
-              참여 가능한 공개 대결
+              {t("openHeading")}
             </h2>
             <div className="flex gap-2">
               <CreateChallengeButton />
@@ -231,7 +233,7 @@ export default async function CompetePage() {
           </div>
           {openChallenges.length === 0 ? (
             <p className="text-xs text-neutral-400">
-              참여할 수 있는 공개 대결이 없습니다.
+              {t("openEmpty")}
             </p>
           ) : (
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -252,7 +254,7 @@ export default async function CompetePage() {
 
         <section className="flex flex-col gap-4">
           <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
-            챌린지 목록
+            {t("openSystemHeading")}
           </h2>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {openSystemChallenges.map((c) => (

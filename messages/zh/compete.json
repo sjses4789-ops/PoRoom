@@ -1,0 +1,110 @@
+{
+  "page": {
+    "title": "对决",
+    "joinedHeading": "已参加的对决",
+    "joinedEmpty": "还没有参加中的对决。",
+    "joinedSystemHeading": "已参加的挑战",
+    "joinedSystemEmpty": "还没有参加中的挑战。",
+    "openHeading": "可加入的公开对决",
+    "openEmpty": "目前没有可加入的公开对决。",
+    "openSystemHeading": "挑战列表",
+    "unknownUser": "未知用户"
+  },
+  "challengeDetailPage": {
+    "backLink": "← 返回对决列表",
+    "dailyTargetSuffix": " · 每日{target}字目标",
+    "feedHeading": "动态",
+    "logHeading": "对决日志",
+    "participantsHeading": "参与者列表",
+    "unknownUser": "未知用户"
+  },
+  "joinByCodeButton": {
+    "trigger": "用邀请码加入",
+    "placeholder": "输入邀请码",
+    "joining": "加入中...",
+    "submit": "加入"
+  },
+  "draftCheckButton": {
+    "done": "本月初稿已完成 ✅",
+    "pending": "记录中...",
+    "check": "打卡初稿完成"
+  },
+  "joinChallengeButton": {
+    "joining": "加入中...",
+    "join": "加入这个对决"
+  },
+  "joinedSystemChallengeCard": {
+    "todayProgress": "今日 {today} / {target}字",
+    "doneThisMonth": "本月初稿已完成 ✅",
+    "notDoneThisMonth": "本月尚未完成"
+  },
+  "openChallengeCard": {
+    "participantsSuffix": "{count}人参与中",
+    "metaLine": "{startDate} ~ {endDate} · 以{metric}为准",
+    "metricChars": "字数",
+    "metricMinutes": "专注时长",
+    "joined": "已加入",
+    "joining": "加入中...",
+    "join": "加入"
+  },
+  "openSystemChallengeCard": {
+    "participantsSuffix": "{count}/{capacity}人参与中",
+    "metaLine": "{startDate} ~ {endDate} · {resetLabel}",
+    "dailyTargetSuffix": " · 每日{target}字目标",
+    "joined": "已加入",
+    "joining": "加入中...",
+    "join": "加入"
+  },
+  "activityLogList": {
+    "empty": "还没有活动记录。",
+    "monthDay": "{month}月{day}日",
+    "sessionStart": "{name}开始了番茄钟",
+    "sessionEnd": "{name}结束了番茄钟",
+    "charsAdded": "{name}记录了{amount}字",
+    "focusRecorded": "{name}专注了{amount}分钟",
+    "milestone5k": "{name}在{date}完成了5000字写作🎉",
+    "milestone10k": "{name}在{date}完成了1万字写作🎉",
+    "draftDone": "{name}完成了{month}月的初稿。"
+  },
+  "challengeChatPanel": {
+    "title": "聊天",
+    "emptyHint": "和朝着同一目标努力的参与者聊聊吧。",
+    "selfLabel": "我",
+    "unknownUser": "未知用户",
+    "placeholder": "输入消息...",
+    "send": "发送"
+  },
+  "challengeParticipantCard": {
+    "charsLine": "{chars}字",
+    "charsLineWithTarget": "{chars} / {target}字",
+    "achieved": "已达成 ✅",
+    "notAchieved": "未达成"
+  },
+  "challengeCard": {
+    "statusUpcoming": "未开始",
+    "statusEnded": "已结束",
+    "statusOngoing": "进行中",
+    "metricLabel": "个人对决 · {metric}",
+    "metricChars": "字数",
+    "metricMinutes": "专注时长",
+    "visibilityOpen": "公开房",
+    "visibilityPrivate": "私密房",
+    "inviteCode": "邀请码 {code}",
+    "dateRange": "{startDate} ~ {endDate}",
+    "unitChars": "字",
+    "unitMinutes": "分钟"
+  },
+  "createChallengeButton": {
+    "trigger": "创建新对决",
+    "namePlaceholder": "对决名称",
+    "metricLabel": "标准",
+    "metricChars": "字数",
+    "metricMinutes": "专注时长",
+    "visibilityLabel": "公开设置",
+    "visibilityOpen": "公开房",
+    "visibilityPrivate": "私密房（邀请码）",
+    "hint": "创建对决后会自动加入。公开房任何人都可以从对决列表加入，私密房只能通过邀请码加入。",
+    "creating": "创建中...",
+    "create": "创建"
+  }
+}

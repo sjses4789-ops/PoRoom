@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { inPeriod, type Period } from "@/lib/records";
 import { RANK_STYLE } from "@/lib/rank-style";
 
@@ -13,14 +14,14 @@ export type RankingRecord = {
 };
 
 const SCOPES = [
-  { key: "room" as const, label: "방 기준 전체 랭킹" },
-  { key: "user" as const, label: "개인 기준 전체 랭킹" },
+  { key: "room" as const, labelKey: "scopeRoom" as const },
+  { key: "user" as const, labelKey: "scopeUser" as const },
 ];
 
-const PERIODS: { key: Period; label: string }[] = [
-  { key: "day", label: "일별" },
-  { key: "month", label: "월별" },
-  { key: "year", label: "연별" },
+const PERIODS: { key: Period; labelKey: "periodDay" | "periodMonth" | "periodYear" }[] = [
+  { key: "day", labelKey: "periodDay" },
+  { key: "month", labelKey: "periodMonth" },
+  { key: "year", labelKey: "periodYear" },
 ];
 
 export default function RankingTabs({
@@ -36,6 +37,7 @@ export default function RankingTabs({
   today: string;
   selfId: string;
 }) {
+  const t = useTranslations("ranking.rankingTabs");
   const [scope, setScope] = useState<"room" | "user">("room");
   const [period, setPeriod] = useState<Period>("month");
 
@@ -55,10 +57,10 @@ export default function RankingTabs({
 
   const nameMap = scope === "room" ? roomNames : userNames;
   const rows = Array.from(totals.entries())
-    .map(([key, t]) => ({
+    .map(([key, total]) => ({
       key,
-      name: nameMap[key] ?? "알 수 없음",
-      ...t,
+      name: nameMap[key] ?? t("unknownUser"),
+      ...total,
     }))
     .sort((a, b) => b.chars - a.chars)
     .slice(0, 100)
@@ -94,7 +96,7 @@ export default function RankingTabs({
                   : "text-neutral-400 hover:text-neutral-600"
               }`}
             >
-              {s.label}
+              {t(s.labelKey)}
             </button>
           ))}
         </div>
@@ -109,7 +111,7 @@ export default function RankingTabs({
                   : "text-neutral-400 hover:bg-neutral-100"
               }`}
             >
-              {p.label}
+              {t(p.labelKey)}
             </button>
           ))}
         </div>
@@ -117,19 +119,19 @@ export default function RankingTabs({
 
       {rows.length === 0 ? (
         <p className="text-xs text-neutral-400">
-          해당 기간에 집계된 기록이 없습니다.
+          {t("empty")}
         </p>
       ) : (
         <div className="overflow-x-auto">
         <table className="w-full min-w-[420px] text-left text-sm">
           <thead>
             <tr className="text-xs text-neutral-400">
-              <th className="w-14 py-2 font-medium">순위</th>
+              <th className="w-14 py-2 font-medium">{t("colRank")}</th>
               <th className="py-2 font-medium">
-                {scope === "room" ? "방 이름" : "이름"}
+                {scope === "room" ? t("colRoomName") : t("colName")}
               </th>
-              <th className="py-2 text-right font-medium">글자수</th>
-              <th className="py-2 text-right font-medium">작업시간</th>
+              <th className="py-2 text-right font-medium">{t("colChars")}</th>
+              <th className="py-2 text-right font-medium">{t("colMinutes")}</th>
             </tr>
           </thead>
           <tbody>
@@ -150,10 +152,10 @@ export default function RankingTabs({
                     {r.name}
                   </td>
                   <td className="py-2.5 text-right text-neutral-600">
-                    {r.chars.toLocaleString()}자
+                    {t("charsSuffix", { count: r.chars.toLocaleString() })}
                   </td>
                   <td className="py-2.5 text-right text-neutral-600">
-                    {r.minutes.toLocaleString()}분
+                    {t("minutesSuffix", { count: r.minutes.toLocaleString() })}
                   </td>
                 </tr>
               );
@@ -166,14 +168,17 @@ export default function RankingTabs({
       <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-neutral-200 bg-white/95 px-4 py-2.5 text-center text-xs backdrop-blur dark:border-neutral-800 dark:bg-neutral-900/95">
         {selfRank !== null ? (
           <span className="font-medium text-neutral-700 dark:text-neutral-200">
-            내 순위 (개인 기준, {PERIODS.find((p) => p.key === period)?.label}): {selfRank}위 /{" "}
-            {selfTotalUsers}명
+            {t("myRankLine", {
+              period: t(PERIODS.find((p) => p.key === period)!.labelKey),
+              rank: selfRank,
+              total: selfTotalUsers,
+            })}
             {selfPercentile !== null && (
-              <span className="text-neutral-400 dark:text-neutral-500"> (상위 {selfPercentile}%)</span>
+              <span className="text-neutral-400 dark:text-neutral-500"> {t("percentile", { percent: selfPercentile })}</span>
             )}
           </span>
         ) : (
-          <span className="text-neutral-400">해당 기간에 내 기록이 아직 없어요.</span>
+          <span className="text-neutral-400">{t("noRecordYet")}</span>
         )}
       </div>
     </div>

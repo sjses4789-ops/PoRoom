@@ -1,0 +1,110 @@
+{
+  "page": {
+    "title": "Compete",
+    "joinedHeading": "Challenges you're in",
+    "joinedEmpty": "You haven't joined any challenges yet.",
+    "joinedSystemHeading": "Challenges you've joined",
+    "joinedSystemEmpty": "You haven't joined any challenges yet.",
+    "openHeading": "Open challenges to join",
+    "openEmpty": "There are no open challenges to join right now.",
+    "openSystemHeading": "Challenge list",
+    "unknownUser": "Unknown"
+  },
+  "challengeDetailPage": {
+    "backLink": "← Back to challenges",
+    "dailyTargetSuffix": " · {target} characters a day goal",
+    "feedHeading": "Feed",
+    "logHeading": "Challenge log",
+    "participantsHeading": "Participants",
+    "unknownUser": "Unknown"
+  },
+  "joinByCodeButton": {
+    "trigger": "Join with invite code",
+    "placeholder": "Enter invite code",
+    "joining": "Joining...",
+    "submit": "Join"
+  },
+  "draftCheckButton": {
+    "done": "Draft finished this month ✅",
+    "pending": "Recording...",
+    "check": "Mark draft as finished"
+  },
+  "joinChallengeButton": {
+    "joining": "Joining...",
+    "join": "Join this challenge"
+  },
+  "joinedSystemChallengeCard": {
+    "todayProgress": "Today {today} / {target} characters",
+    "doneThisMonth": "Draft finished this month ✅",
+    "notDoneThisMonth": "Not finished this month"
+  },
+  "openChallengeCard": {
+    "participantsSuffix": "{count} joined",
+    "metaLine": "{startDate} ~ {endDate} · by {metric}",
+    "metricChars": "characters",
+    "metricMinutes": "focus time",
+    "joined": "Joined",
+    "joining": "Joining...",
+    "join": "Join"
+  },
+  "openSystemChallengeCard": {
+    "participantsSuffix": "{count}/{capacity} joined",
+    "metaLine": "{startDate} ~ {endDate} · {resetLabel}",
+    "dailyTargetSuffix": " · {target} characters a day goal",
+    "joined": "Joined",
+    "joining": "Joining...",
+    "join": "Join"
+  },
+  "activityLogList": {
+    "empty": "No activity yet.",
+    "monthDay": "{month}/{day}",
+    "sessionStart": "{name} started a pomodoro",
+    "sessionEnd": "{name} ended a pomodoro",
+    "charsAdded": "{name} logged {amount} characters",
+    "focusRecorded": "{name} focused for {amount} minutes",
+    "milestone5k": "{name} hit 5,000 characters on {date} 🎉",
+    "milestone10k": "{name} hit 10,000 characters on {date} 🎉",
+    "draftDone": "{name} finished their draft for {month}."
+  },
+  "challengeChatPanel": {
+    "title": "Chat",
+    "emptyHint": "Chat with others working toward the same goal.",
+    "selfLabel": "Me",
+    "unknownUser": "Unknown",
+    "placeholder": "Type a message...",
+    "send": "Send"
+  },
+  "challengeParticipantCard": {
+    "charsLine": "{chars} chars",
+    "charsLineWithTarget": "{chars} / {target} chars",
+    "achieved": "Achieved ✅",
+    "notAchieved": "Not achieved"
+  },
+  "challengeCard": {
+    "statusUpcoming": "Upcoming",
+    "statusEnded": "Ended",
+    "statusOngoing": "Ongoing",
+    "metricLabel": "1:1 · {metric}",
+    "metricChars": "characters",
+    "metricMinutes": "focus time",
+    "visibilityOpen": "Open",
+    "visibilityPrivate": "Private",
+    "inviteCode": "Code {code}",
+    "dateRange": "{startDate} ~ {endDate}",
+    "unitChars": "chars",
+    "unitMinutes": "min"
+  },
+  "createChallengeButton": {
+    "trigger": "Create new challenge",
+    "namePlaceholder": "Challenge name",
+    "metricLabel": "Metric",
+    "metricChars": "Characters",
+    "metricMinutes": "Focus time",
+    "visibilityLabel": "Visibility",
+    "visibilityOpen": "Open",
+    "visibilityPrivate": "Private (invite code)",
+    "hint": "You'll join automatically when you create a challenge. Anyone can join an open challenge from the list, while a private challenge can only be joined with an invite code.",
+    "creating": "Creating...",
+    "create": "Create"
+  }
+}

@@ -1,10 +1,12 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { useTranslations } from "next-intl";
 import { joinChallengeByCode } from "@/lib/challenges";
 import type { ActionResult } from "@/lib/rooms";
 
 export default function JoinByCodeButton() {
+  const t = useTranslations("compete.joinByCodeButton");
   const [open, setOpen] = useState(false);
   const [state, formAction, pending] = useActionState<ActionResult, FormData>(
     joinChallengeByCode,
@@ -17,7 +19,7 @@ export default function JoinByCodeButton() {
         onClick={() => setOpen((v) => !v)}
         className="rounded-md border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-700 transition hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
       >
-        초대코드로 참여
+        {t("trigger")}
       </button>
       {open && (
         <>
@@ -31,7 +33,7 @@ export default function JoinByCodeButton() {
             <form action={formAction} className="flex flex-col gap-2">
               <input
                 name="code"
-                placeholder="초대코드 입력"
+                placeholder={t("placeholder")}
                 maxLength={6}
                 className="rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm uppercase text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
               />
@@ -43,7 +45,7 @@ export default function JoinByCodeButton() {
                 disabled={pending}
                 className="rounded-md bg-neutral-900 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-neutral-700 disabled:opacity-50"
               >
-                {pending ? "참여 중..." : "참여하기"}
+                {pending ? t("joining") : t("submit")}
               </button>
             </form>
           </div>

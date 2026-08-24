@@ -1,0 +1,110 @@
+{
+  "page": {
+    "title": "対決",
+    "joinedHeading": "参加中の対決",
+    "joinedEmpty": "まだ参加中の対決がありません。",
+    "joinedSystemHeading": "参加中のチャレンジ",
+    "joinedSystemEmpty": "まだ参加中のチャレンジがありません。",
+    "openHeading": "参加できる公開対決",
+    "openEmpty": "参加できる公開対決がありません。",
+    "openSystemHeading": "チャレンジ一覧",
+    "unknownUser": "不明"
+  },
+  "challengeDetailPage": {
+    "backLink": "← 対決一覧へ",
+    "dailyTargetSuffix": " · 1日{target}文字が目標",
+    "feedHeading": "フィード",
+    "logHeading": "対決ログ",
+    "participantsHeading": "参加者一覧",
+    "unknownUser": "不明"
+  },
+  "joinByCodeButton": {
+    "trigger": "招待コードで参加",
+    "placeholder": "招待コードを入力",
+    "joining": "参加中...",
+    "submit": "参加する"
+  },
+  "draftCheckButton": {
+    "done": "今月の初稿完成 ✅",
+    "pending": "記録中...",
+    "check": "初稿完成チェック"
+  },
+  "joinChallengeButton": {
+    "joining": "参加中...",
+    "join": "この対決に参加する"
+  },
+  "joinedSystemChallengeCard": {
+    "todayProgress": "今日 {today} / {target}文字",
+    "doneThisMonth": "今月の初稿完成 ✅",
+    "notDoneThisMonth": "今月未完成"
+  },
+  "openChallengeCard": {
+    "participantsSuffix": "{count}人参加中",
+    "metaLine": "{startDate} ~ {endDate} · {metric}基準",
+    "metricChars": "文字数",
+    "metricMinutes": "作業時間",
+    "joined": "参加済み",
+    "joining": "参加中...",
+    "join": "参加する"
+  },
+  "openSystemChallengeCard": {
+    "participantsSuffix": "{count}/{capacity}人参加中",
+    "metaLine": "{startDate} ~ {endDate} · {resetLabel}",
+    "dailyTargetSuffix": " · 1日{target}文字が目標",
+    "joined": "参加済み",
+    "joining": "参加中...",
+    "join": "参加する"
+  },
+  "activityLogList": {
+    "empty": "まだ活動記録がありません。",
+    "monthDay": "{month}月{day}日",
+    "sessionStart": "{name}さんがポモドーロを開始しました",
+    "sessionEnd": "{name}さんがポモドーロを終了しました",
+    "charsAdded": "{name}さんが{amount}文字を記録しました",
+    "focusRecorded": "{name}さんが{amount}分集中しました",
+    "milestone5k": "{name}さんが{date}に5千文字執筆を達成しました🎉",
+    "milestone10k": "{name}さんが{date}に1万文字執筆を達成しました🎉",
+    "draftDone": "{name}さんが{month}月の初稿を完成させました。"
+  },
+  "challengeChatPanel": {
+    "title": "チャット",
+    "emptyHint": "同じ目標に向かう参加者たちと会話してみましょう。",
+    "selfLabel": "自分",
+    "unknownUser": "不明",
+    "placeholder": "メッセージを入力...",
+    "send": "送信"
+  },
+  "challengeParticipantCard": {
+    "charsLine": "{chars}文字",
+    "charsLineWithTarget": "{chars} / {target}文字",
+    "achieved": "達成 ✅",
+    "notAchieved": "未達成"
+  },
+  "challengeCard": {
+    "statusUpcoming": "予定",
+    "statusEnded": "終了",
+    "statusOngoing": "進行中",
+    "metricLabel": "個人間 · {metric}",
+    "metricChars": "文字数",
+    "metricMinutes": "作業時間",
+    "visibilityOpen": "公開部屋",
+    "visibilityPrivate": "非公開部屋",
+    "inviteCode": "コード {code}",
+    "dateRange": "{startDate} ~ {endDate}",
+    "unitChars": "文字",
+    "unitMinutes": "分"
+  },
+  "createChallengeButton": {
+    "trigger": "新しい対決を作る",
+    "namePlaceholder": "対決名",
+    "metricLabel": "基準",
+    "metricChars": "文字数",
+    "metricMinutes": "作業時間",
+    "visibilityLabel": "公開設定",
+    "visibilityOpen": "公開部屋",
+    "visibilityPrivate": "非公開部屋（招待コード）",
+    "hint": "対決を作成すると自動的に参加します。公開部屋は対決一覧から誰でも参加でき、非公開部屋は招待コードでのみ参加できます。",
+    "creating": "作成中...",
+    "create": "作成する"
+  }
+}

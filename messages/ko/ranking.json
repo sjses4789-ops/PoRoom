@@ -1,0 +1,42 @@
+{
+  "page": {
+    "title": "랭킹",
+    "unknownUser": "알 수 없음"
+  },
+  "winLossRanking": {
+    "heading": "대결 승패 랭킹",
+    "empty": "종료된 개인 간 대결 기록이 아직 없습니다.",
+    "colRank": "순위",
+    "colName": "이름",
+    "colWins": "승",
+    "colLosses": "패",
+    "colDraws": "무"
+  },
+  "rankingTabs": {
+    "scopeRoom": "방 기준 전체 랭킹",
+    "scopeUser": "개인 기준 전체 랭킹",
+    "periodDay": "일별",
+    "periodMonth": "월별",
+    "periodYear": "연별",
+    "colRank": "순위",
+    "colRoomName": "방 이름",
+    "colName": "이름",
+    "colChars": "글자수",
+    "colMinutes": "작업시간",
+    "empty": "해당 기간에 집계된 기록이 없습니다.",
+    "charsSuffix": "{count}자",
+    "minutesSuffix": "{count}분",
+    "unknownUser": "알 수 없음",
+    "myRankLine": "내 순위 (개인 기준, {period}): {rank}위 / {total}명",
+    "percentile": "(상위 {percent}%)",
+    "noRecordYet": "해당 기간에 내 기록이 아직 없어요."
+  },
+  "challengeRanking": {
+    "heading": "챌린지 랭킹",
+    "empty": "매일 5천자·매일 1만자·초단 완고 성공 기록이 아직 없습니다.",
+    "colRank": "순위",
+    "colName": "이름",
+    "colSuccess": "성공",
+    "successSuffix": "{count}회"
+  }
+}

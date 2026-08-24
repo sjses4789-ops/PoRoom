@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { inRange } from "@/lib/records";
 import { ChallengeCard, type ChallengeParticipant } from "../challenge-card";
@@ -59,6 +60,7 @@ export default async function ChallengeDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const t = await getTranslations("compete.challengeDetailPage");
   const supabase = await createClient();
   const {
     data: { user },
@@ -151,7 +153,7 @@ export default async function ChallengeDetailPage({
       (sum, r) => sum + (challenge.metric === "chars" ? r.chars : r.focus_minutes),
       0
     );
-    return { id: uid, name: userNameMap.get(uid) ?? "알 수 없음", value };
+    return { id: uid, name: userNameMap.get(uid) ?? t("unknownUser"), value };
   });
 
   const monthStart = `${today.slice(0, 7)}-01`;
@@ -170,7 +172,7 @@ export default async function ChallengeDetailPage({
 
   const logEntries: LogEntry[] = (logs ?? []).map((l) => ({
     id: l.id,
-    userName: userNameMap.get(l.user_id) ?? "알 수 없음",
+    userName: userNameMap.get(l.user_id) ?? t("unknownUser"),
     type: l.type,
     amount: l.amount,
     createdAt: l.created_at,
@@ -178,7 +180,7 @@ export default async function ChallengeDetailPage({
 
   const chatMembers = (users ?? []).map((u) => ({
     id: u.id,
-    name: userNameMap.get(u.id) ?? "알 수 없음",
+    name: userNameMap.get(u.id) ?? t("unknownUser"),
     chatColor: u.chat_color,
   }));
   const chatMessages: ChallengeChatMessage[] = (chatRows ?? []).map((m) => ({
@@ -193,7 +195,7 @@ export default async function ChallengeDetailPage({
   return (
     <div className="flex flex-col gap-6">
       <Link href="/compete" className="text-xs text-neutral-400 hover:underline">
-        ← 대결 목록으로
+        {t("backLink")}
       </Link>
 
       {isSystemKind ? (
@@ -204,7 +206,7 @@ export default async function ChallengeDetailPage({
             </span>
             <span className="text-[12px] text-neutral-400">
               {SYSTEM_CHALLENGE_META[challenge.kind!].resetLabel}
-              {dailyTarget && ` · 하루 ${dailyTarget.toLocaleString()}자 목표`}
+              {dailyTarget && t("dailyTargetSuffix", { target: dailyTarget.toLocaleString() })}
             </span>
           </div>
           {isDraftKind && iAmParticipant && <DraftCheckButton alreadyDone={myDraftDone} />}
@@ -237,7 +239,7 @@ export default async function ChallengeDetailPage({
           />
           <section className="flex flex-col gap-3">
             <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
-              {isSystemKind ? "피드" : "대결 로그"}
+              {isSystemKind ? t("feedHeading") : t("logHeading")}
             </h2>
             <div className="h-[420px] overflow-y-auto">
               <ActivityLogList entries={logEntries} />
@@ -249,7 +251,7 @@ export default async function ChallengeDetailPage({
       {isSystemKind && participants.length > 0 && (
         <section className="flex flex-col gap-3">
           <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
-            참여자 목록
+            {t("participantsHeading")}
           </h2>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5">
             {participants.map((p) => (

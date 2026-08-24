@@ -1,8 +1,9 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import type { SystemChallengeKind } from "@/lib/system-challenges";
 import { SYSTEM_CHALLENGE_META } from "@/lib/system-challenges";
 
-export function JoinedSystemChallengeCard({
+export async function JoinedSystemChallengeCard({
   id,
   kind,
   startDate,
@@ -17,6 +18,7 @@ export function JoinedSystemChallengeCard({
   myTodayChars: number;
   draftDoneThisMonth: boolean;
 }) {
+  const t = await getTranslations("compete.joinedSystemChallengeCard");
   const meta = SYSTEM_CHALLENGE_META[kind];
 
   return (
@@ -45,7 +47,10 @@ export function JoinedSystemChallengeCard({
             />
           </div>
           <span className="text-[12px] text-neutral-500 dark:text-neutral-400">
-            오늘 {myTodayChars.toLocaleString()} / {meta.dailyTarget.toLocaleString()}자
+            {t("todayProgress", {
+              today: myTodayChars.toLocaleString(),
+              target: meta.dailyTarget.toLocaleString(),
+            })}
           </span>
         </div>
       ) : (
@@ -56,7 +61,7 @@ export function JoinedSystemChallengeCard({
               : "bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400"
           }`}
         >
-          {draftDoneThisMonth ? "이번 달 초단 완고 ✅" : "이번 달 미완고"}
+          {draftDoneThisMonth ? t("doneThisMonth") : t("notDoneThisMonth")}
         </span>
       )}
     </Link>

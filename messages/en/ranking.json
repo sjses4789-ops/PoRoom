@@ -1,0 +1,42 @@
+{
+  "page": {
+    "title": "Ranking",
+    "unknownUser": "Unknown"
+  },
+  "winLossRanking": {
+    "heading": "Head-to-head win/loss ranking",
+    "empty": "No completed 1:1 challenge records yet.",
+    "colRank": "Rank",
+    "colName": "Name",
+    "colWins": "W",
+    "colLosses": "L",
+    "colDraws": "D"
+  },
+  "rankingTabs": {
+    "scopeRoom": "Overall ranking by room",
+    "scopeUser": "Overall ranking by user",
+    "periodDay": "Daily",
+    "periodMonth": "Monthly",
+    "periodYear": "Yearly",
+    "colRank": "Rank",
+    "colRoomName": "Room name",
+    "colName": "Name",
+    "colChars": "Characters",
+    "colMinutes": "Focus time",
+    "empty": "No records for this period yet.",
+    "charsSuffix": "{count} chars",
+    "minutesSuffix": "{count} min",
+    "unknownUser": "Unknown",
+    "myRankLine": "My rank (by user, {period}): #{rank} / {total}",
+    "percentile": "(top {percent}%)",
+    "noRecordYet": "You don't have any records for this period yet."
+  },
+  "challengeRanking": {
+    "heading": "Challenge ranking",
+    "empty": "No daily 5k, daily 10k, or draft-finish successes yet.",
+    "colRank": "Rank",
+    "colName": "Name",
+    "colSuccess": "Success",
+    "successSuffix": "{count}"
+  }
+}

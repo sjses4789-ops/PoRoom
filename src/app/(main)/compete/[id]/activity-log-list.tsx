@@ -1,3 +1,5 @@
+import { getTranslations } from "next-intl/server";
+
 export type LogEntry = {
   id: string;
   userName: string;
@@ -13,24 +15,26 @@ export type LogEntry = {
   createdAt: string;
 };
 
-function describe(entry: LogEntry) {
+function describe(entry: LogEntry, t: Awaited<ReturnType<typeof getTranslations>>) {
   const d = new Date(entry.createdAt);
-  const md = `${d.getMonth() + 1}월 ${d.getDate()}일`;
+  const month = d.getMonth() + 1;
+  const day = d.getDate();
+  const date = t("monthDay", { month, day });
   switch (entry.type) {
     case "session_start":
-      return `${entry.userName}님이 뽀모도로를 시작했어요`;
+      return t("sessionStart", { name: entry.userName });
     case "session_end":
-      return `${entry.userName}님이 뽀모도로를 종료했어요`;
+      return t("sessionEnd", { name: entry.userName });
     case "chars_added":
-      return `${entry.userName}님이 ${entry.amount?.toLocaleString() ?? 0}자를 기록했어요`;
+      return t("charsAdded", { name: entry.userName, amount: entry.amount?.toLocaleString() ?? 0 });
     case "focus_recorded":
-      return `${entry.userName}님이 ${entry.amount ?? 0}분 집중했어요`;
+      return t("focusRecorded", { name: entry.userName, amount: entry.amount ?? 0 });
     case "milestone_5k":
-      return `${entry.userName}님이 ${md} 5천자 집필에 성공했습니다🎉`;
+      return t("milestone5k", { name: entry.userName, date });
     case "milestone_10k":
-      return `${entry.userName}님이 ${md} 만 자 집필에 성공했습니다🎉`;
+      return t("milestone10k", { name: entry.userName, date });
     case "draft_done":
-      return `${entry.userName}님이 ${d.getMonth() + 1}월 초단을 완성하였습니다.`;
+      return t("draftDone", { name: entry.userName, month });
   }
 }
 
@@ -54,10 +58,12 @@ function formatTime(iso: string) {
   });
 }
 
-export function ActivityLogList({ entries }: { entries: LogEntry[] }) {
+export async function ActivityLogList({ entries }: { entries: LogEntry[] }) {
+  const t = await getTranslations("compete.activityLogList");
+
   if (entries.length === 0) {
     return (
-      <p className="text-xs text-neutral-400">아직 활동 기록이 없습니다.</p>
+      <p className="text-xs text-neutral-400">{t("empty")}</p>
     );
   }
 
@@ -69,7 +75,7 @@ export function ActivityLogList({ entries }: { entries: LogEntry[] }) {
           className="flex items-center gap-3 px-4 py-2.5 text-sm"
         >
           <span aria-hidden>{ICON[entry.type]}</span>
-          <span className="flex-1 text-neutral-800 dark:text-white">{describe(entry)}</span>
+          <span className="flex-1 text-neutral-800 dark:text-white">{describe(entry, t)}</span>
           <span className="shrink-0 text-[12px] text-neutral-400">
             {formatTime(entry.createdAt)}
           </span>

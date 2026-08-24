@@ -1,11 +1,13 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { useTranslations } from "next-intl";
 import { createChallenge } from "@/lib/challenges";
 import type { ActionResult } from "@/lib/rooms";
 import { kstDatePlusDays } from "@/lib/time";
 
 export default function CreateChallengeButton() {
+  const t = useTranslations("compete.createChallengeButton");
   const [open, setOpen] = useState(false);
   const [state, formAction, pending] = useActionState<ActionResult, FormData>(
     createChallenge,
@@ -18,7 +20,7 @@ export default function CreateChallengeButton() {
         onClick={() => setOpen((v) => !v)}
         className="rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-neutral-700"
       >
-        새 대결 만들기
+        {t("trigger")}
       </button>
       {open && (
         <>
@@ -32,13 +34,13 @@ export default function CreateChallengeButton() {
           <form action={formAction} className="flex flex-col gap-3">
             <input
               name="title"
-              placeholder="대결 이름"
+              placeholder={t("namePlaceholder")}
               className="rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
             />
 
             <div className="flex flex-col gap-1.5">
               <span className="text-[12px] font-medium text-neutral-500 dark:text-neutral-400">
-                기준
+                {t("metricLabel")}
               </span>
               <div className="flex gap-3">
                 <label className="flex items-center gap-1.5 text-xs text-neutral-700 dark:text-neutral-300">
@@ -49,7 +51,7 @@ export default function CreateChallengeButton() {
                     defaultChecked
                     className="accent-neutral-900"
                   />
-                  글자수
+                  {t("metricChars")}
                 </label>
                 <label className="flex items-center gap-1.5 text-xs text-neutral-700 dark:text-neutral-300">
                   <input
@@ -58,14 +60,14 @@ export default function CreateChallengeButton() {
                     value="minutes"
                     className="accent-neutral-900"
                   />
-                  작업시간
+                  {t("metricMinutes")}
                 </label>
               </div>
             </div>
 
             <div className="flex flex-col gap-1.5">
               <span className="text-[12px] font-medium text-neutral-500 dark:text-neutral-400">
-                공개 설정
+                {t("visibilityLabel")}
               </span>
               <div className="flex gap-3">
                 <label className="flex items-center gap-1.5 text-xs text-neutral-700 dark:text-neutral-300">
@@ -76,7 +78,7 @@ export default function CreateChallengeButton() {
                     defaultChecked
                     className="accent-neutral-900"
                   />
-                  공개방
+                  {t("visibilityOpen")}
                 </label>
                 <label className="flex items-center gap-1.5 text-xs text-neutral-700 dark:text-neutral-300">
                   <input
@@ -85,7 +87,7 @@ export default function CreateChallengeButton() {
                     value="private"
                     className="accent-neutral-900"
                   />
-                  비공개방 (초대코드)
+                  {t("visibilityPrivate")}
                 </label>
               </div>
             </div>
@@ -106,9 +108,7 @@ export default function CreateChallengeButton() {
             </div>
 
             <p className="text-[12px] text-neutral-400">
-              대결을 만들면 자동으로 참가하게 돼요. 공개방은 대결 목록에서
-              누구나 참여할 수 있고, 비공개방은 초대코드로만 참여할 수
-              있어요.
+              {t("hint")}
             </p>
 
             {state?.error && (
@@ -119,7 +119,7 @@ export default function CreateChallengeButton() {
               disabled={pending}
               className="rounded-md bg-neutral-900 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-neutral-700 disabled:opacity-50"
             >
-              {pending ? "만드는 중..." : "만들기"}
+              {pending ? t("creating") : t("create")}
             </button>
           </form>
           </div>

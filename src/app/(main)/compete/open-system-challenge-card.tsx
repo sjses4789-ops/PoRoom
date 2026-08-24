@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { joinChallenge } from "@/lib/challenges";
 import {
   SYSTEM_CHALLENGE_CAPACITY,
@@ -21,6 +22,7 @@ export function OpenSystemChallengeCard({
   endDate: string;
   participantCount: number;
 }) {
+  const t = useTranslations("compete.openSystemChallengeCard");
   const [joining, setJoining] = useState(false);
   const [joined, setJoined] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,12 +35,16 @@ export function OpenSystemChallengeCard({
           {meta.title}
         </span>
         <span className="shrink-0 whitespace-nowrap text-xs text-neutral-400">
-          {participantCount}/{SYSTEM_CHALLENGE_CAPACITY}명 참여중
+          {t("participantsSuffix", {
+            count: participantCount,
+            capacity: SYSTEM_CHALLENGE_CAPACITY,
+          })}
         </span>
       </div>
       <p className="text-[12px] text-neutral-400">
-        {startDate} ~ {endDate} · {meta.resetLabel}
-        {meta.dailyTarget && ` · 하루 ${meta.dailyTarget.toLocaleString()}자 목표`}
+        {t("metaLine", { startDate, endDate, resetLabel: meta.resetLabel })}
+        {meta.dailyTarget &&
+          t("dailyTargetSuffix", { target: meta.dailyTarget.toLocaleString() })}
       </p>
       <button
         disabled={joining || joined}
@@ -55,7 +61,7 @@ export function OpenSystemChallengeCard({
         }}
         className="self-start rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-neutral-700 disabled:opacity-50 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
       >
-        {joined ? "참여 완료" : joining ? "참여 중..." : "참여하기"}
+        {joined ? t("joined") : joining ? t("joining") : t("join")}
       </button>
       {error && <p className="text-xs text-red-500">{error}</p>}
     </div>

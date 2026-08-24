@@ -1,0 +1,42 @@
+{
+  "page": {
+    "title": "ランキング",
+    "unknownUser": "不明"
+  },
+  "winLossRanking": {
+    "heading": "対決 勝敗ランキング",
+    "empty": "終了した個人間対決の記録がまだありません。",
+    "colRank": "順位",
+    "colName": "名前",
+    "colWins": "勝",
+    "colLosses": "敗",
+    "colDraws": "分"
+  },
+  "rankingTabs": {
+    "scopeRoom": "部屋基準の全体ランキング",
+    "scopeUser": "個人基準の全体ランキング",
+    "periodDay": "日別",
+    "periodMonth": "月別",
+    "periodYear": "年別",
+    "colRank": "順位",
+    "colRoomName": "部屋名",
+    "colName": "名前",
+    "colChars": "文字数",
+    "colMinutes": "作業時間",
+    "empty": "該当期間に集計された記録がありません。",
+    "charsSuffix": "{count}文字",
+    "minutesSuffix": "{count}分",
+    "unknownUser": "不明",
+    "myRankLine": "自分の順位（個人基準、{period}）: {rank}位 / {total}人",
+    "percentile": "（上位{percent}%）",
+    "noRecordYet": "該当期間の記録がまだありません。"
+  },
+  "challengeRanking": {
+    "heading": "チャレンジランキング",
+    "empty": "毎日5千文字・毎日1万文字・初稿完成の達成記録がまだありません。",
+    "colRank": "順位",
+    "colName": "名前",
+    "colSuccess": "達成",
+    "successSuffix": "{count}回"
+  }
+}

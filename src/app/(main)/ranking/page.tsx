@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import RankingTabs, { type RankingRecord } from "./ranking-tabs";
 import { WinLossRanking, type WinLossRow } from "./win-loss-ranking";
@@ -19,6 +20,7 @@ type UserRow = { id: string; name: string | null; email: string };
 type ParticipantRow = { challenge_id: string; user_id: string | null };
 
 export default async function RankingPage() {
+  const t = await getTranslations("ranking.page");
   const supabase = await createClient();
   const {
     data: { user },
@@ -88,7 +90,7 @@ export default async function RankingPage() {
   );
 
   const winLossRows: WinLossRow[] = Array.from(winLossByUser.entries())
-    .map(([userId, rec]) => ({ userId, name: userNames[userId] ?? "알 수 없음", ...rec }))
+    .map(([userId, rec]) => ({ userId, name: userNames[userId] ?? t("unknownUser"), ...rec }))
     .sort((a, b) => b.wins - a.wins || a.losses - b.losses)
     .slice(0, 20)
     .map((r, i) => ({ rank: i + 1, ...r }));
@@ -103,7 +105,7 @@ export default async function RankingPage() {
   )
     .map(([userId, successCount]) => ({
       userId,
-      name: userNames[userId] ?? "알 수 없음",
+      name: userNames[userId] ?? t("unknownUser"),
       successCount,
     }))
     .sort((a, b) => b.successCount - a.successCount)
@@ -114,7 +116,7 @@ export default async function RankingPage() {
     <PageAdRail>
     <div className="flex flex-col gap-10 pb-14">
       <h1 className="text-lg font-semibold tracking-tight text-neutral-900 dark:text-white">
-        랭킹
+        {t("title")}
       </h1>
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[2fr_1fr_1fr]">
         <RankingTabs

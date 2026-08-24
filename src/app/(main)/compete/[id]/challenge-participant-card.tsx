@@ -1,7 +1,8 @@
 import Image from "next/image";
+import { getTranslations } from "next-intl/server";
 import { characterSrc } from "@/lib/characters";
 
-export function ChallengeParticipantCard({
+export async function ChallengeParticipantCard({
   name,
   characterId,
   chars,
@@ -14,6 +15,7 @@ export function ChallengeParticipantCard({
   target?: number;
   achieved: boolean;
 }) {
+  const t = await getTranslations("compete.challengeParticipantCard");
   const avatarSrc = characterSrc(characterId);
 
   return (
@@ -39,16 +41,17 @@ export function ChallengeParticipantCard({
       <div className="flex items-center justify-between text-[12px]">
         {chars !== undefined ? (
           <span className="text-neutral-500 dark:text-neutral-400">
-            {chars.toLocaleString()}
-            {target ? ` / ${target.toLocaleString()}` : ""}자
+            {target
+              ? t("charsLineWithTarget", { chars: chars.toLocaleString(), target: target.toLocaleString() })
+              : t("charsLine", { chars: chars.toLocaleString() })}
           </span>
         ) : (
           <span />
         )}
         {achieved ? (
-          <span className="font-medium text-emerald-600 dark:text-emerald-400">달성 ✅</span>
+          <span className="font-medium text-emerald-600 dark:text-emerald-400">{t("achieved")}</span>
         ) : (
-          <span className="text-neutral-400">미달성</span>
+          <span className="text-neutral-400">{t("notAchieved")}</span>
         )}
       </div>
     </div>

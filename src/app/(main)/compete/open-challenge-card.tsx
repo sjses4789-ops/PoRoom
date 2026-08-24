@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { joinChallenge } from "@/lib/challenges";
 
 export function OpenChallengeCard({
@@ -18,6 +19,7 @@ export function OpenChallengeCard({
   endDate: string;
   participantCount: number;
 }) {
+  const t = useTranslations("compete.openChallengeCard");
   const [joining, setJoining] = useState(false);
   const [joined, setJoined] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,12 +31,15 @@ export function OpenChallengeCard({
           {title}
         </span>
         <span className="shrink-0 whitespace-nowrap text-xs text-neutral-400">
-          {participantCount}명 참여중
+          {t("participantsSuffix", { count: participantCount })}
         </span>
       </div>
       <p className="text-[12px] text-neutral-400">
-        {startDate} ~ {endDate} · {metric === "chars" ? "글자수" : "작업시간"}{" "}
-        기준
+        {t("metaLine", {
+          startDate,
+          endDate,
+          metric: metric === "chars" ? t("metricChars") : t("metricMinutes"),
+        })}
       </p>
       <button
         disabled={joining || joined}
@@ -51,7 +56,7 @@ export function OpenChallengeCard({
         }}
         className="self-start rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-neutral-700 disabled:opacity-50"
       >
-        {joined ? "참여 완료" : joining ? "참여 중..." : "참여하기"}
+        {joined ? t("joined") : joining ? t("joining") : t("join")}
       </button>
       {error && <p className="text-xs text-red-500">{error}</p>}
     </div>

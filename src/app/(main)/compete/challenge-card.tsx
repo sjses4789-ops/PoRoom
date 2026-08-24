@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { todayKst } from "@/lib/time";
 
 export type ChallengeParticipant = {
@@ -7,7 +8,7 @@ export type ChallengeParticipant = {
   value: number;
 };
 
-export function ChallengeCard({
+export async function ChallengeCard({
   id,
   title,
   metric,
@@ -34,12 +35,13 @@ export function ChallengeCard({
   /** 지정하면 참여자 값의 최대치 대신 이 값을 막대의 100% 기준으로 쓴다. */
   target?: number;
 }) {
+  const t = await getTranslations("compete.challengeCard");
   const today = todayKst();
   const status =
-    today < startDate ? "예정" : today > endDate ? "종료" : "진행 중";
+    today < startDate ? t("statusUpcoming") : today > endDate ? t("statusEnded") : t("statusOngoing");
   const ranked = [...participants].sort((a, b) => b.value - a.value);
   const max = target ?? Math.max(1, ...ranked.map((p) => p.value));
-  const unit = metric === "chars" ? "자" : "분";
+  const unit = metric === "chars" ? t("unitChars") : t("unitMinutes");
 
   const content = (
     <div className="flex flex-col gap-3 overflow-hidden rounded-lg border border-neutral-200 p-4 transition hover:border-neutral-300">
@@ -49,22 +51,22 @@ export function ChallengeCard({
             {title}
           </span>
           <span className="rounded border border-neutral-200 px-1.5 py-0.5 text-[11px] text-neutral-400">
-            개인 간 · {metric === "chars" ? "글자수" : "작업시간"}
+            {t("metricLabel", { metric: metric === "chars" ? t("metricChars") : t("metricMinutes") })}
           </span>
           <span className="rounded border border-neutral-200 px-1.5 py-0.5 text-[11px] text-neutral-400">
-            {visibility === "open" ? "공개방" : "비공개방"}
+            {visibility === "open" ? t("visibilityOpen") : t("visibilityPrivate")}
           </span>
           {visibility === "private" && inviteCode && (
             <span className="font-mono text-[11px] text-neutral-400">
-              코드 {inviteCode}
+              {t("inviteCode", { code: inviteCode })}
             </span>
           )}
         </div>
         <span
           className={`text-[12px] font-medium ${
-            status === "진행 중"
+            status === t("statusOngoing")
               ? "text-emerald-600"
-              : status === "예정"
+              : status === t("statusUpcoming")
                 ? "text-neutral-400"
                 : "text-neutral-300"
           }`}
@@ -73,7 +75,7 @@ export function ChallengeCard({
         </span>
       </div>
       <p className="text-[12px] text-neutral-400">
-        {dateRangeLabel ?? `${startDate} ~ ${endDate}`}
+        {dateRangeLabel ?? t("dateRange", { startDate, endDate })}
       </p>
       <div className="flex flex-col gap-2">
         {ranked.map((p, i) => {

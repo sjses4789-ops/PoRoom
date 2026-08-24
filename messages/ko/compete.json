@@ -1,0 +1,110 @@
+{
+  "page": {
+    "title": "대결",
+    "joinedHeading": "참여 중인 대결",
+    "joinedEmpty": "아직 참여 중인 대결이 없습니다.",
+    "joinedSystemHeading": "참여중인 챌린지",
+    "joinedSystemEmpty": "아직 참여 중인 챌린지가 없습니다.",
+    "openHeading": "참여 가능한 공개 대결",
+    "openEmpty": "참여할 수 있는 공개 대결이 없습니다.",
+    "openSystemHeading": "챌린지 목록",
+    "unknownUser": "알 수 없음"
+  },
+  "challengeDetailPage": {
+    "backLink": "← 대결 목록으로",
+    "dailyTargetSuffix": " · 하루 {target}자 목표",
+    "feedHeading": "피드",
+    "logHeading": "대결 로그",
+    "participantsHeading": "참여자 목록",
+    "unknownUser": "알 수 없음"
+  },
+  "joinByCodeButton": {
+    "trigger": "초대코드로 참여",
+    "placeholder": "초대코드 입력",
+    "joining": "참여 중...",
+    "submit": "참여하기"
+  },
+  "draftCheckButton": {
+    "done": "이번 달 초단 완고 완료 ✅",
+    "pending": "기록 중...",
+    "check": "초단 완고 체크"
+  },
+  "joinChallengeButton": {
+    "joining": "참여 중...",
+    "join": "이 대결에 참여하기"
+  },
+  "joinedSystemChallengeCard": {
+    "todayProgress": "오늘 {today} / {target}자",
+    "doneThisMonth": "이번 달 초단 완고 ✅",
+    "notDoneThisMonth": "이번 달 미완고"
+  },
+  "openChallengeCard": {
+    "participantsSuffix": "{count}명 참여중",
+    "metaLine": "{startDate} ~ {endDate} · {metric} 기준",
+    "metricChars": "글자수",
+    "metricMinutes": "작업시간",
+    "joined": "참여 완료",
+    "joining": "참여 중...",
+    "join": "참여하기"
+  },
+  "openSystemChallengeCard": {
+    "participantsSuffix": "{count}/{capacity}명 참여중",
+    "metaLine": "{startDate} ~ {endDate} · {resetLabel}",
+    "dailyTargetSuffix": " · 하루 {target}자 목표",
+    "joined": "참여 완료",
+    "joining": "참여 중...",
+    "join": "참여하기"
+  },
+  "activityLogList": {
+    "empty": "아직 활동 기록이 없습니다.",
+    "monthDay": "{month}월 {day}일",
+    "sessionStart": "{name}님이 뽀모도로를 시작했어요",
+    "sessionEnd": "{name}님이 뽀모도로를 종료했어요",
+    "charsAdded": "{name}님이 {amount}자를 기록했어요",
+    "focusRecorded": "{name}님이 {amount}분 집중했어요",
+    "milestone5k": "{name}님이 {date} 5천자 집필에 성공했습니다🎉",
+    "milestone10k": "{name}님이 {date} 만 자 집필에 성공했습니다🎉",
+    "draftDone": "{name}님이 {month}월 초단을 완성하였습니다."
+  },
+  "challengeChatPanel": {
+    "title": "채팅",
+    "emptyHint": "같은 목표를 향해 달리는 참여자들과 대화를 나눠보세요.",
+    "selfLabel": "나",
+    "unknownUser": "알 수 없음",
+    "placeholder": "메시지 입력...",
+    "send": "전송"
+  },
+  "challengeParticipantCard": {
+    "charsLine": "{chars}자",
+    "charsLineWithTarget": "{chars} / {target}자",
+    "achieved": "달성 ✅",
+    "notAchieved": "미달성"
+  },
+  "challengeCard": {
+    "statusUpcoming": "예정",
+    "statusEnded": "종료",
+    "statusOngoing": "진행 중",
+    "metricLabel": "개인 간 · {metric}",
+    "metricChars": "글자수",
+    "metricMinutes": "작업시간",
+    "visibilityOpen": "공개방",
+    "visibilityPrivate": "비공개방",
+    "inviteCode": "코드 {code}",
+    "dateRange": "{startDate} ~ {endDate}",
+    "unitChars": "자",
+    "unitMinutes": "분"
+  },
+  "createChallengeButton": {
+    "trigger": "새 대결 만들기",
+    "namePlaceholder": "대결 이름",
+    "metricLabel": "기준",
+    "metricChars": "글자수",
+    "metricMinutes": "작업시간",
+    "visibilityLabel": "공개 설정",
+    "visibilityOpen": "공개방",
+    "visibilityPrivate": "비공개방 (초대코드)",
+    "hint": "대결을 만들면 자동으로 참가하게 돼요. 공개방은 대결 목록에서 누구나 참여할 수 있고, 비공개방은 초대코드로만 참여할 수 있어요.",
+    "creating": "만드는 중...",
+    "create": "만들기"
+  }
+}

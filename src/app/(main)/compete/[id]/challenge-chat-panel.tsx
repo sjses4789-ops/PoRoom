@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { chatBubbleClass } from "@/lib/palette";
 
@@ -24,6 +25,7 @@ export function ChallengeChatPanel({
   members: ChallengeChatMember[];
   initialMessages: ChallengeChatMessage[];
 }) {
+  const t = useTranslations("compete.challengeChatPanel");
   const [messages, setMessages] = useState<ChallengeChatMessage[]>(initialMessages);
   const [input, setInput] = useState("");
   const listRef = useRef<HTMLDivElement>(null);
@@ -32,7 +34,7 @@ export function ChallengeChatPanel({
   );
 
   const nameOf = (userId: string) =>
-    userId === selfId ? "나" : members.find((m) => m.id === userId)?.name ?? "알 수 없음";
+    userId === selfId ? t("selfLabel") : members.find((m) => m.id === userId)?.name ?? t("unknownUser");
   const colorOf = (userId: string) => members.find((m) => m.id === userId)?.chatColor ?? null;
 
   useEffect(() => {
@@ -81,12 +83,12 @@ export function ChallengeChatPanel({
   return (
     <div className="flex h-[420px] flex-col rounded-lg border border-neutral-200 dark:border-neutral-800">
       <div className="border-b border-neutral-100 px-4 py-3 dark:border-neutral-800">
-        <span className="text-sm font-semibold text-neutral-900 dark:text-white">채팅</span>
+        <span className="text-sm font-semibold text-neutral-900 dark:text-white">{t("title")}</span>
       </div>
       <div ref={listRef} className="chat-scroll flex-1 space-y-3 overflow-y-auto px-4 py-3">
         {messages.length === 0 ? (
           <p className="text-xs text-neutral-400">
-            같은 목표를 향해 달리는 참여자들과 대화를 나눠보세요.
+            {t("emptyHint")}
           </p>
         ) : (
           messages.map((m) => {
@@ -115,14 +117,14 @@ export function ChallengeChatPanel({
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && send()}
-          placeholder="메시지 입력..."
+          placeholder={t("placeholder")}
           className="flex-1 rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
         />
         <button
           onClick={send}
           className="rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-neutral-700"
         >
-          전송
+          {t("send")}
         </button>
       </div>
     </div>

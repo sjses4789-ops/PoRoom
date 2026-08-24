@@ -1,0 +1,42 @@
+{
+  "page": {
+    "title": "排行榜",
+    "unknownUser": "未知用户"
+  },
+  "winLossRanking": {
+    "heading": "对决胜负排行榜",
+    "empty": "还没有已结束的个人对决记录。",
+    "colRank": "排名",
+    "colName": "姓名",
+    "colWins": "胜",
+    "colLosses": "负",
+    "colDraws": "平"
+  },
+  "rankingTabs": {
+    "scopeRoom": "按房间统计的总排行榜",
+    "scopeUser": "按个人统计的总排行榜",
+    "periodDay": "按日",
+    "periodMonth": "按月",
+    "periodYear": "按年",
+    "colRank": "排名",
+    "colRoomName": "房间名称",
+    "colName": "姓名",
+    "colChars": "字数",
+    "colMinutes": "专注时长",
+    "empty": "该时间段内还没有统计记录。",
+    "charsSuffix": "{count}字",
+    "minutesSuffix": "{count}分钟",
+    "unknownUser": "未知用户",
+    "myRankLine": "我的排名（按个人统计，{period}）：第{rank}名 / 共{total}人",
+    "percentile": "（前{percent}%）",
+    "noRecordYet": "该时间段内还没有我的记录。"
+  },
+  "challengeRanking": {
+    "heading": "挑战排行榜",
+    "empty": "还没有每日5千字、每日1万字或初稿完成的达成记录。",
+    "colRank": "排名",
+    "colName": "姓名",
+    "colSuccess": "达成次数",
+    "successSuffix": "{count}次"
+  }
+}
