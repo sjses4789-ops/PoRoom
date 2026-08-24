@@ -1,7 +1,9 @@
 {
   "page": {
     "title": "排行榜",
-    "unknownUser": "未知用户"
+    "unknownUser": "未知用户",
+    "expand": "展开",
+    "collapse": "收起"
   },
   "winLossRanking": {
     "heading": "对决胜负排行榜",

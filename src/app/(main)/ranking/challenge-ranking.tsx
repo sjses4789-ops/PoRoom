@@ -1,5 +1,9 @@
-import { getTranslations } from "next-intl/server";
+"use client";
+
+import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { RANK_STYLE } from "@/lib/rank-style";
+import { RankExpandToggle } from "./rank-expand-toggle";
 
 export type ChallengeRankingRow = {
   rank: number;
@@ -8,8 +12,12 @@ export type ChallengeRankingRow = {
   score: number;
 };
 
-export async function ChallengeRanking({ rows }: { rows: ChallengeRankingRow[] }) {
-  const t = await getTranslations("ranking.challengeRanking");
+const VISIBLE_LIMIT = 10;
+
+export function ChallengeRanking({ rows }: { rows: ChallengeRankingRow[] }) {
+  const t = useTranslations("ranking.challengeRanking");
+  const [expanded, setExpanded] = useState(false);
+  const visibleRows = expanded ? rows : rows.slice(0, VISIBLE_LIMIT);
 
   return (
     <div className="flex flex-col gap-5">
@@ -35,7 +43,7 @@ export async function ChallengeRanking({ rows }: { rows: ChallengeRankingRow[] }
               </tr>
             </thead>
             <tbody>
-              {rows.map((r) => {
+              {visibleRows.map((r) => {
                 const style = RANK_STYLE[r.rank];
                 return (
                   <tr
@@ -62,6 +70,10 @@ export async function ChallengeRanking({ rows }: { rows: ChallengeRankingRow[] }
             </tbody>
           </table>
         </div>
+      )}
+
+      {rows.length > VISIBLE_LIMIT && (
+        <RankExpandToggle expanded={expanded} onToggle={() => setExpanded((v) => !v)} />
       )}
     </div>
   );

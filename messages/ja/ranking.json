@@ -1,7 +1,9 @@
 {
   "page": {
     "title": "ランキング",
-    "unknownUser": "不明"
+    "unknownUser": "不明",
+    "expand": "もっと見る",
+    "collapse": "閉じる"
   },
   "winLossRanking": {
     "heading": "対決 勝敗ランキング",

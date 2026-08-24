@@ -1,7 +1,9 @@
 {
   "page": {
     "title": "랭킹",
-    "unknownUser": "알 수 없음"
+    "unknownUser": "알 수 없음",
+    "expand": "펼치기",
+    "collapse": "접기"
   },
   "winLossRanking": {
     "heading": "대결 승패 랭킹",

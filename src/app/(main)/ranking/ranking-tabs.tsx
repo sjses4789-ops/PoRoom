@@ -4,6 +4,9 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { inPeriod, type Period } from "@/lib/records";
 import { RANK_STYLE } from "@/lib/rank-style";
+import { RankExpandToggle } from "./rank-expand-toggle";
+
+const VISIBLE_LIMIT = 10;
 
 export type RankingRecord = {
   roomId: string | null;
@@ -40,6 +43,7 @@ export default function RankingTabs({
   const t = useTranslations("ranking.rankingTabs");
   const [scope, setScope] = useState<"room" | "user">("room");
   const [period, setPeriod] = useState<Period>("month");
+  const [expanded, setExpanded] = useState(false);
 
   // 방이 삭제된(room_id가 비워진) 기록은 개인 기준 랭킹엔 그대로 반영되고
   // 방 기준 랭킹에서만 제외된다 — 더는 존재하지 않는 방이라서.
@@ -82,6 +86,8 @@ export default function RankingTabs({
       ? Math.max(1, Math.round((selfRank / selfTotalUsers) * 100))
       : null;
 
+  const visibleRows = expanded ? rows : rows.slice(0, VISIBLE_LIMIT);
+
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -89,7 +95,10 @@ export default function RankingTabs({
           {SCOPES.map((s) => (
             <button
               key={s.key}
-              onClick={() => setScope(s.key)}
+              onClick={() => {
+                setScope(s.key);
+                setExpanded(false);
+              }}
               className={`px-4 py-2 text-sm font-medium transition ${
                 scope === s.key
                   ? "border-b-2 border-neutral-900 text-neutral-900 dark:text-white"
@@ -104,7 +113,10 @@ export default function RankingTabs({
           {PERIODS.map((p) => (
             <button
               key={p.key}
-              onClick={() => setPeriod(p.key)}
+              onClick={() => {
+                setPeriod(p.key);
+                setExpanded(false);
+              }}
               className={`rounded-md px-2.5 py-1.5 text-[12px] font-medium transition ${
                 period === p.key
                   ? "bg-neutral-900 text-white"
@@ -135,7 +147,7 @@ export default function RankingTabs({
             </tr>
           </thead>
           <tbody>
-            {rows.map((r) => {
+            {visibleRows.map((r) => {
               const style = RANK_STYLE[r.rank];
               return (
                 <tr
@@ -163,6 +175,10 @@ export default function RankingTabs({
           </tbody>
         </table>
         </div>
+      )}
+
+      {rows.length > VISIBLE_LIMIT && (
+        <RankExpandToggle expanded={expanded} onToggle={() => setExpanded((v) => !v)} />
       )}
 
       <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-neutral-200 bg-white/95 px-4 py-2.5 text-center text-xs backdrop-blur dark:border-neutral-800 dark:bg-neutral-900/95">

@@ -1,7 +1,9 @@
 {
   "page": {
     "title": "Ranking",
-    "unknownUser": "Unknown"
+    "unknownUser": "Unknown",
+    "expand": "Show more",
+    "collapse": "Show less"
   },
   "winLossRanking": {
     "heading": "Head-to-head win/loss ranking",
