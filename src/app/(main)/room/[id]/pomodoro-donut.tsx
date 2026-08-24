@@ -4,12 +4,14 @@ export function PomodoroDonut({
   size = 64,
   strokeWidth = 6,
   label,
+  subLabel,
 }: {
   progress: number;
   color: string;
   size?: number;
   strokeWidth?: number;
   label?: string;
+  subLabel?: string;
 }) {
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
@@ -41,8 +43,15 @@ export function PomodoroDonut({
         />
       </svg>
       {label && (
-        <div className="absolute inset-0 flex items-center justify-center text-2xl font-bold tracking-tight text-neutral-800 dark:text-white">
-          {label}
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className="text-2xl font-bold tracking-tight text-neutral-800 dark:text-white">
+            {label}
+          </span>
+          {subLabel && (
+            <span className="text-[11px] font-medium text-neutral-400 dark:text-neutral-500">
+              {subLabel}
+            </span>
+          )}
         </div>
       )}
     </div>

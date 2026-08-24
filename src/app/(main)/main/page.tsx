@@ -28,7 +28,7 @@ type GlobalRecordRow = {
 };
 type TodoRow = { id: string; content: string };
 
-const SYSTEM_ROOM_CAPACITY = 30;
+const SYSTEM_ROOM_CAPACITY = 50;
 
 export default async function MainPage() {
   const supabase = await createClient();

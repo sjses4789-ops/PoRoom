@@ -19,6 +19,7 @@ type PomodoroContextValue = {
   remainingSeconds: number;
   elapsedFraction: number;
   accumulatedFocusSeconds: number;
+  focusSessionCount: number;
   focusMinutes: number;
   breakMinutes: number;
   setFocusMinutes: (n: number) => void;
@@ -50,6 +51,7 @@ type StoredPomodoroState = {
   tickingSeconds: number;
   accumulatedFocusSeconds: number;
   accumulatedBreakSeconds: number;
+  focusSessionCount: number;
   lastFlushedMinutes: number;
   lastFlushedBreakMinutes: number;
   sessionStart: number;
@@ -79,6 +81,10 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
   const [tickingSeconds, setTickingSeconds] = useState(25 * 60);
   const [accumulatedFocusSeconds, setAccumulatedFocusSeconds] = useState(0);
   const [accumulatedBreakSeconds, setAccumulatedBreakSeconds] = useState(0);
+  // 집중을 "새로" 시작할 때마다(수동 시작이든, 휴식이 끝나고 자동으로
+  // 다음 집중으로 넘어가든) 1씩 늘어난다. 일시정지 후 재개는 새 집중이
+  // 아니라서 세지 않는다.
+  const [focusSessionCount, setFocusSessionCount] = useState(0);
   // 새로고침 직후 저장된 상태를 복원하는 동안에는(마운트 첫 렌더가
   // 아직 기본값일 때) 저장 effect가 그 기본값을 스냅샷으로 덮어써
   // 지워버리면 안 된다 — ref가 아니라 state로 둬서, 복원이 실제로
@@ -117,6 +123,7 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
       remainingRef.current = restored.tickingSeconds;
       setAccumulatedFocusSeconds(restored.accumulatedFocusSeconds);
       setAccumulatedBreakSeconds(restored.accumulatedBreakSeconds);
+      setFocusSessionCount(restored.focusSessionCount ?? 0);
       lastFlushedMinutesRef.current = restored.lastFlushedMinutes;
       lastFlushedBreakMinutesRef.current = restored.lastFlushedBreakMinutes;
       sessionStartRef.current = restored.sessionStart;
@@ -162,6 +169,9 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
       phaseRef.current = nextPhase;
       setPhase(nextPhase);
       setTickingSeconds(nextDuration);
+      // 휴식이 끝나고 자동으로 다음 집중으로 넘어가는 순간도 "새 집중
+      // 시작"이라 센다.
+      if (nextPhase === "focus") setFocusSessionCount((c) => c + 1);
     }, 1000);
     return () => clearInterval(id);
   }, [running]);
@@ -187,6 +197,7 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
       tickingSeconds,
       accumulatedFocusSeconds,
       accumulatedBreakSeconds,
+      focusSessionCount,
       lastFlushedMinutes: lastFlushedMinutesRef.current,
       lastFlushedBreakMinutes: lastFlushedBreakMinutesRef.current,
       sessionStart: sessionStartRef.current,
@@ -203,6 +214,7 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
     tickingSeconds,
     accumulatedFocusSeconds,
     accumulatedBreakSeconds,
+    focusSessionCount,
   ]);
 
   useEffect(() => {
@@ -247,6 +259,11 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
       if (isNewRoom || !started) {
         setStarted(true);
         logActivity(room.id, "session_start");
+        // 일시정지 후 재개(started가 이미 true)는 새 집중이 아니라서
+        // 세지 않는다 — 여기 들어왔다는 건 처음 시작하거나 초기화 후
+        // 다시 시작하는 경우뿐이고, reset()이 phase를 항상 "focus"로
+        // 되돌려두므로 이 시점의 phase는 항상 "focus"다.
+        setFocusSessionCount((c) => c + 1);
       }
       setRunning(true);
     },
@@ -321,6 +338,7 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
       remainingRef.current = restored.tickingSeconds;
       setAccumulatedFocusSeconds(restored.accumulatedFocusSeconds);
       setAccumulatedBreakSeconds(restored.accumulatedBreakSeconds);
+      setFocusSessionCount(restored.focusSessionCount ?? 0);
       lastFlushedMinutesRef.current = restored.lastFlushedMinutes;
       lastFlushedBreakMinutesRef.current = restored.lastFlushedBreakMinutes;
       sessionStartRef.current = restored.sessionStart;
@@ -347,6 +365,7 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
     lastFlushedMinutesRef.current = 0;
     setAccumulatedBreakSeconds(0);
     lastFlushedBreakMinutesRef.current = 0;
+    setFocusSessionCount(0);
     window.localStorage.removeItem(STORAGE_KEY);
   }, [activeRoom, started, focusMinutes]);
 
@@ -365,6 +384,7 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
     remainingSeconds,
     elapsedFraction,
     accumulatedFocusSeconds,
+    focusSessionCount,
     focusMinutes,
     breakMinutes,
     setFocusMinutes,

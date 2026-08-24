@@ -185,6 +185,7 @@
     },
     "focusLabel": "专注(分钟)",
     "breakLabel": "休息(分钟)",
+    "focusCount": "{count}次",
     "resume": "继续",
     "start": "开始",
     "pause": "暂停",

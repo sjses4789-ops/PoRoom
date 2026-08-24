@@ -447,6 +447,7 @@ export default async function RoomPage({
       {room.is_system && <SystemRoomLeaveGuard roomId={room.id} />}
 
       <RoomTabs
+        isSystemRoom={room.is_system}
         room={
           <RoomView
             roomId={room.id}

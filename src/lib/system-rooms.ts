@@ -14,7 +14,7 @@ function generateInviteCode(length = 6) {
 
 export type SystemRoomKind = "deadline" | "dawn";
 
-const SYSTEM_ROOM_CAPACITY = 30;
+const SYSTEM_ROOM_CAPACITY = 50;
 const SYSTEM_ROOM_NAME: Record<SystemRoomKind, string> = {
   deadline: "마감방",
   dawn: "새벽방",

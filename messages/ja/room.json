@@ -185,6 +185,7 @@
     },
     "focusLabel": "集中(分)",
     "breakLabel": "休憩(分)",
+    "focusCount": "{count}回",
     "resume": "再開",
     "start": "開始",
     "pause": "一時停止",

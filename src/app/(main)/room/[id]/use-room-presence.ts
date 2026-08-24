@@ -26,7 +26,18 @@ type PresencePayload = {
   name: string;
   lastTypedAt: number | null;
   pomodoroPhase: PomodoroPhase;
+  // 진행률(fraction)을 그 순간 값 그대로 실어 보내면, 보내는 쪽 탭이
+  // 백그라운드에 있을 때(집필 프로그램으로 옮겨가 있는 등) 브라우저가
+  // setInterval을 강하게 쓰로틀링해서 몇 분에 한 번씩만 갱신되어 보는
+  // 사람 화면엔 진행률이 실제보다 한참 뒤처진 채로 멈춰 보이는 문제가
+  // 있었다 — 그래서 "이 스냅샷 시점의 진행률 + 그 시점 시각 + 이번
+  // 구간 길이"만 보내고, 보는 쪽에서 지금 이 순간까지 얼마나 더
+  // 흘렀는지 직접 계산해서 매초 스스로 앞으로 진행시킨다. 일시정지
+  // 중에는 progressing을 false로 보내 그 시점에 고정시킨다.
+  pomodoroProgressing: boolean;
   pomodoroElapsedFraction: number;
+  pomodoroSnapshotAt: number;
+  pomodoroDurationSeconds: number;
 };
 
 export type PresenceStatus = "offline" | "typing" | "idle";
@@ -62,7 +73,13 @@ export function useRoomPresence(
     name: selfName,
     lastTypedAt: null,
     pomodoroPhase: "idle",
+    pomodoroProgressing: false,
     pomodoroElapsedFraction: 0,
+    // phase가 "idle"인 동안은 getPomodoroState가 이 값을 아예 안 써서,
+    // 렌더 중 호출이 금지된 Date.now() 없이 자리표시자만 넣어둬도 된다 —
+    // 실제 값은 최초로 setPomodoroState가 불릴 때 채워진다.
+    pomodoroSnapshotAt: 0,
+    pomodoroDurationSeconds: 0,
   });
   const [, setTick] = useState(0);
 
@@ -178,12 +195,20 @@ export function useRoomPresence(
   // 보이도록 presence에 함께 실어 보낸다 — 이전엔 이 값이 전혀 공유되지
   // 않아서 다른 사람 눈엔 항상 "대기"로만 보였다.
   const setPomodoroState = useCallback(
-    (phase: PomodoroPhase, elapsedFraction: number) => {
+    (
+      phase: PomodoroPhase,
+      elapsedFraction: number,
+      progressing: boolean,
+      durationSeconds: number
+    ) => {
       selfPayloadRef.current = {
         ...selfPayloadRef.current,
         name: selfName,
         pomodoroPhase: phase,
+        pomodoroProgressing: progressing,
         pomodoroElapsedFraction: elapsedFraction,
+        pomodoroSnapshotAt: Date.now(),
+        pomodoroDurationSeconds: durationSeconds,
       };
       trackSafely(selfPayloadRef.current);
     },
@@ -221,9 +246,17 @@ export function useRoomPresence(
   const getPomodoroState = useCallback(
     (userId: string) => {
       const p = effectivePresence(userId);
+      if (!p || p.pomodoroPhase === "idle") return { phase: "idle" as const, elapsedFraction: 0 };
+      // 진행 중이면 스냅샷 이후 흐른 시간만큼 로컬에서 그대로 더 진행시켜서
+      // 보여준다 — 상대방 탭이 백그라운드라 갱신이 뜸해도 내 화면에서는
+      // 매초 자연스럽게 앞으로 흘러간다. 일시정지 중이면 그 시점 값에
+      // 고정한다.
+      const extra = p.pomodoroProgressing
+        ? (Date.now() - p.pomodoroSnapshotAt) / 1000 / Math.max(p.pomodoroDurationSeconds, 1)
+        : 0;
       return {
-        phase: p?.pomodoroPhase ?? "idle",
-        elapsedFraction: p?.pomodoroPhase && p.pomodoroPhase !== "idle" ? p.pomodoroElapsedFraction : 0,
+        phase: p.pomodoroPhase,
+        elapsedFraction: Math.min(1, Math.max(0, p.pomodoroElapsedFraction + extra)),
       };
     },
     [effectivePresence]

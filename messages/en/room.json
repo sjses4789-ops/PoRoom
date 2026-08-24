@@ -185,6 +185,7 @@
     },
     "focusLabel": "Focus (min)",
     "breakLabel": "Break (min)",
+    "focusCount": "{count}x",
     "resume": "Resume",
     "start": "Start",
     "pause": "Pause",

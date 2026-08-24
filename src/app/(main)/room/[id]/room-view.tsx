@@ -151,78 +151,94 @@ export function RoomView({
     ? pomodoro.remainingSeconds
     : pomodoro.focusMinutes * 60;
   const displayElapsedFraction = isActiveRoom ? pomodoro.elapsedFraction : 0;
+  const displayPhaseDurationSeconds =
+    (displayPhase === "break" ? pomodoro.breakMinutes : pomodoro.focusMinutes) * 60;
   const displayAccumulatedFocusMinutes = isActiveRoom
     ? pomodoro.accumulatedFocusSeconds / 60
     : selfTodayFocusMinutes;
 
   // 다른 참여자 카드에도 내 뽀모도로 상태(집중/휴식/대기)가 보이도록
-  // presence로 실어 보낸다 — 전환 시점에 바로 한 번, 진행 중에는
-  // 주기적으로 다시 보내서(진행률 갱신 + 유실 복구) 화면이 오래
-  // 어긋나지 않게 한다.
+  // presence로 실어 보낸다. 진행률 값 자체가 아니라 "이 스냅샷 시점의
+  // 진행률 + 그 시각 + 이번 구간 길이"를 보내서, 보는 쪽이 그 이후
+  // 흐른 시간만큼 스스로 진행시키게 한다(내 탭이 백그라운드라
+  // setInterval이 쓰로틀링돼도 상대방 화면은 계속 자연스럽게 흘러가야
+  // 하므로) — 전환/일시정지·재시작 시점에 바로 한 번, 그 외엔 유실
+  // 복구용으로 주기적으로 다시 보낸다.
   const displayElapsedFractionRef = useRef(displayElapsedFraction);
   useEffect(() => {
     displayElapsedFractionRef.current = displayElapsedFraction;
   }, [displayElapsedFraction]);
 
   useEffect(() => {
-    setPomodoroState(displayPhase, displayElapsedFractionRef.current);
-  }, [displayPhase, setPomodoroState]);
+    setPomodoroState(
+      displayPhase,
+      displayElapsedFractionRef.current,
+      displayRunning,
+      displayPhaseDurationSeconds
+    );
+  }, [displayPhase, displayRunning, displayPhaseDurationSeconds, setPomodoroState]);
 
   useEffect(() => {
     const id = setInterval(() => {
-      setPomodoroState(displayPhase, displayElapsedFractionRef.current);
+      setPomodoroState(
+        displayPhase,
+        displayElapsedFractionRef.current,
+        displayRunning,
+        displayPhaseDurationSeconds
+      );
     }, 10000);
     return () => clearInterval(id);
-  }, [displayPhase, setPomodoroState]);
+  }, [displayPhase, displayRunning, displayPhaseDurationSeconds, setPomodoroState]);
 
   const otherMembers = members.filter((m) => m.id !== selfId);
   const selfMember = members.find((m) => m.id === selfId);
 
-  const participants: ParticipantData[] = [
-    {
-      id: selfId,
-      name: selfName,
-      isSelf: true,
-      characterId: selfMember?.characterId ?? null,
-      phase: displayPhase,
-      focusMinutes: pomodoro.focusMinutes,
-      breakMinutes: pomodoro.breakMinutes,
-      elapsedFraction: displayElapsedFraction,
-      accumulatedFocusMinutes: displayAccumulatedFocusMinutes,
-      accumulatedChars: chars,
-      presence: getStatus(selfId),
-      recordsVisible: true,
-      lastSeenLabel: null,
-      workStatus: selfMember?.workStatus ?? null,
-    },
-    ...otherMembers.map((m) => {
-      const totals = sumTotals(dailyRecords, m.id);
-      const pomodoroState = getPomodoroState(m.id);
-      return {
-        id: m.id,
-        name: m.name,
-        characterId: m.characterId,
-        phase: pomodoroState.phase,
-        elapsedFraction: pomodoroState.elapsedFraction,
-        focusMinutes: 25,
-        breakMinutes: 5,
-        accumulatedFocusMinutes: totals.focusMinutes,
-        accumulatedChars: totals.chars,
-        presence: getStatus(m.id),
-        recordsVisible: m.recordsVisible,
-        lastSeenLabel: m.lastSeenLabel,
-        workStatus: m.workStatus,
-      };
-    }),
-  ];
+  const selfParticipant: ParticipantData = {
+    id: selfId,
+    name: selfName,
+    isSelf: true,
+    characterId: selfMember?.characterId ?? null,
+    phase: displayPhase,
+    focusMinutes: pomodoro.focusMinutes,
+    breakMinutes: pomodoro.breakMinutes,
+    elapsedFraction: displayElapsedFraction,
+    accumulatedFocusMinutes: displayAccumulatedFocusMinutes,
+    accumulatedChars: chars,
+    presence: getStatus(selfId),
+    recordsVisible: true,
+    lastSeenLabel: null,
+    workStatus: selfMember?.workStatus ?? null,
+  };
 
-  // 접속해 있는 사람이 항상 위로 오도록 정렬한다 — 원래 순서(나 먼저,
-  // 그다음 참여 순)는 접속 여부가 같은 사람들끼리는 그대로 유지된다.
-  participants.sort((a, b) => {
+  const otherParticipants: ParticipantData[] = otherMembers.map((m) => {
+    const totals = sumTotals(dailyRecords, m.id);
+    const pomodoroState = getPomodoroState(m.id);
+    return {
+      id: m.id,
+      name: m.name,
+      characterId: m.characterId,
+      phase: pomodoroState.phase,
+      elapsedFraction: pomodoroState.elapsedFraction,
+      focusMinutes: 25,
+      breakMinutes: 5,
+      accumulatedFocusMinutes: totals.focusMinutes,
+      accumulatedChars: totals.chars,
+      presence: getStatus(m.id),
+      recordsVisible: m.recordsVisible,
+      lastSeenLabel: m.lastSeenLabel,
+      workStatus: m.workStatus,
+    };
+  });
+
+  // "나"는 항상 맨 앞에 고정하고, 접속 여부(1순위)·닉네임 오름차순(2순위)
+  // 정렬은 나머지 참여자에게만 적용한다.
+  otherParticipants.sort((a, b) => {
     const byPresence = Number(a.presence === "offline") - Number(b.presence === "offline");
     if (byPresence !== 0) return byPresence;
     return a.name.localeCompare(b.name, "ko");
   });
+
+  const participants: ParticipantData[] = [selfParticipant, ...otherParticipants];
 
   const onlineCount = participants.filter((p) => p.presence !== "offline").length;
   const [noticeOpen, setNoticeOpen] = useState(false);
@@ -324,6 +340,7 @@ export function RoomView({
             elapsedFraction={displayElapsedFraction}
             focusMinutes={pomodoro.focusMinutes}
             breakMinutes={pomodoro.breakMinutes}
+            focusSessionCount={isActiveRoom ? pomodoro.focusSessionCount : 0}
             onChangeFocus={pomodoro.setFocusMinutes}
             onChangeBreak={pomodoro.setBreakMinutes}
             started={displayStarted}

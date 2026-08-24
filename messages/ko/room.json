@@ -185,6 +185,7 @@
     },
     "focusLabel": "집중(분)",
     "breakLabel": "휴식(분)",
+    "focusCount": "{count}회",
     "resume": "재개",
     "start": "시작",
     "pause": "일시정지",

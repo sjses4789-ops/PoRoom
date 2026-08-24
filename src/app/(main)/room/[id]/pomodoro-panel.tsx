@@ -15,6 +15,7 @@ export function PomodoroPanel({
   elapsedFraction,
   focusMinutes,
   breakMinutes,
+  focusSessionCount,
   onChangeFocus,
   onChangeBreak,
   started,
@@ -28,6 +29,7 @@ export function PomodoroPanel({
   elapsedFraction: number;
   focusMinutes: number;
   breakMinutes: number;
+  focusSessionCount: number;
   onChangeFocus: (v: number) => void;
   onChangeBreak: (v: number) => void;
   started: boolean;
@@ -52,6 +54,7 @@ export function PomodoroPanel({
           size={140}
           strokeWidth={20}
           label={`${mm}:${ss}`}
+          subLabel={focusSessionCount > 0 ? t("focusCount", { count: focusSessionCount }) : undefined}
         />
         <span className="text-xs font-medium" style={{ color }}>
           {label}

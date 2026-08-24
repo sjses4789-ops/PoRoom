@@ -16,7 +16,7 @@ export async function SiteFooter() {
               href="https://pomowriter.oopy.io/"
               target="_blank"
               rel="noopener noreferrer"
-              className="shrink-0 rounded-md border border-stone-300 bg-stone-100 px-2.5 py-1 text-xs font-medium text-stone-700 transition hover:bg-stone-200"
+              className="shrink-0 rounded-md border border-stone-300 bg-stone-100 px-2.5 py-1 text-xs font-bold text-stone-700 transition hover:bg-stone-200"
             >
               PomoWriter
             </a>

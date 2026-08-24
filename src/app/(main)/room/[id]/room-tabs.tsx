@@ -14,16 +14,24 @@ export function RoomTabs({
   calendar,
   poll,
   board,
+  isSystemRoom = false,
 }: {
   room: ReactNode;
   records: ReactNode;
   calendar: ReactNode;
   poll: ReactNode;
   board: ReactNode;
+  // 마감방/새벽방은 상시 오픈된 대규모 공용방이라, 방장/부방장 개념이나
+  // 개인 일정·투표·게시판이 의미가 없다 — 방 탭 하나만 보여준다.
+  isSystemRoom?: boolean;
 }) {
   const t = useTranslations("room.roomTabs");
   const router = useRouter();
   const [tab, setTab] = useState<TabKey>("room");
+
+  if (isSystemRoom) {
+    return <div className="flex flex-col gap-4">{room}</div>;
+  }
 
   return (
     <div className="flex flex-col gap-4">
