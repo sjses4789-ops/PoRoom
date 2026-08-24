@@ -130,8 +130,8 @@ export function PomodoroStatsPanel({
         {periodSelector}
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div className="border border-neutral-400 p-4 dark:border-neutral-600">
+      <div className="grid grid-cols-1 divide-y divide-neutral-400 border border-neutral-400 dark:divide-neutral-600 dark:border-neutral-600 lg:grid-cols-2 lg:divide-x lg:divide-y-0">
+        <div className="p-4">
           <p className="mb-2 text-xs text-neutral-500 dark:text-neutral-400">{t("sessionCount")}</p>
           <div className="overflow-x-auto pb-1">
             <svg
@@ -175,7 +175,7 @@ export function PomodoroStatsPanel({
           </div>
         </div>
 
-        <div className="border border-neutral-400 p-4 dark:border-neutral-600">
+        <div className="p-4">
           <div className="mb-2 flex items-center gap-3 text-xs text-neutral-500 dark:text-neutral-400">
             <span className="flex items-center gap-1">
               <span className="h-2 w-2 rounded-full" style={{ backgroundColor: FOCUS_COLOR }} />
@@ -234,20 +234,20 @@ export function PomodoroStatsPanel({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="border border-neutral-400 p-4 text-center dark:border-neutral-600">
+      <div className="grid grid-cols-1 divide-y divide-neutral-400 border border-neutral-400 dark:divide-neutral-600 dark:border-neutral-600 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+        <div className="p-4 text-center">
           <p className="text-[12px] text-neutral-500 dark:text-neutral-400">{t("totalFocus")}</p>
           <p className="mt-1 text-lg font-semibold text-neutral-900 dark:text-white">
             {formatMinutes(periodTotalFocus, t("hourUnit"), t("minuteUnit"))}
           </p>
         </div>
-        <div className="border border-neutral-400 p-4 text-center dark:border-neutral-600">
+        <div className="p-4 text-center">
           <p className="text-[12px] text-neutral-500 dark:text-neutral-400">{t("totalBreak")}</p>
           <p className="mt-1 text-lg font-semibold text-neutral-900 dark:text-white">
             {formatMinutes(periodTotalBreak, t("hourUnit"), t("minuteUnit"))}
           </p>
         </div>
-        <div className="border border-neutral-400 p-4 text-center dark:border-neutral-600">
+        <div className="p-4 text-center">
           <p className="text-[12px] text-neutral-500 dark:text-neutral-400">{t("focusVsSiteTime")}</p>
           <p className="mt-1 text-lg font-semibold text-neutral-900 dark:text-white">
             {focusVsSiteRatio === null ? t("noSiteTimeData") : `${focusVsSiteRatio}%`}

@@ -16,11 +16,11 @@ export function WorksPanel({
   const [works, setWorks] = useState<WorkMeta[]>(initialWorks);
 
   return (
-    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[2fr_1fr]">
-      <div className="border border-neutral-400 p-4 dark:border-neutral-600">
+    <div className="grid grid-cols-1 divide-y divide-neutral-400 border border-neutral-400 dark:divide-neutral-600 dark:border-neutral-600 lg:grid-cols-[2fr_1fr] lg:divide-x lg:divide-y-0">
+      <div className="p-4">
         <WorkChart works={works} records={records} entries={entries} />
       </div>
-      <div className="border border-neutral-400 p-4 dark:border-neutral-600">
+      <div className="p-4">
         <WorkList works={works} onWorksChange={setWorks} />
       </div>
     </div>

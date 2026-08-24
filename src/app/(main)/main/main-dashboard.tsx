@@ -31,20 +31,22 @@ export async function MainDashboard({
     totalUsers > 0 ? Math.max(1, Math.round((overallRank / totalUsers) * 100)) : null;
 
   return (
-    <section className="flex h-full flex-col gap-4 border border-neutral-400 p-4 dark:border-neutral-600">
+    <section className="flex h-full flex-col gap-4 p-4">
       <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("title")}</h2>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="flex flex-col gap-1.5">
+      <div className="grid grid-cols-1 divide-y divide-neutral-400 dark:divide-neutral-600 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+        <div className="flex flex-col gap-1.5 pb-4 sm:pr-4 sm:pb-0">
           <span className="text-[12px] text-neutral-500 dark:text-neutral-400">{t("todo")}</span>
           <TodoList initialTodos={initialTodos} />
         </div>
-        <AttendanceCalendar
-          year={year}
-          month={month}
-          attendedDates={attendedDates}
-          streakDays={streakDays}
-        />
-        <div className="flex flex-col justify-center gap-3">
+        <div className="py-4 sm:px-4 sm:py-0">
+          <AttendanceCalendar
+            year={year}
+            month={month}
+            attendedDates={attendedDates}
+            streakDays={streakDays}
+          />
+        </div>
+        <div className="flex flex-col justify-center gap-3 pt-4 sm:pt-0 sm:pl-4">
           <div className="flex flex-col items-center gap-1 rounded-md bg-neutral-50 py-3 dark:bg-neutral-800">
             <span className="text-2xl font-bold text-neutral-900 dark:text-white">
               {todayChars.toLocaleString()}

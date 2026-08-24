@@ -400,8 +400,8 @@ export default async function MePage() {
 
       <section className="flex flex-col gap-3">
         <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("accountInfo")}</h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div className="border border-neutral-400 p-4 text-sm dark:border-neutral-600">
+        <div className="grid grid-cols-1 divide-y divide-neutral-400 border border-neutral-400 dark:divide-neutral-600 dark:border-neutral-600 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+          <div className="p-4 text-sm">
             <div className="flex flex-col gap-1">
               <span className="text-neutral-900 dark:text-white">{myProfile?.name ?? t("noNickname")}</span>
               <span className="text-neutral-500">{user.email}</span>
@@ -411,7 +411,7 @@ export default async function MePage() {
             </div>
           </div>
           <CharacterSection initialCharacterId={myProfile?.character_id ?? null} />
-          <div className="border border-neutral-400 p-4 dark:border-neutral-600">
+          <div className="p-4">
             <h3 className="mb-2 text-xs font-semibold text-neutral-500">
               {t("changeNickname")}
             </h3>
@@ -424,26 +424,22 @@ export default async function MePage() {
         </div>
       </section>
 
-      <section className="flex flex-col gap-4">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div className="flex flex-col gap-4">
+      <section className="flex flex-col gap-3">
+        <div className="grid grid-cols-1 divide-y divide-neutral-400 border border-neutral-400 dark:divide-neutral-600 dark:border-neutral-600 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+          <div className="flex flex-col gap-3 p-4">
             <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("attendance")}</h2>
-            <div className="border border-neutral-400 p-3 dark:border-neutral-600">
-              <AttendanceCalendar
-                year={userTodayYear}
-                month={userTodayMonth - 1}
-                attendedDates={attendedDates}
-                streakDays={streakDays}
-              />
-            </div>
+            <AttendanceCalendar
+              year={userTodayYear}
+              month={userTodayMonth - 1}
+              attendedDates={attendedDates}
+              streakDays={streakDays}
+            />
           </div>
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3 p-4">
             <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("todo")}</h2>
-            <div className="border border-neutral-400 p-3 dark:border-neutral-600">
-              <TodoList initialTodos={todos} />
-            </div>
+            <TodoList initialTodos={todos} />
           </div>
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3 p-4">
             <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
               {t("goalStatus")}
             </h2>
@@ -452,9 +448,9 @@ export default async function MePage() {
         </div>
       </section>
 
-      <section className="flex flex-col gap-4">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <div className="flex flex-col gap-3">
+      <section className="flex flex-col gap-3">
+        <div className="grid grid-cols-1 divide-y divide-neutral-400 border border-neutral-400 dark:divide-neutral-600 dark:border-neutral-600 sm:grid-cols-2 sm:divide-x sm:divide-y-0 lg:grid-cols-3">
+          <div className="p-4">
             <RankingStatusPanel
               selfId={user.id}
               rooms={myRooms}
@@ -468,22 +464,18 @@ export default async function MePage() {
               challengeTotal={challengeTotal}
             />
           </div>
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 p-4">
             <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("competeStatus")}</h2>
-            <div className="border border-neutral-400 p-4 dark:border-neutral-600">
-              <p className="text-xs text-neutral-500">{t("competeStatusSubtitle")}</p>
-              <ChallengeRecordPanel wins={wins} losses={losses} draws={draws} />
-            </div>
+            <p className="text-xs text-neutral-500">{t("competeStatusSubtitle")}</p>
+            <ChallengeRecordPanel wins={wins} losses={losses} draws={draws} />
           </div>
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 p-4">
             <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("challengeRecord")}</h2>
-            <div className="border border-neutral-400 p-4 dark:border-neutral-600">
-              <p className="text-xs text-neutral-500">{t("challengeRecordSubtitle")}</p>
-              <SystemChallengeRecordPanel
-                joined={systemChallengeJoined}
-                successCounts={systemChallengeSuccessCounts}
-              />
-            </div>
+            <p className="text-xs text-neutral-500">{t("challengeRecordSubtitle")}</p>
+            <SystemChallengeRecordPanel
+              joined={systemChallengeJoined}
+              successCounts={systemChallengeSuccessCounts}
+            />
           </div>
         </div>
       </section>
