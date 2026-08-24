@@ -21,33 +21,35 @@ export function ThemeToggle() {
   return (
     <div
       suppressHydrationWarning
-      className="flex shrink-0 items-center rounded-full border border-neutral-200 p-0.5 text-[12px] font-medium dark:border-neutral-700"
+      className="flex shrink-0 items-center rounded-full border border-neutral-200 p-0.5 text-[10px] dark:border-neutral-700"
     >
       <button
         type="button"
         onClick={() => apply(false)}
         aria-pressed={!dark}
+        aria-label="light"
         suppressHydrationWarning
-        className={`rounded-full px-2 py-0.5 transition ${
+        className={`flex h-5 w-5 items-center justify-center rounded-full leading-none transition ${
           !dark
-            ? "bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900"
-            : "text-neutral-500 dark:text-neutral-400"
+            ? "bg-neutral-900 dark:bg-neutral-100"
+            : "opacity-40"
         }`}
       >
-        기본
+        ☀️
       </button>
       <button
         type="button"
         onClick={() => apply(true)}
         aria-pressed={dark}
+        aria-label="dark"
         suppressHydrationWarning
-        className={`rounded-full px-2 py-0.5 transition ${
+        className={`flex h-5 w-5 items-center justify-center rounded-full leading-none transition ${
           dark
-            ? "bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900"
-            : "text-neutral-500 dark:text-neutral-400"
+            ? "bg-neutral-900 dark:bg-neutral-100"
+            : "opacity-40"
         }`}
       >
-        다크
+        🌙
       </button>
     </div>
   );

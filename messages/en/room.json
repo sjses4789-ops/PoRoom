@@ -77,7 +77,7 @@
     "currentChars": "Current character count",
     "currentCharsPlaceholder": "Total characters written so far",
     "deltaLabel": "Characters to be recorded: {delta}",
-    "calculate": "Calculate & record",
+    "calculate": "Record",
     "goalModalHint": "Today's goal applies from today onward. Changing it applies the new value from that point on.",
     "goalPlaceholder": "e.g. 3000",
     "saving": "Saving...",

@@ -77,7 +77,7 @@
     "currentChars": "当前字数",
     "currentCharsPlaceholder": "目前为止写的总字数",
     "deltaLabel": "本次将记录的字数: {delta}字",
-    "calculate": "计算并记录",
+    "calculate": "记录",
     "goalModalHint": "今日设置的目标会从今天起持续生效。再次更改时,新数值将从修改起生效。",
     "goalPlaceholder": "例如: 3000",
     "saving": "保存中...",

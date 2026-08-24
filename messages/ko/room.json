@@ -77,7 +77,7 @@
     "currentChars": "현재 글자수",
     "currentCharsPlaceholder": "지금까지 쓴 총 글자수",
     "deltaLabel": "이번에 기록될 글자수: {delta}자",
-    "calculate": "계산해서 기록",
+    "calculate": "기록",
     "goalModalHint": "오늘 설정한 목표는 오늘과 이후 날짜에 계속 적용돼요. 다시 바꾸면 그 시점부터 새 값이 적용돼요.",
     "goalPlaceholder": "예: 3000",
     "saving": "저장 중...",

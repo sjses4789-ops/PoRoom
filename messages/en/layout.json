@@ -1,10 +1,20 @@
 {
-  "writingAppHint": "Need a writing app?↠",
   "logout": "Log out",
   "footer": {
     "tagline": "PoRoom is an online Pomodoro study room where you focus together — no video call required.",
     "writingApp": "Free writing app PomoWriter",
     "feedback": "Suggest a feature & report bugs",
-    "copyright": "© {year} GGOZIL. All rights reserved."
+    "copyright": "© {year} GGOZIL. All rights reserved.",
+    "writingAppHint": "Need a writing app?↠"
+  },
+  "tier": {
+    "basic": "BASIC",
+    "premium": "PREMIUM",
+    "basicDesc": "You're on the free (BASIC) plan.",
+    "premiumDesc": "You're on the PREMIUM plan. No ads, and you can set a pet image over your character on your member card.",
+    "perkAdFree": "No ads",
+    "perkPet": "Pet image over your character on the member card",
+    "price": "₩{amount}",
+    "comingSoon": "Payment is coming soon!"
   }
 }

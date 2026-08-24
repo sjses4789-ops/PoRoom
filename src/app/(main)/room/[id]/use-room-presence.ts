@@ -78,15 +78,32 @@ export function useRoomPresence(
       setPresenceMap(next);
     };
 
+    // 구독이 SUBSCRIBED 외의 상태(CHANNEL_ERROR/TIMED_OUT/CLOSED)로
+    // 끝나버리면, track()이 계속 조용히 실패해서 나는 계속 연결돼
+    // 있는데도 다른 참여자에게는 영원히 "비접속"으로 보이는 문제가
+    // 있었다 — 실패 상태를 만나면 잠시 뒤 같은 채널로 재구독을
+    // 시도한다.
+    let retrySubscribeId: ReturnType<typeof setTimeout> | null = null;
+    const subscribe = () => {
+      channel.subscribe(async (status) => {
+        if (status === "SUBSCRIBED") {
+          await channel.track(selfPayloadRef.current).catch(() => {});
+        } else if (
+          status === "CHANNEL_ERROR" ||
+          status === "TIMED_OUT" ||
+          status === "CLOSED"
+        ) {
+          if (retrySubscribeId) clearTimeout(retrySubscribeId);
+          retrySubscribeId = setTimeout(subscribe, 2000);
+        }
+      });
+    };
+
     channel
       .on("presence", { event: "sync" }, syncFromState)
       .on("presence", { event: "join" }, syncFromState)
-      .on("presence", { event: "leave" }, syncFromState)
-      .subscribe(async (status) => {
-        if (status === "SUBSCRIBED") {
-          await channel.track(selfPayloadRef.current);
-        }
-      });
+      .on("presence", { event: "leave" }, syncFromState);
+    subscribe();
 
     const tickId = setInterval(() => setTick((t) => t + 1), 1000);
     // track() 하나가 유실돼도 다른 참여자 화면이 오래(다음 상태 변경
@@ -97,6 +114,7 @@ export function useRoomPresence(
     }, RETRACK_INTERVAL_MS);
 
     return () => {
+      if (retrySubscribeId) clearTimeout(retrySubscribeId);
       clearInterval(tickId);
       clearInterval(retrackId);
       supabase.removeChannel(channel);

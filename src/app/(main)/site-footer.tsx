@@ -29,6 +29,19 @@ export async function SiteFooter() {
         <p className="text-neutral-300 dark:text-neutral-600">
           {t("copyright", { year: new Date().getFullYear() })}
         </p>
+        <div className="flex items-center justify-end gap-3 text-sm text-neutral-500 dark:text-neutral-400">
+          <span className="shrink-0 whitespace-nowrap text-xs text-neutral-400 dark:text-neutral-500">
+            {t("writingAppHint")}
+          </span>
+          <a
+            href="https://pomowriter.oopy.io/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="shrink-0 rounded-md border border-stone-300 bg-stone-100 px-2.5 py-1 text-xs font-medium text-stone-700 transition hover:bg-stone-200"
+          >
+            PomoWriter
+          </a>
+        </div>
       </div>
     </footer>
   );

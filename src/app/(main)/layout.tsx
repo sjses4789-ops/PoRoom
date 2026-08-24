@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import NavTabs from "./nav-tabs";
 import LogoutButton from "./logout-button";
@@ -10,6 +9,7 @@ import { PomodoroProvider } from "./pomodoro-context";
 import { PomodoroMiniWidget } from "./pomodoro-mini-widget";
 import { SiteTimeTracker } from "./site-time-tracker";
 import { TimezoneSync } from "./timezone-sync";
+import { TierBadgeButton } from "./tier-badge-button";
 
 export default async function MainLayout({
   children,
@@ -17,7 +17,6 @@ export default async function MainLayout({
   children: React.ReactNode;
 }) {
   const supabase = await createClient();
-  const t = await getTranslations("layout");
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -28,9 +27,9 @@ export default async function MainLayout({
 
   const { data: profile } = await supabase
     .from("users")
-    .select("name,is_banned")
+    .select("name,is_banned,is_premium")
     .eq("id", user.id)
-    .maybeSingle<{ name: string | null; is_banned: boolean }>();
+    .maybeSingle<{ name: string | null; is_banned: boolean; is_premium: boolean }>();
 
   // 서비스 키 없이 관리자 플래그(users.is_banned)만으로 계정을 막는
   // 방식이라, 매 요청마다 여기서 확인해서 걸리면 세션을 끊는다 —
@@ -56,17 +55,7 @@ export default async function MainLayout({
             </span>
           </Link>
           <div className="flex items-center gap-3 text-sm text-neutral-500 dark:text-neutral-400 md:hidden">
-            <span className="hidden shrink-0 whitespace-nowrap text-xs text-neutral-400 sm:inline dark:text-neutral-500">
-              {t("writingAppHint")}
-            </span>
-            <a
-              href="https://pomowriter.oopy.io/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="shrink-0 rounded-md border border-stone-300 bg-stone-100 px-2.5 py-1 text-xs font-medium text-stone-700 transition hover:bg-stone-200"
-            >
-              PomoWriter
-            </a>
+            <TierBadgeButton isPremium={profile.is_premium} />
             <Link href="/me" className="max-w-[100px] truncate hover:underline">
             {profile.name}
           </Link>
@@ -77,17 +66,7 @@ export default async function MainLayout({
           <NavTabs />
         </div>
         <div className="hidden items-center gap-3 text-sm text-neutral-500 dark:text-neutral-400 md:flex">
-          <span className="shrink-0 whitespace-nowrap text-xs text-neutral-400 dark:text-neutral-500">
-            {t("writingAppHint")}
-          </span>
-          <a
-            href="https://pomowriter.oopy.io/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="shrink-0 rounded-md border border-stone-300 bg-stone-100 px-2.5 py-1 text-xs font-medium text-stone-700 transition hover:bg-stone-200"
-          >
-            PomoWriter
-          </a>
+          <TierBadgeButton isPremium={profile.is_premium} />
           <Link href="/me" className="max-w-[160px] truncate hover:underline">
             {profile.name}
           </Link>

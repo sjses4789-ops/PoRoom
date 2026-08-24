@@ -24,6 +24,20 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* 박스 테두리가 너무 둥글다는 피드백 — rounded-*(rounded-full 제외)가
+   전부 쓰는 반경 스케일을 줄여서, 완전히 각지지는 않되 거의 직각에
+   가까운 인상을 주도록 한다. 여기서 한 번만 바꾸면 앱 전체의
+   rounded-md/rounded-lg 등에 자동으로 반영된다. */
+@theme {
+  --radius-xs: 0.0625rem;
+  --radius-sm: 0.125rem;
+  --radius-md: 0.1875rem;
+  --radius-lg: 0.25rem;
+  --radius-xl: 0.375rem;
+  --radius-2xl: 0.5rem;
+  --radius-3xl: 0.75rem;
+}
+
 html {
   /* 전체적으로 텍스트가 작다는 피드백에 따라 기본 글자 크기를 살짝
      키운다 — rem 기반인 Tailwind 텍스트 유틸리티(text-xs/sm/base 등)가

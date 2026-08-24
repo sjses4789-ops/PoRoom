@@ -77,7 +77,7 @@
     "currentChars": "現在の文字数",
     "currentCharsPlaceholder": "これまでに書いた総文字数",
     "deltaLabel": "今回記録される文字数: {delta}字",
-    "calculate": "計算して記録",
+    "calculate": "記録",
     "goalModalHint": "今日設定した目標は今日以降も適用されます。変更するとその時点から新しい値が適用されます。",
     "goalPlaceholder": "例: 3000",
     "saving": "保存中...",

@@ -29,6 +29,9 @@ type PomodoroContextValue = {
   ) => void;
   pause: () => void;
   reset: () => void;
+  /** 탭을 닫거나 방을 나가기 직전처럼, 다음 정기 반영을 기다릴 수 없을
+   * 때 지금까지 쌓인 시간을 즉시 서버에 반영한다. */
+  flushPending: () => void;
 };
 
 const PomodoroContext = createContext<PomodoroContextValue | null>(null);
@@ -52,6 +55,25 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
   const lastFlushedMinutesRef = useRef(0);
   const lastFlushedBreakMinutesRef = useRef(0);
 
+  // phase/focusMinutes/breakMinutes를 인터벌 effect의 의존성에 넣으면
+  // 집중↔휴식이 바뀔 때마다(=phase가 바뀔 때마다) setInterval이 해체되고
+  // 다시 생성된다 — 일시정지/초기화 전까지 끊김 없이 자동으로 반복돼야
+  // 하는데, 이 재생성 타이밍에 문제가 생기면 자동 전환이 멈춘 것처럼
+  // 보일 수 있었다. ref로 최신 값을 들고 있고, 인터벌 자체는 running이
+  // 바뀔 때만 새로 만들어서 phase 전환 중에는 절대 해체되지 않게 한다.
+  const phaseRef = useRef(phase);
+  const focusMinutesRef = useRef(focusMinutes);
+  const breakMinutesRef = useRef(breakMinutes);
+  useEffect(() => {
+    phaseRef.current = phase;
+  }, [phase]);
+  useEffect(() => {
+    focusMinutesRef.current = focusMinutes;
+  }, [focusMinutes]);
+  useEffect(() => {
+    breakMinutesRef.current = breakMinutes;
+  }, [breakMinutes]);
+
   useEffect(() => {
     if (!running) return;
     const id = setInterval(() => {
@@ -59,18 +81,20 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
       if (next > 0) {
         remainingRef.current = next;
         setTickingSeconds(next);
-        if (phase === "focus") setAccumulatedFocusSeconds((s) => s + 1);
+        if (phaseRef.current === "focus") setAccumulatedFocusSeconds((s) => s + 1);
         else setAccumulatedBreakSeconds((s) => s + 1);
         return;
       }
-      const nextPhase: Phase = phase === "focus" ? "break" : "focus";
-      const nextDuration = (nextPhase === "focus" ? focusMinutes : breakMinutes) * 60;
+      const nextPhase: Phase = phaseRef.current === "focus" ? "break" : "focus";
+      const nextDuration =
+        (nextPhase === "focus" ? focusMinutesRef.current : breakMinutesRef.current) * 60;
       remainingRef.current = nextDuration;
+      phaseRef.current = nextPhase;
       setPhase(nextPhase);
       setTickingSeconds(nextDuration);
     }, 1000);
     return () => clearInterval(id);
-  }, [running, phase, focusMinutes, breakMinutes]);
+  }, [running]);
 
   useEffect(() => {
     if (!activeRoom) return;
@@ -120,6 +144,49 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
     [activeRoom, started, phase, focusMinutes, breakMinutes]
   );
 
+  // 매분 단위로 흘러가는 정기 반영(위 두 useEffect)은 "이번 분이 다
+  // 채워졌을 때"만 서버에 쓴다 — 탭을 닫거나 방을 나가는 순간엔 아직
+  // 안 채워진 분(수십 초)이 그냥 버려진다. 여기서는 그 남은 시간을
+  // 반올림해서 마지막으로 한 번 더 반영한다. 방을 나가는 경우엔
+  // 특히 중요한데, room_members 탈퇴 후에는(RLS가 멤버만 기록을
+  // 쓸 수 있게 막아서) 더 이상 그 방으로는 아무것도 못 쓰기 때문에
+  // 나가기 "전에" 호출해야 한다.
+  const flushPending = useCallback(() => {
+    if (!activeRoom) return;
+    const focusMinutesNow = Math.round(accumulatedFocusSeconds / 60);
+    if (focusMinutesNow > lastFlushedMinutesRef.current) {
+      const delta = focusMinutesNow - lastFlushedMinutesRef.current;
+      lastFlushedMinutesRef.current = focusMinutesNow;
+      recordFocusMinutes(activeRoom.id, delta, effectiveRecordDate(sessionStartRef.current));
+    }
+    const breakMinutesNow = Math.round(accumulatedBreakSeconds / 60);
+    if (breakMinutesNow > lastFlushedBreakMinutesRef.current) {
+      const delta = breakMinutesNow - lastFlushedBreakMinutesRef.current;
+      lastFlushedBreakMinutesRef.current = breakMinutesNow;
+      recordBreakMinutes(activeRoom.id, delta, effectiveRecordDate(sessionStartRef.current));
+    }
+  }, [activeRoom, accumulatedFocusSeconds, accumulatedBreakSeconds]);
+
+  // 이벤트 리스너 자체는 한 번만 등록하고, 매번 최신 flushPending을
+  // 가리키는 ref를 통해 부른다.
+  const flushPendingRef = useRef(flushPending);
+  useEffect(() => {
+    flushPendingRef.current = flushPending;
+  }, [flushPending]);
+
+  useEffect(() => {
+    const flushIfHidden = () => {
+      if (document.visibilityState === "hidden") flushPendingRef.current();
+    };
+    const flushOnPageHide = () => flushPendingRef.current();
+    document.addEventListener("visibilitychange", flushIfHidden);
+    window.addEventListener("pagehide", flushOnPageHide);
+    return () => {
+      document.removeEventListener("visibilitychange", flushIfHidden);
+      window.removeEventListener("pagehide", flushOnPageHide);
+    };
+  }, []);
+
   const pause = useCallback(() => {
     setRunning(false);
     if (activeRoom) logActivity(activeRoom.id, "session_end");
@@ -162,6 +229,7 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
     start: doStart,
     pause,
     reset,
+    flushPending,
   };
 
   return <PomodoroContext.Provider value={value}>{children}</PomodoroContext.Provider>;

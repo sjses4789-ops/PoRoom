@@ -251,13 +251,13 @@ export function ChatPanel({
           }}
           onKeyDown={(e) => e.key === "Enter" && send()}
           placeholder={whisperTargetId ? t("whisperInputPlaceholder") : t("inputPlaceholder")}
-          className="flex-1 rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
+          className="min-w-0 flex-1 rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
         />
         <button
           onClick={send}
           title={t("send")}
           aria-label={t("send")}
-          className="rounded-md bg-neutral-900 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-neutral-700"
+          className="shrink-0 rounded-md bg-neutral-900 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-neutral-700"
         >
           ⌂
         </button>

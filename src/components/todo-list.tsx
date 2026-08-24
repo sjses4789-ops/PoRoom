@@ -60,9 +60,11 @@ export function TodoList({ initialTodos }: { initialTodos: Todo[] }) {
         <button
           type="button"
           onClick={add}
+          title={t("add")}
+          aria-label={t("add")}
           className="shrink-0 rounded-md bg-neutral-900 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
         >
-          {t("add")}
+          +
         </button>
       </div>
 

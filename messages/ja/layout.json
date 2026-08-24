@@ -1,10 +1,20 @@
 {
-  "writingAppHint": "執筆プログラムが必要なら↠",
   "logout": "ログアウト",
   "footer": {
     "tagline": "PoRoomはビデオ通話なしで一緒に集中できるオンライン・ポモドーロ作業室サービスです。",
     "writingApp": "無料執筆プログラム PomoWriter",
     "feedback": "機能提案・バグ報告",
-    "copyright": "© {year} GGOZIL. All rights reserved."
+    "copyright": "© {year} GGOZIL. All rights reserved.",
+    "writingAppHint": "執筆プログラムが必要なら↠"
+  },
+  "tier": {
+    "basic": "BASIC",
+    "premium": "PREMIUM",
+    "basicDesc": "現在は無料(BASIC)プランです。",
+    "premiumDesc": "PREMIUMプランです。広告が表示されず、参加者カードのキャラクター画像の上にペット画像を設定できます。",
+    "perkAdFree": "広告非表示",
+    "perkPet": "参加者カードのキャラクター上にペット画像を設定",
+    "price": "{amount}ウォン",
+    "comingSoon": "決済機能は準備中です。もうすぐ登場します！"
   }
 }

@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { leaveRoom } from "@/lib/rooms";
 import { createClient } from "@/lib/supabase/client";
+import { usePomodoroContext } from "../../pomodoro-context";
 
 export function LeaveRoomButton({ roomId, selfId }: { roomId: string; selfId: string }) {
   const t = useTranslations("room.leaveRoomButton");
   const [pending, setPending] = useState(false);
   const router = useRouter();
+  const pomodoro = usePomodoroContext();
 
   return (
     <button
@@ -44,6 +46,11 @@ export function LeaveRoomButton({ roomId, selfId }: { roomId: string; selfId: st
           });
           setTimeout(finish, 1500);
         });
+
+        // room_members에서 빠지고 나면 RLS가 이 방으로는 더 이상 기록을
+        // 못 쓰게 막으므로, 나가기 전에 지금까지 쌓인 뽀모도로 시간을
+        // 먼저 반영해둔다.
+        if (pomodoro.activeRoomId === roomId) pomodoro.flushPending();
 
         await leaveRoom(roomId);
         router.push("/main");
