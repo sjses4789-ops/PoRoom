@@ -15,6 +15,12 @@
     "challengeRecordSubtitle": "System challenge participation / success",
     "unknownRoom": "Unknown room"
   },
+  "deleteAccount": {
+    "trigger": "Delete account",
+    "confirm1": "Are you sure you want to delete your account? You'll be removed from every room you're in, and all your data (records, works, chat, etc.) will be permanently deleted.",
+    "confirm2": "Are you really sure? This cannot be undone.",
+    "deleting": "Deleting..."
+  },
   "challengeRecordPanel": {
     "noRecords": "No completed 1:1 competitions yet.",
     "summary": "{total} total · {wins} won · {losses} lost",

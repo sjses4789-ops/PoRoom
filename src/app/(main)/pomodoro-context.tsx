@@ -296,6 +296,39 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
+  // 같은 브라우저에서 탭을 두 개 이상 열어두면(예: 방 탭 하나, 다른
+  // 페이지 탭 하나) 각 탭이 이 프로바이더를 따로 갖고 있어서, 한쪽
+  // 탭에서 시작/일시정지/초기화해도 다른 탭에는 반영되지 않고 새로고침
+  // 전까지 계속 어긋난 채로 남는다 — localStorage의 storage 이벤트로
+  // 다른 탭의 변경을 감지해 즉시 같은 상태로 맞춘다.
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key !== STORAGE_KEY) return;
+      const restored = readStoredPomodoro();
+      if (!restored) {
+        setActiveRoom(null);
+        setRunning(false);
+        setStarted(false);
+        return;
+      }
+      setActiveRoom(restored.activeRoom);
+      setFocusMinutes(restored.focusMinutes);
+      setBreakMinutes(restored.breakMinutes);
+      setRunning(restored.running);
+      setStarted(restored.started);
+      setPhase(restored.phase);
+      setTickingSeconds(restored.tickingSeconds);
+      remainingRef.current = restored.tickingSeconds;
+      setAccumulatedFocusSeconds(restored.accumulatedFocusSeconds);
+      setAccumulatedBreakSeconds(restored.accumulatedBreakSeconds);
+      lastFlushedMinutesRef.current = restored.lastFlushedMinutes;
+      lastFlushedBreakMinutesRef.current = restored.lastFlushedBreakMinutes;
+      sessionStartRef.current = restored.sessionStart;
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
+
   const pause = useCallback(() => {
     setRunning(false);
     if (activeRoom) logActivity(activeRoom.id, "session_end");

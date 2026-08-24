@@ -15,6 +15,12 @@
     "challengeRecordSubtitle": "시스템 챌린지 참여/성공",
     "unknownRoom": "알 수 없는 방"
   },
+  "deleteAccount": {
+    "trigger": "탈퇴하기",
+    "confirm1": "정말 탈퇴하시겠어요? 참여 중인 모든 방에서 나가지고, 작성한 기록/작품/채팅 등 계정 데이터가 모두 삭제됩니다.",
+    "confirm2": "정말로 탈퇴할까요? 이 작업은 되돌릴 수 없습니다.",
+    "deleting": "탈퇴 처리 중..."
+  },
   "challengeRecordPanel": {
     "noRecords": "종료된 개인 대결 기록이 없습니다.",
     "summary": "총 {total}전 {wins}승 {losses}패",

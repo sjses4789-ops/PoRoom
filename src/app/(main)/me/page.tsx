@@ -8,6 +8,7 @@ import { NicknameForm } from "@/components/nickname-form";
 import { PageAdRail } from "@/components/page-ad-rail";
 import { GoalPanel, type PeriodGoal, type PeriodProgress } from "./goal-panel";
 import { CharacterSection } from "./character-section";
+import { DeleteAccountButton } from "./delete-account-button";
 import { AttendanceCalendar } from "./attendance-calendar";
 import { ChallengeRecordPanel } from "./challenge-record-panel";
 import { SystemChallengeRecordPanel } from "./system-challenge-record-panel";
@@ -401,13 +402,16 @@ export default async function MePage() {
       <section className="flex flex-col gap-3">
         <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("accountInfo")}</h2>
         <div className="grid grid-cols-1 divide-y divide-neutral-400 overflow-hidden rounded-md border border-neutral-400 dark:divide-neutral-600 dark:border-neutral-600 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-          <div className="p-4 text-sm">
+          <div className="flex flex-col justify-between p-4 text-sm">
             <div className="flex flex-col gap-1">
               <span className="text-neutral-900 dark:text-white">{myProfile?.name ?? t("noNickname")}</span>
               <span className="text-neutral-500">{user.email}</span>
               <span className="text-[12px] text-neutral-400">
                 {t("joinDate", { date: user.created_at.slice(0, 10).replace(/-/g, ".") })}
               </span>
+            </div>
+            <div className="mt-3 flex justify-center">
+              <DeleteAccountButton />
             </div>
           </div>
           <CharacterSection initialCharacterId={myProfile?.character_id ?? null} />

@@ -6,10 +6,6 @@ import { createClient } from "@/lib/supabase/client";
 
 const TYPING_WINDOW_MS = 5000;
 const TRACK_THROTTLE_MS = 2000;
-// track() 호출이 응답 없이 멈추면(네트워크 순간 단절 등) 뒤이은 모든
-// track()이 큐에 걸려 영원히 반영되지 않는 문제가 있었다 — 일정 시간
-// 안에 끝나지 않으면 그냥 다음 큐로 넘어가도록 타임아웃을 둔다.
-const TRACK_TIMEOUT_MS = 4000;
 // 위 타임아웃으로도 놓친 갱신이 있을 수 있으니, 주기적으로 현재 상태를
 // 다시 track()해서 다른 참여자 화면이 스스로 복구되도록 한다.
 const RETRACK_INTERVAL_MS = 15000;
@@ -45,25 +41,23 @@ export function useRoomPresence(
     Record<string, PresencePayload>
   >({});
   const channelRef = useRef<RealtimeChannel | null>(null);
+  // SUBSCRIBED 상태일 때만 track()을 보낼 수 있다 — 구독이 끊기거나
+  // 재연결 중일 때 track()을 부르면 조용히 무시되거나 에러가 나서,
+  // 다시 SUBSCRIBED가 될 때까지는 시도조차 하지 않는다.
+  const subscribedRef = useRef(false);
   const lastTrackedRef = useRef(0);
   // presence에서 실제로 빠진 뒤에도 유예 시간 동안은 마지막으로 알려진
   // 상태를 보여주기 위한 캐시.
   const lastSeenAtRef = useRef<Map<string, number>>(new Map());
   const lastKnownPayloadRef = useRef<Map<string, PresencePayload>>(new Map());
-  // Realtime Presence의 track()을 겹쳐서(빠르게 연달아) 호출하면 일부
-  // 호출이 유실되거나 순서가 뒤바뀌어, 이후 track()이 더는 서버 상태에
-  // 반영되지 않는 것처럼 보이는 문제가 있었다 — 항상 하나씩 순서대로
-  // 처리되도록 큐에 태운다.
-  const trackQueueRef = useRef<Promise<unknown>>(Promise.resolve());
+  // 예전엔 track() 호출들을 Promise 체인으로 직렬화했는데, 그중 하나가
+  // 영원히 응답하지 않으면(채널이 조용히 죽어있는 등) 그 뒤로 큐에 걸린
+  // 모든 track() — 타이핑/작업상태/뽀모도로 갱신 전부 — 가 그 자리에서
+  // 영구히 멈춰버리는 문제가 있었다. WebSocket은 한 연결 안에서 이미
+  // 순서를 보장하므로 직렬화 큐 자체가 불필요했다 — 그냥 바로 부른다.
   const trackSafely = useCallback((payload: PresencePayload) => {
-    trackQueueRef.current = trackQueueRef.current
-      .catch(() => {})
-      .then(() =>
-        Promise.race([
-          channelRef.current?.track(payload) ?? Promise.resolve(),
-          new Promise((resolve) => setTimeout(resolve, TRACK_TIMEOUT_MS)),
-        ])
-      );
+    if (!subscribedRef.current || !channelRef.current) return;
+    channelRef.current.track(payload).catch(() => {});
   }, []);
   const selfPayloadRef = useRef<PresencePayload>({
     name: selfName,
@@ -76,13 +70,13 @@ export function useRoomPresence(
 
   useEffect(() => {
     const supabase = createClient();
-    const channel = supabase.channel(`room-presence:${roomId}`, {
-      config: { presence: { key: selfId } },
-    });
-    channelRef.current = channel;
+    let cancelled = false;
+    let retrySubscribeId: ReturnType<typeof setTimeout> | null = null;
+    let currentChannel: RealtimeChannel | null = null;
 
     const syncFromState = () => {
-      const state = channel.presenceState<PresencePayload>();
+      if (!currentChannel) return;
+      const state = currentChannel.presenceState<PresencePayload>();
       const next: Record<string, PresencePayload> = {};
       const now = Date.now();
       for (const key of Object.keys(state)) {
@@ -100,29 +94,45 @@ export function useRoomPresence(
     // 구독이 SUBSCRIBED 외의 상태(CHANNEL_ERROR/TIMED_OUT/CLOSED)로
     // 끝나버리면, track()이 계속 조용히 실패해서 나는 계속 연결돼
     // 있는데도 다른 참여자에게는 영원히 "비접속"으로 보이는 문제가
-    // 있었다 — 실패 상태를 만나면 잠시 뒤 같은 채널로 재구독을
-    // 시도한다.
-    let retrySubscribeId: ReturnType<typeof setTimeout> | null = null;
-    const subscribe = () => {
-      channel.subscribe(async (status) => {
-        if (status === "SUBSCRIBED") {
-          await channel.track(selfPayloadRef.current).catch(() => {});
-        } else if (
-          status === "CHANNEL_ERROR" ||
-          status === "TIMED_OUT" ||
-          status === "CLOSED"
-        ) {
-          if (retrySubscribeId) clearTimeout(retrySubscribeId);
-          retrySubscribeId = setTimeout(subscribe, 2000);
-        }
+    // 있었다. 예전엔 같은 채널 인스턴스에 다시 subscribe()를 불렀는데,
+    // supabase-js 채널은 한 번 에러난 뒤 같은 인스턴스로 재구독하는 걸
+    // 신뢰성 있게 지원하지 않아서(내부 상태가 깨진 채로 남는 경우가
+    // 있었다) 오히려 영영 복구가 안 되는 경우가 있었다 — 실패하면
+    // 그 채널은 완전히 버리고 새 채널 인스턴스를 만들어 처음부터
+    // 다시 구독한다.
+    const setup = () => {
+      if (cancelled) return;
+      subscribedRef.current = false;
+      const channel = supabase.channel(`room-presence:${roomId}`, {
+        config: { presence: { key: selfId } },
       });
-    };
+      currentChannel = channel;
+      channelRef.current = channel;
 
-    channel
-      .on("presence", { event: "sync" }, syncFromState)
-      .on("presence", { event: "join" }, syncFromState)
-      .on("presence", { event: "leave" }, syncFromState);
-    subscribe();
+      channel
+        .on("presence", { event: "sync" }, syncFromState)
+        .on("presence", { event: "join" }, syncFromState)
+        .on("presence", { event: "leave" }, syncFromState)
+        .subscribe(async (status) => {
+          if (cancelled) return;
+          if (status === "SUBSCRIBED") {
+            subscribedRef.current = true;
+            await channel.track(selfPayloadRef.current).catch(() => {});
+          } else if (
+            status === "CHANNEL_ERROR" ||
+            status === "TIMED_OUT" ||
+            status === "CLOSED"
+          ) {
+            subscribedRef.current = false;
+            if (retrySubscribeId) clearTimeout(retrySubscribeId);
+            retrySubscribeId = setTimeout(() => {
+              supabase.removeChannel(channel);
+              setup();
+            }, 2000);
+          }
+        });
+    };
+    setup();
 
     const tickId = setInterval(() => setTick((t) => t + 1), 1000);
     // track() 하나가 유실돼도 다른 참여자 화면이 오래(다음 상태 변경
@@ -144,12 +154,13 @@ export function useRoomPresence(
     window.addEventListener("focus", onVisible);
 
     return () => {
+      cancelled = true;
       if (retrySubscribeId) clearTimeout(retrySubscribeId);
       clearInterval(tickId);
       clearInterval(retrackId);
       document.removeEventListener("visibilitychange", onVisible);
       window.removeEventListener("focus", onVisible);
-      supabase.removeChannel(channel);
+      if (currentChannel) supabase.removeChannel(currentChannel);
     };
   }, [roomId, selfId, selfName, trackSafely]);
 

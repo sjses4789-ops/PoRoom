@@ -15,6 +15,12 @@
     "challengeRecordSubtitle": "システムチャレンジの参加・成功",
     "unknownRoom": "不明な部屋"
   },
+  "deleteAccount": {
+    "trigger": "退会する",
+    "confirm1": "本当に退会しますか？参加中のすべてのルームから退出し、記録・作品・チャットなどのアカウントデータがすべて削除されます。",
+    "confirm2": "本当によろしいですか？この操作は元に戻せません。",
+    "deleting": "退会処理中..."
+  },
   "challengeRecordPanel": {
     "noRecords": "終了した個人対決の記録がありません。",
     "summary": "計{total}戦 {wins}勝{losses}敗",
