@@ -1,0 +1,22 @@
+{
+  "save": "保存",
+  "saving": "保存中...",
+  "cancel": "取消",
+  "add": "添加",
+  "delete": "删除",
+  "loading": "加载中...",
+  "nicknamePlaceholder": "昵称",
+  "pomodoro": {
+    "focusing": "专注中",
+    "resting": "休息中"
+  },
+  "todo": {
+    "addPlaceholder": "添加待办事项",
+    "empty": "暂无待办事项。"
+  },
+  "attendance": {
+    "weekdays": ["日", "一", "二", "三", "四", "五", "六"],
+    "monthCount": "本月出勤 {count} 天",
+    "streak": "🔥 连续出勤 {count} 天"
+  }
+}

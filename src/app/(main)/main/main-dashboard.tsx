@@ -1,8 +1,9 @@
+import { getTranslations } from "next-intl/server";
 import { AttendanceCalendar } from "../me/attendance-calendar";
 import GoalBar from "../me/goal-bar";
 import { TodoList, type Todo } from "@/components/todo-list";
 
-export function MainDashboard({
+export async function MainDashboard({
   todayChars,
   year,
   month,
@@ -25,15 +26,16 @@ export function MainDashboard({
   overallRank: number;
   totalUsers: number;
 }) {
+  const t = await getTranslations("main.dashboard");
   const percentile =
     totalUsers > 0 ? Math.max(1, Math.round((overallRank / totalUsers) * 100)) : null;
 
   return (
     <section className="flex h-full flex-col gap-4 rounded-lg border border-neutral-200 p-4 dark:border-neutral-800 dark:bg-neutral-900">
-      <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">내 현황</h2>
+      <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("title")}</h2>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="flex flex-col gap-1.5">
-          <span className="text-[12px] text-neutral-500 dark:text-neutral-400">할 일</span>
+          <span className="text-[12px] text-neutral-500 dark:text-neutral-400">{t("todo")}</span>
           <TodoList initialTodos={initialTodos} />
         </div>
         <AttendanceCalendar
@@ -48,35 +50,35 @@ export function MainDashboard({
               {todayChars.toLocaleString()}
             </span>
             <span className="text-[12px] text-neutral-500 dark:text-neutral-400">
-              오늘의 글자수
+              {t("todayChars")}
             </span>
           </div>
           <div className="flex flex-col gap-2">
             <span className="text-[12px] text-neutral-500 dark:text-neutral-400">
-              이번 달 목표 글자수
+              {t("monthGoal")}
             </span>
             {monthGoalChars > 0 ? (
               <GoalBar
-                label="글자수"
+                label={t("goalLabel")}
                 current={monthProgressChars}
                 target={monthGoalChars}
-                unit="자"
+                unit={t("goalUnit")}
               />
             ) : (
-              <p className="text-[12px] text-neutral-400">
-                [개인] 페이지에서 이번 달 목표를 설정해보세요.
-              </p>
+              <p className="text-[12px] text-neutral-400">{t("setGoalHint")}</p>
             )}
           </div>
 
           <div className="flex flex-col items-center justify-center gap-1 rounded-xl bg-neutral-50 px-3 py-2.5 text-center dark:bg-neutral-800">
-            <span className="text-[12px] text-neutral-500 dark:text-neutral-400">개인 랭킹 (이번 달)</span>
+            <span className="text-[12px] text-neutral-500 dark:text-neutral-400">
+              {t("monthlyRank")}
+            </span>
             <span className="text-sm font-semibold text-neutral-900 dark:text-white">
-              전체 {overallRank}위 / {totalUsers}명
+              {t("rankLine", { rank: overallRank, total: totalUsers })}
             </span>
             {percentile !== null && (
               <span className="text-[12px] text-neutral-400 dark:text-neutral-500">
-                (상위 {percentile}%)
+                {t("percentile", { percent: percentile })}
               </span>
             )}
           </div>

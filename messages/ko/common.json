@@ -1,0 +1,22 @@
+{
+  "save": "저장",
+  "saving": "저장 중...",
+  "cancel": "취소",
+  "add": "추가",
+  "delete": "삭제",
+  "loading": "불러오는 중...",
+  "nicknamePlaceholder": "닉네임",
+  "pomodoro": {
+    "focusing": "집중 중",
+    "resting": "휴식 중"
+  },
+  "todo": {
+    "addPlaceholder": "할 일 추가",
+    "empty": "할 일이 없습니다."
+  },
+  "attendance": {
+    "weekdays": ["일", "월", "화", "수", "목", "금", "토"],
+    "monthCount": "이번 달 출석 {count}일",
+    "streak": "🔥 연속 출석 {count}일"
+  }
+}

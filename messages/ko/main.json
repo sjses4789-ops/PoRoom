@@ -1,0 +1,69 @@
+{
+  "dashboard": {
+    "title": "내 현황",
+    "todo": "할 일",
+    "todayChars": "오늘의 글자수",
+    "monthGoal": "이번 달 목표 글자수",
+    "setGoalHint": "[개인] 페이지에서 이번 달 목표를 설정해보세요.",
+    "monthlyRank": "개인 랭킹 (이번 달)",
+    "rankLine": "전체 {rank}위 / {total}명",
+    "percentile": "(상위 {percent}%)",
+    "goalLabel": "글자수",
+    "goalUnit": "자"
+  },
+  "systemRooms": {
+    "deadline": "마감방",
+    "dawn": "새벽방",
+    "capacityHint": "정원 {capacity}명 · 상시 오픈방",
+    "entering": "입장 중...",
+    "enter": "{emoji} {label} 입장"
+  },
+  "roomLists": {
+    "myRooms": "내가 입장한 방",
+    "noMyRooms": "아직 입장한 방이 없습니다. 새 방을 만들거나 초대코드로 입장해보세요.",
+    "allRooms": "전체 / 추천 방",
+    "reset": "초기화",
+    "noRoomsMatch": "선택한 태그와 일치하는 방이 없습니다.",
+    "noRoomsYet": "아직 생성된 방이 없습니다.",
+    "sortChars": "누적 글자순",
+    "sortMembers": "모임 인원순",
+    "sortCreated": "생성 날짜순",
+    "favoriteAdd": "즐겨찾기 추가",
+    "favoriteRemove": "즐겨찾기 해제",
+    "membersSuffix": "{count}명"
+  },
+  "roomCard": {
+    "membersJoined": "{count}명 참여중",
+    "joinTypeInvite": "비공개방",
+    "joinTypeOpen": "공개방",
+    "allTimeChars": "누적 {count}자",
+    "monthChars": "이번 달 {count}자",
+    "join": "입장하기",
+    "joining": "입장 중...",
+    "deletedRoomAlert": "이미 삭제된 방입니다."
+  },
+  "createRoom": {
+    "trigger": "새 방 만들기",
+    "namePlaceholder": "방 이름",
+    "colorLabel": "방 색상",
+    "tagLabel": "태그",
+    "joinTypeLabel": "입장 방식",
+    "joinInvite": "초대코드 입장",
+    "joinOpen": "공개방",
+    "visibilityLabel": "기록 공개 정책",
+    "visibilityShared": "기록 공유방",
+    "visibilitySharedHint": "모두의 기록이 공개돼요",
+    "visibilityPrivate": "기록 비공유방",
+    "visibilityPrivateHint": "서로의 기록이 비공개예요",
+    "visibilityFree": "기록 공유 자유",
+    "visibilityFreeHint": "각자 공개 여부를 정해요",
+    "creating": "만드는 중...",
+    "create": "만들기"
+  },
+  "inviteCode": {
+    "trigger": "초대코드로 입장",
+    "placeholder": "초대코드 입력",
+    "entering": "입장 중...",
+    "enter": "입장하기"
+  }
+}

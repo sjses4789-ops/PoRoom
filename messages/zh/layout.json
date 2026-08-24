@@ -1,0 +1,10 @@
+{
+  "writingAppHint": "需要写作程序吗↠",
+  "logout": "登出",
+  "footer": {
+    "tagline": "PoRoom 是无需视频通话、一起专注写作的在线番茄工作室服务。",
+    "writingApp": "免费写作程序 PomoWriter",
+    "feedback": "功能建议与错误反馈",
+    "copyright": "© {year} GGOZIL. All rights reserved."
+  }
+}

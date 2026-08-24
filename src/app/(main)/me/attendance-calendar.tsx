@@ -1,10 +1,10 @@
-const WEEKDAY_LABELS = ["일", "월", "화", "수", "목", "금", "토"];
+import { getTranslations } from "next-intl/server";
 
 function pad2(n: number) {
   return String(n).padStart(2, "0");
 }
 
-export function AttendanceCalendar({
+export async function AttendanceCalendar({
   year,
   month,
   attendedDates,
@@ -15,6 +15,8 @@ export function AttendanceCalendar({
   attendedDates: Set<string>;
   streakDays?: number;
 }) {
+  const t = await getTranslations("common.attendance");
+  const weekdayLabels = t.raw("weekdays") as string[];
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const startWeekday = new Date(year, month, 1).getDay();
   const dateKey = (day: number) => `${year}-${pad2(month + 1)}-${pad2(day)}`;
@@ -31,8 +33,8 @@ export function AttendanceCalendar({
   return (
     <div className="mx-auto flex w-full max-w-[220px] flex-col gap-1.5">
       <div className="grid grid-cols-7 gap-0.5 text-center text-[10px] text-neutral-400 dark:text-neutral-500">
-        {WEEKDAY_LABELS.map((d) => (
-          <span key={d}>{d}</span>
+        {weekdayLabels.map((d, i) => (
+          <span key={i}>{d}</span>
         ))}
       </div>
       <div className="grid grid-cols-7 gap-0.5">
@@ -54,11 +56,11 @@ export function AttendanceCalendar({
         )}
       </div>
       <p className="text-center text-sm font-medium text-neutral-600 dark:text-neutral-300">
-        이번 달 출석 {attendedCount}일
+        {t("monthCount", { count: attendedCount })}
       </p>
       {streakDays !== undefined && (
         <p className="text-center text-xs font-medium text-amber-600 dark:text-amber-400">
-          🔥 연속 출석 {streakDays}일
+          {t("streak", { count: streakDays })}
         </p>
       )}
     </div>

@@ -1,0 +1,69 @@
+{
+  "dashboard": {
+    "title": "My Status",
+    "todo": "To-do",
+    "todayChars": "Today's character count",
+    "monthGoal": "This month's character goal",
+    "setGoalHint": "Set this month's goal on the [Me] page.",
+    "monthlyRank": "Personal ranking (this month)",
+    "rankLine": "#{rank} out of {total}",
+    "percentile": "(top {percent}%)",
+    "goalLabel": "Characters",
+    "goalUnit": " chars"
+  },
+  "systemRooms": {
+    "deadline": "Deadline Room",
+    "dawn": "Dawn Room",
+    "capacityHint": "Capacity {capacity} · always open",
+    "entering": "Entering...",
+    "enter": "{emoji} Enter {label}"
+  },
+  "roomLists": {
+    "myRooms": "My rooms",
+    "noMyRooms": "You haven't joined any rooms yet. Create a new room or join with an invite code.",
+    "allRooms": "All / Suggested rooms",
+    "reset": "Reset",
+    "noRoomsMatch": "No rooms match the selected tags.",
+    "noRoomsYet": "No rooms have been created yet.",
+    "sortChars": "Total characters",
+    "sortMembers": "Member count",
+    "sortCreated": "Date created",
+    "favoriteAdd": "Add to favorites",
+    "favoriteRemove": "Remove from favorites",
+    "membersSuffix": "{count}"
+  },
+  "roomCard": {
+    "membersJoined": "{count} joined",
+    "joinTypeInvite": "Private room",
+    "joinTypeOpen": "Open room",
+    "allTimeChars": "{count} total chars",
+    "monthChars": "{count} chars this month",
+    "join": "Join",
+    "joining": "Joining...",
+    "deletedRoomAlert": "This room has already been deleted."
+  },
+  "createRoom": {
+    "trigger": "Create a room",
+    "namePlaceholder": "Room name",
+    "colorLabel": "Room color",
+    "tagLabel": "Tags",
+    "joinTypeLabel": "Join method",
+    "joinInvite": "Invite code only",
+    "joinOpen": "Open room",
+    "visibilityLabel": "Record visibility policy",
+    "visibilityShared": "Shared records",
+    "visibilitySharedHint": "Everyone's records are visible",
+    "visibilityPrivate": "Private records",
+    "visibilityPrivateHint": "Records are hidden from each other",
+    "visibilityFree": "Optional sharing",
+    "visibilityFreeHint": "Each member chooses to share or not",
+    "creating": "Creating...",
+    "create": "Create"
+  },
+  "inviteCode": {
+    "trigger": "Join with invite code",
+    "placeholder": "Enter invite code",
+    "entering": "Joining...",
+    "enter": "Join"
+  }
+}

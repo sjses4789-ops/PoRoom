@@ -1,9 +1,11 @@
 "use client";
 
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 
 export function AuthLanding() {
+  const t = useTranslations("login");
   const handleGoogleLogin = async () => {
     const supabase = createClient();
     await supabase.auth.signInWithOAuth({
@@ -25,9 +27,7 @@ export function AuthLanding() {
           priority
           className="h-auto w-64"
         />
-        <p className="text-sm text-neutral-500">
-          함께 집중하는 온라인 뽀모도로 작업실
-        </p>
+        <p className="text-sm text-neutral-500">{t("tagline")}</p>
       </div>
       <button
         onClick={handleGoogleLogin}
@@ -51,7 +51,7 @@ export function AuthLanding() {
             d="M9 3.58c1.32 0 2.51.46 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .96 4.97L3.95 7.3C4.66 5.17 6.65 3.58 9 3.58z"
           />
         </svg>
-        Google로 로그인
+        {t("google")}
       </button>
     </main>
   );

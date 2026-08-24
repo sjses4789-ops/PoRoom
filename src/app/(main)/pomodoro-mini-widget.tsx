@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { usePomodoroContext } from "./pomodoro-context";
 
 const PHASE_COLOR: Record<"focus" | "break", string> = {
@@ -9,6 +10,7 @@ const PHASE_COLOR: Record<"focus" | "break", string> = {
 };
 
 export function PomodoroMiniWidget() {
+  const t = useTranslations("common.pomodoro");
   const pomodoro = usePomodoroContext();
   const pathname = usePathname();
   const router = useRouter();
@@ -20,7 +22,7 @@ export function PomodoroMiniWidget() {
   const mm = String(Math.floor(pomodoro.remainingSeconds / 60)).padStart(2, "0");
   const ss = String(pomodoro.remainingSeconds % 60).padStart(2, "0");
   const phase = pomodoro.phase === "break" ? "break" : "focus";
-  const phaseLabel = pomodoro.phase === "focus" ? "집중 중" : "휴식 중";
+  const phaseLabel = pomodoro.phase === "focus" ? t("focusing") : t("resting");
 
   return (
     <button

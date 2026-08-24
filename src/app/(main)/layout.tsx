@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import NavTabs from "./nav-tabs";
 import LogoutButton from "./logout-button";
@@ -14,6 +15,7 @@ export default async function MainLayout({
   children: React.ReactNode;
 }) {
   const supabase = await createClient();
+  const t = await getTranslations("layout");
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -45,7 +47,7 @@ export default async function MainLayout({
           </Link>
           <div className="flex items-center gap-3 text-sm text-neutral-500 dark:text-neutral-400 md:hidden">
             <span className="hidden shrink-0 whitespace-nowrap text-xs text-neutral-400 sm:inline dark:text-neutral-500">
-              집필 프로그램이 필요하다면↠
+              {t("writingAppHint")}
             </span>
             <a
               href="https://pomowriter.oopy.io/"

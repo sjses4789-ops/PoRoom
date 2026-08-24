@@ -1,0 +1,10 @@
+{
+  "writingAppHint": "執筆プログラムが必要なら↠",
+  "logout": "ログアウト",
+  "footer": {
+    "tagline": "PoRoomはビデオ通話なしで一緒に集中できるオンライン・ポモドーロ作業室サービスです。",
+    "writingApp": "無料執筆プログラム PomoWriter",
+    "feedback": "機能提案・バグ報告",
+    "copyright": "© {year} GGOZIL. All rights reserved."
+  }
+}

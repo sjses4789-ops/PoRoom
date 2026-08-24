@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { joinOpenRoom } from "@/lib/rooms";
 import { paletteDot, paletteBg } from "@/lib/palette";
+import { translateRoomTag } from "@/lib/room-tags";
 
 export type RoomListItem = {
   id: string;
@@ -20,12 +22,10 @@ export type RoomListItem = {
   monthChars: number;
 };
 
-const JOIN_TYPE_LABEL: Record<RoomListItem["joinType"], string> = {
-  invite: "비공개방",
-  open: "공개방",
-};
-
 function RoomCardBody({ room }: { room: RoomListItem }) {
+  const t = useTranslations("main.roomCard");
+  const tTags = useTranslations("tags");
+  const joinTypeLabel = room.joinType === "invite" ? t("joinTypeInvite") : t("joinTypeOpen");
   // 방 색상은 항상 옅은 파스텔이라, 카드 배경으로 쓰면 텍스트는 테마와
   // 무관하게 항상 어두운 색으로 유지해야 읽힌다.
   return (
@@ -38,17 +38,17 @@ function RoomCardBody({ room }: { room: RoomListItem }) {
           {room.name}
         </span>
         <span className="shrink-0 whitespace-nowrap text-xs text-neutral-500">
-          {room.memberCount}명 참여중
+          {t("membersJoined", { count: room.memberCount })}
         </span>
       </div>
       <div className="flex flex-wrap items-center gap-3 text-xs text-neutral-600">
         <span className="rounded border border-neutral-300 px-1.5 py-0.5 text-[11px] text-neutral-500">
-          {JOIN_TYPE_LABEL[room.joinType]}
+          {joinTypeLabel}
         </span>
       </div>
       <div className="flex items-center gap-3 text-[12px] text-neutral-600">
-        <span>누적 {room.allTimeChars.toLocaleString()}자</span>
-        <span>이번 달 {room.monthChars.toLocaleString()}자</span>
+        <span>{t("allTimeChars", { count: room.allTimeChars.toLocaleString() })}</span>
+        <span>{t("monthChars", { count: room.monthChars.toLocaleString() })}</span>
       </div>
       {room.tags.length > 0 && (
         <div className="flex flex-wrap gap-1">
@@ -57,7 +57,7 @@ function RoomCardBody({ room }: { room: RoomListItem }) {
               key={tag}
               className="rounded-full bg-white/60 px-1.5 py-0.5 text-[11px] text-neutral-600"
             >
-              {tag}
+              {translateRoomTag(tTags, tag)}
             </span>
           ))}
         </div>
@@ -67,6 +67,7 @@ function RoomCardBody({ room }: { room: RoomListItem }) {
 }
 
 export default function RoomCard({ room }: { room: RoomListItem }) {
+  const t = useTranslations("main.roomCard");
   const [joining, setJoining] = useState(false);
 
   if (room.isMember) {
@@ -90,7 +91,7 @@ export default function RoomCard({ room }: { room: RoomListItem }) {
           }}
           className="self-start rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-neutral-700 disabled:opacity-50"
         >
-          {joining ? "입장 중..." : "입장하기"}
+          {joining ? t("joining") : t("join")}
         </button>
       </div>
     );

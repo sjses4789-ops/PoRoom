@@ -1,0 +1,10 @@
+{
+  "writingAppHint": "집필 프로그램이 필요하다면↠",
+  "logout": "로그아웃",
+  "footer": {
+    "tagline": "PoRoom은 화상회의 없이 함께 집중하는 온라인 뽀모도로 스터디룸 서비스입니다.",
+    "writingApp": "무료 글쓰기 프로그램 PomoWriter",
+    "feedback": "기능 제안 & 버그 신고",
+    "copyright": "© {year} GGOZIL. All rights reserved."
+  }
+}

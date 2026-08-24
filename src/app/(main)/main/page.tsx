@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { PageAdRail } from "@/components/page-ad-rail";
 import { computeStreakDays } from "@/lib/attendance";
@@ -31,6 +32,7 @@ const SYSTEM_ROOM_CAPACITY = 30;
 
 export default async function MainPage() {
   const supabase = await createClient();
+  const t = await getTranslations("main.systemRooms");
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -168,9 +170,9 @@ export default async function MainPage() {
     <div className="grid grid-cols-1 gap-3">
       <section className="flex h-full flex-col items-stretch justify-between gap-3 rounded-lg border border-neutral-200/60 bg-[#faf3f3] px-3 py-4 text-center dark:border-neutral-800 dark:bg-[#231a1a]">
         <div className="flex flex-col gap-1">
-          <p className="text-sm font-medium text-neutral-900 dark:text-white">마감방</p>
+          <p className="text-sm font-medium text-neutral-900 dark:text-white">{t("deadline")}</p>
           <p className="text-[11px] text-neutral-500 dark:text-neutral-400">
-            정원 30명 · 상시 오픈방
+            {t("capacityHint", { capacity: SYSTEM_ROOM_CAPACITY })}
           </p>
         </div>
         <SystemRoomButton
@@ -181,9 +183,9 @@ export default async function MainPage() {
       </section>
       <section className="flex h-full flex-col items-stretch justify-between gap-3 rounded-lg border border-neutral-200/60 bg-[#f2f3f9] px-3 py-4 text-center dark:border-neutral-800 dark:bg-[#1a1c26]">
         <div className="flex flex-col gap-1">
-          <p className="text-sm font-medium text-neutral-900 dark:text-white">새벽방</p>
+          <p className="text-sm font-medium text-neutral-900 dark:text-white">{t("dawn")}</p>
           <p className="text-[11px] text-neutral-500 dark:text-neutral-400">
-            정원 30명 · 상시 오픈방
+            {t("capacityHint", { capacity: SYSTEM_ROOM_CAPACITY })}
           </p>
         </div>
         <SystemRoomButton

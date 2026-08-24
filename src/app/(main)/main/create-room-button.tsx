@@ -1,20 +1,10 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { useTranslations } from "next-intl";
 import { createRoom, type ActionResult } from "@/lib/rooms";
 import { PALETTE, paletteDot } from "@/lib/palette";
-import { ROOM_TAGS } from "@/lib/room-tags";
-
-const RECORD_VISIBILITY_OPTIONS = [
-  { value: "shared", label: "기록 공유방", hint: "모두의 기록이 공개돼요" },
-  { value: "private", label: "기록 비공유방", hint: "서로의 기록이 비공개예요" },
-  { value: "free", label: "기록 공유 자유", hint: "각자 공개 여부를 정해요" },
-] as const;
-
-const JOIN_TYPE_OPTIONS = [
-  { value: "invite", label: "초대코드 입장" },
-  { value: "open", label: "공개방" },
-] as const;
+import { ROOM_TAGS, translateRoomTag } from "@/lib/room-tags";
 
 export default function CreateRoomButton({
   open,
@@ -23,6 +13,20 @@ export default function CreateRoomButton({
   open: boolean;
   onToggle: () => void;
 }) {
+  const t = useTranslations("main.createRoom");
+  const tTags = useTranslations("tags");
+
+  const RECORD_VISIBILITY_OPTIONS = [
+    { value: "shared", label: t("visibilityShared"), hint: t("visibilitySharedHint") },
+    { value: "private", label: t("visibilityPrivate"), hint: t("visibilityPrivateHint") },
+    { value: "free", label: t("visibilityFree"), hint: t("visibilityFreeHint") },
+  ] as const;
+
+  const JOIN_TYPE_OPTIONS = [
+    { value: "invite", label: t("joinInvite") },
+    { value: "open", label: t("joinOpen") },
+  ] as const;
+
   const [color, setColor] = useState<string>(PALETTE[0].key);
   const [tags, setTags] = useState<Set<string>>(new Set());
   const toggleTag = (tag: string) => {
@@ -44,7 +48,7 @@ export default function CreateRoomButton({
         onClick={onToggle}
         className="rounded-md border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-700 transition hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
       >
-        새 방 만들기
+        {t("trigger")}
       </button>
       {open && (
         <>
@@ -56,12 +60,12 @@ export default function CreateRoomButton({
           <form action={formAction} className="flex flex-col gap-3">
             <input
               name="name"
-              placeholder="방 이름"
+              placeholder={t("namePlaceholder")}
               className="rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
             />
             <div className="flex flex-col gap-1.5">
               <span className="text-[12px] font-medium text-neutral-500 dark:text-neutral-400">
-                방 색상
+                {t("colorLabel")}
               </span>
               <input type="hidden" name="color" value={color} />
               <div className="flex flex-wrap gap-1.5">
@@ -83,10 +87,10 @@ export default function CreateRoomButton({
 
             <div className="flex flex-col gap-1.5">
               <span className="text-[12px] font-medium text-neutral-500 dark:text-neutral-400">
-                태그
+                {t("tagLabel")}
               </span>
-              {Array.from(tags).map((t) => (
-                <input key={t} type="hidden" name="tags" value={t} />
+              {Array.from(tags).map((tag) => (
+                <input key={tag} type="hidden" name="tags" value={tag} />
               ))}
               <div className="flex max-h-32 flex-wrap gap-1.5 overflow-y-auto">
                 {ROOM_TAGS.map((tag) => (
@@ -100,7 +104,7 @@ export default function CreateRoomButton({
                         : "border-neutral-200 text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
                     }`}
                   >
-                    {tag}
+                    {translateRoomTag(tTags, tag)}
                   </button>
                 ))}
               </div>
@@ -108,7 +112,7 @@ export default function CreateRoomButton({
 
             <div className="flex flex-col gap-1.5">
               <span className="text-[12px] font-medium text-neutral-500 dark:text-neutral-400">
-                입장 방식
+                {t("joinTypeLabel")}
               </span>
               <div className="flex gap-3">
                 {JOIN_TYPE_OPTIONS.map((opt, i) => (
@@ -131,7 +135,7 @@ export default function CreateRoomButton({
 
             <div className="flex flex-col gap-1.5">
               <span className="text-[12px] font-medium text-neutral-500 dark:text-neutral-400">
-                기록 공개 정책
+                {t("visibilityLabel")}
               </span>
               <div className="flex flex-col gap-1">
                 {RECORD_VISIBILITY_OPTIONS.map((opt, i) => (
@@ -161,7 +165,7 @@ export default function CreateRoomButton({
               disabled={pending}
               className="rounded-md bg-neutral-900 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-neutral-700 disabled:opacity-50 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
             >
-              {pending ? "만드는 중..." : "만들기"}
+              {pending ? t("creating") : t("create")}
             </button>
           </form>
           </div>

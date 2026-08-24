@@ -1,9 +1,11 @@
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { NicknameForm } from "@/components/nickname-form";
 
 export default async function OnboardingPage() {
   const supabase = await createClient();
+  const t = await getTranslations("onboarding");
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -21,14 +23,11 @@ export default async function OnboardingPage() {
     <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-white px-6">
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-lg font-semibold tracking-tight text-neutral-900 dark:text-white">
-          닉네임을 설정해주세요
+          {t("title")}
         </h1>
-        <p className="max-w-xs text-sm text-neutral-500">
-          PoRoom에서 사용할 닉네임이에요. 방 안에서 다른 참여자에게 이
-          이름으로 보여요.
-        </p>
+        <p className="max-w-xs text-sm text-neutral-500">{t("description")}</p>
       </div>
-      <NicknameForm redirectTo="/main" submitLabel="시작하기" />
+      <NicknameForm redirectTo="/main" submitLabel={t("start")} />
     </main>
   );
 }

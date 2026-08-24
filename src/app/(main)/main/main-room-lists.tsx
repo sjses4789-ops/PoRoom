@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
-import { ROOM_TAGS } from "@/lib/room-tags";
+import { ROOM_TAGS, translateRoomTag } from "@/lib/room-tags";
 import { paletteDot, paletteBg } from "@/lib/palette";
 import { toggleFavoriteRoom } from "@/lib/rooms";
 import Link from "next/link";
@@ -23,12 +24,6 @@ type NewRoomRow = {
 type SortMode = "chars" | "members" | "created";
 type SortDirection = "asc" | "desc";
 
-const SORT_OPTIONS: { key: SortMode; label: string }[] = [
-  { key: "chars", label: "누적 글자순" },
-  { key: "members", label: "모임 인원순" },
-  { key: "created", label: "생성 날짜순" },
-];
-
 function MyRoomCard({
   room,
   onToggleFavorite,
@@ -36,6 +31,8 @@ function MyRoomCard({
   room: RoomListItem;
   onToggleFavorite: (roomId: string, next: boolean) => void;
 }) {
+  const t = useTranslations("main.roomLists");
+  const tTags = useTranslations("tags");
   return (
     <div
       className={`relative overflow-hidden rounded-lg border border-neutral-200/60 transition hover:border-neutral-300 ${paletteBg(room.color)}`}
@@ -47,8 +44,8 @@ function MyRoomCard({
           e.stopPropagation();
           onToggleFavorite(room.id, !room.isFavorite);
         }}
-        aria-label={room.isFavorite ? "즐겨찾기 해제" : "즐겨찾기 추가"}
-        title={room.isFavorite ? "즐겨찾기 해제" : "즐겨찾기 추가"}
+        aria-label={room.isFavorite ? t("favoriteRemove") : t("favoriteAdd")}
+        title={room.isFavorite ? t("favoriteRemove") : t("favoriteAdd")}
         className="absolute right-2 top-2 z-10 text-base leading-none text-amber-500 transition hover:scale-110"
       >
         {room.isFavorite ? "⭐" : "☆"}
@@ -67,11 +64,11 @@ function MyRoomCard({
               key={tag}
               className="rounded-full bg-white/60 px-1.5 py-0.5 text-[11px] text-neutral-600"
             >
-              {tag}
+              {translateRoomTag(tTags, tag)}
             </span>
           ))}
           <span className="ml-auto whitespace-nowrap text-[12px] text-neutral-500">
-            {room.memberCount}명
+            {t("membersSuffix", { count: room.memberCount })}
           </span>
         </span>
       </Link>
@@ -80,6 +77,13 @@ function MyRoomCard({
 }
 
 export function MainRoomLists({ initialRooms }: { initialRooms: RoomListItem[] }) {
+  const t = useTranslations("main.roomLists");
+  const tTags = useTranslations("tags");
+  const SORT_OPTIONS: { key: SortMode; label: string }[] = [
+    { key: "chars", label: t("sortChars") },
+    { key: "members", label: t("sortMembers") },
+    { key: "created", label: t("sortCreated") },
+  ];
   const [rooms, setRooms] = useState(initialRooms);
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
   const [sortMode, setSortMode] = useState<SortMode>("chars");
@@ -192,7 +196,7 @@ export function MainRoomLists({ initialRooms }: { initialRooms: RoomListItem[] }
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-[260px_1fr]">
       <section className="flex flex-col gap-3">
         <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
-          내가 입장한 방
+          {t("myRooms")}
         </h2>
         <div className="flex gap-1.5">
           <CreateRoomButton
@@ -205,10 +209,7 @@ export function MainRoomLists({ initialRooms }: { initialRooms: RoomListItem[] }
           />
         </div>
         {myRooms.length === 0 ? (
-          <p className="text-xs text-neutral-400">
-            아직 입장한 방이 없습니다. 새 방을 만들거나 초대코드로
-            입장해보세요.
-          </p>
+          <p className="text-xs text-neutral-400">{t("noMyRooms")}</p>
         ) : (
           <div className="flex flex-col gap-2">
             {myRooms.map((room) => (
@@ -225,7 +226,7 @@ export function MainRoomLists({ initialRooms }: { initialRooms: RoomListItem[] }
               onClick={() => setSelectedTags(new Set())}
               className="rounded-full border border-neutral-300 px-2 py-0.5 text-[12px] text-neutral-500 transition hover:bg-neutral-50 dark:border-neutral-600 dark:text-neutral-400 dark:hover:bg-neutral-800"
             >
-              초기화
+              {t("reset")}
             </button>
           )}
           {ROOM_TAGS.map((tag) => (
@@ -238,14 +239,14 @@ export function MainRoomLists({ initialRooms }: { initialRooms: RoomListItem[] }
                   : "border-neutral-200 text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
               }`}
             >
-              {tag}
+              {translateRoomTag(tTags, tag)}
             </button>
           ))}
         </div>
 
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
-            전체 / 추천 방
+            {t("allRooms")}
           </h2>
           <div className="flex gap-1">
             {SORT_OPTIONS.map((opt) => (
@@ -267,9 +268,7 @@ export function MainRoomLists({ initialRooms }: { initialRooms: RoomListItem[] }
 
         {allRooms.length === 0 ? (
           <p className="text-xs text-neutral-400">
-            {selectedTags.size > 0
-              ? "선택한 태그와 일치하는 방이 없습니다."
-              : "아직 생성된 방이 없습니다."}
+            {selectedTags.size > 0 ? t("noRoomsMatch") : t("noRoomsYet")}
           </p>
         ) : (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">

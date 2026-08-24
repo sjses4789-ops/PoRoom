@@ -1,0 +1,22 @@
+{
+  "save": "Save",
+  "saving": "Saving...",
+  "cancel": "Cancel",
+  "add": "Add",
+  "delete": "Delete",
+  "loading": "Loading...",
+  "nicknamePlaceholder": "Nickname",
+  "pomodoro": {
+    "focusing": "Focusing",
+    "resting": "Resting"
+  },
+  "todo": {
+    "addPlaceholder": "Add a to-do",
+    "empty": "No to-dos yet."
+  },
+  "attendance": {
+    "weekdays": ["S", "M", "T", "W", "T", "F", "S"],
+    "monthCount": "{count} days attended this month",
+    "streak": "🔥 {count}-day streak"
+  }
+}

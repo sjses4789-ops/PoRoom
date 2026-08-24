@@ -1,0 +1,22 @@
+{
+  "save": "保存",
+  "saving": "保存中...",
+  "cancel": "キャンセル",
+  "add": "追加",
+  "delete": "削除",
+  "loading": "読み込み中...",
+  "nicknamePlaceholder": "ニックネーム",
+  "pomodoro": {
+    "focusing": "集中中",
+    "resting": "休憩中"
+  },
+  "todo": {
+    "addPlaceholder": "やることを追加",
+    "empty": "やることがありません。"
+  },
+  "attendance": {
+    "weekdays": ["日", "月", "火", "水", "木", "金", "土"],
+    "monthCount": "今月の出席 {count}日",
+    "streak": "🔥 連続出席 {count}日"
+  }
+}

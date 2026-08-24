@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { createTodo, updateTodo, deleteTodo } from "@/lib/todos";
 
 export type Todo = { id: string; content: string };
 
 export function TodoList({ initialTodos }: { initialTodos: Todo[] }) {
+  const t = useTranslations("common");
   const [todos, setTodos] = useState<Todo[]>(initialTodos);
   const [input, setInput] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -52,7 +54,7 @@ export function TodoList({ initialTodos }: { initialTodos: Todo[] }) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && add()}
-          placeholder="할 일 추가"
+          placeholder={t("todo.addPlaceholder")}
           className="flex-1 rounded-md border border-neutral-200 px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
         />
         <button
@@ -60,12 +62,12 @@ export function TodoList({ initialTodos }: { initialTodos: Todo[] }) {
           onClick={add}
           className="shrink-0 rounded-md bg-neutral-900 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
         >
-          추가
+          {t("add")}
         </button>
       </div>
 
       {todos.length === 0 ? (
-        <p className="text-[12px] text-neutral-400">할 일이 없습니다.</p>
+        <p className="text-[12px] text-neutral-400">{t("todo.empty")}</p>
       ) : (
         <ul className="flex flex-col gap-1">
           {todos.map((t) => (

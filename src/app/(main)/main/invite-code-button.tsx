@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { useTranslations } from "next-intl";
 import { joinRoomByCode, type ActionResult } from "@/lib/rooms";
 
 export default function InviteCodeButton({
@@ -10,6 +11,7 @@ export default function InviteCodeButton({
   open: boolean;
   onToggle: () => void;
 }) {
+  const t = useTranslations("main.inviteCode");
   const [state, formAction, pending] = useActionState<ActionResult, FormData>(
     joinRoomByCode,
     null
@@ -21,7 +23,7 @@ export default function InviteCodeButton({
         onClick={onToggle}
         className="rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-neutral-700"
       >
-        초대코드로 입장
+        {t("trigger")}
       </button>
       {open && (
         <>
@@ -33,7 +35,7 @@ export default function InviteCodeButton({
             <form action={formAction} className="flex flex-col gap-2">
               <input
                 name="code"
-                placeholder="초대코드 입력"
+                placeholder={t("placeholder")}
                 maxLength={6}
                 className="rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm uppercase text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
               />
@@ -45,7 +47,7 @@ export default function InviteCodeButton({
                 disabled={pending}
                 className="rounded-md bg-neutral-900 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-neutral-700 disabled:opacity-50"
               >
-                {pending ? "입장 중..." : "입장하기"}
+                {pending ? t("entering") : t("enter")}
               </button>
             </form>
           </div>
