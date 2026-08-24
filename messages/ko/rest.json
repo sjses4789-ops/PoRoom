@@ -11,11 +11,9 @@
     "myBest": "내 최고 기록 {cpm}타",
     "noBestYet": "아직 기록이 없어요",
     "inputPlaceholder": "여기에 입력하세요",
-    "saving": "기록 저장 중...",
-    "resultSaved": "기록이 저장됐어요!",
-    "cpmValue": "{cpm}타/분",
-    "accuracyValue": "정확도 {accuracy}%",
-    "nextSentence": "다음 문장"
+    "readyHint": "입력을 시작하면 실시간 속도가 표시돼요",
+    "liveCpm": "실시간 {cpm}타/분",
+    "lastResult": "방금 기록 {cpm}타/분 · 정확도 {accuracy}%"
   },
   "board": {
     "category": {

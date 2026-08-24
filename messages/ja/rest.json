@@ -11,11 +11,9 @@
     "myBest": "自己ベスト {cpm}打/分",
     "noBestYet": "まだ記録がありません",
     "inputPlaceholder": "ここに入力してください",
-    "saving": "記録を保存中...",
-    "resultSaved": "記録が保存されました！",
-    "cpmValue": "{cpm}打/分",
-    "accuracyValue": "正確度 {accuracy}%",
-    "nextSentence": "次の文章"
+    "readyHint": "入力を始めるとリアルタイム速度が表示されます",
+    "liveCpm": "リアルタイム {cpm}打/分",
+    "lastResult": "直前の記録 {cpm}打/分 · 正確度 {accuracy}%"
   },
   "board": {
     "category": {

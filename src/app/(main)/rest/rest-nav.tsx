@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { TypingPractice } from "./typing-practice";
 import { RestBoard, type RestPost } from "./rest-board";
 import type { RestPostCategory } from "@/lib/rest";
@@ -25,6 +25,7 @@ export function RestNav({
 }) {
   const t = useTranslations("rest.nav");
   const tBoard = useTranslations("rest.board");
+  const locale = useLocale();
   const [view, setView] = useState<View>("typing");
 
   return (
@@ -57,7 +58,7 @@ export function RestNav({
 
       <div>
         {view === "typing" ? (
-          <TypingPractice myBestCpm={myBestCpm} />
+          <TypingPractice key={locale} myBestCpm={myBestCpm} />
         ) : (
           <RestBoard
             category={view}

@@ -1,6 +1,8 @@
 // 타자 연습용 예시 문장 — 집필/글쓰기 서비스 성격에 맞게 짧은 문장
-// 위주로 골랐다.
-export const TYPING_SENTENCES: string[] = [
+// 위주로 골랐다. 영어 화면일 때만 영어 문장 풀을 쓰고(일본어/중국어는
+// 자체 예문 없이 한국어 문장을 그대로 쓴다), 그 외엔 한국어 문장 풀을
+// 쓴다.
+const KO_SENTENCES: string[] = [
   "오늘도 한 문장씩 꾸준히 써 내려갑니다.",
   "좋은 글은 한 번에 완성되지 않습니다.",
   "책상 앞에 앉아 첫 문장을 다시 고쳐 씁니다.",
@@ -23,9 +25,31 @@ export const TYPING_SENTENCES: string[] = [
   "쓰고 지우기를 몇 번이고 반복합니다.",
 ];
 
-export function pickRandomSentence(exclude?: string): string {
-  const pool = exclude
-    ? TYPING_SENTENCES.filter((s) => s !== exclude)
-    : TYPING_SENTENCES;
-  return pool[Math.floor(Math.random() * pool.length)];
+const EN_SENTENCES: string[] = [
+  "Every good story starts with a single sentence.",
+  "She stared at the blinking cursor for a while.",
+  "The deadline is closer than it looks today.",
+  "A cup of coffee makes the writing easier.",
+  "He rewrote the first line one more time.",
+  "The next scene is slowly taking shape.",
+  "Small daily habits build a finished draft.",
+  "Editing is where the real writing happens.",
+  "The blank page waits for the first word.",
+  "Every writer fixes typos late at night.",
+  "A short break helps clear a tired mind.",
+  "The character finally says what she means.",
+  "Progress today is better than none at all.",
+  "Readers remember stories, not perfect grammar.",
+  "One word at a time, the chapter grows.",
+  "The quiet morning is perfect for writing.",
+  "Yesterday's draft reads better than expected.",
+  "Choosing the right word can take forever.",
+  "Consistency matters more than raw talent.",
+  "The last paragraph ties the story together.",
+];
+
+export function pickRandomSentence(locale: string, exclude?: string): string {
+  const pool = locale === "en" ? EN_SENTENCES : KO_SENTENCES;
+  const filtered = exclude ? pool.filter((s) => s !== exclude) : pool;
+  return filtered[Math.floor(Math.random() * filtered.length)];
 }

@@ -11,11 +11,9 @@
     "myBest": "Your best: {cpm} cpm",
     "noBestYet": "No record yet",
     "inputPlaceholder": "Type here",
-    "saving": "Saving score...",
-    "resultSaved": "Score saved!",
-    "cpmValue": "{cpm} cpm",
-    "accuracyValue": "{accuracy}% accuracy",
-    "nextSentence": "Next sentence"
+    "readyHint": "Start typing to see your live speed",
+    "liveCpm": "{cpm} cpm live",
+    "lastResult": "Last: {cpm} cpm · {accuracy}% accuracy"
   },
   "board": {
     "category": {
