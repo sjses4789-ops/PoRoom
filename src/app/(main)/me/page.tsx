@@ -2,8 +2,8 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { inPeriod, inRange } from "@/lib/records";
-import { computeStreakDays } from "@/lib/attendance";
-import { todayKst } from "@/lib/time";
+import { computeStreakDays, attendedDatesFromLogs } from "@/lib/attendance";
+import { todayKst, dateInTimezone } from "@/lib/time";
 import { NicknameForm } from "@/components/nickname-form";
 import { PageAdRail } from "@/components/page-ad-rail";
 import { GoalPanel, type PeriodGoal, type PeriodProgress } from "./goal-panel";
@@ -69,9 +69,9 @@ export default async function MePage() {
     await Promise.all([
       supabase
         .from("users")
-        .select("name,character_id")
+        .select("name,character_id,timezone")
         .eq("id", user.id)
-        .maybeSingle<{ name: string | null; character_id: string | null }>(),
+        .maybeSingle<{ name: string | null; character_id: string | null; timezone: string | null }>(),
       supabase
         .from("room_members")
         .select("room_id,rooms(name,is_system)")
@@ -110,6 +110,7 @@ export default async function MePage() {
     { data: workEntryRows },
     { data: pomodoroSessionLogs },
     { data: siteTimeRows },
+    { data: myAttendanceLogs },
   ] = await Promise.all([
     myRoomIds.length
       ? supabase
@@ -190,6 +191,14 @@ export default async function MePage() {
       .select("record_date,seconds")
       .eq("user_id", user.id)
       .returns<{ record_date: string; seconds: number }[]>(),
+    // 출석일은 나라별 자정 기준으로 계산해야 해서, KST로 이미 고정된
+    // daily_records 대신 실제 시각이 남는 activity_logs를 쓴다.
+    supabase
+      .from("activity_logs")
+      .select("type,created_at")
+      .eq("user_id", user.id)
+      .in("type", ["chars_added", "focus_recorded"])
+      .returns<{ type: string; created_at: string }[]>(),
   ]);
 
   const memberCountByRoom = new Map<string, number>();
@@ -204,8 +213,14 @@ export default async function MePage() {
   }));
 
   const today = todayKst();
-  const [todayYear, todayMonth] = today.split("-").map(Number);
   const myGlobalRecords = (allRecords ?? []).filter((r) => r.user_id === user.id);
+
+  // 출석일은 KST가 아니라 각자(브라우저에서 감지해 저장한) 시간대의
+  // 자정 기준으로 센다 — 다른 계산(목표 진행률/랭킹 등)은 여전히
+  // 한국 시간 기준을 유지한다.
+  const userTimezone = myProfile?.timezone ?? null;
+  const userToday = dateInTimezone(new Date(), userTimezone);
+  const [userTodayYear, userTodayMonth] = userToday.split("-").map(Number);
   const myMilestoneLogs = (globalMilestoneLogs ?? []).filter((l) => l.user_id === user.id);
 
   // 대결 랭킹(전체 유저 대상 승패 순위)을 위해 종료된 모든 개인 대결의
@@ -221,12 +236,8 @@ export default async function MePage() {
         .returns<ChallengeParticipantRow[]>()
     : Promise.resolve({ data: [] as ChallengeParticipantRow[] });
 
-  const attendedDates = new Set(
-    myGlobalRecords
-      .filter((r) => r.chars > 0 || r.focus_minutes > 0)
-      .map((r) => r.record_date)
-  );
-  const streakDays = computeStreakDays(attendedDates, today);
+  const attendedDates = attendedDatesFromLogs(myAttendanceLogs ?? [], userTimezone);
+  const streakDays = computeStreakDays(attendedDates, userToday);
 
   // 종료된 개인 간(1:1 이상) 대결의 승/패/무를 집계한다 — 기간 내 값이
   // 가장 높은 참가자가 승, 나 포함 공동 1위면 무, 그 외엔 패.
@@ -399,8 +410,8 @@ export default async function MePage() {
             <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("attendance")}</h2>
             <div className="rounded-lg border border-neutral-200 p-3">
               <AttendanceCalendar
-                year={todayYear}
-                month={todayMonth - 1}
+                year={userTodayYear}
+                month={userTodayMonth - 1}
                 attendedDates={attendedDates}
                 streakDays={streakDays}
               />

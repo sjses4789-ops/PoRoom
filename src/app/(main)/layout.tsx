@@ -9,6 +9,7 @@ import { SiteFooter } from "./site-footer";
 import { PomodoroProvider } from "./pomodoro-context";
 import { PomodoroMiniWidget } from "./pomodoro-mini-widget";
 import { SiteTimeTracker } from "./site-time-tracker";
+import { TimezoneSync } from "./timezone-sync";
 
 export default async function MainLayout({
   children,
@@ -69,7 +70,7 @@ export default async function MainLayout({
         </div>
         <div className="hidden items-center gap-3 text-sm text-neutral-500 dark:text-neutral-400 md:flex">
           <span className="shrink-0 whitespace-nowrap text-xs text-neutral-400 dark:text-neutral-500">
-            집필 프로그램이 필요하다면↠
+            {t("writingAppHint")}
           </span>
           <a
             href="https://pomowriter.oopy.io/"
@@ -89,6 +90,7 @@ export default async function MainLayout({
       <SiteFooter />
       <PomodoroMiniWidget />
       <SiteTimeTracker />
+      <TimezoneSync />
     </div>
     </PomodoroProvider>
   );

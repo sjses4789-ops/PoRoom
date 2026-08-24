@@ -32,6 +32,26 @@ export async function setNickname(
   redirect(redirectTo);
 }
 
+// 출석일 계산에 쓸 시간대를 브라우저에서 감지해 저장한다(TimezoneSync
+// 컴포넌트가 호출). 매번 쓰지 않도록 호출 쪽에서 이미 달라졌을 때만
+// 부르지만, 여기서도 한 번 더 값이 같으면 건너뛴다.
+export async function syncTimezone(timezone: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const { data: existing } = await supabase
+    .from("users")
+    .select("timezone")
+    .eq("id", user.id)
+    .maybeSingle<{ timezone: string | null }>();
+  if (existing?.timezone === timezone) return;
+
+  await supabase.from("users").update({ timezone }).eq("id", user.id);
+}
+
 export async function setCharacter(characterId: string) {
   const supabase = await createClient();
   const {

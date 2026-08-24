@@ -32,6 +32,18 @@ export function toLocalDateKey(d: Date) {
   return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
 }
 
+// 출석일은 나라마다 자정 기준으로 세야 해서(한국=KST, 그 외=각자 시간대)
+// 사용자가 저장해둔 IANA 시간대로 날짜를 계산한다. 알 수 없는/저장되지
+// 않은 시간대는 한국 기준으로 취급한다.
+export function dateInTimezone(date: Date, timezone: string | null): string {
+  if (!timezone) return todayKst(date);
+  try {
+    return new Intl.DateTimeFormat("en-CA", { timeZone: timezone }).format(date);
+  } catch {
+    return todayKst(date);
+  }
+}
+
 // A work session that starts late at night (23:00+) and keeps running past
 // midnight is still logged against the day it started, up until 01:00 —
 // otherwise every new calendar day resets which daily_records row writes

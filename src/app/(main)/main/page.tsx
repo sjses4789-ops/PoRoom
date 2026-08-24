@@ -1,8 +1,8 @@
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { PageAdRail } from "@/components/page-ad-rail";
-import { computeStreakDays } from "@/lib/attendance";
-import { todayKst } from "@/lib/time";
+import { computeStreakDays, attendedDatesFromLogs } from "@/lib/attendance";
+import { todayKst, dateInTimezone } from "@/lib/time";
 import { ensureChallengeTodos } from "@/lib/system-challenges";
 import { SystemRoomButton } from "./system-room-buttons";
 import { MainRoomLists } from "./main-room-lists";
@@ -39,7 +39,6 @@ export default async function MainPage() {
 
   const today = todayKst();
   const monthPrefix = today.slice(0, 7);
-  const [todayYear, todayMonth] = today.split("-").map(Number);
 
   // 참여 중인 챌린지가 있으면 "매일 5천자 쓰기" 같은 항목을 할 일
   // 목록에 오늘치로 채워둔다 (없을 때만 추가되므로 매일 방문할 때마다
@@ -55,6 +54,8 @@ export default async function MainPage() {
     { data: globalRecords },
     { data: myGoalRows },
     { count: totalUsers },
+    { data: myProfile },
+    { data: myAttendanceLogs },
   ] = await Promise.all([
     supabase
       .from("rooms")
@@ -83,6 +84,19 @@ export default async function MainPage() {
       .eq("period", "month")
       .maybeSingle<{ target_chars: number }>(),
     supabase.from("users").select("*", { count: "exact", head: true }),
+    supabase
+      .from("users")
+      .select("timezone")
+      .eq("id", user!.id)
+      .maybeSingle<{ timezone: string | null }>(),
+    // 출석일은 나라별 자정 기준으로 계산해야 해서, KST로 이미 고정된
+    // daily_records 대신 실제 시각이 남는 activity_logs를 쓴다.
+    supabase
+      .from("activity_logs")
+      .select("type,created_at")
+      .eq("user_id", user!.id)
+      .in("type", ["chars_added", "focus_recorded"])
+      .returns<{ type: string; created_at: string }[]>(),
   ]);
 
   await ensureTodosPromise;
@@ -103,7 +117,6 @@ export default async function MainPage() {
   const allTimeCharsByRoom = new Map<string, number>();
   const monthCharsByRoom = new Map<string, number>();
   let selfTodayChars = 0;
-  const selfAttendedDates = new Set<string>();
 
   const monthCharsByUser = new Map<string, number>();
   for (const r of globalRecords ?? []) {
@@ -131,16 +144,25 @@ export default async function MainPage() {
     .returns<{ record_date: string; chars: number; focus_minutes: number }[]>();
 
   let monthProgressChars = 0;
-  const allAttendedDates = new Set<string>();
   for (const r of myRecords ?? []) {
     if (r.record_date === today) selfTodayChars += r.chars;
-    if (r.chars > 0 || r.focus_minutes > 0) allAttendedDates.add(r.record_date);
     if (r.record_date.startsWith(monthPrefix)) {
       monthProgressChars += r.chars;
-      if (r.chars > 0 || r.focus_minutes > 0) selfAttendedDates.add(r.record_date);
     }
   }
-  const streakDays = computeStreakDays(allAttendedDates, today);
+
+  // 출석일은 KST가 아니라 각자(브라우저에서 감지해 저장한) 시간대의
+  // 자정 기준으로 센다 — 다른 계산(이번 달 목표 진행률/랭킹 등)은
+  // 여전히 한국 시간 기준을 유지한다.
+  const userTimezone = myProfile?.timezone ?? null;
+  const userToday = dateInTimezone(new Date(), userTimezone);
+  const [userTodayYear, userTodayMonth] = userToday.split("-").map(Number);
+  const allAttendedDates = attendedDatesFromLogs(myAttendanceLogs ?? [], userTimezone);
+  const userMonthPrefix = userToday.slice(0, 7);
+  const selfAttendedDates = new Set(
+    Array.from(allAttendedDates).filter((d) => d.startsWith(userMonthPrefix))
+  );
+  const streakDays = computeStreakDays(allAttendedDates, userToday);
 
   // 마감방/새벽반은 위쪽 전용 버튼으로 입장하는 상시 시스템 방이라
   // 일반 방 목록에는 노출하지 않는다.
@@ -205,8 +227,8 @@ export default async function MainPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_220px]">
         <MainDashboard
           todayChars={selfTodayChars}
-          year={todayYear}
-          month={todayMonth - 1}
+          year={userTodayYear}
+          month={userTodayMonth - 1}
           attendedDates={selfAttendedDates}
           streakDays={streakDays}
           monthGoalChars={myGoalRows?.target_chars ?? 0}
