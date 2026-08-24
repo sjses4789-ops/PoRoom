@@ -1,17 +1,13 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { useTranslations } from "next-intl";
 import { saveGoal } from "@/lib/goals";
 import type { ActionResult } from "@/lib/rooms";
 import GoalBar from "./goal-bar";
 
 export type PeriodGoal = { targetChars: number; targetMinutes: number };
 export type PeriodProgress = { chars: number; minutes: number };
-
-const PERIODS = [
-  { key: "month" as const, label: "이번 달" },
-  { key: "year" as const, label: "올해" },
-];
 
 export function GoalPanel({
   goals,
@@ -20,6 +16,11 @@ export function GoalPanel({
   goals: Record<"month" | "year", PeriodGoal>;
   progress: Record<"month" | "year", PeriodProgress>;
 }) {
+  const t = useTranslations("me.goalPanel");
+  const PERIODS = [
+    { key: "month" as const, label: t("periodMonth") },
+    { key: "year" as const, label: t("periodYear") },
+  ];
   const [period, setPeriod] = useState<"month" | "year">("month");
   const [state, formAction, pending] = useActionState<ActionResult, FormData>(
     saveGoal,
@@ -49,23 +50,23 @@ export function GoalPanel({
 
       <div className="flex flex-col gap-3">
         <GoalBar
-          label="글자수 목표"
+          label={t("charsGoalLabel")}
           current={prog.chars}
           target={goal.targetChars}
-          unit="자"
+          unit={t("charsUnit")}
         />
         <GoalBar
-          label="시간 목표"
+          label={t("timeGoalLabel")}
           current={prog.minutes}
           target={goal.targetMinutes}
-          unit="분"
+          unit={t("minutesUnit")}
         />
       </div>
 
       <form action={formAction} className="flex flex-col gap-2 sm:flex-row sm:items-end">
         <input type="hidden" name="period" value={period} />
         <label className="flex w-20 shrink-0 flex-col gap-1 text-[12px] text-neutral-500">
-          목표 글자수
+          {t("charsFieldLabel")}
           <input
             name="targetChars"
             type="number"
@@ -76,7 +77,7 @@ export function GoalPanel({
           />
         </label>
         <label className="flex w-16 shrink-0 flex-col gap-1 text-[12px] text-neutral-500">
-          목표 시간(분)
+          {t("minutesFieldLabel")}
           <input
             name="targetMinutes"
             type="number"
@@ -91,7 +92,7 @@ export function GoalPanel({
           disabled={pending}
           className="rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-neutral-700 disabled:opacity-50"
         >
-          {pending ? "저장 중..." : "저장"}
+          {pending ? t("saving") : t("save")}
         </button>
       </form>
       {state?.error && <p className="text-xs text-red-500">{state.error}</p>}

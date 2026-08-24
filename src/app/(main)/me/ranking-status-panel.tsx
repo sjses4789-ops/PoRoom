@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 export type RoomMeta = { id: string; name: string; memberCount: number };
 export type RoomMemberRow = { room_id: string; user_id: string };
@@ -34,6 +35,7 @@ export function RankingStatusPanel({
   challengeRank: number | null;
   challengeTotal: number;
 }) {
+  const t = useTranslations("me.rankingStatus");
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth());
@@ -86,7 +88,7 @@ export function RankingStatusPanel({
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
-          랭킹 현황
+          {t("title")}
         </h2>
         <div className="flex items-center gap-2">
         <button
@@ -97,7 +99,7 @@ export function RankingStatusPanel({
           ◀
         </button>
         <span className="text-xs font-medium text-neutral-700 dark:text-neutral-200">
-          {year}년 {month + 1}월
+          {t("yearMonth", { year, month: month + 1 })}
         </span>
         <button
           type="button"
@@ -111,9 +113,9 @@ export function RankingStatusPanel({
       </div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800 dark:bg-neutral-900">
-          <p className="text-xs text-neutral-500 dark:text-neutral-400">방 기준</p>
+          <p className="text-xs text-neutral-500 dark:text-neutral-400">{t("byRoom")}</p>
           {roomRanks.length === 0 ? (
-            <p className="mt-1 text-sm text-neutral-400">입장한 방 없음</p>
+            <p className="mt-1 text-sm text-neutral-400">{t("noRooms")}</p>
           ) : (
             <ul className="mt-1 flex flex-col gap-2">
               {roomRanks.map((room) => (
@@ -122,7 +124,7 @@ export function RankingStatusPanel({
                     {room.name}
                   </span>
                   <span className="pl-1 text-xs text-neutral-500 dark:text-neutral-400">
-                    내 {room.rank}위 / {room.memberCount}명
+                    {t("myRank", { rank: room.rank, count: room.memberCount })}
                   </span>
                 </li>
               ))}
@@ -130,17 +132,19 @@ export function RankingStatusPanel({
           )}
         </div>
         <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800 dark:bg-neutral-900">
-          <p className="text-xs text-neutral-500 dark:text-neutral-400">전체 기준</p>
+          <p className="text-xs text-neutral-500 dark:text-neutral-400">{t("overall")}</p>
           <p className="mt-1 text-sm text-neutral-900 dark:text-white">
-            전체 {overallRank}위 / {totalUsers}명
+            {t("overallRank", { rank: overallRank, total: totalUsers })}
           </p>
           <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-            {winLossRank === null ? "대결 기록 없음" : `대결 ${winLossRank}위 / ${winLossTotal}명`}
+            {winLossRank === null
+              ? t("noCompete")
+              : t("competeRank", { rank: winLossRank, total: winLossTotal })}
           </p>
           <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
             {challengeRank === null
-              ? "챌린지 기록 없음"
-              : `챌린지 ${challengeRank}위 / ${challengeTotal}명`}
+              ? t("noChallenge")
+              : t("challengeRank", { rank: challengeRank, total: challengeTotal })}
           </p>
         </div>
       </div>

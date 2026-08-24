@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { WORK_LINE_COLORS as LINE_COLORS } from "@/lib/work-colors";
 
 export type WorkMeta = { id: string; title: string };
@@ -28,11 +29,12 @@ export function WorkChart({
   records: WorkRecordPoint[];
   entries: WorkEntryPoint[];
 }) {
+  const t = useTranslations("me.workChart");
   const [period, setPeriod] = useState<"entry" | "day" | "month">("day");
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const header = (
-    <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">작품별 글자수</h2>
+    <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("title")}</h2>
   );
 
   if (works.length === 0) {
@@ -40,7 +42,7 @@ export function WorkChart({
       <div className="flex flex-col gap-3">
         {header}
         <p className="text-xs text-neutral-400">
-          등록된 작품이 없습니다. 오른쪽 작품 목록에서 추가해보세요.
+          {t("noWorks")}
         </p>
       </div>
     );
@@ -50,9 +52,9 @@ export function WorkChart({
     <div className="flex items-center gap-1">
       {(
         [
-          { key: "entry" as const, label: "입력 기준" },
-          { key: "day" as const, label: "일자별" },
-          { key: "month" as const, label: "월별" },
+          { key: "entry" as const, label: t("periodEntry") },
+          { key: "day" as const, label: t("periodDay") },
+          { key: "month" as const, label: t("periodMonth") },
         ]
       ).map((p) => (
         <button
@@ -114,13 +116,13 @@ export function WorkChart({
         {header}
         <div className="flex items-center gap-2">
           <span className="text-[12px] text-neutral-500 dark:text-neutral-400">
-            {activeWork?.title}의 입력별 변동
+            {t("entryChangeFor", { title: activeWork?.title ?? "" })}
           </span>
           {periodSelector}
         </div>
 
         {workEntries.length === 0 ? (
-          <p className="text-xs text-neutral-400">아직 입력 기록이 없습니다.</p>
+          <p className="text-xs text-neutral-400">{t("noEntries")}</p>
         ) : (
           <div className="overflow-x-auto pb-1">
             <svg
@@ -190,7 +192,7 @@ export function WorkChart({
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
       buckets.push({
         key: `${d.getFullYear()}-${pad2(d.getMonth() + 1)}`,
-        label: `${d.getMonth() + 1}월`,
+        label: t("monthLabel", { month: d.getMonth() + 1 }),
       });
     }
   }
@@ -217,7 +219,7 @@ export function WorkChart({
     <div className="flex flex-col gap-3">
       {header}
       <div className="flex items-center gap-2">
-        <span className="text-[12px] text-neutral-500 dark:text-neutral-400">기준</span>
+        <span className="text-[12px] text-neutral-500 dark:text-neutral-400">{t("basis")}</span>
         {periodSelector}
       </div>
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { createWork, deleteWork } from "@/lib/works";
 import { WORK_LINE_COLORS as LINE_COLORS } from "@/lib/work-colors";
 import type { WorkMeta } from "./work-chart";
@@ -12,6 +13,7 @@ export function WorkList({
   works: WorkMeta[];
   onWorksChange: (updater: (prev: WorkMeta[]) => WorkMeta[]) => void;
 }) {
+  const t = useTranslations("me.workList");
   const [adding, setAdding] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [pending, setPending] = useState(false);
@@ -30,7 +32,7 @@ export function WorkList({
   };
 
   const removeWork = async (work: WorkMeta) => {
-    if (!window.confirm(`"${work.title}" 작품을 삭제할까요? 그래프에서도 사라져요.`)) return;
+    if (!window.confirm(t("deleteConfirm", { title: work.title }))) return;
     setBusyId(work.id);
     await deleteWork(work.id);
     onWorksChange((prev) => prev.filter((w) => w.id !== work.id));
@@ -40,11 +42,11 @@ export function WorkList({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">작품 목록</h2>
+        <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("title")}</h2>
         <button
           type="button"
           onClick={() => setAdding((v) => !v)}
-          title="작품 추가"
+          title={t("addTitle")}
           className="flex h-6 w-6 items-center justify-center rounded-full border border-neutral-200 text-neutral-500 transition hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
         >
           +
@@ -58,7 +60,7 @@ export function WorkList({
             value={newTitle}
             onChange={(e) => setNewTitle(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && confirmAdd()}
-            placeholder="작품 이름"
+            placeholder={t("namePlaceholder")}
             className="min-w-0 flex-1 rounded-md border border-neutral-200 px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
           />
           <button
@@ -67,13 +69,13 @@ export function WorkList({
             disabled={pending}
             className="shrink-0 rounded-md bg-neutral-900 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-neutral-700 disabled:opacity-50 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
           >
-            추가
+            {t("add")}
           </button>
         </div>
       )}
 
       {works.length === 0 ? (
-        <p className="text-xs text-neutral-400">등록된 작품이 없습니다.</p>
+        <p className="text-xs text-neutral-400">{t("noWorks")}</p>
       ) : (
         <ul className="flex max-h-64 flex-col divide-y divide-neutral-100 overflow-y-auto dark:divide-neutral-800">
           {works.map((w, i) => (
@@ -89,7 +91,7 @@ export function WorkList({
                 type="button"
                 onClick={() => removeWork(w)}
                 disabled={busyId === w.id}
-                title="작품 삭제"
+                title={t("deleteTitle")}
                 className="shrink-0 text-neutral-300 transition hover:text-red-500 disabled:opacity-50 dark:text-neutral-600"
               >
                 ✕

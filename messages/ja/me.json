@@ -1,4 +1,84 @@
 {
+  "page": {
+    "title": "個人",
+    "accountInfo": "アカウント情報",
+    "noNickname": "ニックネームなし",
+    "joinDate": "登録日 {date}",
+    "changeNickname": "ニックネーム変更",
+    "changeNicknameSubmit": "変更",
+    "attendance": "出席日",
+    "todo": "やることリスト",
+    "goalStatus": "目標状況",
+    "competeStatus": "対決状況",
+    "competeStatusSubtitle": "終了した個人対決",
+    "challengeRecord": "チャレンジ記録",
+    "challengeRecordSubtitle": "システムチャレンジの参加・成功",
+    "unknownRoom": "不明な部屋"
+  },
+  "challengeRecordPanel": {
+    "noRecords": "終了した個人対決の記録がありません。",
+    "summary": "計{total}戦 {wins}勝{losses}敗",
+    "drawSuffix": " {draws}分",
+    "win": "勝 {wins}",
+    "loss": "敗 {losses}",
+    "draw": "分 {draws}"
+  },
+  "characterSection": {
+    "changeCharacter": "キャラクター変更"
+  },
+  "characterPicker": {
+    "hint": "選んだキャラクターはルーム内の参加者カードに表示されます。"
+  },
+  "systemChallengeRecordPanel": {
+    "joined": "参加中",
+    "notJoined": "未参加",
+    "successCount": "成功 {count}回"
+  },
+  "goalPanel": {
+    "periodMonth": "今月",
+    "periodYear": "今年",
+    "charsGoalLabel": "文字数目標",
+    "timeGoalLabel": "時間目標",
+    "charsUnit": "字",
+    "minutesUnit": "分",
+    "charsFieldLabel": "目標文字数",
+    "minutesFieldLabel": "目標時間(分)",
+    "saving": "保存中...",
+    "save": "保存"
+  },
+  "workChart": {
+    "title": "作品別文字数",
+    "noWorks": "登録された作品がありません。右の作品リストから追加してください。",
+    "periodEntry": "入力基準",
+    "periodDay": "日別",
+    "periodMonth": "月別",
+    "entryChangeFor": "{title}の入力別変動",
+    "noEntries": "まだ入力記録がありません。",
+    "basis": "基準",
+    "monthLabel": "{month}月"
+  },
+  "rankingStatus": {
+    "title": "ランキング状況",
+    "yearMonth": "{year}年{month}月",
+    "byRoom": "ルーム基準",
+    "noRooms": "参加中の部屋なし",
+    "myRank": "自分 {rank}位 / {count}人",
+    "overall": "全体基準",
+    "overallRank": "全体 {rank}位 / {total}人",
+    "noCompete": "対決記録なし",
+    "competeRank": "対決 {rank}位 / {total}人",
+    "noChallenge": "チャレンジ記録なし",
+    "challengeRank": "チャレンジ {rank}位 / {total}人"
+  },
+  "workList": {
+    "title": "作品リスト",
+    "addTitle": "作品追加",
+    "namePlaceholder": "作品名",
+    "add": "追加",
+    "noWorks": "登録された作品がありません。",
+    "deleteConfirm": "「{title}」を削除しますか？グラフからも削除されます。",
+    "deleteTitle": "作品削除"
+  },
   "pomodoroStats": {
     "title": "ポモドーロ統計",
     "byDay": "日別",

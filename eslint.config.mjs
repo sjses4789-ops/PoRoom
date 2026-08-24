@@ -12,6 +12,11 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Background-agent git worktrees (each has its own node_modules/.next
+    // build output) live nested under .claude/ — without a recursive
+    // pattern here, ESLint happily walks into them and lints their
+    // generated files too.
+    "**/.claude/**",
   ]),
 ]);
 

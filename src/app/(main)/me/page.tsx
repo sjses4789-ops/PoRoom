@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { inPeriod, inRange } from "@/lib/records";
 import { computeStreakDays } from "@/lib/attendance";
@@ -12,6 +13,7 @@ import { ChallengeRecordPanel } from "./challenge-record-panel";
 import { SystemChallengeRecordPanel } from "./system-challenge-record-panel";
 import { RankingStatusPanel } from "./ranking-status-panel";
 import { WorksPanel } from "./works-panel";
+import { PomodoroStatsPanel } from "./pomodoro-stats-panel";
 import { TodoList, type Todo } from "@/components/todo-list";
 import { ensureChallengeTodos, type SystemChallengeKind } from "@/lib/system-challenges";
 import {
@@ -32,6 +34,7 @@ type GlobalRecordRow = {
   record_date: string;
   chars: number;
   focus_minutes: number;
+  break_minutes: number;
 };
 type GoalRow = {
   period: "month" | "year";
@@ -49,6 +52,7 @@ type ChallengeRow = {
 };
 
 export default async function MePage() {
+  const t = await getTranslations("me.page");
   const supabase = await createClient();
   const {
     data: { user },
@@ -104,6 +108,8 @@ export default async function MePage() {
     { data: workRows },
     { data: workRecordRows },
     { data: workEntryRows },
+    { data: pomodoroSessionLogs },
+    { data: siteTimeRows },
   ] = await Promise.all([
     myRoomIds.length
       ? supabase
@@ -121,7 +127,7 @@ export default async function MePage() {
       : Promise.resolve({ data: [] as RecordRow[] }),
     supabase
       .from("daily_records")
-      .select("user_id,record_date,chars,focus_minutes")
+      .select("user_id,record_date,chars,focus_minutes,break_minutes")
       .returns<GlobalRecordRow[]>(),
     supabase.from("users").select("*", { count: "exact", head: true }),
     supabase
@@ -171,6 +177,19 @@ export default async function MePage() {
       .select("work_id,delta,created_at")
       .eq("user_id", user.id)
       .returns<{ work_id: string; delta: number; created_at: string }[]>(),
+    // 뽀모도로 통계(하단 패널)의 "일별 횟수"는 뽀모도로를 (재)시작할 때마다
+    // 남는 session_start 로그로 센다.
+    supabase
+      .from("activity_logs")
+      .select("created_at")
+      .eq("user_id", user.id)
+      .eq("type", "session_start")
+      .returns<{ created_at: string }[]>(),
+    supabase
+      .from("site_time_logs")
+      .select("record_date,seconds")
+      .eq("user_id", user.id)
+      .returns<{ record_date: string; seconds: number }[]>(),
   ]);
 
   const memberCountByRoom = new Map<string, number>();
@@ -180,7 +199,7 @@ export default async function MePage() {
 
   const myRooms = (myRoomRows ?? []).map((r) => ({
     id: r.room_id,
-    name: r.rooms?.name ?? "알 수 없는 방",
+    name: r.rooms?.name ?? t("unknownRoom"),
     memberCount: memberCountByRoom.get(r.room_id) ?? 0,
   }));
 
@@ -259,6 +278,19 @@ export default async function MePage() {
     };
   };
 
+  const pomodoroSessions = (pomodoroSessionLogs ?? []).map((r) => ({
+    date: todayKst(new Date(r.created_at)),
+  }));
+  const pomodoroMinutes = myGlobalRecords.map((r) => ({
+    date: r.record_date,
+    focusMinutes: r.focus_minutes,
+    breakMinutes: r.break_minutes,
+  }));
+  const siteTime = (siteTimeRows ?? []).map((r) => ({
+    date: r.record_date,
+    seconds: r.seconds,
+  }));
+
   const works = workRows ?? [];
   const workRecords = (workRecordRows ?? []).map((r) => ({
     workId: r.work_id,
@@ -332,30 +364,30 @@ export default async function MePage() {
     <PageAdRail>
     <div className="flex flex-col gap-10">
       <h1 className="text-lg font-semibold tracking-tight text-neutral-900 dark:text-white">
-        개인
+        {t("title")}
       </h1>
 
       <section className="flex flex-col gap-3">
-        <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">계정 정보</h2>
+        <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("accountInfo")}</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div className="rounded-lg border border-neutral-200 p-4 text-sm">
             <div className="flex flex-col gap-1">
-              <span className="text-neutral-900 dark:text-white">{myProfile?.name ?? "닉네임 없음"}</span>
+              <span className="text-neutral-900 dark:text-white">{myProfile?.name ?? t("noNickname")}</span>
               <span className="text-neutral-500">{user.email}</span>
               <span className="text-[12px] text-neutral-400">
-                가입일 {user.created_at.slice(0, 10).replace(/-/g, ".")}
+                {t("joinDate", { date: user.created_at.slice(0, 10).replace(/-/g, ".") })}
               </span>
             </div>
           </div>
           <CharacterSection initialCharacterId={myProfile?.character_id ?? null} />
           <div className="rounded-lg border border-neutral-200 p-4">
             <h3 className="mb-2 text-xs font-semibold text-neutral-500">
-              닉네임 변경
+              {t("changeNickname")}
             </h3>
             <NicknameForm
               defaultValue={myProfile?.name ?? ""}
               redirectTo="/me"
-              submitLabel="변경"
+              submitLabel={t("changeNicknameSubmit")}
             />
           </div>
         </div>
@@ -364,7 +396,7 @@ export default async function MePage() {
       <section className="flex flex-col gap-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div className="flex flex-col gap-4">
-            <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">출석일</h2>
+            <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("attendance")}</h2>
             <div className="rounded-lg border border-neutral-200 p-3">
               <AttendanceCalendar
                 year={todayYear}
@@ -375,14 +407,14 @@ export default async function MePage() {
             </div>
           </div>
           <div className="flex flex-col gap-4">
-            <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">할 일</h2>
+            <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("todo")}</h2>
             <div className="rounded-lg border border-neutral-200 p-3 dark:border-neutral-800 dark:bg-neutral-900">
               <TodoList initialTodos={todos} />
             </div>
           </div>
           <div className="flex flex-col gap-4">
             <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
-              목표 현황
+              {t("goalStatus")}
             </h2>
             <GoalPanel goals={goals} progress={progress} />
           </div>
@@ -406,16 +438,16 @@ export default async function MePage() {
             />
           </div>
           <div className="flex flex-col gap-3">
-            <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">대결 현황</h2>
+            <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("competeStatus")}</h2>
             <div className="rounded-lg border border-neutral-200 p-4">
-              <p className="text-xs text-neutral-500">종료된 개인 대결</p>
+              <p className="text-xs text-neutral-500">{t("competeStatusSubtitle")}</p>
               <ChallengeRecordPanel wins={wins} losses={losses} draws={draws} />
             </div>
           </div>
           <div className="flex flex-col gap-3">
-            <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">챌린지 기록</h2>
+            <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("challengeRecord")}</h2>
             <div className="rounded-lg border border-neutral-200 p-4">
-              <p className="text-xs text-neutral-500">시스템 챌린지 참여/성공</p>
+              <p className="text-xs text-neutral-500">{t("challengeRecordSubtitle")}</p>
               <SystemChallengeRecordPanel
                 joined={systemChallengeJoined}
                 successCounts={systemChallengeSuccessCounts}
@@ -427,6 +459,10 @@ export default async function MePage() {
 
       <section className="flex flex-col gap-3">
         <WorksPanel works={works} records={workRecords} entries={workEntries} />
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <PomodoroStatsPanel sessions={pomodoroSessions} minutes={pomodoroMinutes} siteTime={siteTime} />
       </section>
     </div>
     </PageAdRail>

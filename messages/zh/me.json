@@ -1,4 +1,84 @@
 {
+  "page": {
+    "title": "个人",
+    "accountInfo": "账户信息",
+    "noNickname": "无昵称",
+    "joinDate": "注册日 {date}",
+    "changeNickname": "修改昵称",
+    "changeNicknameSubmit": "修改",
+    "attendance": "出勤日",
+    "todo": "待办事项",
+    "goalStatus": "目标进度",
+    "competeStatus": "对战记录",
+    "competeStatusSubtitle": "已结束的个人对战",
+    "challengeRecord": "挑战记录",
+    "challengeRecordSubtitle": "系统挑战参与/成功次数",
+    "unknownRoom": "未知房间"
+  },
+  "challengeRecordPanel": {
+    "noRecords": "暂无已结束的个人对战记录。",
+    "summary": "共{total}场 {wins}胜{losses}负",
+    "drawSuffix": " {draws}平",
+    "win": "胜 {wins}",
+    "loss": "负 {losses}",
+    "draw": "平 {draws}"
+  },
+  "characterSection": {
+    "changeCharacter": "更换角色"
+  },
+  "characterPicker": {
+    "hint": "所选角色将显示在房间内的参与者卡片上。"
+  },
+  "systemChallengeRecordPanel": {
+    "joined": "参与中",
+    "notJoined": "未参与",
+    "successCount": "成功 {count}次"
+  },
+  "goalPanel": {
+    "periodMonth": "本月",
+    "periodYear": "今年",
+    "charsGoalLabel": "字数目标",
+    "timeGoalLabel": "时间目标",
+    "charsUnit": "字",
+    "minutesUnit": "分钟",
+    "charsFieldLabel": "目标字数",
+    "minutesFieldLabel": "目标时间(分钟)",
+    "saving": "保存中...",
+    "save": "保存"
+  },
+  "workChart": {
+    "title": "各作品字数",
+    "noWorks": "还没有登记的作品。请在右侧作品列表中添加。",
+    "periodEntry": "按录入",
+    "periodDay": "按日",
+    "periodMonth": "按月",
+    "entryChangeFor": "{title}的录入变化",
+    "noEntries": "暂无录入记录。",
+    "basis": "统计方式",
+    "monthLabel": "{month}月"
+  },
+  "rankingStatus": {
+    "title": "排名情况",
+    "yearMonth": "{year}年{month}月",
+    "byRoom": "按房间",
+    "noRooms": "尚未加入房间",
+    "myRank": "我 第{rank}名 / {count}人",
+    "overall": "按全体",
+    "overallRank": "全体 第{rank}名 / {total}人",
+    "noCompete": "暂无对战记录",
+    "competeRank": "对战 第{rank}名 / {total}人",
+    "noChallenge": "暂无挑战记录",
+    "challengeRank": "挑战 第{rank}名 / {total}人"
+  },
+  "workList": {
+    "title": "作品列表",
+    "addTitle": "添加作品",
+    "namePlaceholder": "作品名称",
+    "add": "添加",
+    "noWorks": "还没有登记的作品。",
+    "deleteConfirm": "确定删除《{title}》吗？图表中的数据也会一并删除。",
+    "deleteTitle": "删除作品"
+  },
   "pomodoroStats": {
     "title": "番茄钟统计",
     "byDay": "按日",

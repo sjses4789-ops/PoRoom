@@ -1,4 +1,84 @@
 {
+  "page": {
+    "title": "개인",
+    "accountInfo": "계정 정보",
+    "noNickname": "닉네임 없음",
+    "joinDate": "가입일 {date}",
+    "changeNickname": "닉네임 변경",
+    "changeNicknameSubmit": "변경",
+    "attendance": "출석일",
+    "todo": "할 일",
+    "goalStatus": "목표 현황",
+    "competeStatus": "대결 현황",
+    "competeStatusSubtitle": "종료된 개인 대결",
+    "challengeRecord": "챌린지 기록",
+    "challengeRecordSubtitle": "시스템 챌린지 참여/성공",
+    "unknownRoom": "알 수 없는 방"
+  },
+  "challengeRecordPanel": {
+    "noRecords": "종료된 개인 대결 기록이 없습니다.",
+    "summary": "총 {total}전 {wins}승 {losses}패",
+    "drawSuffix": " {draws}무",
+    "win": "승 {wins}",
+    "loss": "패 {losses}",
+    "draw": "무 {draws}"
+  },
+  "characterSection": {
+    "changeCharacter": "캐릭터 변경"
+  },
+  "characterPicker": {
+    "hint": "선택한 캐릭터는 방 안 참여자 카드에 표시돼요."
+  },
+  "systemChallengeRecordPanel": {
+    "joined": "참여 중",
+    "notJoined": "미참여",
+    "successCount": "성공 {count}회"
+  },
+  "goalPanel": {
+    "periodMonth": "이번 달",
+    "periodYear": "올해",
+    "charsGoalLabel": "글자수 목표",
+    "timeGoalLabel": "시간 목표",
+    "charsUnit": "자",
+    "minutesUnit": "분",
+    "charsFieldLabel": "목표 글자수",
+    "minutesFieldLabel": "목표 시간(분)",
+    "saving": "저장 중...",
+    "save": "저장"
+  },
+  "workChart": {
+    "title": "작품별 글자수",
+    "noWorks": "등록된 작품이 없습니다. 오른쪽 작품 목록에서 추가해보세요.",
+    "periodEntry": "입력 기준",
+    "periodDay": "일자별",
+    "periodMonth": "월별",
+    "entryChangeFor": "{title}의 입력별 변동",
+    "noEntries": "아직 입력 기록이 없습니다.",
+    "basis": "기준",
+    "monthLabel": "{month}월"
+  },
+  "rankingStatus": {
+    "title": "랭킹 현황",
+    "yearMonth": "{year}년 {month}월",
+    "byRoom": "방 기준",
+    "noRooms": "입장한 방 없음",
+    "myRank": "내 {rank}위 / {count}명",
+    "overall": "전체 기준",
+    "overallRank": "전체 {rank}위 / {total}명",
+    "noCompete": "대결 기록 없음",
+    "competeRank": "대결 {rank}위 / {total}명",
+    "noChallenge": "챌린지 기록 없음",
+    "challengeRank": "챌린지 {rank}위 / {total}명"
+  },
+  "workList": {
+    "title": "작품 목록",
+    "addTitle": "작품 추가",
+    "namePlaceholder": "작품 이름",
+    "add": "추가",
+    "noWorks": "등록된 작품이 없습니다.",
+    "deleteConfirm": "\"{title}\" 작품을 삭제할까요? 그래프에서도 사라져요.",
+    "deleteTitle": "작품 삭제"
+  },
   "pomodoroStats": {
     "title": "뽀모도로 통계",
     "byDay": "일별",

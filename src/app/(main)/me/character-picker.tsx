@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { setCharacter } from "@/lib/profile";
 import { CHARACTER_IDS, characterSrc } from "@/lib/characters";
 
@@ -12,6 +13,7 @@ export function CharacterPicker({
   initialCharacterId: string | null;
   onSelected?: (id: string) => void;
 }) {
+  const t = useTranslations("me.characterPicker");
   const [selected, setSelected] = useState(initialCharacterId);
   const [pending, startTransition] = useTransition();
 
@@ -50,7 +52,7 @@ export function CharacterPicker({
         })}
       </div>
       <p className="text-[12px] text-neutral-400">
-        선택한 캐릭터는 방 안 참여자 카드에 표시돼요.
+        {t("hint")}
       </p>
     </div>
   );

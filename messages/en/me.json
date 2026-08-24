@@ -1,4 +1,84 @@
 {
+  "page": {
+    "title": "Profile",
+    "accountInfo": "Account Info",
+    "noNickname": "No nickname",
+    "joinDate": "Joined {date}",
+    "changeNickname": "Change Nickname",
+    "changeNicknameSubmit": "Change",
+    "attendance": "Attendance",
+    "todo": "To-Do",
+    "goalStatus": "Goal Progress",
+    "competeStatus": "Compete Record",
+    "competeStatusSubtitle": "Completed 1:1 competitions",
+    "challengeRecord": "Challenge Record",
+    "challengeRecordSubtitle": "System challenge participation / success",
+    "unknownRoom": "Unknown room"
+  },
+  "challengeRecordPanel": {
+    "noRecords": "No completed 1:1 competitions yet.",
+    "summary": "{total} total · {wins} won · {losses} lost",
+    "drawSuffix": " · {draws} drawn",
+    "win": "Won {wins}",
+    "loss": "Lost {losses}",
+    "draw": "Drawn {draws}"
+  },
+  "characterSection": {
+    "changeCharacter": "Change Character"
+  },
+  "characterPicker": {
+    "hint": "The character you pick will show on your member card in rooms."
+  },
+  "systemChallengeRecordPanel": {
+    "joined": "Joined",
+    "notJoined": "Not joined",
+    "successCount": "{count} successes"
+  },
+  "goalPanel": {
+    "periodMonth": "This Month",
+    "periodYear": "This Year",
+    "charsGoalLabel": "Character Goal",
+    "timeGoalLabel": "Time Goal",
+    "charsUnit": "chars",
+    "minutesUnit": "min",
+    "charsFieldLabel": "Target characters",
+    "minutesFieldLabel": "Target minutes",
+    "saving": "Saving...",
+    "save": "Save"
+  },
+  "workChart": {
+    "title": "Characters by Work",
+    "noWorks": "No works registered yet. Add one from the work list on the right.",
+    "periodEntry": "By Entry",
+    "periodDay": "By Day",
+    "periodMonth": "By Month",
+    "entryChangeFor": "Entry changes for {title}",
+    "noEntries": "No entries yet.",
+    "basis": "View",
+    "monthLabel": "{month, select, 1 {Jan} 2 {Feb} 3 {Mar} 4 {Apr} 5 {May} 6 {Jun} 7 {Jul} 8 {Aug} 9 {Sep} 10 {Oct} 11 {Nov} 12 {Dec} other {–}}"
+  },
+  "rankingStatus": {
+    "title": "Ranking Status",
+    "yearMonth": "{month, select, 1 {January} 2 {February} 3 {March} 4 {April} 5 {May} 6 {June} 7 {July} 8 {August} 9 {September} 10 {October} 11 {November} 12 {December} other {–}} {year}",
+    "byRoom": "By Room",
+    "noRooms": "No rooms joined",
+    "myRank": "#{rank} of {count}",
+    "overall": "Overall",
+    "overallRank": "Overall #{rank} of {total}",
+    "noCompete": "No competition record",
+    "competeRank": "Compete #{rank} of {total}",
+    "noChallenge": "No challenge record",
+    "challengeRank": "Challenge #{rank} of {total}"
+  },
+  "workList": {
+    "title": "Work List",
+    "addTitle": "Add work",
+    "namePlaceholder": "Work title",
+    "add": "Add",
+    "noWorks": "No works registered yet.",
+    "deleteConfirm": "Delete \"{title}\"? It will also disappear from the chart.",
+    "deleteTitle": "Delete work"
+  },
   "pomodoroStats": {
     "title": "Pomodoro stats",
     "byDay": "By day",

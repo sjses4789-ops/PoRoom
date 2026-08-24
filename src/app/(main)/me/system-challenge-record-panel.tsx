@@ -1,14 +1,17 @@
+import { getTranslations } from "next-intl/server";
 import { SYSTEM_CHALLENGE_META, type SystemChallengeKind } from "@/lib/system-challenges";
 
 const KINDS: SystemChallengeKind[] = ["daily5k", "daily10k", "monthly_draft"];
 
-export function SystemChallengeRecordPanel({
+export async function SystemChallengeRecordPanel({
   joined,
   successCounts,
 }: {
   joined: Record<SystemChallengeKind, boolean>;
   successCounts: Record<SystemChallengeKind, number>;
 }) {
+  const t = await getTranslations("me.systemChallengeRecordPanel");
+
   return (
     <div className="mt-1 flex flex-col divide-y divide-neutral-100 dark:divide-neutral-800">
       {KINDS.map((kind) => {
@@ -24,11 +27,11 @@ export function SystemChallengeRecordPanel({
                     : "bg-neutral-100 text-neutral-400 dark:bg-neutral-800"
                 }`}
               >
-                {joined[kind] ? "참여 중" : "미참여"}
+                {joined[kind] ? t("joined") : t("notJoined")}
               </span>
             </div>
             <span className="shrink-0 text-xs font-medium text-neutral-600 dark:text-neutral-300">
-              성공 {successCounts[kind]}회
+              {t("successCount", { count: successCounts[kind] })}
             </span>
           </div>
         );
