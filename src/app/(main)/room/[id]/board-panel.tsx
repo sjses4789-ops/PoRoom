@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { createPost, updatePost, deletePost, type PostCategory } from "@/lib/room-posts";
 
 export type RoomPost = {
@@ -13,7 +14,17 @@ export type RoomPost = {
   category: PostCategory;
 };
 
+// PostCategory values stay in canonical Korean (the DB/type identifier),
+// while the on-screen label goes through CATEGORY_LABEL_KEY below so every
+// locale can display its own translation.
 const CATEGORIES: PostCategory[] = ["공지사항", "정보 공유", "팁 전수", "자유"];
+
+const CATEGORY_LABEL_KEY: Record<PostCategory, "notice" | "infoShare" | "tips" | "free"> = {
+  "공지사항": "notice",
+  "정보 공유": "infoShare",
+  "팁 전수": "tips",
+  "자유": "free",
+};
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString("ko-KR", {
@@ -37,6 +48,7 @@ export function BoardPanel({
   canPostNotice: boolean;
   initialPosts: RoomPost[];
 }) {
+  const t = useTranslations("room.boardPanel");
   const [posts, setPosts] = useState<RoomPost[]>(initialPosts);
   const visibleCategories = canPostNotice
     ? CATEGORIES
@@ -99,7 +111,7 @@ export function BoardPanel({
   };
 
   const removePost = async (postId: string) => {
-    if (!window.confirm("이 게시글을 삭제할까요?")) return;
+    if (!window.confirm(t("deleteConfirm"))) return;
     const result = await deletePost(roomId, postId);
     if ("error" in result) {
       window.alert(result.error);
@@ -128,7 +140,7 @@ export function BoardPanel({
                 : "text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800"
             }`}
           >
-            {c}
+            {t(`categories.${CATEGORY_LABEL_KEY[c]}`)}
           </button>
         ))}
       </div>
@@ -136,14 +148,14 @@ export function BoardPanel({
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
-            {activeCategory}
+            {t(`categories.${CATEGORY_LABEL_KEY[activeCategory]}`)}
           </h2>
           {canWriteHere && (
             <button
               onClick={() => setWriting((v) => !v)}
               className="rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
             >
-              {writing ? "취소" : "글쓰기"}
+              {writing ? t("cancel") : t("write")}
             </button>
           )}
         </div>
@@ -153,13 +165,13 @@ export function BoardPanel({
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="제목"
+              placeholder={t("titlePlaceholder")}
               className="rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
             />
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="내용"
+              placeholder={t("contentPlaceholder")}
               rows={4}
               className="rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
             />
@@ -169,13 +181,13 @@ export function BoardPanel({
               disabled={pending}
               className="self-start rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-neutral-700 disabled:opacity-50 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
             >
-              {pending ? "등록 중..." : "등록"}
+              {pending ? t("submitting") : t("submit")}
             </button>
           </div>
         )}
 
         {visiblePosts.length === 0 ? (
-          <p className="text-xs text-neutral-400">아직 게시글이 없습니다.</p>
+          <p className="text-xs text-neutral-400">{t("noPosts")}</p>
         ) : (
           <ul className="flex flex-col divide-y divide-neutral-100 rounded-lg border border-neutral-200 dark:divide-neutral-800 dark:border-neutral-800">
             {visiblePosts.map((p) => {
@@ -205,13 +217,13 @@ export function BoardPanel({
                             onClick={() => startEdit(p)}
                             className="rounded-md border border-neutral-200 px-2.5 py-1 text-[12px] font-medium text-neutral-600 transition hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
                           >
-                            수정
+                            {t("edit")}
                           </button>
                           <button
                             onClick={() => removePost(p.id)}
                             className="rounded-md border border-red-200 px-2.5 py-1 text-[12px] font-medium text-red-500 transition hover:bg-red-50"
                           >
-                            삭제
+                            {t("delete")}
                           </button>
                         </div>
                       )}
@@ -222,13 +234,13 @@ export function BoardPanel({
                       <input
                         value={editTitle}
                         onChange={(e) => setEditTitle(e.target.value)}
-                        placeholder="제목"
+                        placeholder={t("titlePlaceholder")}
                         className="rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
                       />
                       <textarea
                         value={editContent}
                         onChange={(e) => setEditContent(e.target.value)}
-                        placeholder="내용"
+                        placeholder={t("contentPlaceholder")}
                         rows={4}
                         className="rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
                       />
@@ -239,13 +251,13 @@ export function BoardPanel({
                           disabled={editPending}
                           className="rounded-md bg-neutral-900 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-neutral-700 disabled:opacity-50 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
                         >
-                          {editPending ? "저장 중..." : "저장"}
+                          {editPending ? t("saving") : t("save")}
                         </button>
                         <button
                           onClick={() => setEditingId(null)}
                           className="rounded-md border border-neutral-200 px-2.5 py-1.5 text-xs text-neutral-600 transition hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
                         >
-                          취소
+                          {t("cancel")}
                         </button>
                       </div>
                     </div>

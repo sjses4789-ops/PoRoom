@@ -1,16 +1,20 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
-const PRESET_STATUSES = [
-  "구상중",
-  "집필중",
-  "퇴고중",
-  "교정중",
-  "자료조사",
-  "휴식 중",
-  "자리 비움",
-];
+// this is a free-text status the user picks or types (not a fixed enum
+// used elsewhere in the app), so unlike room tags we store and broadcast
+// the actual translated label the user saw and picked, in their locale.
+const PRESET_KEYS = [
+  "brainstorming",
+  "drafting",
+  "revising",
+  "proofreading",
+  "research",
+  "resting",
+  "away",
+] as const;
 
 export function WorkStatusPicker({
   current,
@@ -23,6 +27,7 @@ export function WorkStatusPicker({
   // background, which stays light regardless of theme.
   onPastelBg?: boolean;
 }) {
+  const t = useTranslations("room.workStatusPicker");
   const [open, setOpen] = useState(false);
   const [customMode, setCustomMode] = useState(false);
   const [customText, setCustomText] = useState(current ?? "");
@@ -45,7 +50,7 @@ export function WorkStatusPicker({
           onPastelBg ? "text-neutral-600" : "text-neutral-600 dark:text-neutral-300"
         }`}
       >
-        {current ?? "상태 설정"}
+        {current ?? t("setStatus")}
       </button>
 
       {open && (
@@ -68,27 +73,30 @@ export function WorkStatusPicker({
                     onClick={() => choose(null)}
                     className="rounded-md px-2 py-1.5 text-left text-xs text-neutral-400 hover:bg-neutral-50"
                   >
-                    상태 지우기
+                    {t("clearStatus")}
                   </button>
                 )}
-                {PRESET_STATUSES.map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => choose(s)}
-                    className={`rounded-md px-2 py-1.5 text-left text-xs transition ${
-                      current === s
-                        ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900"
-                        : "text-neutral-700 hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-neutral-800"
-                    }`}
-                  >
-                    {s}
-                  </button>
-                ))}
+                {PRESET_KEYS.map((key) => {
+                  const label = t(`presets.${key}`);
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => choose(label)}
+                      className={`rounded-md px-2 py-1.5 text-left text-xs transition ${
+                        current === label
+                          ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900"
+                          : "text-neutral-700 hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-neutral-800"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
                 <button
                   onClick={() => setCustomMode(true)}
                   className="rounded-md px-2 py-1.5 text-left text-xs text-neutral-700 hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-neutral-800"
                 >
-                  직접 입력
+                  {t("customInput")}
                 </button>
               </div>
             ) : (
@@ -103,7 +111,7 @@ export function WorkStatusPicker({
                     }
                   }}
                   maxLength={20}
-                  placeholder="상태 직접 입력"
+                  placeholder={t("customPlaceholder")}
                   className="rounded-md border border-neutral-200 px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
                 />
                 <div className="flex gap-1.5">
@@ -111,13 +119,13 @@ export function WorkStatusPicker({
                     onClick={() => customText.trim() && choose(customText.trim())}
                     className="flex-1 rounded-md bg-neutral-900 px-2 py-1.5 text-xs font-medium text-white hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
                   >
-                    확인
+                    {t("confirm")}
                   </button>
                   <button
                     onClick={() => setCustomMode(false)}
                     className="flex-1 rounded-md border border-neutral-200 px-2 py-1.5 text-xs text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
                   >
-                    취소
+                    {t("cancel")}
                   </button>
                 </div>
               </div>

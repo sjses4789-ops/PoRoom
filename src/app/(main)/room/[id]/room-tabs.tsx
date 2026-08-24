@@ -1,16 +1,11 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
+import { useTranslations } from "next-intl";
 
-const TABS = [
-  { key: "room" as const, label: "방" },
-  { key: "records" as const, label: "기록" },
-  { key: "calendar" as const, label: "캘린더" },
-  { key: "poll" as const, label: "투표" },
-  { key: "board" as const, label: "게시판" },
-];
+const TAB_KEYS = ["room", "records", "calendar", "poll", "board"] as const;
 
-type TabKey = (typeof TABS)[number]["key"];
+type TabKey = (typeof TAB_KEYS)[number];
 
 export function RoomTabs({
   room,
@@ -25,22 +20,23 @@ export function RoomTabs({
   poll: ReactNode;
   board: ReactNode;
 }) {
+  const t = useTranslations("room.roomTabs");
   const [tab, setTab] = useState<TabKey>("room");
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex gap-1 overflow-x-auto border-b border-neutral-100 dark:border-neutral-800">
-        {TABS.map((t) => (
+        {TAB_KEYS.map((key) => (
           <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
+            key={key}
+            onClick={() => setTab(key)}
             className={`shrink-0 whitespace-nowrap px-4 py-2 text-sm font-medium transition ${
-              tab === t.key
+              tab === key
                 ? "border-b-2 border-neutral-900 text-neutral-900 dark:border-white dark:text-white"
                 : "text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
             }`}
           >
-            {t.label}
+            {t(key)}
           </button>
         ))}
       </div>

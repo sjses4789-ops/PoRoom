@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { RoomView, type Member } from "./room-view";
 import type { ChatMessage } from "./chat-panel";
@@ -97,18 +98,19 @@ type PollRow = {
 type PollOptionRow = { id: string; poll_id: string; label: string; position: number };
 type PollVoteRow = { poll_id: string; option_id: string; voter_id: string };
 
-const RECORD_VISIBILITY_LABEL: Record<RecordVisibility, string> = {
-  shared: "기록 공유방",
-  private: "기록 비공유방",
-  free: "기록 공유 자유",
-};
-
 export default async function RoomPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const t = await getTranslations("room.page");
+  const tCommon = await getTranslations("room.common");
+  const RECORD_VISIBILITY_LABEL: Record<RecordVisibility, string> = {
+    shared: t("recordVisibility.shared"),
+    private: t("recordVisibility.private"),
+    free: t("recordVisibility.free"),
+  };
   const supabase = await createClient();
 
   const {
@@ -141,7 +143,7 @@ export default async function RoomPage({
 
   const members: Member[] = (memberRows ?? []).map((m) => ({
     id: m.user_id,
-    name: m.users?.name || m.users?.email || "알 수 없음",
+    name: m.users?.name || m.users?.email || tCommon("unknown"),
     characterId: m.users?.character_id ?? null,
     chatColor: m.users?.chat_color ?? null,
     recordsVisible:
@@ -318,7 +320,7 @@ export default async function RoomPage({
       title: e.title,
       eventDate: e.event_date,
       memo: e.memo,
-      authorName: isAnnouncement ? null : nameMap.get(e.created_by) ?? "알 수 없음",
+      authorName: isAnnouncement ? null : nameMap.get(e.created_by) ?? tCommon("unknown"),
       categoryId: e.category_id,
       celebrationCount: celebrationCountMap.get(e.id) ?? 0,
       selfCelebrated: selfCelebratedSet.has(e.id),
@@ -337,7 +339,7 @@ export default async function RoomPage({
     content: p.content,
     createdAt: p.created_at,
     authorId: p.user_id,
-    authorName: nameMap.get(p.user_id) ?? "알 수 없음",
+    authorName: nameMap.get(p.user_id) ?? tCommon("unknown"),
     category: p.category,
   }));
 
@@ -366,7 +368,7 @@ export default async function RoomPage({
     title: p.title,
     pollType: p.poll_type,
     isAnonymousVote: p.is_anonymous_vote,
-    authorName: p.is_anonymous_creator ? null : (nameMap.get(p.created_by) ?? "알 수 없음"),
+    authorName: p.is_anonymous_creator ? null : (nameMap.get(p.created_by) ?? tCommon("unknown")),
     createdAt: p.created_at,
     options: (pollOptionRows ?? [])
       .filter((o) => o.poll_id === p.id)
@@ -388,7 +390,7 @@ export default async function RoomPage({
             href="/main"
             className="text-xs text-neutral-400 hover:underline"
           >
-            ← 포룸으로
+            {t("backToPoroom")}
           </Link>
           <h1 className="mt-1 flex items-center gap-2 text-lg font-semibold tracking-tight text-neutral-900 dark:text-white">
             <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${paletteDot(room.color)}`} />
@@ -404,7 +406,7 @@ export default async function RoomPage({
           )}
           {!room.is_system && (
             <div className="rounded-md border border-neutral-200 px-3 py-1.5 text-xs text-neutral-500 dark:border-neutral-700 dark:text-neutral-400">
-              초대코드{" "}
+              {t("inviteCode")}{" "}
               <span className="font-mono text-neutral-900 dark:text-white">
                 {room.invite_code}
               </span>
@@ -435,7 +437,7 @@ export default async function RoomPage({
             roomName={room.name}
             isSystemRoom={room.is_system}
             selfId={user!.id}
-            selfName={selfMember?.name ?? user!.email ?? "나"}
+            selfName={selfMember?.name ?? user!.email ?? tCommon("self")}
             members={members}
             recordVisibility={room.record_visibility}
             capacity={room.capacity}
@@ -456,7 +458,7 @@ export default async function RoomPage({
         poll={
           <PollPanel
             roomId={room.id}
-            selfName={selfMember?.name ?? user!.email ?? "나"}
+            selfName={selfMember?.name ?? user!.email ?? tCommon("self")}
             initialPolls={polls}
           />
         }
@@ -464,7 +466,7 @@ export default async function RoomPage({
           <BoardPanel
             roomId={room.id}
             selfId={user!.id}
-            selfName={selfMember?.name ?? user!.email ?? "나"}
+            selfName={selfMember?.name ?? user!.email ?? tCommon("self")}
             canPostNotice={canPostNotice}
             initialPosts={posts}
           />

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { PomodoroDonut } from "./pomodoro-donut";
 import { WorkStatusPicker } from "./work-status-picker";
 import type { Phase } from "./use-pomodoro";
@@ -29,12 +30,6 @@ const PHASE_COLOR: Record<ParticipantData["phase"], string> = {
   idle: "#8a8a8a",
 };
 
-const PHASE_LABEL: Record<ParticipantData["phase"], string> = {
-  focus: "집중 중",
-  break: "휴식 중",
-  idle: "대기 중",
-};
-
 const PRESENCE_DOT: Record<PresenceStatus, string> = {
   offline: "bg-neutral-300",
   typing: "bg-emerald-500",
@@ -48,6 +43,8 @@ export function ParticipantCard({
   data: ParticipantData;
   onChangeWorkStatus?: (status: string | null) => void;
 }) {
+  const t = useTranslations("room.participantCard");
+  const tCommon = useTranslations("room.common");
   const isOffline = data.presence === "offline";
   const color = PHASE_COLOR[data.phase];
   const avatarSrc = characterSrc(data.characterId);
@@ -97,7 +94,7 @@ export function ParticipantCard({
           />
           <span className={`min-w-0 truncate text-sm font-medium ${primaryTextClass}`}>
             {data.name}
-            {data.isSelf ? " (나)" : ""}
+            {data.isSelf ? ` (${tCommon("self")})` : ""}
           </span>
         </span>
         {onChangeWorkStatus ? (
@@ -120,16 +117,16 @@ export function ParticipantCard({
       <div className="flex items-center justify-between text-[12px]">
         <span className={cardBg ? "text-neutral-600" : "text-neutral-500 dark:text-neutral-400"}>
           {data.recordsVisible
-            ? `${data.accumulatedChars.toLocaleString()}자`
-            : "기록 비공개"}
+            ? `${data.accumulatedChars.toLocaleString()}${tCommon("charUnit")}`
+            : tCommon("recordsPrivate")}
         </span>
         {isOffline ? (
           <span className={cardBg ? "text-neutral-500" : "text-neutral-400 dark:text-neutral-500"}>
-            {data.lastSeenLabel ? `마지막 접속 ${data.lastSeenLabel}` : "미접속"}
+            {data.lastSeenLabel ? t("lastSeen", { label: data.lastSeenLabel }) : t("neverSeen")}
           </span>
         ) : (
           <span className="font-medium" style={{ color }}>
-            {PHASE_LABEL[data.phase]}
+            {t(`phase.${data.phase}`)}
           </span>
         )}
       </div>

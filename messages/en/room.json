@@ -1,0 +1,240 @@
+{
+  "common": {
+    "self": "Me",
+    "unknown": "Unknown",
+    "recordsPrivate": "Private records",
+    "charUnit": " chars",
+    "minuteUnit": " min",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving...",
+    "delete": "Delete"
+  },
+  "page": {
+    "backToPoroom": "← Back to PoRoom",
+    "inviteCode": "Invite code",
+    "recordVisibility": {
+      "shared": "Shared records",
+      "private": "Private records",
+      "free": "Optional sharing"
+    }
+  },
+  "roomView": {
+    "participantsList": "Participants",
+    "membersSuffix": "{count}/{capacity}",
+    "notice": "Notice",
+    "onlineCount": "{count} online now"
+  },
+  "shareRecordsToggle": {
+    "label": "My records",
+    "public": "Public",
+    "private": "Private"
+  },
+  "chatColorPicker": {
+    "myChatColor": "My chat color"
+  },
+  "roomTabs": {
+    "room": "Room",
+    "records": "Records",
+    "calendar": "Calendar",
+    "poll": "Polls",
+    "board": "Board"
+  },
+  "boardPanel": {
+    "categories": {
+      "notice": "Notices",
+      "infoShare": "Info sharing",
+      "tips": "Tips",
+      "free": "Free talk"
+    },
+    "write": "Write",
+    "cancel": "Cancel",
+    "titlePlaceholder": "Title",
+    "contentPlaceholder": "Content",
+    "submitting": "Posting...",
+    "submit": "Post",
+    "noPosts": "No posts yet.",
+    "edit": "Edit",
+    "delete": "Delete",
+    "saving": "Saving...",
+    "save": "Save",
+    "deleteConfirm": "Delete this post?"
+  },
+  "charInput": {
+    "title": "Character count log",
+    "setGoalAria": "Set today's character goal",
+    "todayGoalLabel": "Today's character goal",
+    "setGoalHint": "Tap ⚙️ to set today's character goal.",
+    "recordByWork": "Track by work (optional)",
+    "notSelected": "None selected",
+    "selectWorkTitle": "Select a work",
+    "deleteWorkTitle": "Delete work",
+    "workNamePlaceholder": "Work title",
+    "add": "Add",
+    "addWork": "+ Add work",
+    "deleteWorkConfirm": "Remove \"{title}\" from your work list? Its recorded character graph will be kept.",
+    "startChars": "Starting character count",
+    "currentChars": "Current character count",
+    "currentCharsPlaceholder": "Total characters written so far",
+    "deltaLabel": "Characters to be recorded: {delta}",
+    "calculate": "Calculate & record",
+    "goalModalHint": "Today's goal applies from today onward. Changing it applies the new value from that point on.",
+    "goalPlaceholder": "e.g. 3000",
+    "saving": "Saving...",
+    "save": "Save",
+    "cancel": "Cancel"
+  },
+  "chatPanel": {
+    "title": "Chat",
+    "inputPlaceholder": "Type a message...",
+    "send": "Send"
+  },
+  "pollPanel": {
+    "title": "Polls",
+    "cancel": "Cancel",
+    "create": "Create poll",
+    "titlePlaceholder": "Poll title",
+    "methodLabel": "Poll type",
+    "method": {
+      "yesno": "Yes/No (For/Against)",
+      "single": "Single choice",
+      "multi": "Multiple choice"
+    },
+    "type": {
+      "yesno": "Yes/No poll",
+      "single": "Single choice",
+      "multi": "Multiple choice"
+    },
+    "anonymous": "Anonymous",
+    "anonymousVote": "Anonymous voting",
+    "optionsLabel": "Options",
+    "optionPlaceholder": "Option {index}",
+    "delete": "Delete",
+    "addOption": "Add option",
+    "anonVoteCheckbox": "Anonymous voting (who voted for what stays hidden)",
+    "anonCreatorCheckbox": "Create anonymously (creator stays hidden)",
+    "creating": "Creating...",
+    "submit": "Create",
+    "noPolls": "No polls yet.",
+    "voteCountPct": "{count} votes ({pct}%)",
+    "multiSelectHint": "Multiple choices allowed",
+    "totalVotes": "{total} votes total"
+  },
+  "roomRecordsPanel": {
+    "title": "Room records",
+    "month": "Monthly",
+    "year": "Yearly",
+    "yearMonth": "{month}/{year}",
+    "yearOnly": "{year}",
+    "participant": "Participant",
+    "dayColumn": "{day}",
+    "monthColumn": "M{month}",
+    "total": "Total"
+  },
+  "workStatusPicker": {
+    "setStatus": "Set status",
+    "clearStatus": "Clear status",
+    "customInput": "Custom",
+    "customPlaceholder": "Enter a custom status",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "presets": {
+      "brainstorming": "Brainstorming",
+      "drafting": "Drafting",
+      "revising": "Revising",
+      "proofreading": "Proofreading",
+      "research": "Researching",
+      "resting": "Resting",
+      "away": "Away"
+    }
+  },
+  "participantCard": {
+    "phase": {
+      "focus": "Focusing",
+      "break": "On break",
+      "idle": "Idle"
+    },
+    "lastSeen": "Last seen {label}",
+    "neverSeen": "Never online"
+  },
+  "pomodoroPanel": {
+    "status": {
+      "idle": "Idle",
+      "paused": "Paused",
+      "focus": "Focusing",
+      "break": "On break"
+    },
+    "focusLabel": "Focus (min)",
+    "breakLabel": "Break (min)",
+    "resume": "Resume",
+    "start": "Start",
+    "pause": "Pause",
+    "reset": "Reset"
+  },
+  "calendarPanel": {
+    "weekday": {
+      "sun": "Su",
+      "mon": "Mo",
+      "tue": "Tu",
+      "wed": "We",
+      "thu": "Th",
+      "fri": "Fr",
+      "sat": "Sa"
+    },
+    "upcomingTitle": "Upcoming events",
+    "noUpcoming": "No upcoming events.",
+    "today": "Today",
+    "titleRequiredError": "Please enter an event title.",
+    "monthHeader": "{month}/{year}",
+    "eventsForDate": "Events for {date}",
+    "noEventsForDate": "No events on this date.",
+    "titlePlaceholder": "Event title",
+    "memoPlaceholder": "Memo (optional)",
+    "noCategory": "No category",
+    "adding": "Adding...",
+    "addEvent": "Add event"
+  },
+  "leaveRoomButton": {
+    "confirmLeave": "Leave this room?",
+    "leaving": "Leaving...",
+    "leave": "Leave room"
+  },
+  "roomSettingsButton": {
+    "settingsTitle": "Room settings",
+    "roomName": "Room name",
+    "roomColor": "Room color",
+    "tagLabel": "Tags",
+    "joinTypeLabel": "Join method",
+    "joinInvite": "Invite code only",
+    "joinOpen": "Open room",
+    "visibilityLabel": "Record sharing policy",
+    "visibility": {
+      "shared": "Shared records",
+      "private": "Private records",
+      "free": "Optional sharing"
+    },
+    "saving": "Saving...",
+    "save": "Save",
+    "saved": "Saved ✓",
+    "eventCategories": "Event categories",
+    "categoryNamePlaceholder": "Category name",
+    "addCategory": "Add",
+    "memberManagement": "Manage members",
+    "noOtherMembers": "No other participants.",
+    "viceBadge": "Vice-leader",
+    "viceUnset": "Remove vice-leader",
+    "viceSet": "Make vice-leader",
+    "transferOwnership": "Transfer ownership",
+    "kickConfirm": "Remove {name} from this room?",
+    "kick": "Remove",
+    "dangerZone": "Danger zone",
+    "nukeButton": "Delete this room",
+    "nukeConfirm1": "Are you sure you want to delete this room? Chat, records, events, and posts will all be permanently deleted and cannot be recovered.",
+    "nukeConfirm2": "One more confirmation. This will permanently delete the room \"{name}\". Continue?",
+    "nukeWarningPrefix": "Final confirmation. Type the room name",
+    "nukeWarningSuffix": "exactly below to permanently delete it.",
+    "deleting": "Deleting...",
+    "permanentDelete": "Delete permanently",
+    "cancel": "Cancel"
+  }
+}

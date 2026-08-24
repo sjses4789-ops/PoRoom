@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { updateShareRecords } from "@/lib/rooms";
 
 export function ShareRecordsToggle({
@@ -10,6 +11,7 @@ export function ShareRecordsToggle({
   roomId: string;
   initialShare: boolean;
 }) {
+  const t = useTranslations("room.shareRecordsToggle");
   const [share, setShare] = useState(initialShare);
   const [pending, setPending] = useState(false);
 
@@ -34,7 +36,7 @@ export function ShareRecordsToggle({
       <span
         className={`h-1.5 w-1.5 rounded-full ${share ? "bg-neutral-900" : "bg-neutral-300"}`}
       />
-      내 기록 {share ? "공개" : "비공개"}
+      {t("label")} {share ? t("public") : t("private")}
     </button>
   );
 }

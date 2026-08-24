@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { leaveRoom } from "@/lib/rooms";
 import { createClient } from "@/lib/supabase/client";
 
 export function LeaveRoomButton({ roomId, selfId }: { roomId: string; selfId: string }) {
+  const t = useTranslations("room.leaveRoomButton");
   const [pending, setPending] = useState(false);
   const router = useRouter();
 
@@ -13,7 +15,7 @@ export function LeaveRoomButton({ roomId, selfId }: { roomId: string; selfId: st
     <button
       disabled={pending}
       onClick={async () => {
-        if (!window.confirm("이 방에서 나가시겠어요?")) return;
+        if (!window.confirm(t("confirmLeave"))) return;
         setPending(true);
 
         // let everyone else's participant card drop me immediately,
@@ -48,7 +50,7 @@ export function LeaveRoomButton({ roomId, selfId }: { roomId: string; selfId: st
       }}
       className="rounded-md border border-red-200/70 px-3 py-1.5 text-xs font-medium text-red-400/80 transition hover:border-red-300 hover:bg-red-50 hover:text-red-500 disabled:opacity-50"
     >
-      {pending ? "나가는 중..." : "방 나가기"}
+      {pending ? t("leaving") : t("leave")}
     </button>
   );
 }

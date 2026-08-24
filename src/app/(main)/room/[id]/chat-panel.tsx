@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { AdSlot } from "@/components/ad-slot";
 import { chatBubbleClass } from "@/lib/palette";
@@ -33,6 +34,8 @@ export function ChatPanel({
   initialMessages: ChatMessage[];
   onActivity?: () => void;
 }) {
+  const t = useTranslations("room.chatPanel");
+  const tCommon = useTranslations("room.common");
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   const [input, setInput] = useState("");
   const [selfColorOverride, setSelfColorOverride] = useState<string | null>(null);
@@ -40,8 +43,8 @@ export function ChatPanel({
 
   const nameOf = (userId: string) =>
     userId === selfId
-      ? "나"
-      : members.find((m) => m.id === userId)?.name ?? "알 수 없음";
+      ? tCommon("self")
+      : members.find((m) => m.id === userId)?.name ?? tCommon("unknown");
 
   const selfColor =
     selfColorOverride ?? members.find((m) => m.id === selfId)?.chatColor ?? null;
@@ -105,7 +108,7 @@ export function ChatPanel({
   return (
     <div className="flex h-full flex-col rounded-lg border border-neutral-200 dark:border-neutral-800">
       <div className="flex items-center justify-between border-b border-neutral-100 px-4 py-3 dark:border-neutral-800">
-        <span className="text-sm font-semibold text-neutral-900 dark:text-white">채팅</span>
+        <span className="text-sm font-semibold text-neutral-900 dark:text-white">{t("title")}</span>
         <ChatColorPicker current={selfColor} onChange={setSelfColorOverride} />
       </div>
       <div ref={listRef} className="chat-scroll flex-1 space-y-3 overflow-y-auto px-4 py-3">
@@ -139,14 +142,14 @@ export function ChatPanel({
             onActivity?.();
           }}
           onKeyDown={(e) => e.key === "Enter" && send()}
-          placeholder="메시지 입력..."
+          placeholder={t("inputPlaceholder")}
           className="flex-1 rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
         />
         <button
           onClick={send}
           className="rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-neutral-700"
         >
-          전송
+          {t("send")}
         </button>
       </div>
       <div className="h-14 overflow-hidden border-t border-neutral-100 dark:border-neutral-800">

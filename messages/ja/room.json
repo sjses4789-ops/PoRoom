@@ -1,0 +1,240 @@
+{
+  "common": {
+    "self": "自分",
+    "unknown": "不明",
+    "recordsPrivate": "記録非公開",
+    "charUnit": "字",
+    "minuteUnit": "分",
+    "cancel": "キャンセル",
+    "save": "保存",
+    "saving": "保存中...",
+    "delete": "削除"
+  },
+  "page": {
+    "backToPoroom": "← PoRoomへ",
+    "inviteCode": "招待コード",
+    "recordVisibility": {
+      "shared": "記録共有ルーム",
+      "private": "記録非共有ルーム",
+      "free": "記録共有自由"
+    }
+  },
+  "roomView": {
+    "participantsList": "参加者リスト",
+    "membersSuffix": "{count}/{capacity}人",
+    "notice": "お知らせ",
+    "onlineCount": "現在{count}人が接続中"
+  },
+  "shareRecordsToggle": {
+    "label": "自分の記録",
+    "public": "公開",
+    "private": "非公開"
+  },
+  "chatColorPicker": {
+    "myChatColor": "自分のチャット色"
+  },
+  "roomTabs": {
+    "room": "ルーム",
+    "records": "記録",
+    "calendar": "カレンダー",
+    "poll": "投票",
+    "board": "掲示板"
+  },
+  "boardPanel": {
+    "categories": {
+      "notice": "お知らせ",
+      "infoShare": "情報共有",
+      "tips": "コツ伝授",
+      "free": "自由"
+    },
+    "write": "投稿する",
+    "cancel": "キャンセル",
+    "titlePlaceholder": "タイトル",
+    "contentPlaceholder": "内容",
+    "submitting": "投稿中...",
+    "submit": "投稿",
+    "noPosts": "まだ投稿がありません。",
+    "edit": "編集",
+    "delete": "削除",
+    "saving": "保存中...",
+    "save": "保存",
+    "deleteConfirm": "この投稿を削除しますか?"
+  },
+  "charInput": {
+    "title": "文字数記録",
+    "setGoalAria": "今日の目標文字数を設定",
+    "todayGoalLabel": "今日の目標文字数",
+    "setGoalHint": "⚙️ボタンで今日の目標文字数を設定してみましょう。",
+    "recordByWork": "作品別に記録する(任意)",
+    "notSelected": "選択なし",
+    "selectWorkTitle": "作品を選択",
+    "deleteWorkTitle": "作品を削除",
+    "workNamePlaceholder": "作品名",
+    "add": "追加",
+    "addWork": "+ 作品を追加",
+    "deleteWorkConfirm": "「{title}」をリストから削除しますか? 記録された文字数グラフは保持されます。",
+    "startChars": "開始前の文字数",
+    "currentChars": "現在の文字数",
+    "currentCharsPlaceholder": "これまでに書いた総文字数",
+    "deltaLabel": "今回記録される文字数: {delta}字",
+    "calculate": "計算して記録",
+    "goalModalHint": "今日設定した目標は今日以降も適用されます。変更するとその時点から新しい値が適用されます。",
+    "goalPlaceholder": "例: 3000",
+    "saving": "保存中...",
+    "save": "保存",
+    "cancel": "キャンセル"
+  },
+  "chatPanel": {
+    "title": "チャット",
+    "inputPlaceholder": "メッセージを入力...",
+    "send": "送信"
+  },
+  "pollPanel": {
+    "title": "投票",
+    "cancel": "キャンセル",
+    "create": "投票を作成",
+    "titlePlaceholder": "投票タイトル",
+    "methodLabel": "投票方式",
+    "method": {
+      "yesno": "賛否投票(賛成/反対)",
+      "single": "単一選択",
+      "multi": "複数投票"
+    },
+    "type": {
+      "yesno": "賛否投票",
+      "single": "単一選択",
+      "multi": "複数投票"
+    },
+    "anonymous": "匿名",
+    "anonymousVote": "匿名投票",
+    "optionsLabel": "選択肢一覧",
+    "optionPlaceholder": "選択肢{index}",
+    "delete": "削除",
+    "addOption": "選択肢を追加",
+    "anonVoteCheckbox": "匿名投票(誰が何を選んだか非公開)",
+    "anonCreatorCheckbox": "匿名で投票を作成(作成者を非公開)",
+    "creating": "作成中...",
+    "submit": "作成",
+    "noPolls": "まだ作成された投票がありません。",
+    "voteCountPct": "{count}票 ({pct}%)",
+    "multiSelectHint": "複数選択可能",
+    "totalVotes": "合計{total}票"
+  },
+  "roomRecordsPanel": {
+    "title": "ルーム記録",
+    "month": "月別",
+    "year": "年別",
+    "yearMonth": "{year}年{month}月",
+    "yearOnly": "{year}年",
+    "participant": "参加者",
+    "dayColumn": "{day}日",
+    "monthColumn": "{month}月",
+    "total": "合計"
+  },
+  "workStatusPicker": {
+    "setStatus": "状態を設定",
+    "clearStatus": "状態を消す",
+    "customInput": "直接入力",
+    "customPlaceholder": "状態を直接入力",
+    "confirm": "確認",
+    "cancel": "キャンセル",
+    "presets": {
+      "brainstorming": "構想中",
+      "drafting": "執筆中",
+      "revising": "推敲中",
+      "proofreading": "校正中",
+      "research": "資料調査",
+      "resting": "休憩中",
+      "away": "離席中"
+    }
+  },
+  "participantCard": {
+    "phase": {
+      "focus": "集中中",
+      "break": "休憩中",
+      "idle": "待機中"
+    },
+    "lastSeen": "最終接続 {label}",
+    "neverSeen": "未接続"
+  },
+  "pomodoroPanel": {
+    "status": {
+      "idle": "待機中",
+      "paused": "一時停止",
+      "focus": "集中中",
+      "break": "休憩中"
+    },
+    "focusLabel": "集中(分)",
+    "breakLabel": "休憩(分)",
+    "resume": "再開",
+    "start": "開始",
+    "pause": "一時停止",
+    "reset": "リセット"
+  },
+  "calendarPanel": {
+    "weekday": {
+      "sun": "日",
+      "mon": "月",
+      "tue": "火",
+      "wed": "水",
+      "thu": "木",
+      "fri": "金",
+      "sat": "土"
+    },
+    "upcomingTitle": "近日の予定",
+    "noUpcoming": "予定されている日程がありません。",
+    "today": "今日",
+    "titleRequiredError": "予定のタイトルを入力してください。",
+    "monthHeader": "{year}年{month}月",
+    "eventsForDate": "{date}の予定",
+    "noEventsForDate": "登録された予定がありません。",
+    "titlePlaceholder": "予定のタイトル",
+    "memoPlaceholder": "メモ(任意)",
+    "noCategory": "カテゴリなし",
+    "adding": "追加中...",
+    "addEvent": "予定を追加"
+  },
+  "leaveRoomButton": {
+    "confirmLeave": "このルームを退出しますか?",
+    "leaving": "退出中...",
+    "leave": "ルームを退出"
+  },
+  "roomSettingsButton": {
+    "settingsTitle": "ルーム設定",
+    "roomName": "ルーム名",
+    "roomColor": "ルームの色",
+    "tagLabel": "タグ",
+    "joinTypeLabel": "参加方式",
+    "joinInvite": "招待コードで参加",
+    "joinOpen": "公開ルーム",
+    "visibilityLabel": "記録公開ポリシー",
+    "visibility": {
+      "shared": "記録共有ルーム",
+      "private": "記録非共有ルーム",
+      "free": "記録共有自由"
+    },
+    "saving": "保存中...",
+    "save": "保存する",
+    "saved": "保存しました ✓",
+    "eventCategories": "予定カテゴリ",
+    "categoryNamePlaceholder": "カテゴリ名",
+    "addCategory": "追加",
+    "memberManagement": "参加者管理",
+    "noOtherMembers": "他の参加者がいません。",
+    "viceBadge": "副リーダー",
+    "viceUnset": "副リーダー解除",
+    "viceSet": "副リーダーに任命",
+    "transferOwnership": "リーダーを委任",
+    "kickConfirm": "{name}さんをこのルームから退出させますか?",
+    "kick": "退出させる",
+    "dangerZone": "危険区域",
+    "nukeButton": "ルームを削除",
+    "nukeConfirm1": "本当にこのルームを削除しますか? チャット、記録、予定、投稿がすべて完全に削除され、元に戻せません。",
+    "nukeConfirm2": "最終確認です。ルーム「{name}」を完全に削除します。本当に続けますか?",
+    "nukeWarningPrefix": "最終確認です。下にルーム名",
+    "nukeWarningSuffix": "を正確に入力すると完全に削除されます。",
+    "deleting": "削除中...",
+    "permanentDelete": "完全削除",
+    "cancel": "キャンセル"
+  }
+}

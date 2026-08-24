@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import type { DailyRecord } from "@/lib/records";
 import { rowColorByIndex } from "@/lib/palette";
 import { characterSrc } from "@/lib/characters";
@@ -24,6 +25,8 @@ export function RoomRecordsPanel({
   members: Member[];
   dailyRecords: DailyRecord[];
 }) {
+  const t = useTranslations("room.roomRecordsPanel");
+  const tCommon = useTranslations("room.common");
   const now = new Date();
   const [mode, setMode] = useState<Mode>("month");
   const [year, setYear] = useState(now.getFullYear());
@@ -112,13 +115,13 @@ export function RoomRecordsPanel({
   return (
     <div className="flex flex-col gap-3 rounded-lg border border-neutral-200 p-4 dark:border-neutral-800 dark:bg-neutral-900">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">방 기록</h2>
+        <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("title")}</h2>
         <div className="flex items-center gap-3">
           <div className="flex gap-1">
             {(
               [
-                { key: "month" as const, label: "월별" },
-                { key: "year" as const, label: "연별" },
+                { key: "month" as const, label: t("month") },
+                { key: "year" as const, label: t("year") },
               ]
             ).map((m) => (
               <button
@@ -139,7 +142,9 @@ export function RoomRecordsPanel({
               ←
             </button>
             <span className="min-w-[80px] text-center font-medium text-neutral-900 dark:text-white">
-              {mode === "month" ? `${year}년 ${month + 1}월` : `${year}년`}
+              {mode === "month"
+                ? t("yearMonth", { year, month: month + 1 })
+                : t("yearOnly", { year })}
             </span>
             <button onClick={goNext} className="rounded-md px-2 py-1 hover:bg-neutral-100 dark:hover:bg-neutral-800">
               →
@@ -189,7 +194,7 @@ export function RoomRecordsPanel({
                 >
                   {member.name}
                 </span>
-                <span className="text-[11px] text-neutral-400">{chars.toLocaleString()}자</span>
+                <span className="text-[11px] text-neutral-400">{chars.toLocaleString()}{tCommon("charUnit")}</span>
               </div>
             );
           })}
@@ -201,14 +206,14 @@ export function RoomRecordsPanel({
           <thead>
             <tr className="text-neutral-400">
               <th className="sticky left-0 z-10 bg-white px-2 py-2 font-medium dark:bg-neutral-900">
-                참여자
+                {t("participant")}
               </th>
               {columns.map((c) => (
                 <th key={c} className="min-w-[64px] px-1 py-2 text-center font-medium">
-                  {mode === "month" ? `${c}일` : `${c}월`}
+                  {mode === "month" ? t("dayColumn", { day: c }) : t("monthColumn", { month: c })}
                 </th>
               ))}
-              <th className="min-w-[80px] px-2 py-2 text-center font-medium">합계</th>
+              <th className="min-w-[80px] px-2 py-2 text-center font-medium">{t("total")}</th>
             </tr>
           </thead>
           <tbody>
@@ -224,7 +229,7 @@ export function RoomRecordsPanel({
                   </td>
                   {!member.recordsVisible ? (
                     <td colSpan={columns.length} className="px-2 py-2 text-center text-neutral-300 dark:text-neutral-600">
-                      기록 비공개
+                      {tCommon("recordsPrivate")}
                     </td>
                   ) : (
                     columns.map((c) => {
@@ -238,9 +243,9 @@ export function RoomRecordsPanel({
                           {hasData ? (
                             <div className="flex flex-col leading-tight">
                               <span className="text-neutral-800">
-                                {cell.chars.toLocaleString()}자
+                                {cell.chars.toLocaleString()}{tCommon("charUnit")}
                               </span>
-                              <span className="text-neutral-400">{cell.minutes}분</span>
+                              <span className="text-neutral-400">{cell.minutes}{tCommon("minuteUnit")}</span>
                             </div>
                           ) : (
                             <span className="text-neutral-200 dark:text-neutral-700">–</span>
@@ -253,9 +258,9 @@ export function RoomRecordsPanel({
                     {member.recordsVisible ? (
                       <div className="flex flex-col leading-tight">
                         <span className="text-neutral-900">
-                          {total.chars.toLocaleString()}자
+                          {total.chars.toLocaleString()}{tCommon("charUnit")}
                         </span>
-                        <span className="text-neutral-500">{total.minutes}분</span>
+                        <span className="text-neutral-500">{total.minutes}{tCommon("minuteUnit")}</span>
                       </div>
                     ) : (
                       <span className="text-neutral-300 dark:text-neutral-600">–</span>

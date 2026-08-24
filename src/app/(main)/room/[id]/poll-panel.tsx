@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { createPoll, castVote, type PollType } from "@/lib/polls";
 
 export type PollOption = { id: string; label: string; count: number };
@@ -13,12 +14,6 @@ export type Poll = {
   createdAt: string;
   options: PollOption[];
   selfVoteOptionIds: string[];
-};
-
-const POLL_TYPE_LABEL: Record<PollType, string> = {
-  yesno: "찬반 투표",
-  single: "단일 선택",
-  multi: "다중 투표",
 };
 
 function formatDate(iso: string) {
@@ -35,6 +30,7 @@ function PollCard({
   poll: Poll;
   onVote: (pollId: string, optionId: string, pollType: PollType) => void;
 }) {
+  const t = useTranslations("room.pollPanel");
   const total = poll.options.reduce((sum, o) => sum + o.count, 0);
 
   return (
@@ -44,9 +40,9 @@ function PollCard({
           {poll.title}
         </span>
         <span className="text-[12px] text-neutral-400">
-          {poll.authorName ?? "익명"} · {formatDate(poll.createdAt)} ·{" "}
-          {POLL_TYPE_LABEL[poll.pollType]}
-          {poll.isAnonymousVote ? " · 익명 투표" : ""}
+          {poll.authorName ?? t("anonymous")} · {formatDate(poll.createdAt)} ·{" "}
+          {t(`type.${poll.pollType}`)}
+          {poll.isAnonymousVote ? ` · ${t("anonymousVote")}` : ""}
         </span>
       </div>
 
@@ -78,7 +74,7 @@ function PollCard({
                   {opt.label}
                 </span>
                 <span className="shrink-0 text-neutral-500 dark:text-neutral-400">
-                  {opt.count}표 ({pct}%)
+                  {t("voteCountPct", { count: opt.count, pct })}
                 </span>
               </div>
             </button>
@@ -86,7 +82,8 @@ function PollCard({
         })}
       </div>
       <p className="text-[12px] text-neutral-400">
-        {poll.pollType === "multi" ? "중복 선택 가능" : ""} 총 {total}표
+        {poll.pollType === "multi" ? `${t("multiSelectHint")} ` : ""}
+        {t("totalVotes", { total })}
       </p>
     </div>
   );
@@ -101,6 +98,7 @@ export function PollPanel({
   selfName: string;
   initialPolls: Poll[];
 }) {
+  const t = useTranslations("room.pollPanel");
   const [polls, setPolls] = useState<Poll[]>(initialPolls);
   const [creating, setCreating] = useState(false);
   const [title, setTitle] = useState("");
@@ -190,12 +188,12 @@ export function PollPanel({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">투표</h2>
+        <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("title")}</h2>
         <button
           onClick={() => setCreating((v) => !v)}
           className="rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
         >
-          {creating ? "취소" : "투표 만들기"}
+          {creating ? t("cancel") : t("create")}
         </button>
       </div>
 
@@ -204,20 +202,20 @@ export function PollPanel({
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="투표 제목"
+            placeholder={t("titlePlaceholder")}
             className="rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
           />
 
           <div className="flex flex-col gap-1.5">
             <span className="text-[12px] font-medium text-neutral-500 dark:text-neutral-400">
-              투표 방식
+              {t("methodLabel")}
             </span>
             <div className="flex flex-wrap gap-3">
               {(
                 [
-                  { key: "yesno" as const, label: "찬반 투표 (찬성/반대)" },
-                  { key: "single" as const, label: "단일 선택" },
-                  { key: "multi" as const, label: "다중 투표" },
+                  { key: "yesno" as const, label: t("method.yesno") },
+                  { key: "single" as const, label: t("method.single") },
+                  { key: "multi" as const, label: t("method.multi") },
                 ]
               ).map((opt) => (
                 <label
@@ -239,7 +237,7 @@ export function PollPanel({
           {pollType !== "yesno" && (
             <div className="flex flex-col gap-1.5">
               <span className="text-[12px] font-medium text-neutral-500 dark:text-neutral-400">
-                선택지 목록
+                {t("optionsLabel")}
               </span>
               {candidates.map((c, i) => (
                 <div key={i} className="flex gap-1.5">
@@ -250,7 +248,7 @@ export function PollPanel({
                         prev.map((v, idx) => (idx === i ? e.target.value : v))
                       )
                     }
-                    placeholder={`선택지 ${i + 1}`}
+                    placeholder={t("optionPlaceholder", { index: i + 1 })}
                     className="flex-1 rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
                   />
                   {candidates.length > 2 && (
@@ -261,7 +259,7 @@ export function PollPanel({
                       }
                       className="shrink-0 rounded-md border border-neutral-200 px-2 text-xs text-neutral-500 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
                     >
-                      삭제
+                      {t("delete")}
                     </button>
                   )}
                 </div>
@@ -271,7 +269,7 @@ export function PollPanel({
                 onClick={() => setCandidates((prev) => [...prev, ""])}
                 className="self-start rounded-md border border-neutral-200 px-2.5 py-1 text-xs text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
               >
-                선택지 추가
+                {t("addOption")}
               </button>
             </div>
           )}
@@ -284,7 +282,7 @@ export function PollPanel({
                 onChange={(e) => setAnonVote(e.target.checked)}
                 className="accent-neutral-900"
               />
-              익명 투표 (누가 뭘 뽑았는지 공개 안 함)
+              {t("anonVoteCheckbox")}
             </label>
             <label className="flex items-center gap-1.5 text-xs text-neutral-700 dark:text-neutral-300">
               <input
@@ -293,7 +291,7 @@ export function PollPanel({
                 onChange={(e) => setAnonCreator(e.target.checked)}
                 className="accent-neutral-900"
               />
-              익명으로 투표 만들기 (만든 사람 비공개)
+              {t("anonCreatorCheckbox")}
             </label>
           </div>
 
@@ -303,13 +301,13 @@ export function PollPanel({
             disabled={pending}
             className="self-start rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-neutral-700 disabled:opacity-50 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
           >
-            {pending ? "만드는 중..." : "만들기"}
+            {pending ? t("creating") : t("submit")}
           </button>
         </div>
       )}
 
       {polls.length === 0 ? (
-        <p className="text-xs text-neutral-400">아직 만들어진 투표가 없습니다.</p>
+        <p className="text-xs text-neutral-400">{t("noPolls")}</p>
       ) : (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {polls.map((poll) => (

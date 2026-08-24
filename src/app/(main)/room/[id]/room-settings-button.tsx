@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   updateRoomSettings,
   deleteRoom,
@@ -11,7 +12,7 @@ import {
 } from "@/lib/room-admin";
 import { createCategory } from "@/lib/room-categories";
 import { PALETTE, paletteDot } from "@/lib/palette";
-import { ROOM_TAGS } from "@/lib/room-tags";
+import { ROOM_TAGS, translateRoomTag } from "@/lib/room-tags";
 import { createClient } from "@/lib/supabase/client";
 import type { RecordVisibility, JoinType } from "@/lib/rooms";
 
@@ -37,6 +38,8 @@ export function RoomSettingsButton({
   members: SettingsMember[];
   categories: SettingsCategory[];
 }) {
+  const t = useTranslations("room.roomSettingsButton");
+  const tTags = useTranslations("tags");
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [color, setColor] = useState(currentColor);
@@ -101,8 +104,8 @@ export function RoomSettingsButton({
     <>
       <button
         onClick={() => setOpen(true)}
-        aria-label="방 설정"
-        title="방 설정"
+        aria-label={t("settingsTitle")}
+        title={t("settingsTitle")}
         className="rounded-md border border-neutral-200 p-2 text-neutral-500 transition hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
       >
         ⚙️
@@ -116,7 +119,7 @@ export function RoomSettingsButton({
           />
           <div className="fixed left-1/2 top-1/2 z-20 max-h-[85vh] w-[min(28rem,calc(100vw-2.5rem))] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg border border-neutral-300 bg-white p-5 shadow-lg dark:border-neutral-700 dark:bg-neutral-900">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">방 설정</h2>
+              <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("settingsTitle")}</h2>
               <button
                 onClick={() => setOpen(false)}
                 className="text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200"
@@ -128,7 +131,7 @@ export function RoomSettingsButton({
             <form onSubmit={handleSubmit} className="flex flex-col gap-3">
               <input type="hidden" name="roomId" value={roomId} />
               <label className="flex flex-col gap-1 text-xs text-neutral-500 dark:text-neutral-400">
-                방 이름
+                {t("roomName")}
                 <input
                   name="name"
                   defaultValue={currentName}
@@ -136,7 +139,7 @@ export function RoomSettingsButton({
                 />
               </label>
               <div className="flex flex-col gap-1.5">
-                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">방 색상</span>
+                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">{t("roomColor")}</span>
                 <input type="hidden" name="color" value={color} />
                 <div className="flex flex-wrap gap-1.5">
                   {PALETTE.map((p) => (
@@ -156,9 +159,9 @@ export function RoomSettingsButton({
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">태그</span>
-                {Array.from(tags).map((t) => (
-                  <input key={t} type="hidden" name="tags" value={t} />
+                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">{t("tagLabel")}</span>
+                {Array.from(tags).map((tagValue) => (
+                  <input key={tagValue} type="hidden" name="tags" value={tagValue} />
                 ))}
                 <div className="flex max-h-32 flex-wrap gap-1.5 overflow-y-auto">
                   {ROOM_TAGS.map((tag) => (
@@ -172,14 +175,14 @@ export function RoomSettingsButton({
                           : "border-neutral-200 text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
                       }`}
                     >
-                      {tag}
+                      {translateRoomTag(tTags, tag)}
                     </button>
                   ))}
                 </div>
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">입장 방식</span>
+                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">{t("joinTypeLabel")}</span>
                 <div className="flex gap-3">
                   <label className="flex items-center gap-1.5 text-xs text-neutral-700 dark:text-neutral-300">
                     <input
@@ -189,7 +192,7 @@ export function RoomSettingsButton({
                       defaultChecked={currentJoinType === "invite"}
                       className="accent-neutral-900"
                     />
-                    초대코드 입장
+                    {t("joinInvite")}
                   </label>
                   <label className="flex items-center gap-1.5 text-xs text-neutral-700 dark:text-neutral-300">
                     <input
@@ -199,19 +202,19 @@ export function RoomSettingsButton({
                       defaultChecked={currentJoinType === "open"}
                       className="accent-neutral-900"
                     />
-                    공개방
+                    {t("joinOpen")}
                   </label>
                 </div>
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">기록 공개 정책</span>
+                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">{t("visibilityLabel")}</span>
                 <div className="flex flex-col gap-1">
                   {(
                     [
-                      { value: "shared", label: "기록 공유방" },
-                      { value: "private", label: "기록 비공유방" },
-                      { value: "free", label: "기록 공유 자유" },
+                      { value: "shared", label: t("visibility.shared") },
+                      { value: "private", label: t("visibility.private") },
+                      { value: "free", label: t("visibility.free") },
                     ] as const
                   ).map((opt) => (
                     <label
@@ -238,18 +241,18 @@ export function RoomSettingsButton({
                   disabled={pending}
                   className="w-full rounded-md bg-neutral-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-neutral-700 disabled:opacity-50 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
                 >
-                  {pending ? "저장 중..." : "저장하기"}
+                  {pending ? t("saving") : t("save")}
                 </button>
                 {saved && (
                   <span className="text-xs text-emerald-600 dark:text-emerald-400">
-                    저장됐어요 ✓
+                    {t("saved")}
                   </span>
                 )}
               </div>
             </form>
 
             <div className="mt-5 flex flex-col gap-2 border-t border-neutral-100 pt-4 dark:border-neutral-800">
-              <h3 className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">일정 카테고리</h3>
+              <h3 className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">{t("eventCategories")}</h3>
               {categories.length > 0 && (
                 <ul className="flex flex-wrap gap-1.5">
                   {categories.map((c) => (
@@ -267,7 +270,7 @@ export function RoomSettingsButton({
                 <input
                   value={categoryName}
                   onChange={(e) => setCategoryName(e.target.value)}
-                  placeholder="카테고리 이름"
+                  placeholder={t("categoryNamePlaceholder")}
                   className="flex-1 rounded-md border border-neutral-200 px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
                 />
                 <select
@@ -286,16 +289,16 @@ export function RoomSettingsButton({
                   onClick={addCategory}
                   className="shrink-0 rounded-md border border-neutral-200 px-2.5 py-1.5 text-xs font-medium text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
                 >
-                  추가
+                  {t("addCategory")}
                 </button>
               </div>
               {categoryError && <p className="text-xs text-red-500">{categoryError}</p>}
             </div>
 
             <div className="mt-5 flex flex-col gap-2 border-t border-neutral-100 pt-4 dark:border-neutral-800">
-              <h3 className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">참여자 관리</h3>
+              <h3 className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">{t("memberManagement")}</h3>
               {members.length === 0 ? (
-                <p className="text-xs text-neutral-400">다른 참여자가 없습니다.</p>
+                <p className="text-xs text-neutral-400">{t("noOtherMembers")}</p>
               ) : (
                 <ul className="flex flex-col divide-y divide-neutral-100 dark:divide-neutral-800">
                   {members.map((m) => {
@@ -308,7 +311,7 @@ export function RoomSettingsButton({
                           </span>
                           {isVice && (
                             <span className="shrink-0 rounded bg-sky-100 px-1.5 py-0.5 text-[11px] font-medium text-sky-700">
-                              부방장
+                              {t("viceBadge")}
                             </span>
                           )}
                         </span>
@@ -329,7 +332,7 @@ export function RoomSettingsButton({
                             }}
                             className="rounded-md border border-sky-200 px-2 py-1 text-[12px] font-medium text-sky-600 transition hover:bg-sky-50 disabled:opacity-50"
                           >
-                            {isVice ? "부방장 해제" : "부방장 지정"}
+                            {isVice ? t("viceUnset") : t("viceSet")}
                           </button>
                           <button
                             disabled={busyId === m.id}
@@ -341,13 +344,13 @@ export function RoomSettingsButton({
                             }}
                             className="rounded-md border border-neutral-200 px-2 py-1 text-[12px] font-medium text-neutral-600 transition hover:bg-neutral-50 disabled:opacity-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
                           >
-                            방장 위임
+                            {t("transferOwnership")}
                           </button>
                           <button
                             disabled={busyId === m.id}
                             onClick={async () => {
                               if (
-                                !window.confirm(`${m.name}님을 이 방에서 내보낼까요?`)
+                                !window.confirm(t("kickConfirm", { name: m.name }))
                               ) {
                                 return;
                               }
@@ -357,7 +360,7 @@ export function RoomSettingsButton({
                             }}
                             className="rounded-md border border-red-200 px-2 py-1 text-[12px] font-medium text-red-500 transition hover:bg-red-50 disabled:opacity-50"
                           >
-                            내보내기
+                            {t("kick")}
                           </button>
                         </div>
                       </li>
@@ -368,23 +371,15 @@ export function RoomSettingsButton({
             </div>
 
             <div className="mt-5 flex flex-col gap-2 border-t border-red-100 pt-4 dark:border-red-900/40">
-              <h3 className="text-xs font-semibold text-red-500">위험 구역</h3>
+              <h3 className="text-xs font-semibold text-red-500">{t("dangerZone")}</h3>
               {nukeStep < 2 ? (
                 <button
                   type="button"
                   onClick={() => {
-                    if (
-                      !window.confirm(
-                        "정말로 이 방을 폭파하시겠어요? 채팅, 기록, 일정, 게시글이 모두 영구히 삭제되며 되돌릴 수 없습니다."
-                      )
-                    ) {
+                    if (!window.confirm(t("nukeConfirm1"))) {
                       return;
                     }
-                    if (
-                      !window.confirm(
-                        `다시 한번 확인합니다. 방 "${currentName}"을(를) 완전히 삭제합니다. 정말 계속하시겠어요?`
-                      )
-                    ) {
+                    if (!window.confirm(t("nukeConfirm2", { name: currentName }))) {
                       return;
                     }
                     setNukeError(null);
@@ -392,14 +387,14 @@ export function RoomSettingsButton({
                   }}
                   className="self-start rounded-md border border-red-200 px-3 py-1.5 text-xs font-medium text-red-500 transition hover:bg-red-50"
                 >
-                  방 폭파하기
+                  {t("nukeButton")}
                 </button>
               ) : (
                 <div className="flex flex-col gap-2 rounded-md border border-red-200 bg-red-50 p-3 dark:border-red-900/50 dark:bg-red-950/30">
                   <p className="text-xs text-red-600 dark:text-red-400">
-                    마지막 확인입니다. 아래에 방 이름{" "}
+                    {t("nukeWarningPrefix")}{" "}
                     <span className="font-semibold">&quot;{currentName}&quot;</span>
-                    을(를) 정확히 입력하면 영구 삭제됩니다.
+                    {t("nukeWarningSuffix")}
                   </p>
                   <input
                     value={nukeText}
@@ -457,7 +452,7 @@ export function RoomSettingsButton({
                       }}
                       className="flex-1 rounded-md bg-red-600 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-40"
                     >
-                      {nukePending ? "삭제하는 중..." : "영구 삭제"}
+                      {nukePending ? t("deleting") : t("permanentDelete")}
                     </button>
                     <button
                       type="button"
@@ -468,7 +463,7 @@ export function RoomSettingsButton({
                       }}
                       className="flex-1 rounded-md border border-neutral-200 px-2.5 py-1.5 text-xs text-neutral-600 transition hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
                     >
-                      취소
+                      {t("cancel")}
                     </button>
                   </div>
                 </div>

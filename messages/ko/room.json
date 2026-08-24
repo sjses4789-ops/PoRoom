@@ -1,0 +1,240 @@
+{
+  "common": {
+    "self": "나",
+    "unknown": "알 수 없음",
+    "recordsPrivate": "기록 비공개",
+    "charUnit": "자",
+    "minuteUnit": "분",
+    "cancel": "취소",
+    "save": "저장",
+    "saving": "저장 중...",
+    "delete": "삭제"
+  },
+  "page": {
+    "backToPoroom": "← 포룸으로",
+    "inviteCode": "초대코드",
+    "recordVisibility": {
+      "shared": "기록 공유방",
+      "private": "기록 비공유방",
+      "free": "기록 공유 자유"
+    }
+  },
+  "roomView": {
+    "participantsList": "참여자 목록",
+    "membersSuffix": "{count}/{capacity}명",
+    "notice": "공지사항",
+    "onlineCount": "현재 접속 중 {count}명"
+  },
+  "shareRecordsToggle": {
+    "label": "내 기록",
+    "public": "공개",
+    "private": "비공개"
+  },
+  "chatColorPicker": {
+    "myChatColor": "내 채팅 색상"
+  },
+  "roomTabs": {
+    "room": "방",
+    "records": "기록",
+    "calendar": "캘린더",
+    "poll": "투표",
+    "board": "게시판"
+  },
+  "boardPanel": {
+    "categories": {
+      "notice": "공지사항",
+      "infoShare": "정보 공유",
+      "tips": "팁 전수",
+      "free": "자유"
+    },
+    "write": "글쓰기",
+    "cancel": "취소",
+    "titlePlaceholder": "제목",
+    "contentPlaceholder": "내용",
+    "submitting": "등록 중...",
+    "submit": "등록",
+    "noPosts": "아직 게시글이 없습니다.",
+    "edit": "수정",
+    "delete": "삭제",
+    "saving": "저장 중...",
+    "save": "저장",
+    "deleteConfirm": "이 게시글을 삭제할까요?"
+  },
+  "charInput": {
+    "title": "글자수 기록",
+    "setGoalAria": "오늘의 목표 글자수 설정",
+    "todayGoalLabel": "오늘의 목표 글자수",
+    "setGoalHint": "⚙️ 버튼으로 오늘의 목표 글자수를 설정해보세요.",
+    "recordByWork": "작품별로 기록하기 (선택)",
+    "notSelected": "선택 안 함",
+    "selectWorkTitle": "작품 선택",
+    "deleteWorkTitle": "작품 삭제",
+    "workNamePlaceholder": "작품 이름",
+    "add": "추가",
+    "addWork": "+ 작품 추가",
+    "deleteWorkConfirm": "\"{title}\" 작품을 목록에서 삭제할까요? 기록된 글자수 그래프는 유지돼요.",
+    "startChars": "시작 전 글자수",
+    "currentChars": "현재 글자수",
+    "currentCharsPlaceholder": "지금까지 쓴 총 글자수",
+    "deltaLabel": "이번에 기록될 글자수: {delta}자",
+    "calculate": "계산해서 기록",
+    "goalModalHint": "오늘 설정한 목표는 오늘과 이후 날짜에 계속 적용돼요. 다시 바꾸면 그 시점부터 새 값이 적용돼요.",
+    "goalPlaceholder": "예: 3000",
+    "saving": "저장 중...",
+    "save": "저장",
+    "cancel": "취소"
+  },
+  "chatPanel": {
+    "title": "채팅",
+    "inputPlaceholder": "메시지 입력...",
+    "send": "전송"
+  },
+  "pollPanel": {
+    "title": "투표",
+    "cancel": "취소",
+    "create": "투표 만들기",
+    "titlePlaceholder": "투표 제목",
+    "methodLabel": "투표 방식",
+    "method": {
+      "yesno": "찬반 투표 (찬성/반대)",
+      "single": "단일 선택",
+      "multi": "다중 투표"
+    },
+    "type": {
+      "yesno": "찬반 투표",
+      "single": "단일 선택",
+      "multi": "다중 투표"
+    },
+    "anonymous": "익명",
+    "anonymousVote": "익명 투표",
+    "optionsLabel": "선택지 목록",
+    "optionPlaceholder": "선택지 {index}",
+    "delete": "삭제",
+    "addOption": "선택지 추가",
+    "anonVoteCheckbox": "익명 투표 (누가 뭘 뽑았는지 공개 안 함)",
+    "anonCreatorCheckbox": "익명으로 투표 만들기 (만든 사람 비공개)",
+    "creating": "만드는 중...",
+    "submit": "만들기",
+    "noPolls": "아직 만들어진 투표가 없습니다.",
+    "voteCountPct": "{count}표 ({pct}%)",
+    "multiSelectHint": "중복 선택 가능",
+    "totalVotes": "총 {total}표"
+  },
+  "roomRecordsPanel": {
+    "title": "방 기록",
+    "month": "월별",
+    "year": "연별",
+    "yearMonth": "{year}년 {month}월",
+    "yearOnly": "{year}년",
+    "participant": "참여자",
+    "dayColumn": "{day}일",
+    "monthColumn": "{month}월",
+    "total": "합계"
+  },
+  "workStatusPicker": {
+    "setStatus": "상태 설정",
+    "clearStatus": "상태 지우기",
+    "customInput": "직접 입력",
+    "customPlaceholder": "상태 직접 입력",
+    "confirm": "확인",
+    "cancel": "취소",
+    "presets": {
+      "brainstorming": "구상중",
+      "drafting": "집필중",
+      "revising": "퇴고중",
+      "proofreading": "교정중",
+      "research": "자료조사",
+      "resting": "휴식 중",
+      "away": "자리 비움"
+    }
+  },
+  "participantCard": {
+    "phase": {
+      "focus": "집중 중",
+      "break": "휴식 중",
+      "idle": "대기 중"
+    },
+    "lastSeen": "마지막 접속 {label}",
+    "neverSeen": "미접속"
+  },
+  "pomodoroPanel": {
+    "status": {
+      "idle": "대기 중",
+      "paused": "일시정지",
+      "focus": "집중 중",
+      "break": "휴식 중"
+    },
+    "focusLabel": "집중(분)",
+    "breakLabel": "휴식(분)",
+    "resume": "재개",
+    "start": "시작",
+    "pause": "일시정지",
+    "reset": "초기화"
+  },
+  "calendarPanel": {
+    "weekday": {
+      "sun": "일",
+      "mon": "월",
+      "tue": "화",
+      "wed": "수",
+      "thu": "목",
+      "fri": "금",
+      "sat": "토"
+    },
+    "upcomingTitle": "다가오는 일정",
+    "noUpcoming": "예정된 일정이 없습니다.",
+    "today": "오늘",
+    "titleRequiredError": "일정 제목을 입력해주세요.",
+    "monthHeader": "{year}년 {month}월",
+    "eventsForDate": "{date} 일정",
+    "noEventsForDate": "등록된 일정이 없습니다.",
+    "titlePlaceholder": "일정 제목",
+    "memoPlaceholder": "메모 (선택)",
+    "noCategory": "카테고리 없음",
+    "adding": "추가 중...",
+    "addEvent": "일정 추가"
+  },
+  "leaveRoomButton": {
+    "confirmLeave": "이 방에서 나가시겠어요?",
+    "leaving": "나가는 중...",
+    "leave": "방 나가기"
+  },
+  "roomSettingsButton": {
+    "settingsTitle": "방 설정",
+    "roomName": "방 이름",
+    "roomColor": "방 색상",
+    "tagLabel": "태그",
+    "joinTypeLabel": "입장 방식",
+    "joinInvite": "초대코드 입장",
+    "joinOpen": "공개방",
+    "visibilityLabel": "기록 공개 정책",
+    "visibility": {
+      "shared": "기록 공유방",
+      "private": "기록 비공유방",
+      "free": "기록 공유 자유"
+    },
+    "saving": "저장 중...",
+    "save": "저장하기",
+    "saved": "저장됐어요 ✓",
+    "eventCategories": "일정 카테고리",
+    "categoryNamePlaceholder": "카테고리 이름",
+    "addCategory": "추가",
+    "memberManagement": "참여자 관리",
+    "noOtherMembers": "다른 참여자가 없습니다.",
+    "viceBadge": "부방장",
+    "viceUnset": "부방장 해제",
+    "viceSet": "부방장 지정",
+    "transferOwnership": "방장 위임",
+    "kickConfirm": "{name}님을 이 방에서 내보낼까요?",
+    "kick": "내보내기",
+    "dangerZone": "위험 구역",
+    "nukeButton": "방 폭파하기",
+    "nukeConfirm1": "정말로 이 방을 폭파하시겠어요? 채팅, 기록, 일정, 게시글이 모두 영구히 삭제되며 되돌릴 수 없습니다.",
+    "nukeConfirm2": "다시 한번 확인합니다. 방 \"{name}\"을(를) 완전히 삭제합니다. 정말 계속하시겠어요?",
+    "nukeWarningPrefix": "마지막 확인입니다. 아래에 방 이름",
+    "nukeWarningSuffix": "을(를) 정확히 입력하면 영구 삭제됩니다.",
+    "deleting": "삭제하는 중...",
+    "permanentDelete": "영구 삭제",
+    "cancel": "취소"
+  }
+}

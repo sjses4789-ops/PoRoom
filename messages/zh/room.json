@@ -1,0 +1,240 @@
+{
+  "common": {
+    "self": "我",
+    "unknown": "未知",
+    "recordsPrivate": "记录不公开",
+    "charUnit": "字",
+    "minuteUnit": "分钟",
+    "cancel": "取消",
+    "save": "保存",
+    "saving": "保存中...",
+    "delete": "删除"
+  },
+  "page": {
+    "backToPoroom": "← 返回 PoRoom",
+    "inviteCode": "邀请码",
+    "recordVisibility": {
+      "shared": "记录共享房间",
+      "private": "记录不共享房间",
+      "free": "自由共享记录"
+    }
+  },
+  "roomView": {
+    "participantsList": "参与者列表",
+    "membersSuffix": "{count}/{capacity}人",
+    "notice": "公告",
+    "onlineCount": "当前在线 {count} 人"
+  },
+  "shareRecordsToggle": {
+    "label": "我的记录",
+    "public": "公开",
+    "private": "不公开"
+  },
+  "chatColorPicker": {
+    "myChatColor": "我的聊天颜色"
+  },
+  "roomTabs": {
+    "room": "房间",
+    "records": "记录",
+    "calendar": "日历",
+    "poll": "投票",
+    "board": "留言板"
+  },
+  "boardPanel": {
+    "categories": {
+      "notice": "公告",
+      "infoShare": "信息分享",
+      "tips": "技巧传授",
+      "free": "自由"
+    },
+    "write": "写帖子",
+    "cancel": "取消",
+    "titlePlaceholder": "标题",
+    "contentPlaceholder": "内容",
+    "submitting": "发布中...",
+    "submit": "发布",
+    "noPosts": "还没有帖子。",
+    "edit": "编辑",
+    "delete": "删除",
+    "saving": "保存中...",
+    "save": "保存",
+    "deleteConfirm": "要删除这篇帖子吗?"
+  },
+  "charInput": {
+    "title": "字数记录",
+    "setGoalAria": "设置今日目标字数",
+    "todayGoalLabel": "今日目标字数",
+    "setGoalHint": "点击 ⚙️ 按钮设置今日目标字数吧。",
+    "recordByWork": "按作品记录(可选)",
+    "notSelected": "未选择",
+    "selectWorkTitle": "选择作品",
+    "deleteWorkTitle": "删除作品",
+    "workNamePlaceholder": "作品名称",
+    "add": "添加",
+    "addWork": "+ 添加作品",
+    "deleteWorkConfirm": "要从列表中删除《{title}》吗?已记录的字数图表将会保留。",
+    "startChars": "开始前字数",
+    "currentChars": "当前字数",
+    "currentCharsPlaceholder": "目前为止写的总字数",
+    "deltaLabel": "本次将记录的字数: {delta}字",
+    "calculate": "计算并记录",
+    "goalModalHint": "今日设置的目标会从今天起持续生效。再次更改时,新数值将从修改起生效。",
+    "goalPlaceholder": "例如: 3000",
+    "saving": "保存中...",
+    "save": "保存",
+    "cancel": "取消"
+  },
+  "chatPanel": {
+    "title": "聊天",
+    "inputPlaceholder": "输入消息...",
+    "send": "发送"
+  },
+  "pollPanel": {
+    "title": "投票",
+    "cancel": "取消",
+    "create": "创建投票",
+    "titlePlaceholder": "投票标题",
+    "methodLabel": "投票方式",
+    "method": {
+      "yesno": "赞成/反对投票",
+      "single": "单选",
+      "multi": "多选"
+    },
+    "type": {
+      "yesno": "赞成/反对投票",
+      "single": "单选",
+      "multi": "多选"
+    },
+    "anonymous": "匿名",
+    "anonymousVote": "匿名投票",
+    "optionsLabel": "选项列表",
+    "optionPlaceholder": "选项 {index}",
+    "delete": "删除",
+    "addOption": "添加选项",
+    "anonVoteCheckbox": "匿名投票(不公开谁投了什么)",
+    "anonCreatorCheckbox": "匿名创建投票(不公开创建者)",
+    "creating": "创建中...",
+    "submit": "创建",
+    "noPolls": "还没有创建的投票。",
+    "voteCountPct": "{count}票 ({pct}%)",
+    "multiSelectHint": "可多选",
+    "totalVotes": "共{total}票"
+  },
+  "roomRecordsPanel": {
+    "title": "房间记录",
+    "month": "按月",
+    "year": "按年",
+    "yearMonth": "{year}年{month}月",
+    "yearOnly": "{year}年",
+    "participant": "参与者",
+    "dayColumn": "{day}日",
+    "monthColumn": "{month}月",
+    "total": "合计"
+  },
+  "workStatusPicker": {
+    "setStatus": "设置状态",
+    "clearStatus": "清除状态",
+    "customInput": "自定义输入",
+    "customPlaceholder": "直接输入状态",
+    "confirm": "确认",
+    "cancel": "取消",
+    "presets": {
+      "brainstorming": "构思中",
+      "drafting": "写作中",
+      "revising": "改稿中",
+      "proofreading": "校对中",
+      "research": "资料调研",
+      "resting": "休息中",
+      "away": "暂时离开"
+    }
+  },
+  "participantCard": {
+    "phase": {
+      "focus": "专注中",
+      "break": "休息中",
+      "idle": "待机中"
+    },
+    "lastSeen": "最后上线 {label}",
+    "neverSeen": "未上线"
+  },
+  "pomodoroPanel": {
+    "status": {
+      "idle": "待机中",
+      "paused": "已暂停",
+      "focus": "专注中",
+      "break": "休息中"
+    },
+    "focusLabel": "专注(分钟)",
+    "breakLabel": "休息(分钟)",
+    "resume": "继续",
+    "start": "开始",
+    "pause": "暂停",
+    "reset": "重置"
+  },
+  "calendarPanel": {
+    "weekday": {
+      "sun": "日",
+      "mon": "一",
+      "tue": "二",
+      "wed": "三",
+      "thu": "四",
+      "fri": "五",
+      "sat": "六"
+    },
+    "upcomingTitle": "即将到来的日程",
+    "noUpcoming": "暂无安排的日程。",
+    "today": "今天",
+    "titleRequiredError": "请输入日程标题。",
+    "monthHeader": "{year}年{month}月",
+    "eventsForDate": "{date} 的日程",
+    "noEventsForDate": "暂无已登记的日程。",
+    "titlePlaceholder": "日程标题",
+    "memoPlaceholder": "备注(可选)",
+    "noCategory": "无分类",
+    "adding": "添加中...",
+    "addEvent": "添加日程"
+  },
+  "leaveRoomButton": {
+    "confirmLeave": "要退出这个房间吗?",
+    "leaving": "退出中...",
+    "leave": "退出房间"
+  },
+  "roomSettingsButton": {
+    "settingsTitle": "房间设置",
+    "roomName": "房间名称",
+    "roomColor": "房间颜色",
+    "tagLabel": "标签",
+    "joinTypeLabel": "加入方式",
+    "joinInvite": "凭邀请码加入",
+    "joinOpen": "公开房间",
+    "visibilityLabel": "记录公开政策",
+    "visibility": {
+      "shared": "记录共享房间",
+      "private": "记录不共享房间",
+      "free": "自由共享记录"
+    },
+    "saving": "保存中...",
+    "save": "保存",
+    "saved": "已保存 ✓",
+    "eventCategories": "日程分类",
+    "categoryNamePlaceholder": "分类名称",
+    "addCategory": "添加",
+    "memberManagement": "成员管理",
+    "noOtherMembers": "没有其他参与者。",
+    "viceBadge": "副房主",
+    "viceUnset": "取消副房主",
+    "viceSet": "指定为副房主",
+    "transferOwnership": "转让房主",
+    "kickConfirm": "要将 {name} 移出这个房间吗?",
+    "kick": "移出",
+    "dangerZone": "危险区域",
+    "nukeButton": "解散房间",
+    "nukeConfirm1": "确定要解散这个房间吗?聊天记录、字数记录、日程、帖子都将被永久删除且无法恢复。",
+    "nukeConfirm2": "再次确认。将永久删除房间「{name}」。确定要继续吗?",
+    "nukeWarningPrefix": "最后确认。请在下方准确输入房间名",
+    "nukeWarningSuffix": "以永久删除。",
+    "deleting": "删除中...",
+    "permanentDelete": "永久删除",
+    "cancel": "取消"
+  }
+}

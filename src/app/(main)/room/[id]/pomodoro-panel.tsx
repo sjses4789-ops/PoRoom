@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { PomodoroDonut } from "./pomodoro-donut";
 import type { Phase } from "./use-pomodoro";
 
@@ -34,11 +35,13 @@ export function PomodoroPanel({
   pause: () => void;
   reset: () => void;
 }) {
+  const t = useTranslations("room.pomodoroPanel");
   const color = PHASE_COLOR[phase];
   const mm = String(Math.floor(remainingSeconds / 60)).padStart(2, "0");
   const ss = String(remainingSeconds % 60).padStart(2, "0");
-  const label =
-    phase === "idle" ? "대기 중" : !running ? "일시정지" : phase === "focus" ? "집중 중" : "휴식 중";
+  const label = t(
+    phase === "idle" ? "status.idle" : !running ? "status.paused" : `status.${phase}`
+  );
 
   return (
     <div className="flex flex-col items-center gap-4 rounded-lg border border-neutral-200 p-6 dark:border-neutral-800">
@@ -57,7 +60,7 @@ export function PomodoroPanel({
 
       <div className="flex items-center justify-center gap-4">
         <label className="flex flex-col items-center gap-1 text-[12px] text-neutral-500">
-          집중(분)
+          {t("focusLabel")}
           <input
             type="number"
             min={1}
@@ -68,7 +71,7 @@ export function PomodoroPanel({
           />
         </label>
         <label className="flex flex-col items-center gap-1 text-[12px] text-neutral-500">
-          휴식(분)
+          {t("breakLabel")}
           <input
             type="number"
             min={1}
@@ -86,21 +89,21 @@ export function PomodoroPanel({
             onClick={start}
             className="flex-1 rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-neutral-700"
           >
-            {started ? "재개" : "시작"}
+            {started ? t("resume") : t("start")}
           </button>
         ) : (
           <button
             onClick={pause}
             className="flex-1 rounded-md border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-700 transition hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
           >
-            일시정지
+            {t("pause")}
           </button>
         )}
         <button
           onClick={reset}
           className="flex-1 rounded-md border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-700 transition hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
         >
-          초기화
+          {t("reset")}
         </button>
       </div>
     </div>

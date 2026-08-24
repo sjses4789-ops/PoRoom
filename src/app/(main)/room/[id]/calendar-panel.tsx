@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { createEvent, celebrateEvent } from "@/lib/room-events";
 import { paletteDot } from "@/lib/palette";
 
@@ -18,7 +19,7 @@ export type RoomEvent = {
   selfCelebrated: boolean;
 };
 
-const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
+const WEEKDAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
 
 function toDateKey(y: number, m: number, d: number) {
   return `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
@@ -33,6 +34,8 @@ export function CalendarPanel({
   initialEvents: RoomEvent[];
   categories: EventCategory[];
 }) {
+  const t = useTranslations("room.calendarPanel");
+  const tCommon = useTranslations("room.common");
   const [events, setEvents] = useState<RoomEvent[]>(initialEvents);
   const today = new Date();
   const todayKey = toDateKey(today.getFullYear(), today.getMonth(), today.getDate());
@@ -92,7 +95,7 @@ export function CalendarPanel({
   const submitEvent = async () => {
     if (!selectedDate) return;
     if (!title.trim()) {
-      setError("일정 제목을 입력해주세요.");
+      setError(t("titleRequiredError"));
       return;
     }
     setPending(true);
@@ -115,7 +118,7 @@ export function CalendarPanel({
       ...prev,
       {
         ...result,
-        authorName: isAnnouncement ? null : "나",
+        authorName: isAnnouncement ? null : tCommon("self"),
         celebrationCount: 0,
         selfCelebrated: false,
       },
@@ -141,9 +144,9 @@ export function CalendarPanel({
   return (
     <div className="grid grid-cols-1 gap-4 rounded-lg border border-neutral-200 p-4 lg:grid-cols-[220px_1fr] dark:border-neutral-800 dark:bg-neutral-900">
       <div className="flex flex-col gap-2 lg:border-r lg:border-neutral-100 lg:pr-4 dark:lg:border-neutral-800">
-        <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">다가오는 일정</h2>
+        <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("upcomingTitle")}</h2>
         {upcoming.length === 0 ? (
-          <p className="text-xs text-neutral-400">예정된 일정이 없습니다.</p>
+          <p className="text-xs text-neutral-400">{t("noUpcoming")}</p>
         ) : (
           <ul className="flex flex-col gap-1.5">
             {upcoming.map((e) => {
@@ -171,7 +174,7 @@ export function CalendarPanel({
                     )}
                   </div>
                   <p className="mt-0.5 text-neutral-400">
-                    {e.eventDate === todayKey ? "오늘" : e.eventDate}
+                    {e.eventDate === todayKey ? t("today") : e.eventDate}
                     {category ? ` · ${category.name}` : ""}
                   </p>
                 </li>
@@ -188,7 +191,7 @@ export function CalendarPanel({
               ←
             </button>
             <span className="font-medium text-neutral-900 dark:text-white">
-              {viewYear}년 {viewMonth + 1}월
+              {t("monthHeader", { year: viewYear, month: viewMonth + 1 })}
             </span>
             <button onClick={() => goMonth(1)} className="rounded-md px-2 py-1 hover:bg-neutral-100 dark:hover:bg-neutral-800">
               →
@@ -197,9 +200,9 @@ export function CalendarPanel({
         </div>
 
         <div className="grid grid-cols-7 gap-1 text-center text-xs text-neutral-400">
-          {WEEKDAYS.map((w) => (
+          {WEEKDAY_KEYS.map((w) => (
             <div key={w} className="py-1">
-              {w}
+              {t(`weekday.${w}`)}
             </div>
           ))}
           {cells.map((day, i) => {
@@ -245,9 +248,9 @@ export function CalendarPanel({
 
         {selectedDate && (
           <div className="flex flex-col gap-2 border-t border-neutral-100 pt-3 dark:border-neutral-800">
-            <h3 className="text-xs font-medium text-neutral-500">{selectedDate} 일정</h3>
+            <h3 className="text-xs font-medium text-neutral-500">{t("eventsForDate", { date: selectedDate })}</h3>
             {selectedEvents.length === 0 ? (
-              <p className="text-xs text-neutral-400">등록된 일정이 없습니다.</p>
+              <p className="text-xs text-neutral-400">{t("noEventsForDate")}</p>
             ) : (
               <ul className="flex flex-col gap-1.5">
                 {selectedEvents.map((e) => {
@@ -291,13 +294,13 @@ export function CalendarPanel({
               <input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="일정 제목"
+                placeholder={t("titlePlaceholder")}
                 className="rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
               />
               <input
                 value={memo}
                 onChange={(e) => setMemo(e.target.value)}
-                placeholder="메모 (선택)"
+                placeholder={t("memoPlaceholder")}
                 className="rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
               />
               {categories.length > 0 && (
@@ -306,7 +309,7 @@ export function CalendarPanel({
                   onChange={(e) => setCategoryId(e.target.value)}
                   className="rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-700 outline-none focus:border-neutral-400 dark:text-neutral-100"
                 >
-                  <option value="">카테고리 없음</option>
+                  <option value="">{t("noCategory")}</option>
                   {categories.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name}
@@ -320,7 +323,7 @@ export function CalendarPanel({
                 disabled={pending}
                 className="self-start rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-neutral-700 disabled:opacity-50"
               >
-                {pending ? "추가 중..." : "일정 추가"}
+                {pending ? t("adding") : t("addEvent")}
               </button>
             </div>
           </div>

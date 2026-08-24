@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { usePomodoroContext } from "../../pomodoro-context";
 import { useRoomPresence } from "./use-room-presence";
 import { useLiveMembers } from "./use-live-members";
@@ -58,6 +59,7 @@ export function RoomView({
   selfTodayGoalChars: number;
   initialWorks: WorkItem[];
 }) {
+  const t = useTranslations("room.roomView");
   const members = useLiveMembers(roomId, selfId, initialMembers, recordVisibility);
   const pomodoro = usePomodoroContext();
   const isActiveRoom = pomodoro.activeRoomId === roomId;
@@ -197,10 +199,10 @@ export function RoomView({
                 👥
               </span>
               <span className="shrink-0 text-sm font-semibold text-neutral-900 dark:text-white">
-                참여자 목록
+                {t("participantsList")}
               </span>
               <span className="shrink-0 rounded-full bg-neutral-100 px-2 py-0.5 text-sm font-medium text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
-                {members.length}/{capacity ?? members.length}명
+                {t("membersSuffix", { count: members.length, capacity: capacity ?? members.length })}
               </span>
             </div>
             {latestNotice && (
@@ -230,7 +232,7 @@ export function RoomView({
                 <div className="mb-3 flex items-start justify-between gap-2">
                   <div className="flex flex-col gap-0.5">
                     <span className="flex items-center gap-1 text-[12px] font-medium text-amber-600 dark:text-amber-400">
-                      📌 공지사항
+                      📌 {t("notice")}
                     </span>
                     <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">
                       {latestNotice.title}
@@ -262,7 +264,7 @@ export function RoomView({
             ))}
           </div>
           <p className="text-[12px] text-neutral-400">
-            현재 접속 중 {onlineCount}명
+            {t("onlineCount", { count: onlineCount })}
           </p>
         </div>
 

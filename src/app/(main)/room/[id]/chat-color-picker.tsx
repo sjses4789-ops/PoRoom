@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { PALETTE, paletteDot } from "@/lib/palette";
 import { setChatColor } from "@/lib/profile";
 
@@ -11,6 +12,7 @@ export function ChatColorPicker({
   current: string | null;
   onChange: (color: string) => void;
 }) {
+  const t = useTranslations("room.chatColorPicker");
   const [open, setOpen] = useState(false);
 
   return (
@@ -18,7 +20,7 @@ export function ChatColorPicker({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        title="내 채팅 색상"
+        title={t("myChatColor")}
         className={`h-7 w-7 shrink-0 rounded-full border border-neutral-200 transition hover:opacity-80 ${
           current ? paletteDot(current) : "bg-neutral-200"
         }`}
@@ -31,7 +33,7 @@ export function ChatColorPicker({
           />
           <div className="fixed left-1/2 top-1/2 z-20 w-[min(18rem,calc(100vw-2.5rem))] -translate-x-1/2 -translate-y-1/2 rounded-md border border-neutral-300 bg-white p-3 shadow-lg dark:border-neutral-700 dark:bg-neutral-900">
             <p className="mb-2 text-xs font-medium text-neutral-500 dark:text-neutral-400">
-              내 채팅 색상
+              {t("myChatColor")}
             </p>
             <div className="flex flex-wrap gap-1.5">
               {PALETTE.map((p) => (
