@@ -71,8 +71,12 @@
     "periodMonth": "月別",
     "entryChangeFor": "{title}の入力別変動",
     "noEntries": "まだ入力記録がありません。",
-    "basis": "基準",
     "monthLabel": "{month}月",
+    "yearLabel": "{year}年",
+    "prevMonth": "前の月",
+    "nextMonth": "次の月",
+    "prevYear": "前の年",
+    "nextYear": "次の年",
     "editTitle": "表で修正",
     "backToChart": "グラフで見る",
     "charsPlaceholder": "文字数",
@@ -87,10 +91,12 @@
     "myRank": "自分 {rank}位 / {count}人",
     "overall": "全体基準",
     "overallRank": "全体 {rank}位 / {total}人",
+    "competeLabel": "対決",
     "noCompete": "対決記録なし",
-    "competeRank": "対決 {rank}位 / {total}人",
+    "competeRank": "{rank}位 / {total}人",
+    "challengeLabel": "チャレンジ",
     "noChallenge": "チャレンジ記録なし",
-    "challengeRank": "チャレンジ {rank}位 / {total}人"
+    "challengeRank": "{rank}位 / {total}人"
   },
   "workList": {
     "title": "作品リスト",
@@ -115,6 +121,9 @@
     "focusVsSiteTime": "滞在時間に対する集中時間",
     "noSiteTimeData": "データなし",
     "hourUnit": "時間",
-    "minuteUnit": "分"
+    "minuteUnit": "分",
+    "prevMonth": "前の月",
+    "nextMonth": "次の月",
+    "sessionCountTooltip": "{count}回"
   }
 }

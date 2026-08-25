@@ -11,7 +11,7 @@ import GoalBar from "./goal-bar";
 export type PeriodGoal = { targetChars: number; targetMinutes: number };
 export type PeriodProgress = { chars: number; minutes: number };
 export type DailyRecordPoint = { date: string; chars: number; minutes: number };
-export type DailyGoalPoint = { effectiveDate: string; targetChars: number };
+export type DailyGoalPoint = { effectiveDate: string; targetChars: number; targetMinutes: number };
 
 type Period = "day" | "month" | "year";
 
@@ -47,7 +47,7 @@ export function GoalPanel({
     { key: "month", label: t("periodMonth") },
     { key: "year", label: t("periodYear") },
   ];
-  const [period, setPeriod] = useState<Period>("month");
+  const [period, setPeriod] = useState<Period>("day");
   const [state, formAction, pending] = useActionState<ActionResult, FormData>(
     saveGoal,
     null
@@ -61,9 +61,12 @@ export function GoalPanel({
   const [selectedMonth, setSelectedMonth] = useState(thisMonth);
   const [selectedYear, setSelectedYear] = useState(thisYear);
 
-  const [dayGoalInput, setDayGoalInput] = useState("");
+  const [dayCharsInput, setDayCharsInput] = useState("");
+  const [dayMinutesInput, setDayMinutesInput] = useState("");
   const [dayGoalPending, setDayGoalPending] = useState(false);
-  const [dayGoalOverride, setDayGoalOverride] = useState<number | null>(null);
+  const [dayGoalOverride, setDayGoalOverride] = useState<{ chars: number; minutes: number } | null>(
+    null
+  );
 
   const recordsByDate = useMemo(() => {
     const map = new Map<string, DailyRecordPoint>();
@@ -76,21 +79,24 @@ export function GoalPanel({
     [dailyGoals]
   );
 
-  const resolveDailyGoalChars = (date: string) => {
-    let target = 0;
+  const resolveDailyGoal = (date: string) => {
+    let chars = 0;
+    let minutes = 0;
     for (const g of sortedDailyGoals) {
-      if (g.effectiveDate <= date) target = g.targetChars;
-      else break;
+      if (g.effectiveDate <= date) {
+        chars = g.targetChars;
+        minutes = g.targetMinutes;
+      } else break;
     }
-    return target;
+    return { chars, minutes };
   };
 
   const isToday = selectedDate === today;
   const isCurrentMonth = selectedMonth === thisMonth;
   const isCurrentYear = selectedYear === thisYear;
 
-  const dayTargetChars =
-    isToday && dayGoalOverride !== null ? dayGoalOverride : resolveDailyGoalChars(selectedDate);
+  const resolvedDayGoal = resolveDailyGoal(selectedDate);
+  const dayGoal = isToday && dayGoalOverride !== null ? dayGoalOverride : resolvedDayGoal;
   const dayProgress = recordsByDate.get(selectedDate) ?? { date: selectedDate, chars: 0, minutes: 0 };
 
   const monthProgress = isCurrentMonth
@@ -115,12 +121,14 @@ export function GoalPanel({
   };
 
   const saveDayGoal = async () => {
-    const value = Math.max(0, Math.floor(Number(dayGoalInput)) || 0);
+    const chars = Math.max(0, Math.floor(Number(dayCharsInput)) || 0);
+    const minutes = Math.max(0, Math.floor(Number(dayMinutesInput)) || 0);
     setDayGoalPending(true);
-    await setDailyCharGoal(value);
+    await setDailyCharGoal(chars, minutes);
     setDayGoalPending(false);
-    setDayGoalOverride(value);
-    setDayGoalInput("");
+    setDayGoalOverride({ chars, minutes });
+    setDayCharsInput("");
+    setDayMinutesInput("");
   };
 
   return (
@@ -148,7 +156,7 @@ export function GoalPanel({
             aria-label={t("prevDate")}
             className="rounded-md px-1.5 py-1 transition hover:bg-neutral-100 dark:hover:bg-neutral-800"
           >
-            ←
+            {"<"}
           </button>
           <span className="min-w-[5.5rem] text-center font-medium text-neutral-700 dark:text-neutral-200">
             {dateLabel}
@@ -159,19 +167,27 @@ export function GoalPanel({
             aria-label={t("nextDate")}
             className="rounded-md px-1.5 py-1 transition hover:bg-neutral-100 dark:hover:bg-neutral-800"
           >
-            →
+            {">"}
           </button>
         </div>
       </div>
 
       <div className="flex flex-col gap-3">
         {period === "day" ? (
-          <GoalBar
-            label={t("charsGoalLabel")}
-            current={dayProgress.chars}
-            target={dayTargetChars}
-            unit={t("charsUnit")}
-          />
+          <>
+            <GoalBar
+              label={t("charsGoalLabel")}
+              current={dayProgress.chars}
+              target={dayGoal.chars}
+              unit={t("charsUnit")}
+            />
+            <GoalBar
+              label={t("timeGoalLabel")}
+              current={dayProgress.minutes}
+              target={dayGoal.minutes}
+              unit={t("minutesUnit")}
+            />
+          </>
         ) : (
           <>
             <GoalBar
@@ -193,14 +209,25 @@ export function GoalPanel({
       {period === "day" ? (
         isToday ? (
           <div className="flex items-end gap-2">
-            <label className="flex w-24 shrink-0 flex-col gap-1 text-[12px] text-neutral-500">
+            <label className="flex w-20 shrink-0 flex-col gap-1 text-[12px] text-neutral-500">
               {t("charsFieldLabel")}
               <input
                 type="number"
                 min={0}
-                value={dayGoalInput}
-                onChange={(e) => setDayGoalInput(e.target.value)}
-                placeholder={String(dayTargetChars || "")}
+                value={dayCharsInput}
+                onChange={(e) => setDayCharsInput(e.target.value)}
+                placeholder={String(dayGoal.chars || "")}
+                className="w-full rounded-md border border-neutral-200 px-2 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
+              />
+            </label>
+            <label className="flex w-16 shrink-0 flex-col gap-1 text-[12px] text-neutral-500">
+              {t("minutesFieldLabel")}
+              <input
+                type="number"
+                min={0}
+                value={dayMinutesInput}
+                onChange={(e) => setDayMinutesInput(e.target.value)}
+                placeholder={String(dayGoal.minutes || "")}
                 className="w-full rounded-md border border-neutral-200 px-2 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
               />
             </label>

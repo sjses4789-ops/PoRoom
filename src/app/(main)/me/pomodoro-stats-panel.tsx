@@ -34,20 +34,47 @@ export function PomodoroStatsPanel({
 }) {
   const t = useTranslations("me.pomodoroStats");
   const [period, setPeriod] = useState<"day" | "month">("day");
+  const [hoverCount, setHoverCount] = useState<number | null>(null);
+  const [hoverMinutes, setHoverMinutes] = useState<number | null>(null);
 
   const now = new Date();
+  const [refYear, setRefYear] = useState(now.getFullYear());
+  const [refMonth, setRefMonth] = useState(now.getMonth());
+  const isCurrentRefMonth = refYear === now.getFullYear() && refMonth === now.getMonth();
+
+  const goPrevMonth = () => {
+    if (refMonth === 0) {
+      setRefYear((y) => y - 1);
+      setRefMonth(11);
+    } else {
+      setRefMonth((m) => m - 1);
+    }
+  };
+  const goNextMonth = () => {
+    if (isCurrentRefMonth) return;
+    if (refMonth === 11) {
+      setRefYear((y) => y + 1);
+      setRefMonth(0);
+    } else {
+      setRefMonth((m) => m + 1);
+    }
+  };
+
   const buckets: { key: string; label: string }[] = [];
   if (period === "day") {
-    for (let i = 13; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+    // 선택한 달의 날짜 전부를 보여준다(이전엔 항상 "오늘까지 최근
+    // 14일"만 보여줘서 다른 달을 돌아볼 방법이 없었음).
+    const daysInMonth = new Date(refYear, refMonth + 1, 0).getDate();
+    for (let day = 1; day <= daysInMonth; day++) {
       buckets.push({
-        key: `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`,
-        label: `${d.getMonth() + 1}/${d.getDate()}`,
+        key: `${refYear}-${pad2(refMonth + 1)}-${pad2(day)}`,
+        label: `${refMonth + 1}/${day}`,
       });
     }
   } else {
+    // 선택한 달을 기준으로 끝나는 최근 12개월.
     for (let i = 11; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const d = new Date(refYear, refMonth - i, 1);
       buckets.push({
         key: `${d.getFullYear()}-${pad2(d.getMonth() + 1)}`,
         label: t("monthLabel", { month: d.getMonth() + 1 }),
@@ -123,17 +150,51 @@ export function PomodoroStatsPanel({
     </div>
   );
 
+  const monthNav = (
+    <div className="flex items-center gap-1 text-[12px] text-neutral-500 dark:text-neutral-400">
+      <button
+        type="button"
+        onClick={goPrevMonth}
+        aria-label={t("prevMonth")}
+        className="rounded-md px-1.5 py-1 transition hover:bg-neutral-100 dark:hover:bg-neutral-800"
+      >
+        {"<"}
+      </button>
+      <span className="min-w-[3.5rem] text-center font-medium text-neutral-700 dark:text-neutral-200">
+        {t("monthLabel", { month: refMonth + 1 })}
+      </span>
+      <button
+        type="button"
+        onClick={goNextMonth}
+        disabled={isCurrentRefMonth}
+        aria-label={t("nextMonth")}
+        className="rounded-md px-1.5 py-1 transition hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-30 dark:hover:bg-neutral-800"
+      >
+        {">"}
+      </button>
+    </div>
+  );
+
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
         <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("title")}</h2>
+        {monthNav}
         {periodSelector}
       </div>
 
       <div className="grid grid-cols-1 divide-y divide-neutral-400 overflow-hidden rounded-md border border-neutral-400 dark:divide-neutral-600 dark:border-neutral-600 lg:grid-cols-2 lg:divide-x lg:divide-y-0">
         <div className="p-4">
           <p className="mb-2 text-xs text-neutral-500 dark:text-neutral-400">{t("sessionCount")}</p>
-          <div className="overflow-x-auto pb-1">
+          <div className="relative overflow-x-auto pb-1">
+            {hoverCount !== null && dataByBucket[hoverCount] && (
+              <div
+                className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full rounded-md border border-neutral-200 bg-white px-2 py-1 text-[11px] whitespace-nowrap text-neutral-700 shadow-md dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
+                style={{ left: xFor(hoverCount), top: CHART_HEIGHT - 16 - countBarHeight(dataByBucket[hoverCount].count) - 4 }}
+              >
+                {dataByBucket[hoverCount].label} · {t("sessionCountTooltip", { count: dataByBucket[hoverCount].count })}
+              </div>
+            )}
             <svg
               viewBox={`0 0 ${chartWidth} ${CHART_HEIGHT}`}
               width={chartWidth}
@@ -160,6 +221,18 @@ export function PomodoroStatsPanel({
                 strokeWidth={1}
                 className="text-neutral-200 dark:text-neutral-700"
               />
+              {dataByBucket.map((d, i) => (
+                <rect
+                  key={`hover-${d.key}`}
+                  x={i * STEP_X}
+                  y={0}
+                  width={STEP_X}
+                  height={CHART_HEIGHT}
+                  fill="transparent"
+                  onMouseEnter={() => setHoverCount(i)}
+                  onMouseLeave={() => setHoverCount((v) => (v === i ? null : v))}
+                />
+              ))}
             </svg>
             <div className="flex" style={{ width: chartWidth }}>
               {buckets.map((b) => (
@@ -186,7 +259,20 @@ export function PomodoroStatsPanel({
               {t("breakMinutes")}
             </span>
           </div>
-          <div className="overflow-x-auto pb-1">
+          <div className="relative overflow-x-auto pb-1">
+            {hoverMinutes !== null && dataByBucket[hoverMinutes] && (
+              <div
+                className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full rounded-md border border-neutral-200 bg-white px-2 py-1 text-[11px] whitespace-nowrap text-neutral-700 shadow-md dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
+                style={{
+                  left: xFor(hoverMinutes),
+                  top: Math.min(minuteYFor(dataByBucket[hoverMinutes].focusMinutes), minuteYFor(dataByBucket[hoverMinutes].breakMinutes)) - 4,
+                }}
+              >
+                <p className="font-medium">{dataByBucket[hoverMinutes].label}</p>
+                <p>{t("focusMinutes")} {formatMinutes(dataByBucket[hoverMinutes].focusMinutes, t("hourUnit"), t("minuteUnit"))}</p>
+                <p>{t("breakMinutes")} {formatMinutes(dataByBucket[hoverMinutes].breakMinutes, t("hourUnit"), t("minuteUnit"))}</p>
+              </div>
+            )}
             <svg
               viewBox={`0 0 ${chartWidth} ${CHART_HEIGHT}`}
               width={chartWidth}
@@ -218,6 +304,18 @@ export function PomodoroStatsPanel({
                 strokeLinejoin="round"
                 strokeLinecap="round"
               />
+              {dataByBucket.map((d, i) => (
+                <rect
+                  key={`hover-${d.key}`}
+                  x={i * STEP_X}
+                  y={0}
+                  width={STEP_X}
+                  height={CHART_HEIGHT}
+                  fill="transparent"
+                  onMouseEnter={() => setHoverMinutes(i)}
+                  onMouseLeave={() => setHoverMinutes((v) => (v === i ? null : v))}
+                />
+              ))}
             </svg>
             <div className="flex" style={{ width: chartWidth }}>
               {buckets.map((b) => (

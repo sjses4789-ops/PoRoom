@@ -71,8 +71,12 @@
     "periodMonth": "월별",
     "entryChangeFor": "{title}의 입력별 변동",
     "noEntries": "아직 입력 기록이 없습니다.",
-    "basis": "기준",
     "monthLabel": "{month}월",
+    "yearLabel": "{year}년",
+    "prevMonth": "이전 달",
+    "nextMonth": "다음 달",
+    "prevYear": "이전 해",
+    "nextYear": "다음 해",
     "editTitle": "표로 수정",
     "backToChart": "그래프로 보기",
     "charsPlaceholder": "글자수",
@@ -87,10 +91,12 @@
     "myRank": "내 {rank}위 / {count}명",
     "overall": "전체 기준",
     "overallRank": "전체 {rank}위 / {total}명",
+    "competeLabel": "대결",
     "noCompete": "대결 기록 없음",
-    "competeRank": "대결 {rank}위 / {total}명",
+    "competeRank": "{rank}위 / {total}명",
+    "challengeLabel": "챌린지",
     "noChallenge": "챌린지 기록 없음",
-    "challengeRank": "챌린지 {rank}위 / {total}명"
+    "challengeRank": "{rank}위 / {total}명"
   },
   "workList": {
     "title": "작품 목록",
@@ -115,6 +121,9 @@
     "focusVsSiteTime": "체류시간 대비 집중시간",
     "noSiteTimeData": "데이터 없음",
     "hourUnit": "시간",
-    "minuteUnit": "분"
+    "minuteUnit": "분",
+    "prevMonth": "이전 달",
+    "nextMonth": "다음 달",
+    "sessionCountTooltip": "{count}회"
   }
 }

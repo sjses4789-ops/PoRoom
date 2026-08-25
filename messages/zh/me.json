@@ -71,8 +71,12 @@
     "periodMonth": "按月",
     "entryChangeFor": "{title}的录入变化",
     "noEntries": "暂无录入记录。",
-    "basis": "统计方式",
     "monthLabel": "{month}月",
+    "yearLabel": "{year}年",
+    "prevMonth": "上个月",
+    "nextMonth": "下个月",
+    "prevYear": "上一年",
+    "nextYear": "下一年",
     "editTitle": "以表格修改",
     "backToChart": "返回图表",
     "charsPlaceholder": "字数",
@@ -87,10 +91,12 @@
     "myRank": "我 第{rank}名 / {count}人",
     "overall": "按全体",
     "overallRank": "全体 第{rank}名 / {total}人",
+    "competeLabel": "对战",
     "noCompete": "暂无对战记录",
-    "competeRank": "对战 第{rank}名 / {total}人",
+    "competeRank": "第{rank}名 / {total}人",
+    "challengeLabel": "挑战",
     "noChallenge": "暂无挑战记录",
-    "challengeRank": "挑战 第{rank}名 / {total}人"
+    "challengeRank": "第{rank}名 / {total}人"
   },
   "workList": {
     "title": "作品列表",
@@ -115,6 +121,9 @@
     "focusVsSiteTime": "专注时间占停留时间比例",
     "noSiteTimeData": "暂无数据",
     "hourUnit": "小时",
-    "minuteUnit": "分钟"
+    "minuteUnit": "分钟",
+    "prevMonth": "上个月",
+    "nextMonth": "下个月",
+    "sessionCountTooltip": "{count}次"
   }
 }

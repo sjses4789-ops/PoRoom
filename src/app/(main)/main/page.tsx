@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PageAdRail } from "@/components/page-ad-rail";
 import { computeStreakDays, attendedDatesFromLogs } from "@/lib/attendance";
 import { todayKst, dateInTimezone } from "@/lib/time";
-import { ensureChallengeTodos } from "@/lib/system-challenges";
+import { ensureChallengeTodos, isTodoRowActive } from "@/lib/system-challenges";
 import { SystemRoomButton } from "./system-room-buttons";
 import { MainRoomLists } from "./main-room-lists";
 import { MainDashboard } from "./main-dashboard";
@@ -26,7 +26,7 @@ type GlobalRecordRow = {
   record_date: string;
   chars: number;
 };
-type TodoRow = { id: string; content: string };
+type TodoRow = { id: string; content: string; for_date: string | null };
 
 const SYSTEM_ROOM_CAPACITY = 50;
 
@@ -102,11 +102,14 @@ export default async function MainPage() {
   await ensureTodosPromise;
   const { data: todoRows } = await supabase
     .from("todos")
-    .select("id,content")
+    .select("id,content,for_date")
     .eq("user_id", user!.id)
     .is("completed_at", null)
     .order("created_at", { ascending: true })
     .returns<TodoRow[]>();
+  const visibleTodos = (todoRows ?? [])
+    .filter((r) => isTodoRowActive(r, today))
+    .map((r) => ({ id: r.id, content: r.content }));
 
   const memberCountMap = new Map<string, number>();
   for (const m of allMemberships ?? []) {
@@ -234,7 +237,7 @@ export default async function MainPage() {
           streakDays={streakDays}
           monthGoalChars={myGoalRows?.target_chars ?? 0}
           monthProgressChars={monthProgressChars}
-          initialTodos={todoRows ?? []}
+          initialTodos={visibleTodos}
           overallRank={overallRank}
           totalUsers={totalUsers ?? 0}
         />

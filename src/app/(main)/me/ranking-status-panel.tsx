@@ -136,11 +136,13 @@ export function RankingStatusPanel({
           <p className="mt-1 text-sm text-neutral-900 dark:text-white">
             {t("overallRank", { rank: overallRank, total: totalUsers })}
           </p>
+          <p className="mt-3 text-xs text-neutral-500 dark:text-neutral-400">{t("competeLabel")}</p>
           <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
             {winLossRank === null
               ? t("noCompete")
               : t("competeRank", { rank: winLossRank, total: winLossTotal })}
           </p>
+          <p className="mt-3 text-xs text-neutral-500 dark:text-neutral-400">{t("challengeLabel")}</p>
           <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
             {challengeRank === null
               ? t("noChallenge")

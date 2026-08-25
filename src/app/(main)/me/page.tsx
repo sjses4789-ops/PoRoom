@@ -17,7 +17,7 @@ import { WorksPanel } from "./works-panel";
 import { PomodoroStatsPanel } from "./pomodoro-stats-panel";
 import { TodoList, type Todo } from "@/components/todo-list";
 import { ImportBackupButton } from "./import-backup-button";
-import { ensureChallengeTodos, type SystemChallengeKind } from "@/lib/system-challenges";
+import { ensureChallengeTodos, isTodoRowActive, type SystemChallengeKind } from "@/lib/system-challenges";
 import {
   computeWinLossByUser,
   computeChallengeScoreByUser,
@@ -208,10 +208,10 @@ export default async function MePage() {
     // 클라이언트에서 날짜별로 계산한다.
     supabase
       .from("daily_char_goals")
-      .select("effective_date,target_chars")
+      .select("effective_date,target_chars,target_minutes")
       .eq("user_id", user.id)
       .order("effective_date", { ascending: true })
-      .returns<{ effective_date: string; target_chars: number }[]>(),
+      .returns<{ effective_date: string; target_chars: number; target_minutes: number }[]>(),
   ]);
 
   // 관리자가 만든 "달성 여부" 임시 이벤트는 마일스톤 로그 대신
@@ -351,12 +351,14 @@ export default async function MePage() {
   ]);
   const { data: todoRows } = await supabase
     .from("todos")
-    .select("id,content")
+    .select("id,content,for_date")
     .eq("user_id", user.id)
     .is("completed_at", null)
     .order("created_at", { ascending: true })
-    .returns<Todo[]>();
-  const todos = todoRows ?? [];
+    .returns<(Todo & { for_date: string | null })[]>();
+  const todos = (todoRows ?? [])
+    .filter((r) => isTodoRowActive(r, today))
+    .map((r) => ({ id: r.id, content: r.content }));
 
   // 대결 랭킹: /ranking과 동일한 규칙(computeWinLossByUser)으로 전체 유저의
   // 승/패/무를 집계한 뒤, 그 안에서 내 순위를 찾는다.
@@ -422,6 +424,7 @@ export default async function MePage() {
   const dailyGoalPoints = (dailyGoalRows ?? []).map((g) => ({
     effectiveDate: g.effective_date,
     targetChars: g.target_chars,
+    targetMinutes: g.target_minutes,
   }));
 
   return (

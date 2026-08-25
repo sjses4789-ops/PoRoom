@@ -38,6 +38,34 @@ export function WorkChart({
   const [period, setPeriod] = useState<"entry" | "day" | "month">("day");
   const [editing, setEditing] = useState(false);
 
+  const now = new Date();
+  const [refYear, setRefYear] = useState(now.getFullYear());
+  const [refMonth, setRefMonth] = useState(now.getMonth());
+  const isCurrentRefMonth = refYear === now.getFullYear() && refMonth === now.getMonth();
+  const isCurrentRefYear = refYear === now.getFullYear();
+
+  const goPrevMonth = () => {
+    if (refMonth === 0) {
+      setRefYear((y) => y - 1);
+      setRefMonth(11);
+    } else {
+      setRefMonth((m) => m - 1);
+    }
+  };
+  const goNextMonth = () => {
+    if (isCurrentRefMonth) return;
+    if (refMonth === 11) {
+      setRefYear((y) => y + 1);
+      setRefMonth(0);
+    } else {
+      setRefMonth((m) => m + 1);
+    }
+  };
+  const goPrevYear = () => setRefYear((y) => y - 1);
+  const goNextYear = () => {
+    if (!isCurrentRefYear) setRefYear((y) => y + 1);
+  };
+
   if (works.length === 0) {
     return (
       <div className="flex flex-col gap-3">
@@ -187,22 +215,23 @@ export function WorkChart({
     );
   }
 
-  const now = new Date();
+  // 선택한 달(일별) 또는 선택한 연도(월별) 전체를 보여준다 — 이전엔
+  // 항상 "오늘까지 최근 N개"만 보여줘서 다른 시기를 돌아볼 방법이
+  // 없었음.
   const buckets: { key: string; label: string }[] = [];
   if (period === "day") {
-    for (let i = 13; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+    const daysInMonth = new Date(refYear, refMonth + 1, 0).getDate();
+    for (let day = 1; day <= daysInMonth; day++) {
       buckets.push({
-        key: `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`,
-        label: `${d.getMonth() + 1}/${d.getDate()}`,
+        key: `${refYear}-${pad2(refMonth + 1)}-${pad2(day)}`,
+        label: `${refMonth + 1}/${day}`,
       });
     }
   } else {
-    for (let i = 11; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    for (let m = 0; m < 12; m++) {
       buckets.push({
-        key: `${d.getFullYear()}-${pad2(d.getMonth() + 1)}`,
-        label: t("monthLabel", { month: d.getMonth() + 1 }),
+        key: `${refYear}-${pad2(m + 1)}`,
+        label: t("monthLabel", { month: m + 1 }),
       });
     }
   }
@@ -228,8 +257,29 @@ export function WorkChart({
       {header}
       <div className="flex flex-wrap items-center gap-2">
         {activeWorkLabelEl}
-        <span className="text-[12px] text-neutral-500 dark:text-neutral-400">{t("basis")}</span>
         {periodSelector}
+        <div className="ml-auto flex items-center gap-1 text-[12px] text-neutral-500 dark:text-neutral-400">
+          <button
+            type="button"
+            onClick={period === "day" ? goPrevMonth : goPrevYear}
+            aria-label={period === "day" ? t("prevMonth") : t("prevYear")}
+            className="rounded-md px-1.5 py-1 transition hover:bg-neutral-100 dark:hover:bg-neutral-800"
+          >
+            {"<"}
+          </button>
+          <span className="min-w-[3rem] text-center font-medium text-neutral-700 dark:text-neutral-200">
+            {period === "day" ? t("monthLabel", { month: refMonth + 1 }) : t("yearLabel", { year: refYear })}
+          </span>
+          <button
+            type="button"
+            onClick={period === "day" ? goNextMonth : goNextYear}
+            disabled={period === "day" ? isCurrentRefMonth : isCurrentRefYear}
+            aria-label={period === "day" ? t("nextMonth") : t("nextYear")}
+            className="rounded-md px-1.5 py-1 transition hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-30 dark:hover:bg-neutral-800"
+          >
+            {">"}
+          </button>
+        </div>
       </div>
 
       <div className="overflow-x-auto pb-1">

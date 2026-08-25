@@ -71,8 +71,12 @@
     "periodMonth": "By Month",
     "entryChangeFor": "Entry changes for {title}",
     "noEntries": "No entries yet.",
-    "basis": "View",
     "monthLabel": "{month, select, 1 {Jan} 2 {Feb} 3 {Mar} 4 {Apr} 5 {May} 6 {Jun} 7 {Jul} 8 {Aug} 9 {Sep} 10 {Oct} 11 {Nov} 12 {Dec} other {–}}",
+    "yearLabel": "{year}",
+    "prevMonth": "Previous month",
+    "nextMonth": "Next month",
+    "prevYear": "Previous year",
+    "nextYear": "Next year",
     "editTitle": "Edit as table",
     "backToChart": "Back to chart",
     "charsPlaceholder": "Characters",
@@ -87,10 +91,12 @@
     "myRank": "#{rank} of {count}",
     "overall": "Overall",
     "overallRank": "Overall #{rank} of {total}",
+    "competeLabel": "Compete",
     "noCompete": "No competition record",
-    "competeRank": "Compete #{rank} of {total}",
+    "competeRank": "#{rank} of {total}",
+    "challengeLabel": "Challenge",
     "noChallenge": "No challenge record",
-    "challengeRank": "Challenge #{rank} of {total}"
+    "challengeRank": "#{rank} of {total}"
   },
   "workList": {
     "title": "Work List",
@@ -115,6 +121,9 @@
     "focusVsSiteTime": "Focus time vs. time on site",
     "noSiteTimeData": "No data",
     "hourUnit": "h",
-    "minuteUnit": "m"
+    "minuteUnit": "m",
+    "prevMonth": "Previous month",
+    "nextMonth": "Next month",
+    "sessionCountTooltip": "{count}"
   }
 }

@@ -28,6 +28,22 @@ const CHALLENGE_TODO_CONTENT: Record<SystemChallengeKind, string> = {
   monthly_draft: "(챌린지) 초단 완고 치기",
 };
 
+// 할 일 "빠른 목록"에 지금 보여줘도 되는 항목인지 판단한다 — 수동으로
+// 적은 할 일(for_date 없음)은 항상 보여주고, 챌린지 자동 생성 항목은
+// 자기 기간(매일/이번 달)이 지나면 목록에서는 숨긴다(테이블에서
+// 지우지는 않으므로 [개인] 페이지 "+더보기"의 날짜별 기록에는 계속
+// 남는다).
+export function isTodoRowActive(
+  row: { content: string; for_date: string | null },
+  today: string
+): boolean {
+  if (!row.for_date) return true;
+  if (row.content === CHALLENGE_TODO_CONTENT.monthly_draft) {
+    return row.for_date >= `${today.slice(0, 7)}-01`;
+  }
+  return row.for_date >= today;
+}
+
 function pad2(n: number) {
   return String(n).padStart(2, "0");
 }
@@ -110,7 +126,8 @@ export async function ensureSystemChallenge(
  * 참여 중인 시스템 챌린지마다 "(챌린지) 매일 5천자 쓰기" 같은 항목을 할
  * 일 목록에 자동으로 넣어준다 — 하루(초단 완고는 그 달) 단위로 다시
  * 나타나야 하므로 for_date로 이미 오늘치가 있는지 확인 후 없을 때만
- * 추가한다. 지난 날짜/달의 항목은 먼저 정리(삭제)하고, 사용자가 이미
+ * 추가한다. 지난 날짜/달의 항목은 지우지 않고 그대로 두되(날짜별 기록
+ * 보존용) isTodoRowActive로 화면 표시에서만 걸러내고, 사용자가 이미
  * 지운(todo_dismissals) 조합은 오늘/이번 달치라도 다시 만들지 않는다.
  */
 export async function ensureChallengeTodos(supabase: SupabaseClient, userId: string) {
@@ -133,22 +150,11 @@ export async function ensureChallengeTodos(supabase: SupabaseClient, userId: str
     .returns<{ kind: SystemChallengeKind }[]>();
   if (!challengeRows?.length) return;
 
-  // 어차피 다음 날/다음 달이 되면 새 항목이 추가되므로, 지난 날짜(매일)나
-  // 지난 달(초단 완고)의 자동 생성 항목은 지금 정리해서 목록에 쌓이지
-  // 않게 한다.
-  const dailyContents = [CHALLENGE_TODO_CONTENT.daily5k, CHALLENGE_TODO_CONTENT.daily10k];
-  await supabase
-    .from("todos")
-    .delete()
-    .eq("user_id", userId)
-    .in("content", dailyContents)
-    .lt("for_date", today);
-  await supabase
-    .from("todos")
-    .delete()
-    .eq("user_id", userId)
-    .eq("content", CHALLENGE_TODO_CONTENT.monthly_draft)
-    .lt("for_date", monthStart);
+  // 예전엔 지난 날짜(매일)나 지난 달(초단 완고)의 자동 생성 항목을
+  // 여기서 삭제해 목록에 안 쌓이게 했는데, 그러면 [개인] 페이지의
+  // "+더보기" 날짜별 기록에서도 완전히 사라져버렸다 — 지금은 지우지
+  // 않고 그대로 두고, 대신 화면에 보여줄 목록을 고를 때(아래
+  // isTodoRowActive)만 기간이 지난 자동 생성 항목을 걸러낸다.
 
   const wanted = challengeRows.map((c) => ({
     content: CHALLENGE_TODO_CONTENT[c.kind],
