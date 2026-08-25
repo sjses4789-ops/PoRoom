@@ -4,6 +4,8 @@
     "accountInfo": "账户信息",
     "noNickname": "无昵称",
     "joinDate": "注册日 {date}",
+    "exportExcel": "导出 Excel",
+    "backup": "备份",
     "changeNickname": "修改昵称",
     "changeNicknameSubmit": "修改",
     "attendance": "出勤日",

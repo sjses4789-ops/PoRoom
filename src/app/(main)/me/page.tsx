@@ -409,6 +409,20 @@ export default async function MePage() {
               <span className="text-[12px] text-neutral-400">
                 {t("joinDate", { date: user.created_at.slice(0, 10).replace(/-/g, ".") })}
               </span>
+              <div className="mt-1 flex gap-2">
+                <a
+                  href="/api/export/excel"
+                  className="rounded-md border border-neutral-200 px-2.5 py-1.5 text-xs font-medium text-neutral-600 transition hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+                >
+                  {t("exportExcel")}
+                </a>
+                <a
+                  href="/api/export/backup"
+                  className="rounded-md border border-neutral-200 px-2.5 py-1.5 text-xs font-medium text-neutral-600 transition hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+                >
+                  {t("backup")}
+                </a>
+              </div>
             </div>
             <div className="mt-3 flex justify-center">
               <DeleteAccountButton />

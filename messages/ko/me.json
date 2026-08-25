@@ -4,6 +4,8 @@
     "accountInfo": "계정 정보",
     "noNickname": "닉네임 없음",
     "joinDate": "가입일 {date}",
+    "exportExcel": "엑셀 저장",
+    "backup": "백업하기",
     "changeNickname": "닉네임 변경",
     "changeNicknameSubmit": "변경",
     "attendance": "출석일",

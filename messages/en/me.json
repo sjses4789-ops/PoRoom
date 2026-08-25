@@ -4,6 +4,8 @@
     "accountInfo": "Account Info",
     "noNickname": "No nickname",
     "joinDate": "Joined {date}",
+    "exportExcel": "Export Excel",
+    "backup": "Back up",
     "changeNickname": "Change Nickname",
     "changeNicknameSubmit": "Change",
     "attendance": "Attendance",
