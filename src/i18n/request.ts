@@ -13,6 +13,7 @@ const NAMESPACES = [
   "login",
   "onboarding",
   "main",
+  "feed",
   "compete",
   "ranking",
   "me",

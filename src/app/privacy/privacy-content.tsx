@@ -750,7 +750,7 @@ const STRINGS = {
 } as const;
 
 export function PrivacyContent() {
-  const [lang, setLang] = useState<Lang>("en");
+  const [lang, setLang] = useState<Lang>("ko");
   const clauses = lang === "en" ? CLAUSES_EN : CLAUSES_KO;
   const s = STRINGS[lang];
 

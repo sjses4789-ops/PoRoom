@@ -4,24 +4,24 @@
   "bannedNotice": "This account has been suspended and can no longer sign in.",
   "backHome": "Back to homepage",
   "landing": {
-    "eyebrow": "A Workspace for Everyone Who Writes",
+    "eyebrow": "An Online Workspace for Web-Novel Writers",
     "heroTitle": "No video calls.\nJust the feeling of writing side by side.",
-    "heroBody": "From web novels to essays, screenplays, and theses — PoRoom is an online workspace where anyone who writes can run a Pomodoro timer together in the same room. Writing alone, without the feeling of being alone.",
+    "heroBody": "PoRoom is an online workspace where web-novel writers run a Pomodoro timer together in the same room. Serializing alone, without the feeling of being alone.",
     "ctaHint": "All you need is a Google account — takes about 30 seconds.",
     "featuresTitle": "What you can do on PoRoom",
     "features": [
-      { "icon": "🚪", "title": "An online writing room", "desc": "No camera, no video call — just walk into a room and feel other writers sitting alongside you." },
+      { "icon": "🚪", "title": "An online writing room", "desc": "No camera, no video call — just walk into a room and feel other web-novel writers sitting alongside you." },
       { "icon": "🍅", "title": "A synced Pomodoro timer", "desc": "See everyone's focus and break status in real time, so it's easier to stay locked in than writing alone." },
-      { "icon": "✍️", "title": "Character counts by work", "desc": "Track each of your works separately with its own character-count chart and progress." },
+      { "icon": "✍️", "title": "Character counts by work", "desc": "Track each serialized work separately with its own character-count chart and progress." },
       { "icon": "💬", "title": "Chat & whispers", "desc": "Chat freely in the room, or send a private whisper to just one participant when you need to." },
       { "icon": "🏆", "title": "Rankings, duels & challenges", "desc": "See how you rank by character count and focus time, challenge another writer to a duel, or join a group challenge." },
-      { "icon": "🗓️", "title": "Calendar, polls & boards", "desc": "Share deadlines on a calendar, gather opinions with polls, and browse the Free / Info / Recruiting boards." }
+      { "icon": "🗓️", "title": "Calendar, polls & boards", "desc": "Share your update deadlines on a calendar, gather opinions with polls, and browse the Free / Info / Recruiting boards." }
     ],
     "audienceTitle": "PoRoom is for you if you're...",
     "audience": [
-      "A web-novel or fiction writer serializing or drafting a work",
-      "Writing anything long-form — essays, screenplays, theses",
-      "Someone who can't focus alone and keeps pushing deadlines back"
+      "A web-novel writer serializing or drafting a work",
+      "Always racing the clock on your next chapter deadline",
+      "Someone who can't focus alone and keeps pushing updates back"
     ],
     "footerCtaTitle": "Get started right now",
     "footerCtaBody": "All you need is a Google account — no credit card, no separate sign-up."

@@ -6,9 +6,13 @@ import { useTranslations } from "next-intl";
 import { ThemeToggle } from "./theme-toggle";
 import { LanguageSwitcher } from "./language-switcher";
 
-const TAB_HREFS = ["/main", "/compete", "/ranking", "/rest"] as const;
-const TAB_KEYS: Record<(typeof TAB_HREFS)[number], "main" | "compete" | "ranking" | "rest"> = {
+const TAB_HREFS = ["/main", "/feed", "/compete", "/ranking", "/rest"] as const;
+const TAB_KEYS: Record<
+  (typeof TAB_HREFS)[number],
+  "main" | "feed" | "compete" | "ranking" | "rest"
+> = {
   "/main": "main",
+  "/feed": "feed",
   "/compete": "compete",
   "/ranking": "ranking",
   "/rest": "rest",

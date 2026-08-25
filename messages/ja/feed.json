@@ -1,0 +1,25 @@
+{
+  "page": {
+    "title": "フィード",
+    "subtitle": "今日一日を短く残して、他の作家を応援しましょう。",
+    "unknownUser": "不明"
+  },
+  "view": {
+    "moodPlaceholder": "今日はどんな一日でしたか？",
+    "post": "投稿",
+    "posting": "投稿中...",
+    "focusLabel": "集中時間",
+    "charsLabel": "文字数",
+    "minuteUnit": "分",
+    "charUnit": "字",
+    "noPosts": "まだ投稿がありません。",
+    "justNow": "たった今",
+    "delete": "削除",
+    "deleteConfirm": "この投稿を削除しますか？",
+    "reaction": {
+      "heart": "応援",
+      "clap": "いいね",
+      "fire": "すごい"
+    }
+  }
+}

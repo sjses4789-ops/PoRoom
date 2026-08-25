@@ -1,0 +1,25 @@
+{
+  "page": {
+    "title": "动态",
+    "subtitle": "简单记录今天的一天，为其他作者加油打气。",
+    "unknownUser": "未知用户"
+  },
+  "view": {
+    "moodPlaceholder": "今天过得怎么样？",
+    "post": "发布",
+    "posting": "发布中...",
+    "focusLabel": "专注时长",
+    "charsLabel": "字数",
+    "minuteUnit": "分钟",
+    "charUnit": "字",
+    "noPosts": "还没有动态。",
+    "justNow": "刚刚",
+    "delete": "删除",
+    "deleteConfirm": "确定删除这条动态吗？",
+    "reaction": {
+      "heart": "加油",
+      "clap": "真棒",
+      "fire": "太厉害了"
+    }
+  }
+}

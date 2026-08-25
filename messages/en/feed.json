@@ -1,0 +1,25 @@
+{
+  "page": {
+    "title": "Feed",
+    "subtitle": "Share a quick update about your day and cheer other writers on.",
+    "unknownUser": "Unknown"
+  },
+  "view": {
+    "moodPlaceholder": "How's your day going?",
+    "post": "Post",
+    "posting": "Posting...",
+    "focusLabel": "Focus time",
+    "charsLabel": "Characters",
+    "minuteUnit": "min",
+    "charUnit": "chars",
+    "noPosts": "No updates yet.",
+    "justNow": "Just now",
+    "delete": "Delete",
+    "deleteConfirm": "Delete this post?",
+    "reaction": {
+      "heart": "Cheer",
+      "clap": "Nice",
+      "fire": "Amazing"
+    }
+  }
+}
