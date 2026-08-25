@@ -61,7 +61,7 @@ export function PomodoroPanel({
         </span>
       </div>
 
-      <div className="flex items-center justify-center gap-4">
+      <div className="flex items-end justify-center gap-2">
         <label className="flex flex-col items-center gap-1 text-[12px] text-neutral-500">
           {t("focusLabel")}
           <input
@@ -84,30 +84,35 @@ export function PomodoroPanel({
             className="w-14 rounded-md border border-neutral-200 bg-white px-1.5 py-1 text-center text-sm text-neutral-900 outline-none focus:border-neutral-400 disabled:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:disabled:bg-neutral-800 dark:disabled:text-neutral-300"
           />
         </label>
-      </div>
-
-      <div className="flex w-full gap-2">
-        {!running ? (
+        <div className="flex gap-1.5">
+          {!running ? (
+            <button
+              onClick={start}
+              aria-label={started ? t("resume") : t("start")}
+              title={started ? t("resume") : t("start")}
+              className="flex h-8 w-8 items-center justify-center rounded-md bg-neutral-900 text-sm text-white transition hover:bg-neutral-700"
+            >
+              ▶
+            </button>
+          ) : (
+            <button
+              onClick={pause}
+              aria-label={t("pause")}
+              title={t("pause")}
+              className="flex h-8 w-8 items-center justify-center rounded-md border border-neutral-200 text-sm text-neutral-700 transition hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+            >
+              ❚❚
+            </button>
+          )}
           <button
-            onClick={start}
-            className="flex-1 rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-neutral-700"
+            onClick={reset}
+            aria-label={t("reset")}
+            title={t("reset")}
+            className="flex h-8 w-8 items-center justify-center rounded-md border border-neutral-200 text-sm text-neutral-700 transition hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
           >
-            {started ? t("resume") : t("start")}
+            ↺
           </button>
-        ) : (
-          <button
-            onClick={pause}
-            className="flex-1 rounded-md border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-700 transition hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
-          >
-            {t("pause")}
-          </button>
-        )}
-        <button
-          onClick={reset}
-          className="flex-1 rounded-md border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-700 transition hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
-        >
-          {t("reset")}
-        </button>
+        </div>
       </div>
     </div>
   );

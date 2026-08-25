@@ -13,7 +13,8 @@
     "audience": [
       "A web-novel writer serializing or drafting a work",
       "Always racing the clock on your next chapter deadline",
-      "Someone who can't focus alone and keeps pushing updates back"
+      "Someone who can't focus alone and keeps pushing updates back",
+      "Someone who feels lonely alone, but finds group meetups too much pressure"
     ],
     "highlightsTitle": "What makes PoRoom different",
     "highlights": [
@@ -22,7 +23,7 @@
       { "icon": "🔥", "title": "Character-count duels light a competitive fire", "desc": "Going head-to-head with another writer on character count sparks a competitive drive that speeds up your writing." },
       { "icon": "🏆", "title": "Event challenges keep you on deadline", "desc": "Join event-challenge rooms that open around contest and submission seasons to stay motivated and hit your deadlines." },
       { "icon": "📰", "title": "The Feed recharges your motivation", "desc": "Seeing how other writers are doing in the Feed is often all it takes to want to open your draft again." },
-      { "icon": "🍅", "title": "See your focus, broken down by work", "desc": "Pomodoro sharpens your focus, and you can check exactly how focused you were on each individual work." }
+      { "icon": "🙈", "title": "Join in without a camera, no pressure at all", "desc": "No need to show your face or screen — just your username is enough. Perfect if being alone feels lonely, but group meetups feel like too much pressure." }
     ],
     "featuresTitle": "PoRoom Features",
     "features": [

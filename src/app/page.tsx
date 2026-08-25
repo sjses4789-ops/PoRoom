@@ -114,7 +114,10 @@ export default async function Home() {
           </h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {highlights.map((h) => (
-              <div key={h.title} className="flex flex-col gap-2 rounded-sm border border-neutral-200 bg-white p-5">
+              <div
+                key={h.title}
+                className="flex flex-col items-center gap-2 rounded-sm border border-neutral-200 bg-white p-5 text-center"
+              >
                 <span className="text-2xl" aria-hidden>
                   {h.icon}
                 </span>
@@ -133,7 +136,10 @@ export default async function Home() {
           </h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {features.map((f) => (
-              <div key={f.title} className="flex flex-col gap-2 rounded-sm border border-neutral-200 p-5">
+              <div
+                key={f.title}
+                className="flex flex-col items-center gap-2 rounded-sm border border-neutral-200 p-5 text-center"
+              >
                 <span className="text-2xl" aria-hidden>
                   {f.icon}
                 </span>
@@ -223,6 +229,7 @@ export default async function Home() {
 
       <section className="border-t border-neutral-100">
         <div className="mx-auto flex w-full max-w-2xl flex-col items-center gap-4 px-4 py-16 text-center sm:px-6">
+          <Image src="/poroom-logo.png" alt="PoRoom" width={1254} height={485} className="h-10 w-auto" />
           <h2 className="text-xl font-semibold tracking-tight text-neutral-900">
             {t("landing.footerCtaTitle")}
           </h2>
@@ -236,6 +243,7 @@ export default async function Home() {
 
       <section className="border-t border-neutral-100 bg-neutral-50">
         <div className="mx-auto flex w-full max-w-2xl flex-col items-center gap-4 px-4 py-16 text-center sm:px-6">
+          <Image src="/PomoWriter_logo.png" alt="PomoWriter" width={256} height={256} className="h-16 w-16 rounded-xl" />
           <h2 className="whitespace-pre-line text-xl font-semibold tracking-tight text-neutral-900">
             {t("landing.pomowriterCtaTitle")}
           </h2>

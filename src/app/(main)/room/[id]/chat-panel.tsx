@@ -180,7 +180,7 @@ export function ChatPanel({
         type="button"
         onClick={onToggleCollapsed}
         title={t("expand")}
-        className="flex h-[420px] w-full flex-col items-center justify-start gap-3 overflow-hidden rounded-sm border border-neutral-400 py-4 text-neutral-500 transition hover:bg-neutral-50 lg:h-[560px] dark:border-neutral-600 dark:text-neutral-400 dark:hover:bg-neutral-800"
+        className="flex h-[500px] w-full flex-col items-center justify-start gap-3 overflow-hidden rounded-sm border border-neutral-400 py-4 text-neutral-500 transition hover:bg-neutral-50 lg:h-[680px] dark:border-neutral-600 dark:text-neutral-400 dark:hover:bg-neutral-800"
       >
         <span aria-hidden className="text-base">
           ▸
@@ -201,7 +201,7 @@ export function ChatPanel({
   }
 
   return (
-    <div className="flex h-[420px] flex-col overflow-hidden rounded-sm border border-neutral-400 lg:h-[560px] dark:border-neutral-600">
+    <div className="flex h-[500px] flex-col overflow-hidden rounded-sm border border-neutral-400 lg:h-[680px] dark:border-neutral-600">
       <div className="flex items-center justify-between border-b border-neutral-100 px-4 py-3 dark:border-neutral-800">
         <button
           type="button"
