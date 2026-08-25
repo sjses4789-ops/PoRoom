@@ -42,25 +42,9 @@ export default async function Home() {
 
   return (
     <main className="flex min-h-screen flex-col bg-white">
-      <header className="mx-auto flex w-full max-w-5xl items-center justify-end px-4 py-6 sm:px-6">
-        <div className="hidden items-center gap-2 sm:flex">
-          <span className="shrink-0 whitespace-nowrap text-xs text-neutral-400">
-            {tFooter("writingAppHint")}
-          </span>
-          <a
-            href="https://pomowriter.oopy.io/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="shrink-0 rounded-md border border-stone-300 bg-stone-100 px-2.5 py-1 text-xs font-bold text-stone-700 transition hover:bg-stone-200"
-          >
-            PomoWriter
-          </a>
-        </div>
-      </header>
-
-      <section className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-10 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[1fr_1fr]">
+      <section className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-10 px-4 pt-8 pb-16 sm:px-6 sm:pt-10 sm:pb-24 lg:grid-cols-[1fr_1fr]">
         <div className="flex justify-center lg:col-span-2">
-          <Image src="/poroom-logo.png" alt="PoRoom" width={1254} height={485} priority className="h-20 w-auto sm:h-24" />
+          <Image src="/poroom-logo.png" alt="PoRoom" width={1254} height={485} priority className="h-16 w-auto sm:h-20" />
         </div>
 
         <div className="flex flex-col items-start gap-6 text-left">
@@ -76,7 +60,7 @@ export default async function Home() {
           <div className="flex flex-col items-start gap-2">
             <GoogleSignInButton
               label={t("google")}
-              className="flex items-center gap-3 rounded-md bg-rose-200 px-6 py-3 text-sm font-medium text-rose-900 transition hover:bg-rose-300"
+              className="flex items-center gap-3 rounded-md bg-[#f1dcdc] px-6 py-3 text-sm font-medium text-[#7a4a4a] transition hover:bg-[#e9cccc]"
             />
             <p className="text-xs text-neutral-400">{t("landing.ctaHint")}</p>
           </div>
@@ -239,7 +223,7 @@ export default async function Home() {
           <p className="text-sm text-neutral-500">{t("landing.footerCtaBody")}</p>
           <GoogleSignInButton
             label={t("google")}
-            className="flex items-center gap-3 rounded-md bg-rose-200 px-6 py-3 text-sm font-medium text-rose-900 transition hover:bg-rose-300"
+            className="flex items-center gap-3 rounded-md bg-[#f1dcdc] px-6 py-3 text-sm font-medium text-[#7a4a4a] transition hover:bg-[#e9cccc]"
           />
         </div>
       </section>
