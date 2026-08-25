@@ -232,24 +232,25 @@ export default async function Home() {
         </div>
       </section>
 
+      <section className="border-t border-neutral-100 bg-neutral-50">
+        <div className="mx-auto flex w-full max-w-2xl flex-col items-center gap-4 px-4 py-16 text-center sm:px-6">
+          <h2 className="whitespace-pre-line text-xl font-semibold tracking-tight text-neutral-900">
+            {t("landing.pomowriterCtaTitle")}
+          </h2>
+          <a
+            href="https://pomowriter.oopy.io/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 rounded-md bg-neutral-900 px-6 py-3 text-sm font-medium text-white transition hover:bg-neutral-700"
+          >
+            {t("landing.pomowriterCtaButton")}
+          </a>
+        </div>
+      </section>
+
       <footer className="mt-auto border-t border-neutral-100 px-4 py-8 text-xs text-neutral-400 sm:px-6 md:px-8">
         <div className="mx-auto flex max-w-5xl flex-col gap-3">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-neutral-500">{tFooter("tagline")}</p>
-            <div className="flex items-center gap-3 text-sm text-neutral-500">
-              <span className="shrink-0 whitespace-nowrap text-xs text-neutral-400">
-                {tFooter("writingAppHint")}
-              </span>
-              <a
-                href="https://pomowriter.oopy.io/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="shrink-0 rounded-md border border-stone-300 bg-stone-100 px-2.5 py-1 text-xs font-bold text-stone-700 transition hover:bg-stone-200"
-              >
-                PomoWriter
-              </a>
-            </div>
-          </div>
+          <p className="text-neutral-500">{tFooter("tagline")}</p>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
             <span>MADE BY. GGOZIL</span>
             <span aria-hidden>·</span>

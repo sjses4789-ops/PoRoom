@@ -56,15 +56,17 @@
     ],
     "faqTitle": "Frequently asked questions",
     "faq": [
-      { "q": "Is PoRoom free?", "a": "Yes, all core features are free. A paid tier (ad-free, etc.) is still in development." },
-      { "q": "How do I sign up?", "a": "There's no separate sign-up — just sign in with your Google account and you're in." },
-      { "q": "Do I need to turn my camera on?", "a": "No. The whole point of PoRoom is feeling like you're working together without a video call — no camera or microphone needed at all." },
-      { "q": "Can other people see what I actually write?", "a": "No. PoRoom only keeps records like character counts and focus time — the actual text of your manuscript is never entered or stored anywhere." },
-      { "q": "Can I use a room by myself?", "a": "Sure — you can sit in a room alone and just use the Pomodoro timer and character-count tracking. That said, PoRoom really shines once other people are there with you." },
-      { "q": "What's the relationship with PomoWriter?", "a": "PomoWriter is a separate, free writing app, and PoRoom is an online study-room service. They're different products, but they pair well together, which is why we mention it." },
-      { "q": "Does it work on mobile?", "a": "Yes — no app to install, just open it in your mobile browser." }
+      { "q": "Is PoRoom free to use?", "a": "Yes, every feature is free to use. That said, a paid plan lets you enjoy PoRoom more comfortably and with extra perks." },
+      { "q": "Can I use it by myself?", "a": "Yes — create a room and set it to private, and you can use it entirely on your own." },
+      { "q": "Can I limit a room to just my friends?", "a": "Yes — set a room to invite-only when you create it, and only people who have the invite code can join." },
+      { "q": "Can't I share photos?", "a": "Not yet — unfortunately, photo sharing hasn't been built yet." },
+      { "q": "Does it support video?", "a": "No, PoRoom doesn't support a webcam. It's left out on purpose, so writers who feel uneasy about sharing their screen or face can still use the online workspace comfortably." },
+      { "q": "Does signing in with Google collect my information?", "a": "Only the minimum needed to confirm who you are, like your email and name — nothing else is pulled from your Google account (Drive, contacts, etc.). See the Privacy Policy for the full details." },
+      { "q": "Is my work list visible to other users?", "a": "No. Your work list data is never shared with other users. Only character counts and Pomodoro status are shared, and in a room with record-sharing turned off, you can use the Pomodoro timer without sharing any records at all." }
     ],
     "footerCtaTitle": "Get started right now",
-    "footerCtaBody": "All you need is a Google account — no credit card, no separate sign-up."
+    "footerCtaBody": "All you need is a Google account — no credit card, no separate sign-up.",
+    "pomowriterCtaTitle": "Need a free writing app?\n(Windows only)",
+    "pomowriterCtaButton": "Download PomoWriter"
   }
 }
