@@ -214,8 +214,11 @@ export function useLiveMembers(
     };
     setup();
 
+    // 탭이 백그라운드에 있는 동안은 화면을 보고 있지 않으니 폴링을
+    // 쉬어서 불필요한 DB 조회를 줄인다 — 다시 보이면(위 onActive) 곧바로
+    // 한 번 재조회하므로 놓치는 변경사항은 없다.
     const pollId = setInterval(() => {
-      refetchAll();
+      if (document.visibilityState === "visible") refetchAll();
     }, POLL_INTERVAL_MS);
 
     // use-room-presence.ts와 동일한 이유로, 탭이 오래 숨겨져 있다 돌아오면
