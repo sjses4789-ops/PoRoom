@@ -40,6 +40,13 @@ export async function SiteFooter() {
           >
             {t("feedback")}
           </Link>
+          <span aria-hidden>·</span>
+          <Link
+            href="/privacy"
+            className="hover:text-neutral-600 hover:underline dark:hover:text-neutral-300"
+          >
+            {t("privacy")}
+          </Link>
         </div>
         <p className="text-neutral-300 dark:text-neutral-600">
           {t("copyright", { year: new Date().getFullYear() })}
