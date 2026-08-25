@@ -42,8 +42,7 @@ export default async function Home() {
 
   return (
     <main className="flex min-h-screen flex-col bg-white">
-      <header className="mx-auto flex w-full max-w-5xl items-center justify-between px-4 py-6 sm:px-6">
-        <Image src="/poroom-logo.png" alt="PoRoom" width={1254} height={485} priority className="h-auto w-28" />
+      <header className="mx-auto flex w-full max-w-5xl items-center justify-end px-4 py-6 sm:px-6">
         <div className="hidden items-center gap-2 sm:flex">
           <span className="shrink-0 whitespace-nowrap text-xs text-neutral-400">
             {tFooter("writingAppHint")}
@@ -61,7 +60,7 @@ export default async function Home() {
 
       <section className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-10 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[1fr_1fr]">
         <div className="flex flex-col items-start gap-6 text-left">
-          <Image src="/poroom-icon.png" alt="" width={431} height={481} className="h-10 w-auto" aria-hidden />
+          <Image src="/poroom-logo.png" alt="PoRoom" width={1254} height={485} priority className="h-16 w-auto self-center sm:h-20" />
           <span className="rounded-full border border-neutral-200 px-3 py-1 text-xs font-medium text-neutral-500">
             {t("landing.eyebrow")}
           </span>
@@ -80,40 +79,16 @@ export default async function Home() {
           </div>
         </div>
 
-        {/* 히어로 오른쪽 콜라주 — 방 화면 스크린샷(메인) + 기능별 미리보기
-            4장(아래 가로 배열). 파일이 없는 이미지는 브라우저에 깨진
-            아이콘으로만 보이고 페이지 동작에는 영향이 없다. public/
-            폴더에 넣으면 바로 반영된다.
-              - poroom-room-preview.png   1200x750px (메인)
-              - poroom-feed-preview.png   400x250px  (피드 화면)
-              - poroom-compete-preview.png 400x250px (도전/대결 화면)
-              - poroom-ranking-preview.png 400x250px (랭킹 화면)
-              - poroom-rest-preview.png   400x250px  (휴식 화면) */}
+        {/* 히어로 오른쪽 — 방 화면 스크린샷. public/poroom-room-preview.png
+            (1600x1000px)를 교체하면 바로 반영된다. */}
         <div className="flex w-full flex-col items-center gap-3 lg:items-end">
           <Image
             src="/poroom-room-preview.png"
             alt={t("landing.heroImageAlt")}
-            width={1200}
-            height={750}
-            className="w-full max-w-xl rounded-xl border border-neutral-200 shadow-sm"
+            width={1600}
+            height={1000}
+            className="w-full max-w-2xl rounded-xl border border-neutral-200 shadow-sm"
           />
-          <div className="flex items-center gap-3">
-            {[
-              { src: "/poroom-feed-preview.png", alt: t("landing.feedImageAlt") },
-              { src: "/poroom-compete-preview.png", alt: t("landing.competeImageAlt") },
-              { src: "/poroom-ranking-preview.png", alt: t("landing.rankingImageAlt") },
-              { src: "/poroom-rest-preview.png", alt: t("landing.restImageAlt") },
-            ].map((img) => (
-              <Image
-                key={img.src}
-                src={img.src}
-                alt={img.alt}
-                width={400}
-                height={250}
-                className="h-14 w-24 rounded-lg border border-neutral-200 object-cover shadow-sm sm:h-16 sm:w-28"
-              />
-            ))}
-          </div>
         </div>
       </section>
 

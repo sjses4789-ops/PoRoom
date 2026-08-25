@@ -10,6 +10,8 @@ import {
   type RestPostCategory,
   type JoinedRoom,
 } from "@/lib/rest";
+import { RichTextEditor } from "@/components/rich-text-editor";
+import { RichContent } from "@/components/rich-content";
 
 export type RestPost = {
   id: string;
@@ -178,13 +180,7 @@ export function RestBoard({
             placeholder={t("titlePlaceholder")}
             className="rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
           />
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder={t("contentPlaceholder")}
-            rows={4}
-            className="rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
-          />
+          <RichTextEditor value={content} onChange={setContent} placeholder={t("contentPlaceholder")} />
           {isRecruit && (
             <label className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400">
               {t("linkRoomLabel")}
@@ -246,9 +242,7 @@ export function RestBoard({
                   </button>
                   {isOpen && !isEditing && (
                     <div className="flex flex-col gap-2 border-t border-neutral-100 bg-neutral-50/50 px-4 py-3 dark:border-neutral-800 dark:bg-neutral-900/40">
-                      <p className="whitespace-pre-wrap text-sm text-neutral-600 dark:text-neutral-300">
-                        {p.content}
-                      </p>
+                      <RichContent content={p.content} />
                       {p.roomId && (
                         <Link
                           href={`/room/${p.roomId}`}
@@ -277,13 +271,7 @@ export function RestBoard({
                         placeholder={t("titlePlaceholder")}
                         className="rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
                       />
-                      <textarea
-                        value={editContent}
-                        onChange={(e) => setEditContent(e.target.value)}
-                        placeholder={t("contentPlaceholder")}
-                        rows={4}
-                        className="rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
-                      />
+                      <RichTextEditor value={editContent} onChange={setEditContent} placeholder={t("contentPlaceholder")} />
                       {isRecruit && (
                         <label className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400">
                           {t("linkRoomLabel")}

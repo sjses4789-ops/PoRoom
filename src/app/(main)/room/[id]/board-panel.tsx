@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { createPost, updatePost, deletePost, type PostCategory } from "@/lib/room-posts";
+import { RichTextEditor } from "@/components/rich-text-editor";
+import { RichContent } from "@/components/rich-content";
 
 export type RoomPost = {
   id: string;
@@ -177,13 +179,7 @@ export function BoardPanel({
               placeholder={t("titlePlaceholder")}
               className="rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
             />
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder={t("contentPlaceholder")}
-              rows={4}
-              className="rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
-            />
+            <RichTextEditor value={content} onChange={setContent} placeholder={t("contentPlaceholder")} />
             {error && <p className="text-xs text-red-500">{error}</p>}
             <button
               onClick={submit}
@@ -236,9 +232,7 @@ export function BoardPanel({
                     </button>
                     {isOpen && !isEditing && (
                       <div className="flex flex-col gap-2 border-t border-neutral-100 bg-neutral-50/50 px-4 py-3 dark:border-neutral-800 dark:bg-neutral-900/40">
-                        <p className="whitespace-pre-wrap text-sm text-neutral-600 dark:text-neutral-300">
-                          {p.content}
-                        </p>
+                        <RichContent content={p.content} />
                         {canModify(p) && (
                           <div className="flex gap-3 text-[11px] text-neutral-400">
                             <button onClick={() => startEdit(p)} className="hover:text-neutral-700 dark:hover:text-neutral-200">
@@ -259,13 +253,7 @@ export function BoardPanel({
                           placeholder={t("titlePlaceholder")}
                           className="rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
                         />
-                        <textarea
-                          value={editContent}
-                          onChange={(e) => setEditContent(e.target.value)}
-                          placeholder={t("contentPlaceholder")}
-                          rows={4}
-                          className="rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
-                        />
+                        <RichTextEditor value={editContent} onChange={setEditContent} placeholder={t("contentPlaceholder")} />
                         {editError && <p className="text-xs text-red-500">{editError}</p>}
                         <div className="flex gap-2">
                           <button

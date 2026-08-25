@@ -7,6 +7,8 @@ import {
   deleteFeedbackComment,
   type FeedbackCategory,
 } from "@/lib/feedback";
+import { RichTextEditor } from "@/components/rich-text-editor";
+import { RichContent } from "@/components/rich-content";
 
 export type FeedbackComment = {
   id: string;
@@ -146,13 +148,7 @@ export function FeedbackBoard({
             placeholder="제목"
             className="rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
           />
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="내용"
-            rows={4}
-            className="rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
-          />
+          <RichTextEditor value={content} onChange={setContent} placeholder="내용" />
           {error && <p className="text-xs text-red-500">{error}</p>}
           <button
             onClick={submit}
@@ -197,7 +193,7 @@ export function FeedbackBoard({
                 </button>
                 {isOpen && (
                   <div className="flex flex-col gap-3 px-4 pb-3">
-                    <p className="whitespace-pre-wrap text-sm text-neutral-600">{p.content}</p>
+                    <RichContent content={p.content} />
 
                     {p.comments.length > 0 && (
                       <div className="flex flex-col gap-2 border-l-2 border-neutral-200 pl-3 dark:border-neutral-700">
