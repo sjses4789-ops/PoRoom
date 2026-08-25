@@ -63,6 +63,7 @@
     "inputPlaceholder": "Type the word",
     "submit": "Submit",
     "wrong": "Different initials — try again",
+    "wrongCloseChoseong": "Right initials, but not the exact word",
     "correctReveal": "Correct! ''{word}''"
   },
   "board": {

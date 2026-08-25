@@ -63,6 +63,7 @@
     "inputPlaceholder": "단어를 입력하세요",
     "submit": "제출",
     "wrong": "초성이 달라요, 다시 시도해보세요",
+    "wrongCloseChoseong": "초성은 맞지만 정확한 단어가 아니에요",
     "correctReveal": "정답! ''{word}''"
   },
   "board": {

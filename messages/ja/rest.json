@@ -63,6 +63,7 @@
     "inputPlaceholder": "単語を入力してください",
     "submit": "送信",
     "wrong": "初声が違います、もう一度試してください",
+    "wrongCloseChoseong": "初声は合っていますが、正確な単語ではありません",
     "correctReveal": "正解！''{word}''"
   },
   "board": {

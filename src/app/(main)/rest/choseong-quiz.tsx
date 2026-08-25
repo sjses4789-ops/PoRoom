@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { CHOSEONG_WORDS } from "@/lib/choseong-words";
 
 const CHOSEONG_LIST = [
   "ㄱ", "ㄲ", "ㄴ", "ㄷ", "ㄸ", "ㄹ", "ㅁ", "ㅂ", "ㅃ", "ㅅ",
@@ -18,26 +19,14 @@ function choseongOf(word: string): string {
   return Array.from(word).map(choseongOfChar).join("");
 }
 
-// 두 글자~네 글자 단어 풀 — 사전 검증은 하지 않고, 여기 담긴 단어의
-// 초성과 입력값의 초성이 같은지만 비교한다.
-const WORD_POOL = [
-  "사과", "구름", "바다", "하늘", "나무", "책상", "여행", "음악",
-  "커피", "겨울", "봄날", "학교", "친구", "행복", "시계", "우산",
-  "창문", "거울", "편지", "노래",
-  "강아지", "고양이", "도서관", "놀이터", "우체국", "병아리",
-  "손수건", "무지개", "자전거", "초콜릿", "대통령", "라디오",
-  "컴퓨터", "냉장고",
-  "대한민국", "자원봉사", "국제공항", "텔레비전", "한국음식",
-];
-
-function pickWord(exclude?: string) {
-  const pool = exclude ? WORD_POOL.filter((w) => w !== exclude) : WORD_POOL;
+function pickEntry(exclude?: string): [string, string] {
+  const pool = exclude ? CHOSEONG_WORDS.filter(([w]) => w !== exclude) : CHOSEONG_WORDS;
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
 export function ChoseongQuiz() {
   const t = useTranslations("rest.choseong");
-  const [word, setWord] = useState(() => pickWord());
+  const [[word, meaning], setEntry] = useState<[string, string]>(() => pickEntry());
   const [input, setInput] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [correctCount, setCorrectCount] = useState(0);
@@ -47,8 +36,7 @@ export function ChoseongQuiz() {
   const quiz = choseongOf(word);
 
   const nextWord = () => {
-    const next = pickWord(word);
-    setWord(next);
+    setEntry(pickEntry(word));
     setInput("");
     setError(null);
   };
@@ -63,10 +51,17 @@ export function ChoseongQuiz() {
   const submit = () => {
     const guess = input.trim();
     if (guess.length === 0) return;
-    if (choseongOf(guess) === quiz && guess.length === word.length) {
+
+    // 정확한 정답일 때만 정답으로 센다 — 초성만 맞고 단어가 다르면
+    // 오답이지만, 힌트 삼아 "초성은 맞았다"는 것만 알려준다.
+    if (guess === word) {
       setJustCorrect(word);
       setCorrectCount((c) => c + 1);
       nextWord();
+      return;
+    }
+    if (guess.length === word.length && choseongOf(guess) === quiz) {
+      setError(t("wrongCloseChoseong"));
       return;
     }
     setError(t("wrong"));
@@ -98,6 +93,10 @@ export function ChoseongQuiz() {
             {t("correctReveal", { word: justCorrect })}
           </p>
         )}
+
+        <p className="mx-auto mb-3 max-w-md text-center text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
+          {meaning}
+        </p>
 
         <p className="text-center text-3xl font-bold tracking-[0.3em] text-neutral-900 dark:text-white">
           {quiz}
