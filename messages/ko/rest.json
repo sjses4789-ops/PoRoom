@@ -64,7 +64,10 @@
     "submit": "제출",
     "wrong": "초성이 달라요, 다시 시도해보세요",
     "wrongCloseChoseong": "초성은 맞지만 정확한 단어가 아니에요",
-    "correctReveal": "정답! ''{word}''"
+    "correctReveal": "정답! ''{word}''",
+    "failedReveal": "오답이에요. 정답을 확인하고 엔터를 눌러 다음 문제로 넘어가세요.",
+    "pressEnterNext": "엔터를 누르면 다음 문제로 넘어가요",
+    "next": "다음 문제"
   },
   "board": {
     "category": {

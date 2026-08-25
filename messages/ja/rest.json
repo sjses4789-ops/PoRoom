@@ -64,7 +64,10 @@
     "submit": "送信",
     "wrong": "初声が違います、もう一度試してください",
     "wrongCloseChoseong": "初声は合っていますが、正確な単語ではありません",
-    "correctReveal": "正解！''{word}''"
+    "correctReveal": "正解！''{word}''",
+    "failedReveal": "不正解です。正解を確認して、エンターキーで次の問題へ進んでください。",
+    "pressEnterNext": "エンターキーで次の問題へ",
+    "next": "次の問題"
   },
   "board": {
     "category": {

@@ -20,7 +20,7 @@ const ChoseongQuiz = dynamic(() => import("./choseong-quiz").then((m) => m.Chose
 type GameView = "typing" | "wordChain" | "choseong";
 type View = GameView | RestPostCategory;
 
-const GAME_VIEWS: GameView[] = ["typing", "wordChain", "choseong"];
+const GAME_VIEWS: GameView[] = ["typing", "choseong", "wordChain"];
 
 const BOARD_CATEGORIES: RestPostCategory[] = ["정보", "인원 모집"];
 

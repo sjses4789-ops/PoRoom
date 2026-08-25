@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { CHOSEONG_WORDS } from "@/lib/choseong-words";
 
@@ -31,15 +31,20 @@ export function ChoseongQuiz() {
   const [error, setError] = useState<string | null>(null);
   const [correctCount, setCorrectCount] = useState(0);
   const [justCorrect, setJustCorrect] = useState<string | null>(null);
+  // 초성은 맞았지만 정확한 단어가 아닐 때: 오답으로 처리하고 정답을
+  // 공개한 채로 멈춰 있다가, 한 번 더 엔터(또는 제출)를 누르면 다음
+  // 문제로 넘어간다.
+  const [revealed, setRevealed] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const quiz = choseongOf(word);
 
-  const nextWord = () => {
+  const nextWord = useCallback(() => {
     setEntry(pickEntry(word));
     setInput("");
     setError(null);
-  };
+    setRevealed(false);
+  }, [word]);
 
   const reset = () => {
     setCorrectCount(0);
@@ -49,23 +54,42 @@ export function ChoseongQuiz() {
   };
 
   const submit = () => {
+    if (revealed) {
+      nextWord();
+      return;
+    }
+
     const guess = input.trim();
     if (guess.length === 0) return;
 
-    // 정확한 정답일 때만 정답으로 센다 — 초성만 맞고 단어가 다르면
-    // 오답이지만, 힌트 삼아 "초성은 맞았다"는 것만 알려준다.
+    // 정확한 정답일 때만 정답으로 센다.
     if (guess === word) {
       setJustCorrect(word);
       setCorrectCount((c) => c + 1);
       nextWord();
       return;
     }
+    // 초성만 맞고 단어가 다르면 오답 처리 — 정답을 공개하고 다음 엔터를
+    // 기다린다.
     if (guess.length === word.length && choseongOf(guess) === quiz) {
-      setError(t("wrongCloseChoseong"));
+      setRevealed(true);
+      setError(null);
       return;
     }
     setError(t("wrong"));
   };
+
+  // 정답 공개 상태에서는 입력칸이 readOnly라 포커스가 어디 있든(제출
+  // 버튼을 눌러 포커스가 버튼으로 옮겨간 경우 포함) 엔터로 다음 문제로
+  // 넘어가지도록 창 전체에서 엔터를 듣는다.
+  useEffect(() => {
+    if (!revealed) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Enter") nextWord();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [revealed, nextWord]);
 
   return (
     <div className="flex flex-col gap-5">
@@ -93,13 +117,26 @@ export function ChoseongQuiz() {
             {t("correctReveal", { word: justCorrect })}
           </p>
         )}
+        {revealed && (
+          <p className="mb-3 text-center text-sm font-semibold text-red-600">
+            {t("failedReveal")}
+          </p>
+        )}
 
-        <p className="mx-auto mb-3 max-w-md text-center text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
-          {meaning}
-        </p>
+        {revealed ? (
+          <p className="mx-auto mb-3 max-w-md text-center text-2xl font-bold text-red-500">✕</p>
+        ) : (
+          <p className="mx-auto mb-3 max-w-md text-center text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
+            {meaning}
+          </p>
+        )}
 
-        <p className="text-center text-3xl font-bold tracking-[0.3em] text-neutral-900 dark:text-white">
-          {quiz}
+        <p
+          className={`text-center text-3xl font-bold tracking-[0.3em] ${
+            revealed ? "text-red-500" : "text-neutral-900 dark:text-white"
+          }`}
+        >
+          {revealed ? word : quiz}
         </p>
       </div>
 
@@ -114,8 +151,9 @@ export function ChoseongQuiz() {
               setJustCorrect(null);
             }}
             onKeyDown={(e) => e.key === "Enter" && submit()}
+            readOnly={revealed}
             autoFocus
-            placeholder={t("inputPlaceholder")}
+            placeholder={revealed ? t("pressEnterNext") : t("inputPlaceholder")}
             className="min-w-0 flex-1 rounded-sm border border-neutral-400 px-3 py-2 text-sm text-neutral-900 outline-none focus:border-neutral-600 dark:border-neutral-600 dark:text-white dark:focus:border-neutral-400"
           />
           <button
@@ -123,7 +161,7 @@ export function ChoseongQuiz() {
             onClick={submit}
             className="shrink-0 rounded-sm bg-neutral-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
           >
-            {t("submit")}
+            {revealed ? t("next") : t("submit")}
           </button>
         </div>
         {error && <p className="text-xs text-red-500">{error}</p>}

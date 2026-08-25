@@ -64,7 +64,10 @@
     "submit": "Submit",
     "wrong": "Different initials — try again",
     "wrongCloseChoseong": "Right initials, but not the exact word",
-    "correctReveal": "Correct! ''{word}''"
+    "correctReveal": "Correct! ''{word}''",
+    "failedReveal": "Wrong. Check the answer and press Enter for the next one.",
+    "pressEnterNext": "Press Enter for the next quiz",
+    "next": "Next"
   },
   "board": {
     "category": {
