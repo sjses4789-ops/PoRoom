@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { ROOM_TAGS, translateRoomTag } from "@/lib/room-tags";
-import { paletteDot, paletteBg } from "@/lib/palette";
+import { paletteDot, paletteBgFaded } from "@/lib/palette";
 import { toggleFavoriteRoom } from "@/lib/rooms";
 import Link from "next/link";
 import CreateRoomButton from "./create-room-button";
@@ -33,10 +33,12 @@ function MyRoomCard({
 }) {
   const t = useTranslations("main.roomLists");
   const tTags = useTranslations("tags");
+  // room-card.tsx와 동일한 이유로, 바탕은 항상 흰색으로 고정하고 그 위에
+  // 방 색상을 30% 투명도로만 겹친다(다크 모드 배경 위에 옅은 파스텔을
+  // 그대로 얹으면 색이 어둡게 섞여 텍스트 대비가 나빠지기 때문).
   return (
-    <div
-      className={`relative overflow-hidden rounded-lg border border-neutral-200/60 transition hover:border-neutral-300 ${paletteBg(room.color)}`}
-    >
+    <div className="relative overflow-hidden rounded-lg border border-neutral-200/60 bg-white transition hover:border-neutral-300">
+      <div className={`pointer-events-none absolute inset-0 -z-10 ${paletteBgFaded(room.color)}`} />
       <button
         type="button"
         onClick={(e) => {

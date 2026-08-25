@@ -90,7 +90,7 @@ export default async function Home() {
   const faq = t.raw("landing.faq") as FaqItem[];
 
   return (
-    <main className="flex min-h-screen flex-col bg-white">
+    <main className="flex min-h-screen flex-col select-none bg-white">
       <section className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-10 px-4 pt-8 pb-16 sm:px-6 sm:pt-10 sm:pb-24 lg:grid-cols-[1fr_1fr]">
         <div className="flex justify-center lg:col-span-2">
           <Image src="/poroom-logo.png" alt="PoRoom" width={1254} height={485} priority className="h-16 w-auto sm:h-20" />
@@ -111,7 +111,6 @@ export default async function Home() {
               label={t("google")}
               className="flex items-center gap-3 rounded-md bg-[#f1dcdc] px-6 py-3 text-sm font-medium text-[#7a4a4a] transition hover:bg-[#e9cccc]"
             />
-            <p className="text-xs text-neutral-400">{t("landing.ctaHint")}</p>
           </div>
         </div>
 

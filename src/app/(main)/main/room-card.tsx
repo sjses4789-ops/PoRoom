@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { joinOpenRoom } from "@/lib/rooms";
-import { paletteDot, paletteBg } from "@/lib/palette";
+import { paletteDot, paletteBgFaded } from "@/lib/palette";
 import { translateRoomTag } from "@/lib/room-tags";
 
 export type RoomListItem = {
@@ -27,11 +27,14 @@ function RoomCardBody({ room }: { room: RoomListItem }) {
   const tTags = useTranslations("tags");
   const joinTypeLabel = room.joinType === "invite" ? t("joinTypeInvite") : t("joinTypeOpen");
   // 방 색상은 항상 옅은 파스텔이라, 카드 배경으로 쓰면 텍스트는 테마와
-  // 무관하게 항상 어두운 색으로 유지해야 읽힌다.
+  // 무관하게 항상 어두운 색으로 유지해야 읽힌다. 색을 30% 투명도로만
+  // 얹기 위해, 바탕은 테마와 무관하게 항상 흰색으로 고정해두고(다크
+  // 모드 배경 위에 그대로 얹으면 옅은 색이 어둡게 섞여버려 텍스트
+  // 대비가 오히려 나빠진다) 그 위에 색상을 30% 투명도로 겹친다.
   return (
-    <div
-      className={`flex flex-col gap-2 overflow-hidden rounded-lg border border-neutral-200/60 p-4 transition hover:border-neutral-300 ${paletteBg(room.color)}`}
-    >
+    <div className="relative overflow-hidden rounded-lg border border-neutral-200/60 bg-white transition hover:border-neutral-300">
+      <div className={`pointer-events-none absolute inset-0 ${paletteBgFaded(room.color)}`} />
+      <div className="relative flex flex-col gap-2 p-4">
       <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
         <span className="flex min-w-0 items-center gap-1.5 truncate text-sm font-medium text-neutral-900">
           <span className={`h-2 w-2 shrink-0 rounded-full ${paletteDot(room.color)}`} />
@@ -62,6 +65,7 @@ function RoomCardBody({ room }: { room: RoomListItem }) {
           ))}
         </div>
       )}
+      </div>
     </div>
   );
 }

@@ -609,18 +609,32 @@ export function FeedView({
             {visiblePosts.map((p) => (
               <li
                 key={p.id}
-                style={p.meta.bgColor ? { backgroundColor: p.meta.bgColor } : undefined}
-                className={`flex flex-col gap-2.5 rounded-2xl border p-4 shadow-sm transition hover:shadow-md ${
+                className={`relative overflow-hidden rounded-2xl border p-4 shadow-sm transition hover:shadow-md ${
                   p.meta.bgColor
-                    ? "border-black/5"
+                    ? "border-black/5 bg-white"
                     : "border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-900"
                 }`}
               >
+                {p.meta.bgColor && (
+                  // 채움색은 항상 30% 투명도로만 얹는다 — 바탕은 위에서
+                  // 이미 테마와 무관하게 흰색으로 고정해뒀으니(다크 모드
+                  // 배경 위에 그대로 얹으면 색이 어둡게 섞여 아래 텍스트
+                  // 대비가 나빠진다), 이 위에서는 텍스트도 항상 어두운
+                  // 색으로 고정한다.
+                  <div
+                    className="pointer-events-none absolute inset-0 -z-10"
+                    style={{ backgroundColor: p.meta.bgColor, opacity: 0.3 }}
+                  />
+                )}
                 <div className="flex items-start gap-3">
                   <Avatar characterId={p.characterId} size={36} />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="flex min-w-0 items-center gap-1.5 truncate text-sm font-semibold text-neutral-900 dark:text-white">
+                      <span
+                        className={`flex min-w-0 items-center gap-1.5 truncate text-sm font-semibold ${
+                          p.meta.bgColor ? "text-neutral-900" : "text-neutral-900 dark:text-white"
+                        }`}
+                      >
                         {p.authorName}
                         <span aria-hidden className="text-xs">
                           {CATEGORY_ICON[p.postType]}
@@ -639,7 +653,11 @@ export function FeedView({
                         )}
                       </div>
                     </div>
-                    <p className="mt-1 whitespace-pre-wrap text-sm text-neutral-700 dark:text-neutral-200">
+                    <p
+                      className={`mt-1 whitespace-pre-wrap text-sm ${
+                        p.meta.bgColor ? "text-neutral-700" : "text-neutral-700 dark:text-neutral-200"
+                      }`}
+                    >
                       {p.mood}
                     </p>
                     <PostBadges post={p} t={t} />
