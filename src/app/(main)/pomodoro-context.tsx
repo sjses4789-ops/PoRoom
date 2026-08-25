@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState } f
 import { recordFocusMinutes, recordBreakMinutes } from "@/lib/rooms";
 import { logActivity } from "@/lib/activity";
 import { effectiveRecordDate } from "@/lib/time";
+import { playFocusStartChime, playBreakStartChime } from "@/lib/pomodoro-sound";
 import type { Phase } from "./room/[id]/use-pomodoro";
 
 type ActiveRoom = { id: string; name: string; isSystemRoom: boolean } | null;
@@ -170,6 +171,12 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
       phaseRef.current = nextPhase;
       setPhase(nextPhase);
       setTickingSeconds(nextDuration);
+      // 다른 프로그램을 보고 있어도 전환을 알아챌 수 있도록 알림음을 준다.
+      if (nextPhase === "focus") {
+        playFocusStartChime();
+      } else {
+        playBreakStartChime();
+      }
       // 휴식이 끝나고 자동으로 다음 집중으로 넘어가는 순간도 "새 집중
       // 시작"이라 센다.
       if (nextPhase === "focus") setFocusSessionCount((c) => c + 1);
@@ -265,6 +272,7 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
         // 다시 시작하는 경우뿐이고, reset()이 phase를 항상 "focus"로
         // 되돌려두므로 이 시점의 phase는 항상 "focus"다.
         setFocusSessionCount((c) => c + 1);
+        playFocusStartChime();
       }
       setRunning(true);
     },

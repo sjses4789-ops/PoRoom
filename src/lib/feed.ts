@@ -8,14 +8,25 @@ import { SYSTEM_CHALLENGE_META, type SystemChallengeKind } from "@/lib/system-ch
 export type ReactionType = "heart" | "clap" | "fire";
 export type PostType = "write" | "duel" | "challenge" | "submission" | "contest";
 
+export type ContestMode = "chars" | "complete" | "round";
+
 export type FeedPostMeta = {
   challengeTitle?: string;
   result?: "win" | "loss" | "draw";
   achieved?: boolean;
+  // 챌린지 배지를 종류별로 다르게 그리기 위한 표시(예: monthly_draft는
+  // "초단 완고 Ο/✕" 전용 스타일을 쓴다).
+  kind?: SystemChallengeKind | null;
   publisherCount?: number;
   genre?: string;
   contestName?: string;
+  contestMode?: ContestMode;
   contestChars?: number;
+  contestComplete?: boolean;
+  contestRound?: number;
+  // 작성자가 고른 피드 카드 배경색(파스텔 팔레트의 hex 값). 없으면 기본
+  // 배경을 쓴다.
+  bgColor?: string;
 };
 
 export type FeedPostResult =
@@ -33,9 +44,17 @@ export type FeedPostResult =
 export type CreatePostInput =
   | { postType: "write"; mood: string }
   | { postType: "submission"; mood: string; publisherCount: number; genre: string }
-  | { postType: "contest"; mood: string; contestName: string; contestChars: number }
+  | {
+      postType: "contest";
+      mood: string;
+      contestName: string;
+      contestMode: ContestMode;
+      contestChars?: number;
+      contestComplete?: boolean;
+      contestRound?: number;
+    }
   | { postType: "duel"; mood: string; challengeId: string }
-  | { postType: "challenge"; mood: string; challengeId: string; chars?: number };
+  | { postType: "challenge"; mood: string; challengeId: string; chars?: number; draftDone?: boolean };
 
 type ChallengeRow = {
   id: string;
@@ -159,7 +178,10 @@ async function computeChallengeAchievement(
   return { title, achieved: todayChars >= dailyTarget, kind: challenge.kind, todayChars };
 }
 
-export async function createFeedPost(input: CreatePostInput): Promise<FeedPostResult> {
+export async function createFeedPost(
+  input: CreatePostInput,
+  bgColor?: string | null
+): Promise<FeedPostResult> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -193,8 +215,15 @@ export async function createFeedPost(input: CreatePostInput): Promise<FeedPostRe
   } else if (input.postType === "contest") {
     const contestName = input.contestName.trim();
     if (!contestName) return { error: "공모전 이름을 입력해주세요." };
-    const contestChars = Math.max(0, Math.floor(input.contestChars) || 0);
-    meta = { contestName, contestChars };
+    if (input.contestMode === "complete") {
+      meta = { contestName, contestMode: "complete", contestComplete: !!input.contestComplete };
+    } else if (input.contestMode === "round") {
+      const contestRound = Math.max(0, Math.floor(input.contestRound ?? 0) || 0);
+      meta = { contestName, contestMode: "round", contestRound };
+    } else {
+      const contestChars = Math.max(0, Math.floor(input.contestChars ?? 0) || 0);
+      meta = { contestName, contestMode: "chars", contestChars };
+    }
   } else if (input.postType === "duel") {
     const result = await computeDuelResult(supabase, input.challengeId, user.id);
     if ("error" in result) return result;
@@ -202,16 +231,22 @@ export async function createFeedPost(input: CreatePostInput): Promise<FeedPostRe
   } else if (input.postType === "challenge") {
     const result = await computeChallengeAchievement(supabase, input.challengeId, user.id);
     if ("error" in result) return result;
-    meta = { challengeTitle: result.title, achieved: result.achieved };
-    if (result.kind === "daily5k" || result.kind === "daily10k") {
-      // 오늘 글자수는 자동으로 이미 계산돼 있으니(달성 여부 판정에 쓴 값)
-      // 그대로 재사용 — 사용자가 입력할 필요도, 별도로 입력받을 수도 없다.
-      chars = result.todayChars ?? 0;
-    } else if (result.kind === "monthly_draft") {
-      // 초단 완고 글자수는 추적되는 값이 없어 직접 입력받는다.
-      chars = Math.max(0, Math.floor(input.chars ?? 0) || 0);
+    if (result.kind === "monthly_draft") {
+      // 초단 완고는 자동 추적(activity_logs)이 있긴 하지만, 사용자가 직접
+      // 체크해 보고하는 방식으로 바꿨다 — 관리자 이벤트와 같은 자가 신고
+      // 방식.
+      meta = { challengeTitle: result.title, achieved: !!input.draftDone, kind: result.kind };
+    } else {
+      meta = { challengeTitle: result.title, achieved: result.achieved, kind: result.kind };
+      if (result.kind === "daily5k" || result.kind === "daily10k") {
+        // 오늘 글자수는 자동으로 이미 계산돼 있으니(달성 여부 판정에 쓴 값)
+        // 그대로 재사용 — 사용자가 입력할 필요도, 별도로 입력받을 수도 없다.
+        chars = result.todayChars ?? 0;
+      }
     }
   }
+
+  if (bgColor) meta = { ...meta, bgColor };
 
   const { data, error } = await supabase
     .from("feed_posts")

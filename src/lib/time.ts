@@ -59,6 +59,23 @@ export function effectiveRecordDate(sessionStartMs: number, now = new Date()) {
   return toLocalDateKey(now);
 }
 
+// 하루(24시간)가 지나면 "N일 전"처럼 계속 늘어나는 대신, 게시 날짜와
+// 시각을 그대로 보여준다 — 오래된 글일수록 "며칠 전"보다 정확한 날짜가
+// 더 유용하기 때문.
+export function formatAbsoluteDateTime(iso: string): string {
+  const parts = new Intl.DateTimeFormat("ko-KR", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(new Date(iso));
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "";
+  return `${get("year")}.${get("month")}.${get("day")} ${get("hour")}:${get("minute")}`;
+}
+
 export function formatRelativeTime(iso: string | null): string | null {
   if (!iso) return null;
   const diffMs = Date.now() - new Date(iso).getTime();
@@ -67,6 +84,5 @@ export function formatRelativeTime(iso: string | null): string | null {
   if (minutes < 60) return `${minutes}분 전`;
   const hours = Math.floor(minutes / 60);
   if (hours < 24) return `${hours}시간 전`;
-  const days = Math.floor(hours / 24);
-  return `${days}일 전`;
+  return formatAbsoluteDateTime(iso);
 }

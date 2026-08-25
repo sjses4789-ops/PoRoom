@@ -2,7 +2,6 @@ import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { inRange } from "@/lib/records";
 import { PageAdRail } from "@/components/page-ad-rail";
-import { CompeteTabs } from "./compete-tabs";
 import CreateChallengeButton from "./create-challenge-button";
 import JoinByCodeButton from "./join-by-code-button";
 import { ChallengeCard, type ChallengeParticipant } from "./challenge-card";
@@ -180,13 +179,15 @@ export default async function CompetePage() {
         {t("title")}
       </h1>
 
-      <CompeteTabs
-        duel={
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-            <section className="flex flex-col gap-4">
-              <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
+        <div className="flex flex-col gap-8">
+          <h2 className="text-base font-semibold text-neutral-900 dark:text-white">
+            {t("duelTab")}
+          </h2>
+          <section className="flex flex-col gap-4">
+              <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">
                 {t("joinedHeading")}
-              </h2>
+              </h3>
               {joinedChallenges.length === 0 ? (
                 <p className="text-xs text-neutral-400">
                   {t("joinedEmpty")}
@@ -214,9 +215,9 @@ export default async function CompetePage() {
 
             <section className="flex flex-col gap-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
+                <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">
                   {t("openHeading")}
-                </h2>
+                </h3>
                 <div className="flex gap-2">
                   <CreateChallengeButton />
                   <JoinByCodeButton />
@@ -242,15 +243,17 @@ export default async function CompetePage() {
                 </div>
               )}
             </section>
-          </div>
-        }
-        challenge={
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-            <section className="flex flex-col gap-4">
+        </div>
+
+        <div className="flex flex-col gap-8">
+          <h2 className="text-base font-semibold text-neutral-900 dark:text-white">
+            {t("challengeTab")}
+          </h2>
+          <section className="flex flex-col gap-4">
               <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
+                <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">
                   {t("joinedSystemHeading")}
-                </h2>
+                </h3>
                 <span className="text-[11px] text-neutral-400">{t("resetHint")}</span>
               </div>
               {joinedSystemChallenges.length === 0 ? (
@@ -283,9 +286,9 @@ export default async function CompetePage() {
 
             <section className="flex flex-col gap-4">
               <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
+                <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">
                   {t("openSystemHeading")}
-                </h2>
+                </h3>
                 <span className="text-[11px] text-neutral-400">{t("resetHint")}</span>
               </div>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -308,9 +311,8 @@ export default async function CompetePage() {
                 })}
               </div>
             </section>
-          </div>
-        }
-      />
+        </div>
+      </div>
     </div>
     </PageAdRail>
   );
