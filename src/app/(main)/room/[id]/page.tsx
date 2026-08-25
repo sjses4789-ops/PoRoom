@@ -76,6 +76,7 @@ type EventRow = {
   memo: string | null;
   created_by: string;
   category_id: string | null;
+  created_at: string;
 };
 
 type PostRow = {
@@ -199,7 +200,7 @@ export default async function RoomPage({
       .returns<DailyRecordRow[]>(),
     supabase
       .from("room_events")
-      .select("id,title,event_date,memo,created_by,category_id")
+      .select("id,title,event_date,memo,created_by,category_id,created_at")
       .eq("room_id", id)
       .returns<EventRow[]>(),
     supabase
@@ -398,6 +399,13 @@ export default async function RoomPage({
 
   const settingsCategories: SettingsCategory[] = categories;
 
+  // [방] 탭 옆 "새 글" 배지용 — 캘린더/투표/게시판에 새로 올라온 항목이
+  // 있는지는 각 항목의 생성 시각과 이용자가 해당 탭을 마지막으로 연
+  // 시각(로컬 저장, RoomTabs에서 관리)을 비교해서 판단한다.
+  const calendarCreatedAts = (eventRows ?? []).map((e) => e.created_at);
+  const pollCreatedAts = polls.map((p) => p.createdAt);
+  const boardCreatedAts = posts.map((p) => p.createdAt);
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -447,7 +455,11 @@ export default async function RoomPage({
       {room.is_system && <SystemRoomLeaveGuard roomId={room.id} />}
 
       <RoomTabs
+        roomId={room.id}
         isSystemRoom={room.is_system}
+        calendarCreatedAts={calendarCreatedAts}
+        pollCreatedAts={pollCreatedAts}
+        boardCreatedAts={boardCreatedAts}
         room={
           <RoomView
             roomId={room.id}

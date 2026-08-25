@@ -249,9 +249,14 @@ export function RoomView({
 
   const onlineCount = participants.filter((p) => p.presence !== "offline").length;
   const [noticeOpen, setNoticeOpen] = useState(false);
+  const [chatCollapsed, setChatCollapsed] = useState(false);
 
   return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[300px_1fr_260px]">
+    <div
+      className={`grid grid-cols-1 gap-6 ${
+        chatCollapsed ? "lg:grid-cols-[56px_1fr_260px]" : "lg:grid-cols-[300px_1fr_260px]"
+      }`}
+    >
         <div className="lg:order-1">
           <ChatPanel
             roomId={roomId}
@@ -260,6 +265,8 @@ export function RoomView({
             initialMessages={initialMessages}
             canModerate={canModerate}
             onActivity={reportTyping}
+            collapsed={chatCollapsed}
+            onToggleCollapsed={() => setChatCollapsed((v) => !v)}
           />
         </div>
 

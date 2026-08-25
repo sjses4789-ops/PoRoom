@@ -30,6 +30,8 @@ export function ChatPanel({
   initialMessages,
   canModerate,
   onActivity,
+  collapsed,
+  onToggleCollapsed,
 }: {
   roomId: string;
   selfId: string;
@@ -37,6 +39,8 @@ export function ChatPanel({
   initialMessages: ChatMessage[];
   canModerate: boolean;
   onActivity?: () => void;
+  collapsed: boolean;
+  onToggleCollapsed: () => void;
 }) {
   const t = useTranslations("room.chatPanel");
   const tCommon = useTranslations("room.common");
@@ -46,16 +50,19 @@ export function ChatPanel({
   const [whisperTargetId, setWhisperTargetId] = useState<string | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
-  const [collapsed, setCollapsed] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const collapsedRef = useRef(collapsed);
+  useEffect(() => {
+    collapsedRef.current = collapsed;
+  }, [collapsed]);
 
-  const toggleCollapsed = () => {
-    const next = !collapsed;
-    setCollapsed(next);
-    collapsedRef.current = next;
-    if (!next) setUnreadCount(0);
-  };
+  // 접힌 상태가 바깥(부모)에서 바뀌어 펼쳐지면 쌓인 안 읽은 개수를 비운다
+  // — 다른 상태 동기화와 동일하게, prop 참조가 바뀔 때 렌더 중 바로 맞춘다.
+  const [syncedCollapsed, setSyncedCollapsed] = useState(collapsed);
+  if (collapsed !== syncedCollapsed) {
+    setSyncedCollapsed(collapsed);
+    if (!collapsed) setUnreadCount(0);
+  }
 
   const nameOf = (userId: string) =>
     userId === selfId
@@ -167,43 +174,51 @@ export function ChatPanel({
     channelRef.current?.send({ type: "broadcast", event: "delete", payload: { id } });
   };
 
-  return (
-    <div
-      className={`flex flex-col overflow-hidden rounded-sm border border-neutral-400 dark:border-neutral-600 ${
-        collapsed ? "" : "h-[420px] lg:h-[560px]"
-      }`}
-    >
-      <div className="flex items-center justify-between border-b border-neutral-100 px-4 py-3 dark:border-neutral-800">
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={toggleCollapsed}
-            title={collapsed ? t("expand") : t("collapse")}
-            className="flex items-center gap-1.5 text-sm font-semibold text-neutral-900 dark:text-white"
-          >
-            <span
-              aria-hidden
-              className={`text-neutral-400 transition-transform ${collapsed ? "-rotate-90" : ""}`}
-            >
-              ▾
-            </span>
-            {t("title")}
-          </button>
-          {collapsed && unreadCount > 0 && (
-            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-300 px-1.5 text-[11px] font-bold text-white">
-              {unreadCount > 99 ? "99+" : unreadCount}
-            </span>
-          )}
-        </div>
-        {!collapsed && (
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs text-neutral-400">{t("bubbleColorLabel")}</span>
-            <ChatColorPicker current={selfColor} onChange={setSelfColorOverride} />
-          </div>
+  if (collapsed) {
+    return (
+      <button
+        type="button"
+        onClick={onToggleCollapsed}
+        title={t("expand")}
+        className="flex h-[420px] w-full flex-col items-center justify-start gap-3 overflow-hidden rounded-sm border border-neutral-400 py-4 text-neutral-500 transition hover:bg-neutral-50 lg:h-[560px] dark:border-neutral-600 dark:text-neutral-400 dark:hover:bg-neutral-800"
+      >
+        <span aria-hidden className="text-base">
+          ▸
+        </span>
+        {unreadCount > 0 && (
+          <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-300 px-1.5 text-[11px] font-bold text-white">
+            {unreadCount > 99 ? "99+" : unreadCount}
+          </span>
         )}
+        <span
+          className="mt-1 text-xs font-semibold text-neutral-700 dark:text-neutral-200"
+          style={{ writingMode: "vertical-rl" }}
+        >
+          {t("title")}
+        </span>
+      </button>
+    );
+  }
+
+  return (
+    <div className="flex h-[420px] flex-col overflow-hidden rounded-sm border border-neutral-400 lg:h-[560px] dark:border-neutral-600">
+      <div className="flex items-center justify-between border-b border-neutral-100 px-4 py-3 dark:border-neutral-800">
+        <button
+          type="button"
+          onClick={onToggleCollapsed}
+          title={t("collapse")}
+          className="flex items-center gap-1.5 text-sm font-semibold text-neutral-900 dark:text-white"
+        >
+          <span aria-hidden className="text-neutral-400">
+            ◂
+          </span>
+          {t("title")}
+        </button>
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs text-neutral-400">{t("bubbleColorLabel")}</span>
+          <ChatColorPicker current={selfColor} onChange={setSelfColorOverride} />
+        </div>
       </div>
-      {collapsed ? null : (
-        <>
       <div ref={listRef} className="chat-scroll flex-1 space-y-3 overflow-y-auto px-4 py-3">
         {messages.map((m) => {
           const isSelf = m.userId === selfId;
@@ -312,8 +327,6 @@ export function ChatPanel({
       <div className="h-14 overflow-hidden border-t border-neutral-100 dark:border-neutral-800">
         <AdSlot className="h-14" />
       </div>
-        </>
-      )}
     </div>
   );
 }
