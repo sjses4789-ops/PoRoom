@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { WORK_LINE_COLORS as LINE_COLORS } from "@/lib/work-colors";
+import { setWorkRecordChars } from "@/lib/works";
 
 export type WorkMeta = { id: string; title: string };
 export type WorkRecordPoint = { workId: string; date: string; chars: number };
@@ -24,26 +25,65 @@ export function WorkChart({
   works,
   records,
   entries,
+  selectedId,
+  onRecordsChange,
 }: {
   works: WorkMeta[];
   records: WorkRecordPoint[];
   entries: WorkEntryPoint[];
+  selectedId: string | null;
+  onRecordsChange: (updater: (prev: WorkRecordPoint[]) => WorkRecordPoint[]) => void;
 }) {
   const t = useTranslations("me.workChart");
   const [period, setPeriod] = useState<"entry" | "day" | "month">("day");
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-
-  const header = (
-    <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("title")}</h2>
-  );
+  const [editing, setEditing] = useState(false);
 
   if (works.length === 0) {
     return (
       <div className="flex flex-col gap-3">
-        {header}
+        <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("title")}</h2>
         <p className="text-xs text-neutral-400">
           {t("noWorks")}
         </p>
+      </div>
+    );
+  }
+
+  const activeIndex = Math.max(0, works.findIndex((w) => w.id === (selectedId ?? works[0]?.id)));
+  const activeWork = works[activeIndex] ?? works[0];
+  const activeColor = LINE_COLORS[activeIndex % LINE_COLORS.length];
+
+  const header = (
+    <div className="flex items-center justify-between">
+      <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("title")}</h2>
+      <button
+        type="button"
+        onClick={() => setEditing((v) => !v)}
+        title={editing ? t("backToChart") : t("editTitle")}
+        className="shrink-0 rounded-md px-1.5 py-1 text-neutral-400 transition hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-neutral-800 dark:hover:text-neutral-200"
+      >
+        {editing ? "📈" : "✎"}
+      </button>
+    </div>
+  );
+
+  const activeWorkLabelEl = (
+    <span className="flex items-center gap-1.5 text-[12px] font-medium text-neutral-700 dark:text-neutral-200">
+      <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: activeColor }} />
+      {activeWork?.title}
+    </span>
+  );
+
+  if (editing) {
+    return (
+      <div className="flex flex-col gap-3">
+        {header}
+        {activeWorkLabelEl}
+        <WorkRecordsEditTable
+          workId={activeWork.id}
+          records={records}
+          onRecordsChange={onRecordsChange}
+        />
       </div>
     );
   }
@@ -72,33 +112,7 @@ export function WorkChart({
     </div>
   );
 
-  const workLegend = (
-    <div className="flex flex-wrap gap-1.5">
-      {works.map((w, i) => (
-        <button
-          key={w.id}
-          type="button"
-          onClick={() => setSelectedId((v) => (v === w.id ? null : w.id))}
-          className={`flex items-center gap-1 rounded-full border px-2 py-0.5 text-[12px] transition ${
-            selectedId === w.id
-              ? "border-neutral-900 dark:border-white"
-              : "border-transparent text-neutral-600 hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-neutral-800"
-          }`}
-        >
-          <span
-            className="h-2 w-2 rounded-full"
-            style={{ backgroundColor: LINE_COLORS[i % LINE_COLORS.length] }}
-          />
-          {w.title}
-        </button>
-      ))}
-    </div>
-  );
-
   if (period === "entry") {
-    const activeWorkIndex = Math.max(0, works.findIndex((w) => w.id === (selectedId ?? works[0]?.id)));
-    const activeWork = works[activeWorkIndex] ?? works[0];
-    const activeColor = LINE_COLORS[activeWorkIndex % LINE_COLORS.length];
     const workEntries = entries
       .filter((e) => e.workId === activeWork?.id)
       .slice()
@@ -114,10 +128,8 @@ export function WorkChart({
     return (
       <div className="flex flex-col gap-3">
         {header}
-        <div className="flex items-center gap-2">
-          <span className="text-[12px] text-neutral-500 dark:text-neutral-400">
-            {t("entryChangeFor", { title: activeWork?.title ?? "" })}
-          </span>
+        <div className="flex flex-wrap items-center gap-2">
+          {activeWorkLabelEl}
           {periodSelector}
         </div>
 
@@ -171,8 +183,6 @@ export function WorkChart({
             </div>
           </div>
         )}
-
-        {workLegend}
       </div>
     );
   }
@@ -198,19 +208,17 @@ export function WorkChart({
   }
 
   const dataByBucket = buckets.map((b) => {
-    const perWork = works.map((w) =>
-      records
-        .filter(
-          (r) =>
-            r.workId === w.id &&
-            (period === "day" ? r.date === b.key : r.date.startsWith(b.key))
-        )
-        .reduce((sum, r) => sum + r.chars, 0)
-    );
-    return { ...b, perWork };
+    const value = records
+      .filter(
+        (r) =>
+          r.workId === activeWork?.id &&
+          (period === "day" ? r.date === b.key : r.date.startsWith(b.key))
+      )
+      .reduce((sum, r) => sum + r.chars, 0);
+    return { ...b, value };
   });
 
-  const maxVal = Math.max(1, ...dataByBucket.flatMap((d) => d.perWork));
+  const maxVal = Math.max(1, ...dataByBucket.map((d) => d.value));
   const chartWidth = STEP_X * buckets.length;
   const yFor = (v: number) => CHART_HEIGHT - (v / maxVal) * (CHART_HEIGHT - 8) - 4;
   const xFor = (i: number) => i * STEP_X + STEP_X / 2;
@@ -218,7 +226,8 @@ export function WorkChart({
   return (
     <div className="flex flex-col gap-3">
       {header}
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
+        {activeWorkLabelEl}
         <span className="text-[12px] text-neutral-500 dark:text-neutral-400">{t("basis")}</span>
         {periodSelector}
       </div>
@@ -239,28 +248,17 @@ export function WorkChart({
             strokeWidth={1}
             className="text-neutral-200 dark:text-neutral-700"
           />
-          {works.map((w, wi) => (
-            <polyline
-              key={w.id}
-              points={dataByBucket.map((d, bi) => `${xFor(bi)},${yFor(d.perWork[wi])}`).join(" ")}
-              fill="none"
-              stroke={LINE_COLORS[wi % LINE_COLORS.length]}
-              strokeWidth={2}
-              strokeLinejoin="round"
-              strokeLinecap="round"
-            />
+          <polyline
+            points={dataByBucket.map((d, i) => `${xFor(i)},${yFor(d.value)}`).join(" ")}
+            fill="none"
+            stroke={activeColor}
+            strokeWidth={2}
+            strokeLinejoin="round"
+            strokeLinecap="round"
+          />
+          {dataByBucket.map((d, i) => (
+            <circle key={d.key} cx={xFor(i)} cy={yFor(d.value)} r={2.5} fill={activeColor} />
           ))}
-          {works.map((w, wi) =>
-            dataByBucket.map((d, bi) => (
-              <circle
-                key={`${w.id}-${bi}`}
-                cx={xFor(bi)}
-                cy={yFor(d.perWork[wi])}
-                r={2.5}
-                fill={LINE_COLORS[wi % LINE_COLORS.length]}
-              />
-            ))
-          )}
         </svg>
         <div className="flex" style={{ width: chartWidth }}>
           {buckets.map((b) => (
@@ -274,8 +272,117 @@ export function WorkChart({
           ))}
         </div>
       </div>
+    </div>
+  );
+}
 
-      {workLegend}
+function todayIso() {
+  const d = new Date();
+  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+}
+
+function WorkRecordsEditTable({
+  workId,
+  records,
+  onRecordsChange,
+}: {
+  workId: string;
+  records: WorkRecordPoint[];
+  onRecordsChange: (updater: (prev: WorkRecordPoint[]) => WorkRecordPoint[]) => void;
+}) {
+  const t = useTranslations("me.workChart");
+  const [busyDate, setBusyDate] = useState<string | null>(null);
+  const [newDate, setNewDate] = useState(todayIso());
+  const [newChars, setNewChars] = useState("");
+
+  const rows = records
+    .filter((r) => r.workId === workId)
+    .slice()
+    .sort((a, b) => b.date.localeCompare(a.date));
+
+  const save = async (date: string, chars: number) => {
+    setBusyDate(date);
+    const result = await setWorkRecordChars(workId, date, chars);
+    setBusyDate(null);
+    if (result && "error" in result) return;
+
+    onRecordsChange((prev) => {
+      const rest = prev.filter((r) => !(r.workId === workId && r.date === date));
+      if (chars <= 0) return rest;
+      return [...rest, { workId, date, chars }];
+    });
+  };
+
+  const addNew = async () => {
+    const chars = Math.max(0, Math.floor(Number(newChars)) || 0);
+    if (!newDate || chars <= 0) return;
+    await save(newDate, chars);
+    setNewChars("");
+  };
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center gap-1.5">
+        <input
+          type="date"
+          value={newDate}
+          onChange={(e) => setNewDate(e.target.value)}
+          className="min-w-0 flex-1 rounded-md border border-neutral-200 px-2 py-1 text-xs text-neutral-900 outline-none focus:border-neutral-400 dark:text-white"
+        />
+        <input
+          type="number"
+          min={0}
+          value={newChars}
+          onChange={(e) => setNewChars(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && addNew()}
+          placeholder={t("charsPlaceholder")}
+          className="w-20 min-w-0 rounded-md border border-neutral-200 px-2 py-1 text-xs text-neutral-900 outline-none focus:border-neutral-400 dark:text-white"
+        />
+        <button
+          type="button"
+          onClick={addNew}
+          disabled={busyDate === newDate}
+          className="shrink-0 rounded-md bg-neutral-900 px-2.5 py-1 text-xs font-medium text-white transition hover:bg-neutral-700 disabled:opacity-50 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+        >
+          {t("add")}
+        </button>
+      </div>
+
+      {rows.length === 0 ? (
+        <p className="text-xs text-neutral-400">{t("noEntries")}</p>
+      ) : (
+        <ul className="flex max-h-64 flex-col gap-1 overflow-y-auto">
+          {rows.map((r) => (
+            <li key={r.date} className="flex items-center gap-2">
+              <span className="w-24 shrink-0 text-xs text-neutral-500 dark:text-neutral-400">
+                {r.date}
+              </span>
+              <input
+                type="number"
+                min={0}
+                defaultValue={r.chars}
+                key={`${r.date}-${r.chars}`}
+                onBlur={(e) => {
+                  const value = Math.max(0, Math.floor(Number(e.target.value)) || 0);
+                  if (value !== r.chars) save(r.date, value);
+                }}
+                onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
+                disabled={busyDate === r.date}
+                className="min-w-0 flex-1 rounded-md border border-neutral-200 px-2 py-1 text-xs text-neutral-900 outline-none focus:border-neutral-400 disabled:opacity-50 dark:text-white"
+              />
+              <button
+                type="button"
+                onClick={() => save(r.date, 0)}
+                disabled={busyDate === r.date}
+                title={t("deleteEntryTitle")}
+                className="shrink-0 text-neutral-300 transition hover:text-red-500 disabled:opacity-50 dark:text-neutral-600"
+              >
+                ✕
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

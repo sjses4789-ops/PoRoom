@@ -308,6 +308,54 @@ export async function recordChars(
   revalidatePath("/main");
 }
 
+export type DailyRecordEdit = { date: string; chars: number };
+
+// [방]-기록 탭에서 자신의 지난 글자수 기록을 직접 수정/추가/삭제할 수 있게
+// 하는 액션 — recordChars()의 델타 누적과 달리 해당 날짜의 글자수 값을
+// 그대로 덮어쓴다. chars가 0 이하면(그리고 그 날짜에 집중/휴식 시간
+// 기록도 없으면) 행을 아예 삭제해 표에서 "–"로 보이게 한다.
+export async function setDailyChars(roomId: string, date: string, chars: number) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "로그인이 필요합니다." };
+
+  const safeChars = Math.max(0, Math.floor(chars) || 0);
+
+  const { data: existing } = await supabase
+    .from("daily_records")
+    .select("id,focus_minutes,break_minutes")
+    .eq("user_id", user.id)
+    .eq("room_id", roomId)
+    .eq("record_date", date)
+    .maybeSingle<{ id: string; focus_minutes: number; break_minutes: number }>();
+
+  if (existing) {
+    if (safeChars <= 0 && !existing.focus_minutes && !existing.break_minutes) {
+      await supabase.from("daily_records").delete().eq("id", existing.id);
+    } else {
+      await supabase
+        .from("daily_records")
+        .update({ chars: safeChars, updated_at: new Date().toISOString() })
+        .eq("id", existing.id);
+    }
+  } else if (safeChars > 0) {
+    await supabase.from("daily_records").insert({
+      user_id: user.id,
+      room_id: roomId,
+      record_date: date,
+      chars: safeChars,
+      focus_minutes: 0,
+    });
+  }
+
+  revalidatePath(`/room/${roomId}`);
+  revalidatePath("/main");
+  revalidatePath("/me");
+  return null;
+}
+
 export async function recordFocusMinutes(
   roomId: string,
   delta: number,

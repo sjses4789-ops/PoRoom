@@ -98,7 +98,9 @@
     "whisperToLabel": "→ {name}님에게 귓속말",
     "whisperTag": "귓속말",
     "deleteMessage": "메시지 삭제",
-    "deleteConfirm": "이 메시지를 삭제할까요?"
+    "deleteConfirm": "이 메시지를 삭제할까요?",
+    "collapse": "채팅 접기",
+    "expand": "채팅 펼치기"
   },
   "pollPanel": {
     "title": "투표",
@@ -148,7 +150,9 @@
     "participant": "참여자",
     "dayColumn": "{day}일",
     "monthColumn": "{month}월",
-    "total": "합계"
+    "total": "합계",
+    "editRecordsTitle": "글자수 기록 수정",
+    "editRecordsHint": "날짜별 글자수를 입력하면 자동으로 저장돼요. 0으로 두면 기록에서 사라져요."
   },
   "workStatusPicker": {
     "setStatus": "상태 설정",

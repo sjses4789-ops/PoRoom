@@ -28,6 +28,31 @@ export async function createWork(title: string): Promise<CreateWorkResult> {
   return { id: data.id, title: data.title };
 }
 
+export async function renameWork(workId: string, title: string): Promise<CreateWorkResult> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "로그인이 필요합니다." };
+
+  const trimmed = title.trim();
+  if (!trimmed) return { error: "작품 이름을 입력해주세요." };
+
+  const { data, error } = await supabase
+    .from("works")
+    .update({ title: trimmed })
+    .eq("id", workId)
+    .eq("user_id", user.id)
+    .select("id,title")
+    .single();
+
+  if (error || !data) return { error: error?.message ?? "작품 이름 수정에 실패했습니다." };
+
+  revalidatePath("/me");
+  revalidatePath("/room/[id]", "page");
+  return { id: data.id, title: data.title };
+}
+
 export async function deleteWork(workId: string) {
   const supabase = await createClient();
   const {
@@ -93,4 +118,51 @@ export async function recordWorkChars(
     .eq("user_id", user.id);
 
   revalidatePath("/me");
+}
+
+export type WorkRecordEdit = { date: string; chars: number };
+
+// [개인] 페이지 "작품별 글자수" 그래프의 연필 버튼(표 형식 편집)에서
+// 사용 — recordWorkChars()의 델타 누적과 달리 해당 날짜의 글자수 값을
+// 그대로 덮어쓴다. chars가 0 이하면 그 날짜 행을 삭제한다.
+export async function setWorkRecordChars(
+  workId: string,
+  date: string,
+  chars: number
+): Promise<{ error: string } | null> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "로그인이 필요합니다." };
+
+  const safeChars = Math.max(0, Math.floor(chars) || 0);
+
+  const { data: existing } = await supabase
+    .from("work_records")
+    .select("id")
+    .eq("work_id", workId)
+    .eq("record_date", date)
+    .maybeSingle<{ id: string }>();
+
+  if (existing) {
+    if (safeChars <= 0) {
+      await supabase.from("work_records").delete().eq("id", existing.id);
+    } else {
+      await supabase
+        .from("work_records")
+        .update({ chars: safeChars, updated_at: new Date().toISOString() })
+        .eq("id", existing.id);
+    }
+  } else if (safeChars > 0) {
+    await supabase.from("work_records").insert({
+      work_id: workId,
+      user_id: user.id,
+      record_date: date,
+      chars: safeChars,
+    });
+  }
+
+  revalidatePath("/me");
+  return null;
 }

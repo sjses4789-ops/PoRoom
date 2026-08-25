@@ -34,6 +34,14 @@
     "edit": "수정",
     "delete": "삭제",
     "deleteConfirm": "이 글을 삭제할까요?",
-    "noPosts": "아직 등록된 글이 없습니다."
+    "noPosts": "아직 등록된 글이 없습니다.",
+    "no": "번호",
+    "titleColumn": "제목",
+    "authorColumn": "글쓴이",
+    "dateColumn": "작성일",
+    "linkRoomLabel": "방 연결",
+    "noRoomLink": "연결 안 함",
+    "goToRoom": "방으로 이동",
+    "unknownRoom": "알 수 없는 방"
   }
 }

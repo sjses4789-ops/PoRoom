@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import type { DailyRecord } from "@/lib/records";
 import { rowColorByIndex } from "@/lib/palette";
 import { characterSrc } from "@/lib/characters";
+import { setDailyChars } from "@/lib/rooms";
 import type { Member } from "./room-view";
 
 type Mode = "month" | "year";
@@ -19,9 +20,13 @@ function pad2(n: number) {
 }
 
 export function RoomRecordsPanel({
+  roomId,
+  selfId,
   members,
-  dailyRecords,
+  dailyRecords: initialDailyRecords,
 }: {
+  roomId: string;
+  selfId: string;
   members: Member[];
   dailyRecords: DailyRecord[];
 }) {
@@ -31,6 +36,22 @@ export function RoomRecordsPanel({
   const [mode, setMode] = useState<Mode>("month");
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth()); // 0-indexed
+
+  const [dailyRecords, setDailyRecordsState] = useState(initialDailyRecords);
+  // 이 패널은 탭을 옮겨도 마운트가 풀리지 않아서, 새로 받은
+  // initialDailyRecords를 반영하려면 프롭 참조가 바뀔 때 로컬 상태를
+  // 동기화해줘야 한다(다른 방 패널들과 동일한 패턴).
+  const [syncedInitialRecords, setSyncedInitialRecords] = useState(initialDailyRecords);
+  if (initialDailyRecords !== syncedInitialRecords) {
+    setSyncedInitialRecords(initialDailyRecords);
+    setDailyRecordsState(initialDailyRecords);
+  }
+
+  const [editOpen, setEditOpen] = useState(false);
+  const [editYear, setEditYear] = useState(now.getFullYear());
+  const [editMonth, setEditMonth] = useState(now.getMonth()); // 0-indexed
+  const [editValues, setEditValues] = useState<Record<string, string>>({});
+  const [editBusyDate, setEditBusyDate] = useState<string | null>(null);
 
   const goPrev = () => {
     if (mode === "year") {
@@ -56,6 +77,56 @@ export function RoomRecordsPanel({
     } else {
       setMonth((m) => m + 1);
     }
+  };
+
+  const editDaysInMonth = new Date(editYear, editMonth + 1, 0).getDate();
+
+  const openEdit = () => {
+    const selfRecords = dailyRecords.filter((r) => r.userId === selfId);
+    const values: Record<string, string> = {};
+    for (let d = 1; d <= editDaysInMonth; d++) {
+      const dateKey = `${editYear}-${pad2(editMonth + 1)}-${pad2(d)}`;
+      const found = selfRecords.find((r) => r.date === dateKey);
+      values[dateKey] = found && found.chars > 0 ? String(found.chars) : "";
+    }
+    setEditValues(values);
+    setEditOpen(true);
+  };
+
+  const editGoPrev = () => {
+    if (editMonth === 0) {
+      setEditMonth(11);
+      setEditYear((y) => y - 1);
+    } else {
+      setEditMonth((m) => m - 1);
+    }
+  };
+
+  const editGoNext = () => {
+    if (editMonth === 11) {
+      setEditMonth(0);
+      setEditYear((y) => y + 1);
+    } else {
+      setEditMonth((m) => m + 1);
+    }
+  };
+
+  const saveEditRow = async (dateKey: string) => {
+    const chars = Math.max(0, Math.floor(Number(editValues[dateKey])) || 0);
+    setEditBusyDate(dateKey);
+    const result = await setDailyChars(roomId, dateKey, chars);
+    setEditBusyDate(null);
+    if (result && "error" in result) return;
+
+    setDailyRecordsState((prev) => {
+      const rest = prev.filter((r) => !(r.userId === selfId && r.date === dateKey));
+      if (chars <= 0) return rest;
+      const existing = prev.find((r) => r.userId === selfId && r.date === dateKey);
+      return [
+        ...rest,
+        { userId: selfId, date: dateKey, chars, focusMinutes: existing?.focusMinutes ?? 0 },
+      ];
+    });
   };
 
   const recordsByUser = useMemo(() => {
@@ -227,7 +298,19 @@ export function RoomRecordsPanel({
                   <td
                     className={`sticky left-0 z-10 whitespace-nowrap border-r border-neutral-100 px-2 py-2 font-medium text-neutral-900 dark:border-neutral-700 ${rowBg}`}
                   >
-                    {member.name}
+                    <span className="flex items-center gap-1">
+                      {member.name}
+                      {member.id === selfId && (
+                        <button
+                          type="button"
+                          onClick={openEdit}
+                          title={t("editRecordsTitle")}
+                          className="shrink-0 text-neutral-400 transition hover:text-neutral-700 dark:text-neutral-500 dark:hover:text-neutral-200"
+                        >
+                          ✎
+                        </button>
+                      )}
+                    </span>
                   </td>
                   {!member.recordsVisible ? (
                     <td colSpan={columns.length} className="px-2 py-2 text-center text-neutral-300 dark:text-neutral-600">
@@ -274,6 +357,75 @@ export function RoomRecordsPanel({
           </tbody>
         </table>
       </div>
+
+      {editOpen && (
+        <>
+          <div
+            onClick={() => setEditOpen(false)}
+            className="fixed inset-0 z-10 bg-neutral-900/20"
+          />
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="fixed left-1/2 top-1/2 z-20 flex max-h-[80vh] w-[min(20rem,calc(100vw-2.5rem))] -translate-x-1/2 -translate-y-1/2 flex-col gap-3 overflow-hidden rounded-md border border-neutral-300 bg-white p-4 shadow-lg dark:border-neutral-700 dark:bg-neutral-900"
+          >
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-semibold text-neutral-900 dark:text-white">
+                {t("editRecordsTitle")}
+              </p>
+              <button
+                onClick={() => setEditOpen(false)}
+                className="text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="flex items-center justify-center gap-2 text-sm text-neutral-600 dark:text-neutral-300">
+              <button
+                onClick={editGoPrev}
+                className="rounded-md px-2 py-1 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+              >
+                ←
+              </button>
+              <span className="min-w-[80px] text-center font-medium text-neutral-900 dark:text-white">
+                {t("yearMonth", { year: editYear, month: editMonth + 1 })}
+              </span>
+              <button
+                onClick={editGoNext}
+                className="rounded-md px-2 py-1 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+              >
+                →
+              </button>
+            </div>
+            <ul className="flex flex-col gap-1 overflow-y-auto">
+              {Array.from({ length: editDaysInMonth }, (_, i) => i + 1).map((d) => {
+                const dateKey = `${editYear}-${pad2(editMonth + 1)}-${pad2(d)}`;
+                return (
+                  <li key={dateKey} className="flex items-center gap-2">
+                    <span className="w-14 shrink-0 text-xs text-neutral-500 dark:text-neutral-400">
+                      {t("dayColumn", { day: d })}
+                    </span>
+                    <input
+                      type="number"
+                      min={0}
+                      value={editValues[dateKey] ?? ""}
+                      onChange={(e) =>
+                        setEditValues((prev) => ({ ...prev, [dateKey]: e.target.value }))
+                      }
+                      onBlur={() => saveEditRow(dateKey)}
+                      onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
+                      disabled={editBusyDate === dateKey}
+                      placeholder="0"
+                      className="min-w-0 flex-1 rounded-md border border-neutral-200 px-2 py-1 text-xs text-neutral-900 outline-none focus:border-neutral-400 disabled:opacity-50 dark:text-white"
+                    />
+                    <span className="shrink-0 text-[11px] text-neutral-400">{tCommon("charUnit")}</span>
+                  </li>
+                );
+              })}
+            </ul>
+            <p className="text-[11px] text-neutral-400">{t("editRecordsHint")}</p>
+          </div>
+        </>
+      )}
     </div>
   );
 }

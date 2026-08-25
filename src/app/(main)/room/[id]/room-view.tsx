@@ -213,6 +213,7 @@ export function RoomView({
   const otherParticipants: ParticipantData[] = otherMembers.map((m) => {
     const totals = sumTotals(dailyRecords, m.id);
     const pomodoroState = getPomodoroState(m.id);
+    const presence = getStatus(m.id);
     return {
       id: m.id,
       name: m.name,
@@ -223,10 +224,16 @@ export function RoomView({
       breakMinutes: 5,
       accumulatedFocusMinutes: totals.focusMinutes,
       accumulatedChars: totals.chars,
-      presence: getStatus(m.id),
+      presence,
       recordsVisible: m.recordsVisible,
       lastSeenLabel: m.lastSeenLabel,
-      workStatus: m.workStatus,
+      // 상태설정은 계정에 영구 저장돼 있어서 그대로 두면, 사이트를 벗어나거나
+      // 창을 닫아 완전히 비접속이 된 뒤에도 카드에 파스텔 배경/상태 뱃지가
+      // 계속 남아 접속중인 사람과 구분이 잘 안 됐다 — 언마운트/네트워크
+      // 끊김처럼 신뢰할 수 없는 종료 이벤트에 의존하는 대신, 화면에 보여줄
+      // 때 비접속이면 그냥 표시만 비운다(저장된 값 자체는 그대로 둬서
+      // 다시 접속하면 원래 상태가 곧바로 돌아온다).
+      workStatus: presence === "offline" ? null : m.workStatus,
     };
   });
 
@@ -245,7 +252,7 @@ export function RoomView({
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-[300px_1fr_260px]">
-        <div className="h-[420px] lg:order-1 lg:h-[560px]">
+        <div className="lg:order-1">
           <ChatPanel
             roomId={roomId}
             selfId={selfId}

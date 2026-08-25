@@ -14,6 +14,9 @@
     "premiumDesc": "PREMIUM 등급이에요. 광고가 보이지 않고, 참여자 카드의 캐릭터 이미지 위에 펫 이미지를 설정할 수 있어요.",
     "perkAdFree": "광고 제거",
     "perkPet": "참여자 카드 캐릭터 위에 펫 이미지 설정",
+    "perkEmoji": "방 채팅창에서 이모티콘 사용",
+    "perkExe": "poroom.exe 지원",
+    "perkPomodoroDecoration": "뽀모도로 꾸미기 지원",
     "price": "{amount}원",
     "comingSoon": "결제 기능은 준비 중이에요. 곧 만나요!"
   }

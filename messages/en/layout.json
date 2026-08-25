@@ -14,6 +14,9 @@
     "premiumDesc": "You're on the PREMIUM plan. No ads, and you can set a pet image over your character on your member card.",
     "perkAdFree": "No ads",
     "perkPet": "Pet image over your character on the member card",
+    "perkEmoji": "Use emoji in room chat",
+    "perkExe": "poroom.exe support",
+    "perkPomodoroDecoration": "Pomodoro decorations",
     "price": "₩{amount}",
     "comingSoon": "Payment is coming soon!"
   }

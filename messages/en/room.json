@@ -98,7 +98,9 @@
     "whisperToLabel": "→ whisper to {name}",
     "whisperTag": "Whisper",
     "deleteMessage": "Delete message",
-    "deleteConfirm": "Delete this message?"
+    "deleteConfirm": "Delete this message?",
+    "collapse": "Collapse chat",
+    "expand": "Expand chat"
   },
   "pollPanel": {
     "title": "Polls",
@@ -148,7 +150,9 @@
     "participant": "Participant",
     "dayColumn": "{day}",
     "monthColumn": "M{month}",
-    "total": "Total"
+    "total": "Total",
+    "editRecordsTitle": "Edit character count records",
+    "editRecordsHint": "Entering a value per date saves it automatically. Leave it at 0 to remove that day's record."
   },
   "workStatusPicker": {
     "setStatus": "Set status",

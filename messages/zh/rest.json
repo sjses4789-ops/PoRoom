@@ -34,6 +34,14 @@
     "edit": "编辑",
     "delete": "删除",
     "deleteConfirm": "确定删除这篇帖子吗？",
-    "noPosts": "还没有帖子。"
+    "noPosts": "还没有帖子。",
+    "no": "编号",
+    "titleColumn": "标题",
+    "authorColumn": "作者",
+    "dateColumn": "发布日期",
+    "linkRoomLabel": "关联房间",
+    "noRoomLink": "不关联",
+    "goToRoom": "前往房间",
+    "unknownRoom": "未知房间"
   }
 }

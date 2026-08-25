@@ -14,6 +14,9 @@
     "premiumDesc": "PREMIUMプランです。広告が表示されず、参加者カードのキャラクター画像の上にペット画像を設定できます。",
     "perkAdFree": "広告非表示",
     "perkPet": "参加者カードのキャラクター上にペット画像を設定",
+    "perkEmoji": "ルームチャットで絵文字を使用",
+    "perkExe": "poroom.exe対応",
+    "perkPomodoroDecoration": "ポモドーロ装飾機能",
     "price": "{amount}ウォン",
     "comingSoon": "決済機能は準備中です。もうすぐ登場します！"
   }

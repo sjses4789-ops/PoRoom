@@ -46,6 +46,16 @@ export function ChatPanel({
   const [whisperTargetId, setWhisperTargetId] = useState<string | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
+  const [collapsed, setCollapsed] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const collapsedRef = useRef(collapsed);
+
+  const toggleCollapsed = () => {
+    const next = !collapsed;
+    setCollapsed(next);
+    collapsedRef.current = next;
+    if (!next) setUnreadCount(0);
+  };
 
   const nameOf = (userId: string) =>
     userId === selfId
@@ -78,6 +88,9 @@ export function ChatPanel({
       .on("broadcast", { event: "message" }, ({ payload }) => {
         const msg = payload as ChatMessage;
         setMessages((prev) => (prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]));
+        if (collapsedRef.current && msg.userId !== selfId) {
+          setUnreadCount((c) => c + 1);
+        }
       })
       .on("broadcast", { event: "delete" }, ({ payload }) => {
         const { id } = payload as { id: string };
@@ -91,6 +104,9 @@ export function ChatPanel({
       .on("broadcast", { event: "whisper" }, ({ payload }) => {
         const msg = payload as ChatMessage;
         setMessages((prev) => (prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]));
+        if (collapsedRef.current) {
+          setUnreadCount((c) => c + 1);
+        }
       })
       .subscribe();
 
@@ -152,14 +168,42 @@ export function ChatPanel({
   };
 
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-sm border border-neutral-400 dark:border-neutral-600">
+    <div
+      className={`flex flex-col overflow-hidden rounded-sm border border-neutral-400 dark:border-neutral-600 ${
+        collapsed ? "" : "h-[420px] lg:h-[560px]"
+      }`}
+    >
       <div className="flex items-center justify-between border-b border-neutral-100 px-4 py-3 dark:border-neutral-800">
-        <span className="text-sm font-semibold text-neutral-900 dark:text-white">{t("title")}</span>
-        <div className="flex items-center gap-1.5">
-          <span className="text-xs text-neutral-400">{t("bubbleColorLabel")}</span>
-          <ChatColorPicker current={selfColor} onChange={setSelfColorOverride} />
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={toggleCollapsed}
+            title={collapsed ? t("expand") : t("collapse")}
+            className="flex items-center gap-1.5 text-sm font-semibold text-neutral-900 dark:text-white"
+          >
+            <span
+              aria-hidden
+              className={`text-neutral-400 transition-transform ${collapsed ? "-rotate-90" : ""}`}
+            >
+              ▾
+            </span>
+            {t("title")}
+          </button>
+          {collapsed && unreadCount > 0 && (
+            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-300 px-1.5 text-[11px] font-bold text-white">
+              {unreadCount > 99 ? "99+" : unreadCount}
+            </span>
+          )}
         </div>
+        {!collapsed && (
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-neutral-400">{t("bubbleColorLabel")}</span>
+            <ChatColorPicker current={selfColor} onChange={setSelfColorOverride} />
+          </div>
+        )}
       </div>
+      {collapsed ? null : (
+        <>
       <div ref={listRef} className="chat-scroll flex-1 space-y-3 overflow-y-auto px-4 py-3">
         {messages.map((m) => {
           const isSelf = m.userId === selfId;
@@ -268,6 +312,8 @@ export function ChatPanel({
       <div className="h-14 overflow-hidden border-t border-neutral-100 dark:border-neutral-800">
         <AdSlot className="h-14" />
       </div>
+        </>
+      )}
     </div>
   );
 }

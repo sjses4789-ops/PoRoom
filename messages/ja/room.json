@@ -98,7 +98,9 @@
     "whisperToLabel": "→ {name}さんへのひそひそ話",
     "whisperTag": "ひそひそ話",
     "deleteMessage": "メッセージ削除",
-    "deleteConfirm": "このメッセージを削除しますか？"
+    "deleteConfirm": "このメッセージを削除しますか？",
+    "collapse": "チャットを閉じる",
+    "expand": "チャットを開く"
   },
   "pollPanel": {
     "title": "投票",
@@ -148,7 +150,9 @@
     "participant": "参加者",
     "dayColumn": "{day}日",
     "monthColumn": "{month}月",
-    "total": "合計"
+    "total": "合計",
+    "editRecordsTitle": "文字数記録を修正",
+    "editRecordsHint": "日付ごとに文字数を入力すると自動的に保存されます。0にすると記録から消えます。"
   },
   "workStatusPicker": {
     "setStatus": "状態を設定",

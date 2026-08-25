@@ -49,6 +49,9 @@ export function TierBadgeButton({ isPremium }: { isPremium: boolean }) {
                 <ul className="flex flex-col gap-1 text-[13px] text-neutral-500 dark:text-neutral-400">
                   <li>· {t("perkAdFree")}</li>
                   <li>· {t("perkPet")}</li>
+                  <li>· {t("perkEmoji")}</li>
+                  <li>· {t("perkExe")}</li>
+                  <li>· {t("perkPomodoroDecoration")}</li>
                 </ul>
                 <p className="text-sm font-medium text-neutral-900 dark:text-white">
                   {t("price", { amount: "5,900" })}

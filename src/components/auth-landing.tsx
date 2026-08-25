@@ -12,6 +12,13 @@ export function AuthLanding({ banned = false }: { banned?: boolean }) {
       provider: "google",
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
+        // PomoWriter 작품 목록 불러오기 기능(구글 드라이브 조회)을 위해
+        // 로그인 시 드라이브 읽기 전용 권한을 함께 요청한다.
+        scopes: "https://www.googleapis.com/auth/drive.readonly",
+        queryParams: {
+          access_type: "offline",
+          prompt: "consent",
+        },
       },
     });
   };

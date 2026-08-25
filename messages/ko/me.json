@@ -61,7 +61,12 @@
     "entryChangeFor": "{title}의 입력별 변동",
     "noEntries": "아직 입력 기록이 없습니다.",
     "basis": "기준",
-    "monthLabel": "{month}월"
+    "monthLabel": "{month}월",
+    "editTitle": "표로 수정",
+    "backToChart": "그래프로 보기",
+    "charsPlaceholder": "글자수",
+    "add": "추가",
+    "deleteEntryTitle": "기록 삭제"
   },
   "rankingStatus": {
     "title": "랭킹 현황",
@@ -83,7 +88,17 @@
     "add": "추가",
     "noWorks": "등록된 작품이 없습니다.",
     "deleteConfirm": "\"{title}\" 작품을 삭제할까요? 그래프에서도 사라져요.",
-    "deleteTitle": "작품 삭제"
+    "deleteTitle": "작품 삭제",
+    "renameTitle": "작품 이름 수정",
+    "importButton": "불러오기",
+    "importing": "불러오는 중...",
+    "importTitle": "PomoWriter에서 작품 목록 불러오기",
+    "importConfirm": "구글 드라이브에서 작품 목록 정보를 불러옵니다.\n(PomoWriter 사용자만 가능)",
+    "importNotPomoWriter": "PomoWriter 사용자가 아니어서 작품 목록을 불러오는데에 실패했습니다.",
+    "importNoDriveAccess": "구글 드라이브 접근 권한이 없습니다. 로그아웃 후 다시 로그인하여 드라이브 접근을 허용해주세요.",
+    "importError": "작품 목록을 불러오는 중 오류가 발생했습니다.",
+    "importSuccess": "{count}개의 작품을 불러왔습니다.",
+    "importNothingNew": "새로 불러올 작품이 없습니다. 이미 모두 등록되어 있어요."
   },
   "pomodoroStats": {
     "title": "뽀모도로 통계",

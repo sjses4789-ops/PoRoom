@@ -98,7 +98,9 @@
     "whisperToLabel": "→ 对{name}说悄悄话",
     "whisperTag": "悄悄话",
     "deleteMessage": "删除消息",
-    "deleteConfirm": "确定删除这条消息吗？"
+    "deleteConfirm": "确定删除这条消息吗？",
+    "collapse": "收起聊天",
+    "expand": "展开聊天"
   },
   "pollPanel": {
     "title": "投票",
@@ -148,7 +150,9 @@
     "participant": "参与者",
     "dayColumn": "{day}日",
     "monthColumn": "{month}月",
-    "total": "合计"
+    "total": "合计",
+    "editRecordsTitle": "修改字数记录",
+    "editRecordsHint": "按日期输入字数会自动保存。设为0则从记录中消失。"
   },
   "workStatusPicker": {
     "setStatus": "设置状态",

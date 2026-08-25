@@ -469,7 +469,14 @@ export default async function RoomPage({
             initialWorks={works}
           />
         }
-        records={<RoomRecordsPanel members={members} dailyRecords={dailyRecords} />}
+        records={
+          <RoomRecordsPanel
+            roomId={room.id}
+            selfId={user!.id}
+            members={members}
+            dailyRecords={dailyRecords}
+          />
+        }
         calendar={
           <CalendarPanel roomId={room.id} initialEvents={events} categories={categories} />
         }

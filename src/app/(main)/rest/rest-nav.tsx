@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { TypingPractice } from "./typing-practice";
 import { RestBoard, type RestPost } from "./rest-board";
-import type { RestPostCategory } from "@/lib/rest";
+import type { RestPostCategory, JoinedRoom } from "@/lib/rest";
 
 type View = "typing" | RestPostCategory;
 
@@ -16,12 +16,14 @@ export function RestNav({
   isAdmin,
   myBestCpm,
   initialPosts,
+  myRooms,
 }: {
   selfId: string;
   selfName: string;
   isAdmin: boolean;
   myBestCpm: number | null;
   initialPosts: RestPost[];
+  myRooms: JoinedRoom[];
 }) {
   const t = useTranslations("rest.nav");
   const tBoard = useTranslations("rest.board");
@@ -66,6 +68,7 @@ export function RestNav({
             selfName={selfName}
             isAdmin={isAdmin}
             initialPosts={initialPosts}
+            myRooms={myRooms}
           />
         )}
       </div>
