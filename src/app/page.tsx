@@ -42,10 +42,19 @@ export default async function Home() {
     <main className="flex min-h-screen flex-col bg-white">
       <header className="mx-auto flex w-full max-w-5xl items-center justify-between px-4 py-6 sm:px-6">
         <Image src="/poroom-logo.png" alt="PoRoom" width={1254} height={485} priority className="h-auto w-28" />
-        <GoogleSignInButton
-          label={t("google")}
-          className="hidden items-center gap-2 rounded-md border border-neutral-200 px-4 py-2 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50 sm:flex"
-        />
+        <div className="hidden items-center gap-2 sm:flex">
+          <span className="shrink-0 whitespace-nowrap text-xs text-neutral-400">
+            {tFooter("writingAppHint")}
+          </span>
+          <a
+            href="https://pomowriter.oopy.io/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="shrink-0 rounded-md border border-stone-300 bg-stone-100 px-2.5 py-1 text-xs font-bold text-stone-700 transition hover:bg-stone-200"
+          >
+            PomoWriter
+          </a>
+        </div>
       </header>
 
       <section className="mx-auto flex w-full max-w-3xl flex-col items-center gap-6 px-4 py-16 text-center sm:px-6 sm:py-24">

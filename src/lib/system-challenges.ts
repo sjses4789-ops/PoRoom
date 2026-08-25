@@ -23,8 +23,8 @@ export const SYSTEM_CHALLENGE_CARD_BG: Record<SystemChallengeKind, string> = {
 };
 
 const CHALLENGE_TODO_CONTENT: Record<SystemChallengeKind, string> = {
-  daily5k: "(챌린지) 매일 5천자 쓰기",
-  daily10k: "(챌린지) 매일 1만자 쓰기",
+  daily5k: "(챌린지) 5천자 쓰기",
+  daily10k: "(챌린지) 1만자 쓰기",
   monthly_draft: "(챌린지) 초단 완고 치기",
 };
 

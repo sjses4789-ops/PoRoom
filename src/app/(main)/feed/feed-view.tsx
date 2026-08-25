@@ -38,7 +38,10 @@ const REACTION_EMOJI: Record<ReactionType, string> = {
   fire: "🔥",
 };
 
-const CATEGORY_ICON: Record<PostType, string> = {
+type CategoryFilter = PostType | "all";
+
+const CATEGORY_ICON: Record<CategoryFilter, string> = {
+  all: "🗂️",
   write: "✍️",
   duel: "⚔️",
   challenge: "🏆",
@@ -46,7 +49,7 @@ const CATEGORY_ICON: Record<PostType, string> = {
   contest: "🏅",
 };
 
-const CATEGORIES: PostType[] = ["write", "duel", "challenge", "submission", "contest"];
+const CATEGORIES: CategoryFilter[] = ["all", "write", "duel", "challenge", "submission", "contest"];
 
 function Avatar({ characterId, size = 40 }: { characterId: string | null; size?: number }) {
   const src = characterSrc(characterId);
@@ -133,6 +136,12 @@ function PostBadges({ post, t }: { post: FeedPost; t: ReturnType<typeof useTrans
         <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${style}`}>
           🏆 {post.meta.challengeTitle} · {achieved ? t("achieved") : t("notAchieved")}
         </span>
+        {post.chars > 0 && (
+          <span className="rounded-full bg-neutral-100 px-2.5 py-1 text-[11px] font-medium text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
+            ✍️ {post.chars.toLocaleString()}
+            {t("charUnit")}
+          </span>
+        )}
       </div>
     );
   }
@@ -161,7 +170,7 @@ export function FeedView({
 }) {
   const t = useTranslations("feed.view");
   const [posts, setPosts] = useState<FeedPost[]>(initialPosts);
-  const [category, setCategory] = useState<PostType>("write");
+  const [category, setCategory] = useState<CategoryFilter>("all");
   const [mood, setMood] = useState("");
   const [publisherCount, setPublisherCount] = useState("");
   const [genre, setGenre] = useState("");
@@ -169,6 +178,7 @@ export function FeedView({
   const [contestChars, setContestChars] = useState("");
   const [duelId, setDuelId] = useState("");
   const [challengeId, setChallengeId] = useState("");
+  const [challengeChars, setChallengeChars] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -180,9 +190,14 @@ export function FeedView({
     setContestChars("");
     setDuelId("");
     setChallengeId("");
+    setChallengeChars("");
   };
 
+  const selectedChallengeKind = challengeOptions.find((c) => c.id === challengeId)?.kind ?? null;
+  const visiblePosts = category === "all" ? posts : posts.filter((p) => p.postType === category);
+
   const canSubmit =
+    category !== "all" &&
     mood.trim().length > 0 &&
     (category !== "duel" || duelId) &&
     (category !== "challenge" || challengeId) &&
@@ -203,7 +218,12 @@ export function FeedView({
             ? { postType: "contest", mood, contestName, contestChars: Number(contestChars) || 0 }
             : category === "duel"
               ? { postType: "duel", mood, challengeId: duelId }
-              : { postType: "challenge", mood, challengeId }
+              : {
+                  postType: "challenge",
+                  mood,
+                  challengeId,
+                  chars: selectedChallengeKind === "monthly_draft" ? Number(challengeChars) || 0 : undefined,
+                }
     );
 
     setPending(false);
@@ -280,6 +300,7 @@ export function FeedView({
       </div>
 
       <div className="flex flex-col gap-6">
+        {category !== "all" && (
         <div className="flex flex-col gap-3 rounded-2xl border border-neutral-200 bg-neutral-50/60 p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900/40">
           <div className="flex items-center gap-3">
             <Avatar characterId={selfCharacterId} />
@@ -403,15 +424,38 @@ export function FeedView({
                 )}
               </label>
             )}
+            {category === "challenge" && challengeId && selectedChallengeKind === "monthly_draft" && (
+              <label className="flex items-center gap-1.5">
+                {t("contestCharsLabel")}
+                <input
+                  type="number"
+                  min={0}
+                  value={challengeChars}
+                  onChange={(e) => setChallengeChars(e.target.value)}
+                  className="w-24 rounded-md border border-neutral-200 bg-white px-2 py-1 text-xs text-neutral-900 outline-none focus:border-neutral-400 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
+                />
+                {t("charUnit")}
+              </label>
+            )}
+            {category === "challenge" &&
+              challengeId &&
+              (selectedChallengeKind === "daily5k" || selectedChallengeKind === "daily10k") && (
+                <span className="rounded-full bg-white px-2.5 py-1 dark:bg-neutral-800">
+                  ✍️ {t("charsLabel")} {todayChars.toLocaleString()}
+                  {t("charUnit")}
+                  <span className="ml-1 text-[11px] text-neutral-400">{t("autoFilledHint")}</span>
+                </span>
+              )}
           </div>
           {error && <p className="pl-[52px] text-xs text-red-500">{error}</p>}
         </div>
+        )}
 
-        {posts.length === 0 ? (
+        {visiblePosts.length === 0 ? (
           <p className="text-center text-xs text-neutral-400">{t("noPosts")}</p>
         ) : (
           <ul className="flex flex-col gap-3">
-            {posts.map((p) => (
+            {visiblePosts.map((p) => (
               <li
                 key={p.id}
                 className="flex flex-col gap-2.5 rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm transition hover:shadow-md dark:border-neutral-700 dark:bg-neutral-900"

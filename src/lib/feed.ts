@@ -35,7 +35,7 @@ export type CreatePostInput =
   | { postType: "submission"; mood: string; publisherCount: number; genre: string }
   | { postType: "contest"; mood: string; contestName: string; contestChars: number }
   | { postType: "duel"; mood: string; challengeId: string }
-  | { postType: "challenge"; mood: string; challengeId: string };
+  | { postType: "challenge"; mood: string; challengeId: string; chars?: number };
 
 type ChallengeRow = {
   id: string;
@@ -108,7 +108,10 @@ async function computeChallengeAchievement(
   supabase: Awaited<ReturnType<typeof createClient>>,
   challengeId: string,
   userId: string
-): Promise<{ title: string; achieved: boolean } | { error: string }> {
+): Promise<
+  | { title: string; achieved: boolean; kind: SystemChallengeKind | null; todayChars?: number }
+  | { error: string }
+> {
   const { data: challenge } = await supabase
     .from("challenges")
     .select("id,title,kind,is_admin_event")
@@ -128,7 +131,7 @@ async function computeChallengeAchievement(
 
   if (!challenge.kind) {
     // 관리자 지정 이벤트 — 자가 신고한 달성 여부를 그대로 쓴다.
-    return { title, achieved: participant.achieved };
+    return { title, achieved: participant.achieved, kind: null };
   }
 
   const today = todayKst();
@@ -142,7 +145,7 @@ async function computeChallengeAchievement(
       .eq("type", "draft_done")
       .gte("created_at", kstDayRangeUtc(monthStart).startUtc)
       .limit(1);
-    return { title, achieved: (data ?? []).length > 0 };
+    return { title, achieved: (data ?? []).length > 0, kind: challenge.kind };
   }
 
   const dailyTarget = SYSTEM_CHALLENGE_META[challenge.kind].dailyTarget ?? 0;
@@ -153,7 +156,7 @@ async function computeChallengeAchievement(
     .eq("record_date", today)
     .returns<{ chars: number }[]>();
   const todayChars = (todayRows ?? []).reduce((sum, r) => sum + r.chars, 0);
-  return { title, achieved: todayChars >= dailyTarget };
+  return { title, achieved: todayChars >= dailyTarget, kind: challenge.kind, todayChars };
 }
 
 export async function createFeedPost(input: CreatePostInput): Promise<FeedPostResult> {
@@ -200,6 +203,14 @@ export async function createFeedPost(input: CreatePostInput): Promise<FeedPostRe
     const result = await computeChallengeAchievement(supabase, input.challengeId, user.id);
     if ("error" in result) return result;
     meta = { challengeTitle: result.title, achieved: result.achieved };
+    if (result.kind === "daily5k" || result.kind === "daily10k") {
+      // 오늘 글자수는 자동으로 이미 계산돼 있으니(달성 여부 판정에 쓴 값)
+      // 그대로 재사용 — 사용자가 입력할 필요도, 별도로 입력받을 수도 없다.
+      chars = result.todayChars ?? 0;
+    } else if (result.kind === "monthly_draft") {
+      // 초단 완고 글자수는 추적되는 값이 없어 직접 입력받는다.
+      chars = Math.max(0, Math.floor(input.chars ?? 0) || 0);
+    }
   }
 
   const { data, error } = await supabase
@@ -282,7 +293,7 @@ export async function toggleFeedReaction(
 }
 
 export type DuelOption = { id: string; title: string };
-export type ChallengeOption = { id: string; title: string };
+export type ChallengeOption = { id: string; title: string; kind: SystemChallengeKind | null };
 
 // [피드]의 '대결'/'챌린지' 작성 탭에서 고를 수 있는 목록 — 결과/달성
 // 여부는 여기서 미리 계산하지 않고, 실제로 게시할 때(createFeedPost) 그
@@ -320,7 +331,11 @@ export async function getMyChallengeOptions(): Promise<{
 
   const challenges: ChallengeOption[] = (rows ?? [])
     .filter((c) => c.kind || c.is_admin_event)
-    .map((c) => ({ id: c.id, title: c.kind ? SYSTEM_CHALLENGE_META[c.kind].title : c.title }));
+    .map((c) => ({
+      id: c.id,
+      title: c.kind ? SYSTEM_CHALLENGE_META[c.kind].title : c.title,
+      kind: c.kind,
+    }));
 
   return { duels, challenges };
 }
