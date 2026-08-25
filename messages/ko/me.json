@@ -48,6 +48,7 @@
     "successCount": "성공 {count}회"
   },
   "goalPanel": {
+    "periodDay": "오늘",
     "periodMonth": "이번 달",
     "periodYear": "올해",
     "charsGoalLabel": "글자수 목표",
@@ -57,7 +58,10 @@
     "charsFieldLabel": "목표 글자수",
     "minutesFieldLabel": "목표 시간(분)",
     "saving": "저장 중...",
-    "save": "저장"
+    "save": "저장",
+    "prevDate": "이전 날짜",
+    "nextDate": "다음 날짜",
+    "notCurrentHint": "현재 기간에서만 목표를 수정할 수 있어요."
   },
   "workChart": {
     "title": "작품별 글자수",

@@ -48,6 +48,7 @@
     "successCount": "{count} successes"
   },
   "goalPanel": {
+    "periodDay": "Today",
     "periodMonth": "This Month",
     "periodYear": "This Year",
     "charsGoalLabel": "Character Goal",
@@ -57,7 +58,10 @@
     "charsFieldLabel": "Target characters",
     "minutesFieldLabel": "Target minutes",
     "saving": "Saving...",
-    "save": "Save"
+    "save": "Save",
+    "prevDate": "Previous date",
+    "nextDate": "Next date",
+    "notCurrentHint": "You can only edit the goal for the current period."
   },
   "workChart": {
     "title": "Characters by Work",

@@ -12,7 +12,12 @@
   },
   "todo": {
     "addPlaceholder": "添加待办事项",
-    "empty": "暂无待办事项。"
+    "empty": "暂无待办事项。",
+    "moreButton": "+ 更多",
+    "historyEmpty": "这天没有待办事项。",
+    "historyClose": "关闭",
+    "prevDate": "上一天",
+    "nextDate": "下一天"
   },
   "attendance": {
     "weekdays": ["日", "一", "二", "三", "四", "五", "六"],

@@ -104,6 +104,7 @@ export default async function MainPage() {
     .from("todos")
     .select("id,content")
     .eq("user_id", user!.id)
+    .is("completed_at", null)
     .order("created_at", { ascending: true })
     .returns<TodoRow[]>();
 

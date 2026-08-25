@@ -114,6 +114,7 @@ export default async function MePage() {
     { data: pomodoroSessionLogs },
     { data: siteTimeRows },
     { data: myAttendanceLogs },
+    { data: dailyGoalRows },
   ] = await Promise.all([
     myRoomIds.length
       ? supabase
@@ -202,6 +203,15 @@ export default async function MePage() {
       .eq("user_id", user.id)
       .in("type", ["chars_added", "focus_recorded"])
       .returns<{ type: string; created_at: string }[]>(),
+    // "오늘" 목표 현황 탭에서 과거 날짜를 넘겨봐도 그 날짜에 실제로
+    // 적용되던 목표치를 보여주기 위해, 전체 이력을 한 번에 가져와
+    // 클라이언트에서 날짜별로 계산한다.
+    supabase
+      .from("daily_char_goals")
+      .select("effective_date,target_chars")
+      .eq("user_id", user.id)
+      .order("effective_date", { ascending: true })
+      .returns<{ effective_date: string; target_chars: number }[]>(),
   ]);
 
   // 관리자가 만든 "달성 여부" 임시 이벤트는 마일스톤 로그 대신
@@ -343,6 +353,7 @@ export default async function MePage() {
     .from("todos")
     .select("id,content")
     .eq("user_id", user.id)
+    .is("completed_at", null)
     .order("created_at", { ascending: true })
     .returns<Todo[]>();
   const todos = todoRows ?? [];
@@ -392,6 +403,26 @@ export default async function MePage() {
     month: computeProgress("month"),
     year: computeProgress("year"),
   };
+
+  // "오늘" 탭(및 상단 화살표로 넘겨보는 다른 날짜)은 서버 왕복 없이
+  // 클라이언트에서 바로 계산할 수 있도록, 날짜별 합계와 일일 목표 이력을
+  // 그대로 내려보낸다.
+  const dailyRecordsByDate = new Map<string, { chars: number; minutes: number }>();
+  for (const r of myGlobalRecords) {
+    const entry = dailyRecordsByDate.get(r.record_date) ?? { chars: 0, minutes: 0 };
+    entry.chars += r.chars;
+    entry.minutes += r.focus_minutes;
+    dailyRecordsByDate.set(r.record_date, entry);
+  }
+  const dailyRecordPoints = Array.from(dailyRecordsByDate.entries()).map(([date, v]) => ({
+    date,
+    chars: v.chars,
+    minutes: v.minutes,
+  }));
+  const dailyGoalPoints = (dailyGoalRows ?? []).map((g) => ({
+    effectiveDate: g.effective_date,
+    targetChars: g.target_chars,
+  }));
 
   return (
     <PageAdRail>
@@ -463,7 +494,12 @@ export default async function MePage() {
             <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
               {t("goalStatus")}
             </h2>
-            <GoalPanel goals={goals} progress={progress} />
+            <GoalPanel
+              goals={goals}
+              progress={progress}
+              dailyRecords={dailyRecordPoints}
+              dailyGoals={dailyGoalPoints}
+            />
           </div>
         </div>
       </section>

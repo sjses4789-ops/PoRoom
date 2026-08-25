@@ -12,7 +12,12 @@
   },
   "todo": {
     "addPlaceholder": "やることを追加",
-    "empty": "やることがありません。"
+    "empty": "やることがありません。",
+    "moreButton": "+ もっと見る",
+    "historyEmpty": "この日のやることはありません。",
+    "historyClose": "閉じる",
+    "prevDate": "前の日付",
+    "nextDate": "次の日付"
   },
   "attendance": {
     "weekdays": ["日", "月", "火", "水", "木", "金", "土"],

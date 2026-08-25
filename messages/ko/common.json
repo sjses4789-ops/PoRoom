@@ -12,7 +12,12 @@
   },
   "todo": {
     "addPlaceholder": "할 일 추가",
-    "empty": "할 일이 없습니다."
+    "empty": "할 일이 없습니다.",
+    "moreButton": "+ 더보기",
+    "historyEmpty": "이 날짜엔 할 일이 없어요.",
+    "historyClose": "닫기",
+    "prevDate": "이전 날짜",
+    "nextDate": "다음 날짜"
   },
   "attendance": {
     "weekdays": ["일", "월", "화", "수", "목", "금", "토"],

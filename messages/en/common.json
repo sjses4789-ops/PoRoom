@@ -12,7 +12,12 @@
   },
   "todo": {
     "addPlaceholder": "Add a to-do",
-    "empty": "No to-dos yet."
+    "empty": "No to-dos yet.",
+    "moreButton": "+ More",
+    "historyEmpty": "No to-dos for this date.",
+    "historyClose": "Close",
+    "prevDate": "Previous date",
+    "nextDate": "Next date"
   },
   "attendance": {
     "weekdays": ["S", "M", "T", "W", "T", "F", "S"],

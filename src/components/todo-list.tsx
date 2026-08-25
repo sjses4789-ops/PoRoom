@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { createTodo, updateTodo, deleteTodo } from "@/lib/todos";
+import { createTodo, updateTodo, deleteTodo, completeTodo } from "@/lib/todos";
+import { TodoHistoryPopover } from "./todo-history-popover";
 
 export type Todo = { id: string; content: string };
 
@@ -12,6 +13,7 @@ export function TodoList({ initialTodos }: { initialTodos: Todo[] }) {
   const [input, setInput] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   const add = async () => {
     const content = input.trim();
@@ -22,9 +24,11 @@ export function TodoList({ initialTodos }: { initialTodos: Todo[] }) {
     setTodos((prev) => [...prev, result]);
   };
 
+  // 체크하면 목록에서는(빠르게 훑어보는 화면이니) 사라지지만, 이제는
+  // 삭제가 아니라 완료 처리라 "+더보기" 기록에는 그대로 남는다.
   const check = async (id: string) => {
     setTodos((prev) => prev.filter((t) => t.id !== id));
-    await deleteTodo(id);
+    await completeTodo(id);
   };
 
   const remove = async (id: string) => {
@@ -107,6 +111,16 @@ export function TodoList({ initialTodos }: { initialTodos: Todo[] }) {
           ))}
         </ul>
       )}
+
+      <button
+        type="button"
+        onClick={() => setHistoryOpen(true)}
+        className="self-start text-[11px] font-medium text-neutral-400 transition hover:text-neutral-700 dark:hover:text-neutral-200"
+      >
+        {t("todo.moreButton")}
+      </button>
+
+      {historyOpen && <TodoHistoryPopover onClose={() => setHistoryOpen(false)} />}
     </div>
   );
 }

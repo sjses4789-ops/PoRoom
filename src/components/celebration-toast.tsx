@@ -40,16 +40,16 @@ export function useCelebrationToast() {
     };
   }, []);
 
-  // 옅은 파스텔 노란색 채움색 — 테마와 무관하게 항상 밝은 톤이라 글자는
-  // 항상 어두운 색으로 고정해야 읽힌다(다른 채움색 있는 카드들과 같은
-  // 원칙).
+  // 회끼가 섞인, 흰색에 아주 가까운 옅은 파스텔 노란색 — 테마와 무관하게
+  // 항상 밝은 톤이라 글자는 항상 어두운 색으로 고정해야 읽힌다(다른
+  // 채움색 있는 카드들과 같은 원칙).
   const toast = message ? (
     <div className="pointer-events-none fixed inset-0 z-[100] flex items-center justify-center px-4">
       <div
-        className={`rounded-2xl px-8 py-6 text-center text-base font-semibold text-neutral-900 shadow-xl transition-all duration-300 ${
+        className={`rounded-[2rem] px-8 py-6 text-center text-base font-semibold text-neutral-900 shadow-xl transition-all duration-300 ${
           visible ? "scale-100 opacity-100" : "scale-90 opacity-0"
         }`}
-        style={{ backgroundColor: "#FFF3C4" }}
+        style={{ backgroundColor: "#FAF8F2" }}
       >
         {message}
       </div>

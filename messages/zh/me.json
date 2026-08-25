@@ -48,6 +48,7 @@
     "successCount": "成功 {count}次"
   },
   "goalPanel": {
+    "periodDay": "今天",
     "periodMonth": "本月",
     "periodYear": "今年",
     "charsGoalLabel": "字数目标",
@@ -57,7 +58,10 @@
     "charsFieldLabel": "目标字数",
     "minutesFieldLabel": "目标时间(分钟)",
     "saving": "保存中...",
-    "save": "保存"
+    "save": "保存",
+    "prevDate": "上一个日期",
+    "nextDate": "下一个日期",
+    "notCurrentHint": "只能修改当前周期的目标。"
   },
   "workChart": {
     "title": "各作品字数",

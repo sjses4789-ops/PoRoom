@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { todayKst } from "@/lib/time";
 
 export type CreateTodoResult = { error: string } | { id: string; content: string };
 
@@ -17,7 +18,7 @@ export async function createTodo(content: string): Promise<CreateTodoResult> {
 
   const { data, error } = await supabase
     .from("todos")
-    .insert({ user_id: user.id, content: trimmed })
+    .insert({ user_id: user.id, content: trimmed, todo_date: todayKst() })
     .select("id,content")
     .single();
 
@@ -26,6 +27,45 @@ export async function createTodo(content: string): Promise<CreateTodoResult> {
   revalidatePath("/me");
   revalidatePath("/main");
   return { id: data.id, content: data.content };
+}
+
+// 체크(완료)해도 더 이상 지우지 않고 completed_at만 채운다 — [개인]
+// 페이지의 날짜별 팝오버에서 완료 여부까지 확인할 수 있도록.
+export async function completeTodo(id: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return;
+
+  await supabase
+    .from("todos")
+    .update({ completed_at: new Date().toISOString() })
+    .eq("id", id)
+    .eq("user_id", user.id);
+
+  revalidatePath("/me");
+  revalidatePath("/main");
+}
+
+export type TodoHistoryItem = { id: string; content: string; completed: boolean };
+
+export async function getTodosForDate(date: string): Promise<TodoHistoryItem[]> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data } = await supabase
+    .from("todos")
+    .select("id,content,completed_at")
+    .eq("user_id", user.id)
+    .eq("todo_date", date)
+    .order("created_at", { ascending: true })
+    .returns<{ id: string; content: string; completed_at: string | null }[]>();
+
+  return (data ?? []).map((r) => ({ id: r.id, content: r.content, completed: !!r.completed_at }));
 }
 
 export async function updateTodo(id: string, content: string) {

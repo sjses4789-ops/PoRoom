@@ -179,7 +179,7 @@ export async function ensureChallengeTodos(supabase: SupabaseClient, userId: str
   const toInsert = wanted
     .filter((w) => !existingSet.has(`${w.content}|${w.forDate}`))
     .filter((w) => !dismissedSet.has(`${w.content}|${w.forDate}`))
-    .map((w) => ({ user_id: userId, content: w.content, for_date: w.forDate }));
+    .map((w) => ({ user_id: userId, content: w.content, for_date: w.forDate, todo_date: today }));
 
   if (toInsert.length) {
     await supabase.from("todos").insert(toInsert);
