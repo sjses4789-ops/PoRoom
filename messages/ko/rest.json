@@ -5,9 +5,8 @@
   },
   "nav": {
     "typing": "타자 연습",
-    "minesweeper": "지뢰 찾기",
     "wordChain": "끝말잇기",
-    "tetris": "테트리스"
+    "choseong": "초성 퀴즈"
   },
   "typing": {
     "title": "타자 연습",
@@ -41,7 +40,8 @@
     "nextHint": "''{char}''(으)로 시작하는 단어를 입력하세요",
     "errorTooShort": "두 글자 이상 입력해주세요",
     "errorNotConnected": "''{char}''(으)로 시작해야 해요",
-    "errorAlreadyUsed": "이미 사용한 단어예요"
+    "errorAlreadyUsed": "이미 사용한 단어예요",
+    "failedRestart": "이미 사용한 단어예요! 새 단어로 다시 시작해요."
   },
   "tetris": {
     "title": "테트리스",
@@ -55,9 +55,18 @@
     "reset": "다시 시작",
     "gameOver": "게임 오버"
   },
+  "choseong": {
+    "title": "초성 퀴즈",
+    "hint": "초성을 보고 두 글자~네 글자 단어를 맞혀보세요.",
+    "correctCount": "맞춘 개수 {count}",
+    "reset": "다시 시작",
+    "inputPlaceholder": "단어를 입력하세요",
+    "submit": "제출",
+    "wrong": "초성이 달라요, 다시 시도해보세요",
+    "correctReveal": "정답! ''{word}''"
+  },
   "board": {
     "category": {
-      "자유": "자유",
       "정보": "정보",
       "인원 모집": "인원 모집"
     },

@@ -7,22 +7,22 @@ import { TypingPractice } from "./typing-practice";
 import { RestBoard, type RestPost } from "./rest-board";
 import type { RestPostCategory, JoinedRoom } from "@/lib/rest";
 
-// 세 게임은 시작 상태에 Math.random()을 쓰기 때문에(지뢰 배치, 시작
-// 단어, 다음 조각) 서버에서 미리 렌더링하면 서버와 클라이언트가 서로
-// 다른 값을 그려 하이드레이션 오류가 난다 — 그래서 클라이언트에서만
-// 렌더링한다.
-const Minesweeper = dynamic(() => import("./minesweeper").then((m) => m.Minesweeper), {
+// 게임들은 시작 상태에 Math.random()을 쓰기 때문에(시작 단어, 초성 퀴즈
+// 등) 서버에서 미리 렌더링하면 서버와 클라이언트가 서로 다른 값을 그려
+// 하이드레이션 오류가 난다 — 그래서 클라이언트에서만 렌더링한다.
+// 지뢰찾기·테트리스는 글쓰기와 관련 없는 게임이라 잠시 숨겨뒀다
+// (컴포넌트 파일은 그대로 남아 있어 다시 노출하기만 하면 된다).
+const WordChain = dynamic(() => import("./word-chain").then((m) => m.WordChain), { ssr: false });
+const ChoseongQuiz = dynamic(() => import("./choseong-quiz").then((m) => m.ChoseongQuiz), {
   ssr: false,
 });
-const WordChain = dynamic(() => import("./word-chain").then((m) => m.WordChain), { ssr: false });
-const Tetris = dynamic(() => import("./tetris").then((m) => m.Tetris), { ssr: false });
 
-type GameView = "typing" | "minesweeper" | "wordChain" | "tetris";
+type GameView = "typing" | "wordChain" | "choseong";
 type View = GameView | RestPostCategory;
 
-const GAME_VIEWS: GameView[] = ["typing", "minesweeper", "wordChain", "tetris"];
+const GAME_VIEWS: GameView[] = ["typing", "wordChain", "choseong"];
 
-const BOARD_CATEGORIES: RestPostCategory[] = ["자유", "정보", "인원 모집"];
+const BOARD_CATEGORIES: RestPostCategory[] = ["정보", "인원 모집"];
 
 export function RestNav({
   selfId,
@@ -78,12 +78,10 @@ export function RestNav({
       <div>
         {view === "typing" ? (
           <TypingPractice key={locale} myBestCpm={myBestCpm} />
-        ) : view === "minesweeper" ? (
-          <Minesweeper />
         ) : view === "wordChain" ? (
           <WordChain />
-        ) : view === "tetris" ? (
-          <Tetris />
+        ) : view === "choseong" ? (
+          <ChoseongQuiz />
         ) : (
           <RestBoard
             category={view}

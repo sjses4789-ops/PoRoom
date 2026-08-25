@@ -5,9 +5,8 @@
   },
   "nav": {
     "typing": "Typing Practice",
-    "minesweeper": "Minesweeper",
     "wordChain": "Word Chain",
-    "tetris": "Tetris"
+    "choseong": "Initial Quiz"
   },
   "typing": {
     "title": "Typing Practice",
@@ -41,7 +40,8 @@
     "nextHint": "Type a word starting with ''{char}''",
     "errorTooShort": "Enter at least two characters",
     "errorNotConnected": "Must start with ''{char}''",
-    "errorAlreadyUsed": "That word was already used"
+    "errorAlreadyUsed": "That word was already used",
+    "failedRestart": "That word was already used! Starting over with a new word."
   },
   "tetris": {
     "title": "Tetris",
@@ -55,9 +55,18 @@
     "reset": "Restart",
     "gameOver": "Game over"
   },
+  "choseong": {
+    "title": "Initial Quiz",
+    "hint": "Guess the 2-4 character Korean word from its initial consonants.",
+    "correctCount": "Correct {count}",
+    "reset": "Restart",
+    "inputPlaceholder": "Type the word",
+    "submit": "Submit",
+    "wrong": "Different initials — try again",
+    "correctReveal": "Correct! ''{word}''"
+  },
   "board": {
     "category": {
-      "자유": "Free",
       "정보": "Info",
       "인원 모집": "Recruiting"
     },

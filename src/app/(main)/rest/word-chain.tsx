@@ -8,8 +8,9 @@ const SEED_WORDS = [
   "여행", "음악", "커피", "겨울", "봄날", "학교", "친구", "행복",
 ];
 
-function pickSeed() {
-  return SEED_WORDS[Math.floor(Math.random() * SEED_WORDS.length)];
+function pickSeed(exclude?: string) {
+  const pool = exclude ? SEED_WORDS.filter((w) => w !== exclude) : SEED_WORDS;
+  return pool[Math.floor(Math.random() * pool.length)];
 }
 
 export function WordChain() {
@@ -18,16 +19,19 @@ export function WordChain() {
   const [used, setUsed] = useState<Set<string>>(() => new Set());
   const [input, setInput] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [failed, setFailed] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const current = chain[chain.length - 1];
 
   const reset = () => {
-    const seed = pickSeed();
+    // 처음 시작했던 단어가 다시 나오지 않도록, 방금 전 시작 단어는 제외한다.
+    const seed = pickSeed(chain[0]);
     setChain([seed]);
     setUsed(new Set());
     setInput("");
     setError(null);
+    setFailed(false);
     inputRef.current?.focus();
   };
 
@@ -43,13 +47,20 @@ export function WordChain() {
       return;
     }
     if (used.has(word) || chain.includes(word)) {
-      setError(t("errorAlreadyUsed"));
+      // 이미 쓴 단어를 다시 내면 실패 — 새 시작 단어로 초기화한다.
+      const seed = pickSeed(chain[0]);
+      setChain([seed]);
+      setUsed(new Set());
+      setInput("");
+      setError(null);
+      setFailed(true);
       return;
     }
     setChain((c) => [...c, word]);
     setUsed((s) => new Set(s).add(word));
     setInput("");
     setError(null);
+    setFailed(false);
   };
 
   return (
@@ -72,6 +83,10 @@ export function WordChain() {
             {t("reset")}
           </button>
         </div>
+
+        {failed && (
+          <p className="mb-3 text-center text-sm font-semibold text-red-600">{t("failedRestart")}</p>
+        )}
 
         <div className="mb-4 flex flex-wrap items-center justify-center gap-x-1.5 gap-y-2 text-sm leading-relaxed">
           {chain.map((w, i) => (

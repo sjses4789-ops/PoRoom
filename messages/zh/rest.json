@@ -5,9 +5,8 @@
   },
   "nav": {
     "typing": "打字练习",
-    "minesweeper": "扫雷",
     "wordChain": "词语接龙",
-    "tetris": "俄罗斯方块"
+    "choseong": "首字母猜词"
   },
   "typing": {
     "title": "打字练习",
@@ -41,7 +40,8 @@
     "nextHint": "请输入以''{char}''开头的词",
     "errorTooShort": "请输入至少两个字",
     "errorNotConnected": "必须以''{char}''开头",
-    "errorAlreadyUsed": "这个词已经用过了"
+    "errorAlreadyUsed": "这个词已经用过了",
+    "failedRestart": "这个词已经用过了！换一个新词重新开始。"
   },
   "tetris": {
     "title": "俄罗斯方块",
@@ -55,9 +55,18 @@
     "reset": "重新开始",
     "gameOver": "游戏结束"
   },
+  "choseong": {
+    "title": "首字母猜词",
+    "hint": "这是韩语首字母猜词游戏，根据韩语单词的首辅音猜出2~4个字的词。",
+    "correctCount": "答对 {count} 个",
+    "reset": "重新开始",
+    "inputPlaceholder": "请输入单词",
+    "submit": "提交",
+    "wrong": "首字母不对，请再试一次",
+    "correctReveal": "答对了！''{word}''"
+  },
   "board": {
     "category": {
-      "자유": "自由",
       "정보": "信息",
       "인원 모집": "招募成员"
     },

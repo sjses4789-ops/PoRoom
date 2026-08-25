@@ -93,8 +93,14 @@ const EN_SENTENCES: string[] = [
   "The last paragraph ties the story together.",
 ];
 
-export function pickRandomSentence(locale: string, exclude?: string): string {
+// recentlyShown에 든 문장은 후보에서 뺀다 — 한 번 나온 예문이 너무
+// 빨리 다시 나오지 않도록(호출부에서 최근 N개를 넘겨준다). 후보가 하나도
+// 안 남으면(예문 풀보다 recentlyShown이 크거나 같을 때) 전체 풀에서
+// 고른다.
+export function pickRandomSentence(locale: string, recentlyShown: string[] = []): string {
   const pool = locale === "en" ? EN_SENTENCES : KO_SENTENCES;
-  const filtered = exclude ? pool.filter((s) => s !== exclude) : pool;
-  return filtered[Math.floor(Math.random() * filtered.length)];
+  const excludeSet = new Set(recentlyShown);
+  const filtered = pool.filter((s) => !excludeSet.has(s));
+  const candidates = filtered.length > 0 ? filtered : pool;
+  return candidates[Math.floor(Math.random() * candidates.length)];
 }

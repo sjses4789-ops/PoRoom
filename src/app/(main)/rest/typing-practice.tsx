@@ -28,6 +28,9 @@ function typingSpeedUnits(text: string): number {
 }
 
 const LIVE_TICK_MS = 200;
+// 한 번 나온 예문은 이후 10회 안에는 다시 등장하지 않도록 최근 기록을
+// 이 길이만큼 들고 있는다.
+const RECENT_HISTORY_SIZE = 10;
 
 type Stage = "typing" | "result";
 
@@ -35,6 +38,7 @@ export function TypingPractice({ myBestCpm }: { myBestCpm: number | null }) {
   const t = useTranslations("rest.typing");
   const locale = useLocale();
   const [sentence, setSentence] = useState(() => pickRandomSentence(locale));
+  const [recentSentences, setRecentSentences] = useState<string[]>(() => [sentence]);
   const [input, setInput] = useState("");
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [now, setNow] = useState<number | null>(null);
@@ -86,7 +90,9 @@ export function TypingPractice({ myBestCpm }: { myBestCpm: number | null }) {
 
   // 2번째 엔터: 다음 문장으로 넘어가고 입력칸을 비운다.
   const advance = () => {
-    setSentence(pickRandomSentence(locale, sentence));
+    const next = pickRandomSentence(locale, recentSentences);
+    setSentence(next);
+    setRecentSentences((prev) => [...prev, next].slice(-RECENT_HISTORY_SIZE));
     setInput("");
     setStartedAt(null);
     setNow(null);

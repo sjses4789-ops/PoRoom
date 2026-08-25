@@ -5,9 +5,8 @@
   },
   "nav": {
     "typing": "タイピング練習",
-    "minesweeper": "マインスイーパー",
     "wordChain": "しりとり",
-    "tetris": "テトリス"
+    "choseong": "初声クイズ"
   },
   "typing": {
     "title": "タイピング練習",
@@ -41,7 +40,8 @@
     "nextHint": "''{char}''で始まる単語を入力してください",
     "errorTooShort": "2文字以上入力してください",
     "errorNotConnected": "''{char}''で始める必要があります",
-    "errorAlreadyUsed": "すでに使った単語です"
+    "errorAlreadyUsed": "すでに使った単語です",
+    "failedRestart": "すでに使った単語です！新しい単語で最初からやり直します。"
   },
   "tetris": {
     "title": "テトリス",
@@ -55,9 +55,18 @@
     "reset": "リスタート",
     "gameOver": "ゲームオーバー"
   },
+  "choseong": {
+    "title": "初声クイズ",
+    "hint": "初声(頭子音)を見て2〜4文字の韓国語単語を当ててください。",
+    "correctCount": "正解数 {count}",
+    "reset": "リスタート",
+    "inputPlaceholder": "単語を入力してください",
+    "submit": "送信",
+    "wrong": "初声が違います、もう一度試してください",
+    "correctReveal": "正解！''{word}''"
+  },
   "board": {
     "category": {
-      "자유": "自由",
       "정보": "情報",
       "인원 모집": "メンバー募集"
     },
