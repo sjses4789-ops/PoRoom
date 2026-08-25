@@ -39,8 +39,13 @@ export async function updateSession(request: NextRequest) {
   const isGoogleVerificationFile =
     /^\/google[a-z0-9]+\.html$/.test(request.nextUrl.pathname);
 
+  // 홈페이지의 언어별 SEO 진입점(/en, /ja, /zh) — 실제로는 "/"와 같은
+  // 페이지를 렌더링하지만, URL이 따로 있어야 구글이 언어별로 색인한다.
+  const homeLocaleMatch = /^\/(en|ja|zh)$/.exec(request.nextUrl.pathname);
+
   const isPublicRoute =
     request.nextUrl.pathname === "/" ||
+    homeLocaleMatch !== null ||
     request.nextUrl.pathname.startsWith("/login") ||
     request.nextUrl.pathname.startsWith("/auth") ||
     request.nextUrl.pathname.startsWith("/privacy") ||
@@ -60,6 +65,17 @@ export async function updateSession(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = "/main";
     return NextResponse.redirect(url);
+  }
+
+  if (homeLocaleMatch) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/";
+    const rewritten = NextResponse.rewrite(url);
+    rewritten.headers.set("x-poroom-locale", homeLocaleMatch[1]);
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
+      rewritten.cookies.set(cookie);
+    });
+    return rewritten;
   }
 
   return supabaseResponse;

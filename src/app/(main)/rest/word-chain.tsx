@@ -13,6 +13,37 @@ function pickSeed(exclude?: string) {
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
+function decomposeHangul(ch: string): { cho: number; jung: number; jong: number } | null {
+  const code = ch.charCodeAt(0) - 0xac00;
+  if (code < 0 || code > 11171) return null;
+  const jong = code % 28;
+  const jung = ((code - jong) / 28) % 21;
+  const cho = Math.floor((code - jong) / 28 / 21);
+  return { cho, jung, jong };
+}
+
+function composeHangul(cho: number, jung: number, jong: number): string {
+  return String.fromCharCode(0xac00 + (cho * 21 + jung) * 28 + jong);
+}
+
+// 두음법칙: 단어 첫머리의 한자음 "라랴러려례로료루류르리" 등은 "나냐너녀녜노뇨누뉴느니"로,
+// "냐녀녜뇨뉴니"·"랴려례료류리"는 "야여예요유이"로 바뀐다 — ㄹ/ㄴ이 초성일 때
+// 뒤따르는 모음에 따라 ㄴ 또는 ㅇ으로 변한다.
+const DUEUM_TO_IEUNG_VOWELS = new Set([2, 6, 7, 12, 17, 20]); // 야여예요유이
+const DUEUM_TO_NIEUN_VOWELS = new Set([0, 1, 8, 11, 13, 18]); // 아애오외우으
+
+function dueumForm(ch: string): string {
+  const d = decomposeHangul(ch);
+  if (!d) return ch;
+  if (d.cho === 5) {
+    if (DUEUM_TO_IEUNG_VOWELS.has(d.jung)) return composeHangul(11, d.jung, d.jong);
+    if (DUEUM_TO_NIEUN_VOWELS.has(d.jung)) return composeHangul(2, d.jung, d.jong);
+  } else if (d.cho === 2 && DUEUM_TO_IEUNG_VOWELS.has(d.jung)) {
+    return composeHangul(11, d.jung, d.jong);
+  }
+  return ch;
+}
+
 export function WordChain() {
   const t = useTranslations("rest.wordChain");
   const [chain, setChain] = useState<string[]>(() => [pickSeed()]);
@@ -23,6 +54,9 @@ export function WordChain() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const current = chain[chain.length - 1];
+  const lastChar = current[current.length - 1];
+  const lastCharAlt = dueumForm(lastChar);
+  const hintChar = lastCharAlt !== lastChar ? `${lastChar}/${lastCharAlt}` : lastChar;
 
   const reset = () => {
     // 처음 시작했던 단어가 다시 나오지 않도록, 방금 전 시작 단어는 제외한다.
@@ -42,8 +76,8 @@ export function WordChain() {
       setError(t("errorTooShort"));
       return;
     }
-    if (word[0] !== current[current.length - 1]) {
-      setError(t("errorNotConnected", { char: current[current.length - 1] }));
+    if (word[0] !== lastChar && word[0] !== lastCharAlt) {
+      setError(t("errorNotConnected", { char: hintChar }));
       return;
     }
     if (used.has(word) || chain.includes(word)) {
@@ -106,7 +140,7 @@ export function WordChain() {
         </div>
 
         <p className="text-center text-xs text-neutral-400">
-          {t("nextHint", { char: current[current.length - 1] })}
+          {t("nextHint", { char: hintChar })}
         </p>
       </div>
 

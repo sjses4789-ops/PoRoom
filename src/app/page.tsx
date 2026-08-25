@@ -2,22 +2,62 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { GoogleSignInButton } from "@/components/google-sign-in-button";
 import { UsageGuideSection } from "./usage-guide-section";
-import { SITE_URL } from "@/lib/site";
+import { SITE_URL, SITE_NAME, HOME_LOCALE_PATH, HOME_META } from "@/lib/site";
 
 type Feature = { icon: string; title: string; desc: string };
 type UsageItem = { icon: string; title: string; desc: string };
 type FaqItem = { q: string; a: string };
 
-export const metadata: Metadata = {
-  title: "포룸 | 함께 집중하는 온라인 뽀모도로 작업실",
-  description:
-    "웹소설 작가를 위한 온라인 뽀모도로 작업실 포룸. 화상회의 없이 함께 집중하고, 글자수 랭킹과 집필 챌린지로 꾸준히 쓰는 습관을 만드세요.",
-  alternates: { canonical: SITE_URL },
-};
+// /, /en, /ja, /zh 네 개의 URL이 모두 이 페이지 컴포넌트를 렌더링한다
+// (미들웨어가 /en·/ja·/zh를 "/"로 리라이트하며 언어 헤더를 실어 보냄).
+// 그래서 title/description/hreflang도 요청 언어에 맞춰 매번 새로 만든다.
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  const meta = HOME_META[locale] ?? HOME_META.ko;
+  const path = HOME_LOCALE_PATH[locale] ?? "/";
+  const url = `${SITE_URL}${path}`;
+
+  return {
+    title: meta.title,
+    description: meta.description,
+    alternates: {
+      canonical: url,
+      languages: {
+        ko: `${SITE_URL}/`,
+        en: `${SITE_URL}/en`,
+        ja: `${SITE_URL}/ja`,
+        zh: `${SITE_URL}/zh`,
+        "x-default": `${SITE_URL}/`,
+      },
+    },
+    openGraph: {
+      type: "website",
+      locale: meta.ogLocale,
+      url,
+      siteName: SITE_NAME,
+      title: meta.title,
+      description: meta.description,
+      images: [
+        {
+          url: "/poroom-room-preview.png",
+          width: 1600,
+          height: 1000,
+          alt: "PoRoom 방 화면 미리보기",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: meta.title,
+      description: meta.description,
+      images: ["/poroom-room-preview.png"],
+    },
+  };
+}
 
 // 로그인 안 한 방문자(구글 애드센스 크롤러, 구글 OAuth 브랜딩 심사 봇 포함)도
 // 리다이렉트 없이 바로 이 페이지에서 콘텐츠(및 <head>의 애드센스 스크립트)를

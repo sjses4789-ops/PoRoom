@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { CHOSEONG_WORDS } from "@/lib/choseong-words";
 
@@ -78,18 +78,6 @@ export function ChoseongQuiz() {
     }
     setError(t("wrong"));
   };
-
-  // 정답 공개 상태에서는 입력칸이 readOnly라 포커스가 어디 있든(제출
-  // 버튼을 눌러 포커스가 버튼으로 옮겨간 경우 포함) 엔터로 다음 문제로
-  // 넘어가지도록 창 전체에서 엔터를 듣는다.
-  useEffect(() => {
-    if (!revealed) return;
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Enter") nextWord();
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [revealed, nextWord]);
 
   return (
     <div className="flex flex-col gap-5">
