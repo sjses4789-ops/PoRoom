@@ -57,7 +57,7 @@
   },
   "choseong": {
     "title": "Initial Quiz",
-    "hint": "Guess the 2-4 character Korean word from its initial consonants.",
+    "hint": "Guess the word from its initial consonants.",
     "correctCount": "Correct {count}",
     "reset": "Restart",
     "inputPlaceholder": "Type the word",

@@ -16,6 +16,13 @@ type MemberRoomRow = {
   } | null;
 };
 
+// use-room-presence.ts와 동일한 문제: 탭이 오래 열려있으면 이 채널의
+// 연결도 조용히 죽어있을 수 있고, 그동안 놓친 입장/퇴장/상태변경
+// postgres_changes·broadcast 이벤트는 되돌릴 방법이 없다(presence의
+// sync와 달리 재연결해도 놓친 이벤트가 다시 오지 않는다) — 그래서
+// 재연결 시 목록 자체를 DB에서 다시 통째로 읽어와 확실히 맞춘다.
+const LONG_HIDDEN_MS = 20 * 1000;
+
 export function useLiveMembers(
   roomId: string,
   selfId: string,
@@ -44,6 +51,10 @@ export function useLiveMembers(
 
   useEffect(() => {
     const supabase = createClient();
+    let cancelled = false;
+    let currentChannel: ReturnType<typeof supabase.channel> | null = null;
+    let retrySubscribeId: ReturnType<typeof setTimeout> | null = null;
+    let hiddenSince: number | null = null;
 
     const addMember = async (userId: string) => {
       const { data: row } = await supabase
@@ -80,79 +91,157 @@ export function useLiveMembers(
       setMembers((prev) => prev.filter((m) => m.id !== userId));
     };
 
+    // 채널이 끊겨있던 동안 놓친 입장/퇴장/상태변경 이벤트를 되돌릴 방법이
+    // 없으므로, 재연결 시 DB에서 현재 멤버 목록을 통째로 다시 읽어와
+    // 확실히 맞춘다.
+    const refetchAll = async () => {
+      const { data: rows } = await supabase
+        .from("room_members")
+        .select("user_id,share_records,users(name,email,character_id,chat_color,work_status)")
+        .eq("room_id", roomId)
+        .returns<(MemberRoomRow & { user_id: string })[]>();
+      if (!rows || cancelled) return;
+      setMembers((prev) => {
+        const prevById = new Map(prev.map((m) => [m.id, m]));
+        return rows.map((row) => {
+          const existing = prevById.get(row.user_id);
+          return {
+            id: row.user_id,
+            name: row.users?.name || row.users?.email || existing?.name || "알 수 없음",
+            characterId: row.users?.character_id ?? null,
+            chatColor: row.users?.chat_color ?? null,
+            recordsVisible:
+              recordVisibility === "shared" ||
+              row.user_id === selfId ||
+              (recordVisibility === "free" && row.share_records === true),
+            lastSeenLabel: existing?.lastSeenLabel ?? null,
+            workStatus: row.users?.work_status ?? null,
+          };
+        });
+      });
+    };
+
     // postgres_changes replication can lag or miss events behind RLS, so
     // joins/leaves are also announced live via Broadcast — the same
     // mechanism Presence already uses reliably in this app. Whichever
     // arrives first wins; both paths dedupe against the current state.
-    const channel = supabase
-      .channel(`room-members-list:${roomId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "room_members",
-          filter: `room_id=eq.${roomId}`,
-        },
-        (payload) => {
-          const row = payload.new as { user_id: string };
-          addMember(row.user_id);
-        }
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "DELETE",
-          schema: "public",
-          table: "room_members",
-          filter: `room_id=eq.${roomId}`,
-        },
-        (payload) => {
-          const row = payload.old as { user_id?: string };
-          if (row.user_id) removeMember(row.user_id);
-        }
-      )
-      .on("broadcast", { event: "member-joined" }, ({ payload }) => {
-        addMember((payload as { userId: string }).userId);
-      })
-      .on("broadcast", { event: "member-left" }, ({ payload }) => {
-        removeMember((payload as { userId: string }).userId);
-      })
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "users" },
-        (payload) => {
-          const row = payload.new as {
-            id: string;
-            name: string | null;
-            email: string;
-            character_id: string | null;
-            chat_color: string | null;
-            work_status: string | null;
-          };
-          setMembers((prev) =>
-            prev.map((m) =>
-              m.id === row.id
-                ? {
-                    ...m,
-                    name: row.name || row.email || m.name,
-                    characterId: row.character_id ?? null,
-                    chatColor: row.chat_color ?? null,
-                    workStatus: row.work_status ?? null,
-                  }
-                : m
-            )
-          );
-        }
-      )
-      .subscribe((status) => {
-        if (status === "SUBSCRIBED") {
-          channel.send({ type: "broadcast", event: "member-joined", payload: { userId: selfId } });
-        }
-      });
+    const setup = () => {
+      if (cancelled) return;
+      const channel = supabase
+        .channel(`room-members-list:${roomId}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "INSERT",
+            schema: "public",
+            table: "room_members",
+            filter: `room_id=eq.${roomId}`,
+          },
+          (payload) => {
+            const row = payload.new as { user_id: string };
+            addMember(row.user_id);
+          }
+        )
+        .on(
+          "postgres_changes",
+          {
+            event: "DELETE",
+            schema: "public",
+            table: "room_members",
+            filter: `room_id=eq.${roomId}`,
+          },
+          (payload) => {
+            const row = payload.old as { user_id?: string };
+            if (row.user_id) removeMember(row.user_id);
+          }
+        )
+        .on("broadcast", { event: "member-joined" }, ({ payload }) => {
+          addMember((payload as { userId: string }).userId);
+        })
+        .on("broadcast", { event: "member-left" }, ({ payload }) => {
+          removeMember((payload as { userId: string }).userId);
+        })
+        .on(
+          "postgres_changes",
+          { event: "UPDATE", schema: "public", table: "users" },
+          (payload) => {
+            const row = payload.new as {
+              id: string;
+              name: string | null;
+              email: string;
+              character_id: string | null;
+              chat_color: string | null;
+              work_status: string | null;
+            };
+            setMembers((prev) =>
+              prev.map((m) =>
+                m.id === row.id
+                  ? {
+                      ...m,
+                      name: row.name || row.email || m.name,
+                      characterId: row.character_id ?? null,
+                      chatColor: row.chat_color ?? null,
+                      workStatus: row.work_status ?? null,
+                    }
+                  : m
+              )
+            );
+          }
+        )
+        .subscribe((status) => {
+          if (cancelled) return;
+          if (status === "SUBSCRIBED") {
+            channel.send({ type: "broadcast", event: "member-joined", payload: { userId: selfId } });
+            refetchAll();
+          } else if (
+            status === "CHANNEL_ERROR" ||
+            status === "TIMED_OUT" ||
+            status === "CLOSED"
+          ) {
+            if (retrySubscribeId) clearTimeout(retrySubscribeId);
+            retrySubscribeId = setTimeout(() => {
+              supabase.removeChannel(channel);
+              setup();
+            }, 2000);
+          }
+        });
+      currentChannel = channel;
+    };
+    setup();
+
+    // use-room-presence.ts와 동일한 이유로, 탭이 오래 숨겨져 있다 돌아오면
+    // 연결이 조용히 죽어있을 수 있으니 채널을 통째로 새로 구독하고
+    // 목록도 다시 불러온다.
+    const onActive = () => {
+      const wasHiddenLong = hiddenSince !== null && Date.now() - hiddenSince > LONG_HIDDEN_MS;
+      hiddenSince = null;
+      if (wasHiddenLong) {
+        if (retrySubscribeId) clearTimeout(retrySubscribeId);
+        if (currentChannel) supabase.removeChannel(currentChannel);
+        setup();
+      }
+    };
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        hiddenSince = Date.now();
+      } else {
+        onActive();
+      }
+    };
+    const onInactive = () => {
+      hiddenSince = Date.now();
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    window.addEventListener("focus", onActive);
+    window.addEventListener("blur", onInactive);
 
     return () => {
-      supabase.removeChannel(channel);
+      cancelled = true;
+      if (retrySubscribeId) clearTimeout(retrySubscribeId);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      window.removeEventListener("focus", onActive);
+      window.removeEventListener("blur", onInactive);
+      if (currentChannel) supabase.removeChannel(currentChannel);
     };
   }, [roomId, selfId, recordVisibility]);
 

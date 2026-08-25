@@ -57,7 +57,7 @@
   },
   "choseong": {
     "title": "초성 퀴즈",
-    "hint": "초성을 보고 두 글자~네 글자 단어를 맞혀보세요.",
+    "hint": "초성을 보고 단어를 맞혀보세요.",
     "correctCount": "맞춘 개수 {count}",
     "reset": "다시 시작",
     "inputPlaceholder": "단어를 입력하세요",

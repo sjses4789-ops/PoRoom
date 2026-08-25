@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { GoogleAnalytics } from "@/components/google-analytics";
+import { DisableRightClickAndDrag } from "@/components/disable-right-click-drag";
 import { SITE_URL, SITE_NAME } from "@/lib/site";
 import "./globals.css";
 
@@ -121,6 +122,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         )}
       </head>
       <body className="min-h-full flex flex-col">
+        <DisableRightClickAndDrag />
         <GoogleAnalytics />
         <Script id="theme-init" strategy="beforeInteractive">
           {`try {

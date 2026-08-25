@@ -19,6 +19,16 @@ const RETRACK_INTERVAL_MS = 15000;
 // 그래서 presence에서 잠깐 빠지더라도 이 유예 시간 동안은 마지막으로 알려진
 // 상태를 그대로 보여주고, 이 시간을 넘겨야만 실제 비접속으로 표시한다.
 const PRESENCE_GRACE_MS = 5 * 60 * 1000;
+// 채널이 CHANNEL_ERROR/CLOSED 같은 상태 전환 없이 "겉으로는 구독 중"인
+// 채로 조용히 죽어있는 경우가 있다(특히 탭이 오래 백그라운드에 머물러
+// 브라우저가 하트비트 타이머까지 강하게 쓰로틀링한 뒤) — 이럴 땐 다른
+// 참여자가 뽀모도로를 멈추거나 방을 나가도 sync 이벤트 자체가 안 와서
+// 화면이 영원히 그 시점 상태로 멈춰 보인다. 그래서 (1) sync 이벤트가
+// 일정 시간 이상 안 온 채로 방치되면, (2) 탭이 오래 숨겨졌다 다시
+// 보이면, 채널을 통째로 버리고 새로 구독해 강제로 최신 상태를 받아온다.
+const STALE_SYNC_MS = 45 * 1000;
+const STALE_CHECK_INTERVAL_MS = 15 * 1000;
+const LONG_HIDDEN_MS = 20 * 1000;
 
 type PomodoroPhase = "focus" | "break" | "idle";
 
@@ -88,9 +98,12 @@ export function useRoomPresence(
     let cancelled = false;
     let retrySubscribeId: ReturnType<typeof setTimeout> | null = null;
     let currentChannel: RealtimeChannel | null = null;
+    let lastSyncEventAt = Date.now();
+    let hiddenSince: number | null = null;
 
     const syncFromState = () => {
       if (!currentChannel) return;
+      lastSyncEventAt = Date.now();
       const state = currentChannel.presenceState<PresencePayload>();
       const next: Record<string, PresencePayload> = {};
       const now = Date.now();
@@ -149,6 +162,22 @@ export function useRoomPresence(
     };
     setup();
 
+    // 채널이 조용히 죽어있을 때(위 setup()의 CHANNEL_ERROR 핸들러조차
+    // 안 불릴 때) 강제로 버리고 새로 구독한다.
+    const hardReconnect = () => {
+      if (cancelled) return;
+      if (retrySubscribeId) {
+        clearTimeout(retrySubscribeId);
+        retrySubscribeId = null;
+      }
+      if (currentChannel) {
+        supabase.removeChannel(currentChannel);
+        currentChannel = null;
+      }
+      lastSyncEventAt = Date.now();
+      setup();
+    };
+
     const tickId = setInterval(() => setTick((t) => t + 1), 1000);
     // track() 하나가 유실돼도 다른 참여자 화면이 오래(다음 상태 변경
     // 전까지) 어긋난 채로 남지 않도록, 주기적으로 현재 상태를 다시
@@ -157,24 +186,52 @@ export function useRoomPresence(
       trackSafely(selfPayloadRef.current);
     }, RETRACK_INTERVAL_MS);
 
-    // 탭이 백그라운드에 있는 동안은 위 setInterval 자체가 쓰로틀링돼서
-    // 늦게(또는 거의 안) 실행되므로, 탭이 다시 보이거나 포커스를 받는
-    // 순간 즉시 재track해서 최대한 빨리 "접속중"으로 복구되게 한다.
-    const onVisible = () => {
-      if (document.visibilityState === "visible") {
+    // sync 이벤트가 한참 안 왔다면(다른 참여자가 있는 방이라면 보통
+    // RETRACK_INTERVAL_MS 주기로 계속 와야 정상) 이 탭의 연결이 조용히
+    // 죽어있다고 보고 강제로 재연결한다.
+    const staleCheckId = setInterval(() => {
+      if (subscribedRef.current && Date.now() - lastSyncEventAt > STALE_SYNC_MS) {
+        hardReconnect();
+      }
+    }, STALE_CHECK_INTERVAL_MS);
+
+    // 탭이 백그라운드에 있는 동안은 위 setInterval들 자체가 쓰로틀링돼서
+    // 늦게(또는 거의 안) 실행된다. 잠깐 숨겨졌다 돌아온 정도면 재track만
+    // 해도 충분하지만, 오래 숨겨져 있었다면(하트비트까지 쓰로틀링돼
+    // 연결이 조용히 죽어있을 수 있으므로) 아예 채널을 새로 구독해
+    // 최신 상태를 강제로 받아온다.
+    const onActive = () => {
+      const wasHiddenLong = hiddenSince !== null && Date.now() - hiddenSince > LONG_HIDDEN_MS;
+      hiddenSince = null;
+      if (wasHiddenLong) {
+        hardReconnect();
+      } else {
         trackSafely(selfPayloadRef.current);
       }
     };
-    document.addEventListener("visibilitychange", onVisible);
-    window.addEventListener("focus", onVisible);
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        hiddenSince = Date.now();
+      } else {
+        onActive();
+      }
+    };
+    const onInactive = () => {
+      hiddenSince = Date.now();
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    window.addEventListener("focus", onActive);
+    window.addEventListener("blur", onInactive);
 
     return () => {
       cancelled = true;
       if (retrySubscribeId) clearTimeout(retrySubscribeId);
       clearInterval(tickId);
       clearInterval(retrackId);
-      document.removeEventListener("visibilitychange", onVisible);
-      window.removeEventListener("focus", onVisible);
+      clearInterval(staleCheckId);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      window.removeEventListener("focus", onActive);
+      window.removeEventListener("blur", onInactive);
       if (currentChannel) supabase.removeChannel(currentChannel);
     };
   }, [roomId, selfId, selfName, trackSafely]);
