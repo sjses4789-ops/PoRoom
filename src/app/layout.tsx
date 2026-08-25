@@ -3,6 +3,7 @@ import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
+import { GoogleAnalytics } from "@/components/google-analytics";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -52,6 +53,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         </head>
       )}
       <body className="min-h-full flex flex-col">
+        <GoogleAnalytics />
         <Script id="theme-init" strategy="beforeInteractive">
           {`try {
             if (localStorage.getItem('poroom-theme') === 'dark') {

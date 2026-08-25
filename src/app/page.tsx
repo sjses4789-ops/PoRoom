@@ -6,6 +6,8 @@ import { createClient } from "@/lib/supabase/server";
 import { GoogleSignInButton } from "@/components/google-sign-in-button";
 
 type Feature = { icon: string; title: string; desc: string };
+type UsageItem = { icon: string; title: string; desc: string };
+type FaqItem = { q: string; a: string };
 
 // 로그인 안 한 방문자(구글 애드센스 크롤러, 구글 OAuth 브랜딩 심사 봇 포함)도
 // 리다이렉트 없이 바로 이 페이지에서 콘텐츠(및 <head>의 애드센스 스크립트)를
@@ -32,6 +34,9 @@ export default async function Home() {
   const tFooter = await getTranslations("layout.footer");
   const features = t.raw("landing.features") as Feature[];
   const audience = t.raw("landing.audience") as string[];
+  const benefits = t.raw("landing.benefits") as string[];
+  const usageGuide = t.raw("landing.usageGuide") as UsageItem[];
+  const faq = t.raw("landing.faq") as FaqItem[];
 
   return (
     <main className="flex min-h-screen flex-col bg-white">
@@ -62,6 +67,56 @@ export default async function Home() {
         </div>
       </section>
 
+      <section className="border-t border-neutral-100 bg-neutral-50">
+        <div className="mx-auto w-full max-w-3xl px-4 py-16 sm:px-6">
+          <h2 className="mb-10 text-center text-xl font-semibold tracking-tight text-neutral-900">
+            {t("landing.whyTitle")}
+          </h2>
+
+          <div className="flex flex-col gap-10">
+            <div>
+              <h3 className="mb-3 text-base font-semibold text-neutral-900">
+                {t("landing.whyPomodoroTitle")}
+              </h3>
+              {t("landing.whyPomodoroBody")
+                .split("\n\n")
+                .map((para, i) => (
+                  <p key={i} className="mb-3 text-sm leading-relaxed text-neutral-600 last:mb-0">
+                    {para}
+                  </p>
+                ))}
+            </div>
+
+            <div>
+              <h3 className="mb-3 text-base font-semibold text-neutral-900">
+                {t("landing.whyRoomTitle")}
+              </h3>
+              {t("landing.whyRoomBody")
+                .split("\n\n")
+                .map((para, i) => (
+                  <p key={i} className="mb-3 text-sm leading-relaxed text-neutral-600 last:mb-0">
+                    {para}
+                  </p>
+                ))}
+            </div>
+
+            <div className="rounded-xl border border-neutral-200 bg-white p-5">
+              <h3 className="mb-3 text-sm font-semibold text-neutral-900">
+                {t("landing.benefitsTitle")}
+              </h3>
+              <ul className="flex flex-col gap-2.5">
+                {benefits.map((b) => (
+                  <li key={b} className="flex gap-2.5 text-sm leading-relaxed text-neutral-600">
+                    <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-neutral-900" aria-hidden />
+                    {b}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="border-t border-neutral-100">
         <div className="mx-auto w-full max-w-5xl px-4 py-16 sm:px-6">
           <h2 className="mb-8 text-center text-xl font-semibold tracking-tight text-neutral-900">
@@ -81,6 +136,25 @@ export default async function Home() {
         </div>
       </section>
 
+      <section className="border-t border-neutral-100 bg-neutral-50">
+        <div className="mx-auto w-full max-w-5xl px-4 py-16 sm:px-6">
+          <h2 className="mb-8 text-center text-xl font-semibold tracking-tight text-neutral-900">
+            {t("landing.usageTitle")}
+          </h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {usageGuide.map((u) => (
+              <div key={u.title} className="flex flex-col gap-2 rounded-sm border border-neutral-200 bg-white p-5">
+                <span className="text-2xl" aria-hidden>
+                  {u.icon}
+                </span>
+                <h3 className="text-sm font-semibold text-neutral-900">{u.title}</h3>
+                <p className="text-xs leading-relaxed text-neutral-500">{u.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="border-t border-neutral-100">
         <div className="mx-auto w-full max-w-2xl px-4 py-16 text-center sm:px-6">
           <h2 className="mb-6 text-xl font-semibold tracking-tight text-neutral-900">
@@ -93,6 +167,30 @@ export default async function Home() {
               </li>
             ))}
           </ul>
+        </div>
+      </section>
+
+      <section className="border-t border-neutral-100">
+        <div className="mx-auto w-full max-w-2xl px-4 py-16 sm:px-6">
+          <h2 className="mb-8 text-center text-xl font-semibold tracking-tight text-neutral-900">
+            {t("landing.faqTitle")}
+          </h2>
+          <div className="flex flex-col divide-y divide-neutral-100 rounded-sm border border-neutral-200">
+            {faq.map((item) => (
+              <details key={item.q} className="group px-5 py-4">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-medium text-neutral-900 marker:content-none">
+                  {item.q}
+                  <span
+                    aria-hidden
+                    className="shrink-0 text-neutral-400 transition-transform group-open:rotate-45"
+                  >
+                    +
+                  </span>
+                </summary>
+                <p className="mt-3 text-sm leading-relaxed text-neutral-600">{item.a}</p>
+              </details>
+            ))}
+          </div>
         </div>
       </section>
 

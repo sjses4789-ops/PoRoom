@@ -23,6 +23,37 @@
       "Always racing the clock on your next chapter deadline",
       "Someone who can't focus alone and keeps pushing updates back"
     ],
+    "whyTitle": "Why Pomodoro, why an online room",
+    "whyPomodoroTitle": "Why the Pomodoro Technique fits serialization so well",
+    "whyPomodoroBody": "The Pomodoro Technique was developed in the late 1980s by Francesco Cirillo, an Italian developer who used a tomato-shaped kitchen timer (pomodoro is Italian for tomato). The method alternates 25 minutes of focused work with a 5-minute break, and today it's used far beyond its origins — by writers, students, developers, and office workers all over the world.\n\nSerializing a web novel isn't a one-day sprint; it's a race that runs for months or years. How you handle today decides how the whole run goes. A goal like \"5,000 characters today\" can feel overwhelming, but broken into 25-minute blocks, all you have to do is press the timer once. The built-in breaks keep long sitting sessions from turning into burnout, and repeating the same rhythm day after day builds the habit of focusing the moment you sit down — a habit that outlasts any single day's willpower.",
+    "whyRoomTitle": "Why it feels like \"together\" without a single video call",
+    "whyRoomBody": "Most of us have had the experience of somehow focusing better at a library or a study café. That effect has a name — \"body doubling\": just having someone else working alongside you raises your own focus and follow-through, which is also why online study communities have grown so popular.\n\nThe catch is that most web-novel writers work alone as freelancers, so that sense of \"someone else is here too\" rarely happens on its own. PoRoom recreates it without a camera or microphone — just the real-time focus and break status of everyone else in your room is enough to make you feel like you're not doing this alone.",
+    "benefitsTitle": "What changes when you keep coming back",
+    "benefits": [
+      "Logging in at a set time becomes a routine, making it easier to keep your update schedule.",
+      "Your character count and focus time build up into charts, so you can actually see how much you've written instead of just guessing.",
+      "Rankings, duels, and challenges add just enough tension and fun to keep things interesting.",
+      "Chat and the feed naturally connect you with other writers in the same boat."
+    ],
+    "usageTitle": "How to use PoRoom",
+    "usageGuide": [
+      { "icon": "🏠", "title": "Forum", "desc": "The main screen. Browse open rooms and join one, or create your own with tags. Save the rooms you visit often to your favorites so you can find them instantly next time." },
+      { "icon": "🚪", "title": "Room", "desc": "Everything lives here: participant cards, the Pomodoro timer, chat, and the character-count input. Start the timer and your focus status shows up in real time for everyone else in the room — plus a calendar, polls, and a board tab." },
+      { "icon": "📰", "title": "Feed", "desc": "Post a short update about your day and trade encouragement with other writers. Pick whichever category fits — Writing, Duel, Challenge, Submission, or Contest." },
+      { "icon": "🏆", "title": "Challenge", "desc": "Create a 1-on-1 duel against another writer measured by character count or focus time (or join one with a code), and take part in recurring daily/monthly challenges." },
+      { "icon": "📊", "title": "Ranking", "desc": "See where you stand by character count, focus time, duel record, and typing speed." },
+      { "icon": "☕", "title": "Break", "desc": "Clear your head with a quick typing exercise, or browse the Free / Info / Recruiting boards." }
+    ],
+    "faqTitle": "Frequently asked questions",
+    "faq": [
+      { "q": "Is PoRoom free?", "a": "Yes, all core features are free. A paid tier (ad-free, etc.) is still in development." },
+      { "q": "How do I sign up?", "a": "There's no separate sign-up — just sign in with your Google account and you're in." },
+      { "q": "Do I need to turn my camera on?", "a": "No. The whole point of PoRoom is feeling like you're working together without a video call — no camera or microphone needed at all." },
+      { "q": "Can other people see what I actually write?", "a": "No. PoRoom only keeps records like character counts and focus time — the actual text of your manuscript is never entered or stored anywhere." },
+      { "q": "Can I use a room by myself?", "a": "Sure — you can sit in a room alone and just use the Pomodoro timer and character-count tracking. That said, PoRoom really shines once other people are there with you." },
+      { "q": "What's the relationship with PomoWriter?", "a": "PomoWriter is a separate, free writing app, and PoRoom is an online study-room service. They're different products, but they pair well together, which is why we mention it." },
+      { "q": "Does it work on mobile?", "a": "Yes — no app to install, just open it in your mobile browser." }
+    ],
     "footerCtaTitle": "Get started right now",
     "footerCtaBody": "All you need is a Google account — no credit card, no separate sign-up."
   }
