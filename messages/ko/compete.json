@@ -1,6 +1,8 @@
 {
   "page": {
-    "title": "대결",
+    "title": "도전",
+    "duelTab": "대결",
+    "challengeTab": "챌린지",
     "joinedHeading": "참여 중인 대결",
     "joinedEmpty": "아직 참여 중인 대결이 없습니다.",
     "joinedSystemHeading": "참여중인 챌린지",

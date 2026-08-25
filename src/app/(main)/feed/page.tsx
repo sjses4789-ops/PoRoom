@@ -2,14 +2,17 @@ import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { todayKst, formatRelativeTime } from "@/lib/time";
 import { PageAdRail } from "@/components/page-ad-rail";
-import { FeedView, type FeedPost, type ReactionType } from "./feed-view";
+import { getMyChallengeOptions } from "@/lib/feed";
+import { FeedView, type FeedPost, type ReactionType, type PostType, type FeedPostMeta } from "./feed-view";
 
 type PostRow = {
   id: string;
   user_id: string;
+  post_type: PostType;
   mood: string;
   focus_minutes: number;
   chars: number;
+  meta: FeedPostMeta;
   created_at: string;
 };
 type UserRow = { id: string; name: string | null; email: string; character_id: string | null };
@@ -26,11 +29,11 @@ export default async function FeedPage() {
 
   const today = todayKst();
 
-  const [{ data: postRows }, { data: users }, { data: reactionRows }, { data: todayRows }] =
+  const [{ data: postRows }, { data: users }, { data: reactionRows }, { data: todayRows }, options] =
     await Promise.all([
       supabase
         .from("feed_posts")
-        .select("id,user_id,mood,focus_minutes,chars,created_at")
+        .select("id,user_id,post_type,mood,focus_minutes,chars,meta,created_at")
         .order("created_at", { ascending: false })
         .limit(100)
         .returns<PostRow[]>(),
@@ -45,6 +48,7 @@ export default async function FeedPage() {
         .eq("user_id", user!.id)
         .eq("record_date", today)
         .returns<{ chars: number; focus_minutes: number }[]>(),
+      getMyChallengeOptions(),
     ]);
 
   const userNames: Record<string, string> = {};
@@ -75,12 +79,14 @@ export default async function FeedPage() {
 
     return {
       id: p.id,
+      postType: p.post_type,
       authorId: p.user_id,
       authorName: userNames[p.user_id] ?? t("unknownUser"),
       characterId: userCharacters[p.user_id] ?? null,
       mood: p.mood,
       focusMinutes: p.focus_minutes,
       chars: p.chars,
+      meta: p.meta ?? {},
       createdAt: p.created_at,
       createdAtLabel: formatRelativeTime(p.created_at) ?? "",
       reactions,
@@ -105,6 +111,8 @@ export default async function FeedPage() {
           selfCharacterId={userCharacters[user!.id] ?? null}
           todayFocusMinutes={todayFocusMinutes}
           todayChars={todayChars}
+          duelOptions={options.duels}
+          challengeOptions={options.challenges}
           initialPosts={posts}
         />
       </div>

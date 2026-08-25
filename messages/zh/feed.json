@@ -5,6 +5,13 @@
     "unknownUser": "未知用户"
   },
   "view": {
+    "category": {
+      "write": "写作",
+      "duel": "对决",
+      "challenge": "挑战",
+      "submission": "投稿",
+      "contest": "征文"
+    },
     "moodPlaceholder": "今天过得怎么样？",
     "post": "发布",
     "posting": "发布中...",
@@ -12,6 +19,27 @@
     "charsLabel": "字数",
     "minuteUnit": "分钟",
     "charUnit": "字",
+    "countUnit": "家",
+    "autoFilledHint": "自动从今天的实际记录中获取。",
+    "publisherCountFieldLabel": "投稿出版社",
+    "publisherCountLabel": "投稿了{count}家出版社",
+    "genreLabel": "类型",
+    "genrePlaceholder": "如：奇幻",
+    "contestNameLabel": "征文名称",
+    "contestNamePlaceholder": "征文名称",
+    "contestCharsLabel": "征文字数",
+    "duelSelectLabel": "选择对决",
+    "challengeSelectLabel": "选择挑战",
+    "selectPlaceholder": "请选择",
+    "noDuels": "还没有已结束的对决。",
+    "noChallenges": "还没有参加的挑战。",
+    "duelResult": {
+      "win": "胜",
+      "loss": "负",
+      "draw": "平"
+    },
+    "achieved": "已达成",
+    "notAchieved": "未达成",
     "noPosts": "还没有动态。",
     "justNow": "刚刚",
     "delete": "删除",

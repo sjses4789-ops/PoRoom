@@ -55,7 +55,27 @@ export async function deleteTodo(id: string) {
   } = await supabase.auth.getUser();
   if (!user) return;
 
+  // for_date가 있는 항목은 챌린지 참여로 자동 생성된 할 일이다 — 그냥
+  // 지우기만 하면 다음 페이지 로드 때 ensureChallengeTodos()가 "오늘치가
+  // 없다"고 보고 똑같이 다시 만들어버리므로, 지운 (내용, 날짜) 조합을
+  // 남겨서 같은 기간 동안은 재생성되지 않게 한다.
+  const { data: todo } = await supabase
+    .from("todos")
+    .select("content,for_date")
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .maybeSingle<{ content: string; for_date: string | null }>();
+
   await supabase.from("todos").delete().eq("id", id).eq("user_id", user.id);
+
+  if (todo?.for_date) {
+    await supabase
+      .from("todo_dismissals")
+      .upsert(
+        { user_id: user.id, content: todo.content, for_date: todo.for_date },
+        { onConflict: "user_id,content,for_date" }
+      );
+  }
 
   revalidatePath("/me");
   revalidatePath("/main");

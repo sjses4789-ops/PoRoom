@@ -1,6 +1,8 @@
 {
   "page": {
-    "title": "対決",
+    "title": "挑戦",
+    "duelTab": "対決",
+    "challengeTab": "チャレンジ",
     "joinedHeading": "参加中の対決",
     "joinedEmpty": "まだ参加中の対決がありません。",
     "joinedSystemHeading": "参加中のチャレンジ",

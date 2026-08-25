@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { inRange } from "@/lib/records";
 import { PageAdRail } from "@/components/page-ad-rail";
+import { CompeteTabs } from "./compete-tabs";
 import CreateChallengeButton from "./create-challenge-button";
 import JoinByCodeButton from "./join-by-code-button";
 import { ChallengeCard, type ChallengeParticipant } from "./challenge-card";
@@ -179,132 +180,137 @@ export default async function CompetePage() {
         {t("title")}
       </h1>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-        <section className="flex flex-col gap-4">
-          <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
-            {t("joinedHeading")}
-          </h2>
-          {joinedChallenges.length === 0 ? (
-            <p className="text-xs text-neutral-400">
-              {t("joinedEmpty")}
-            </p>
-          ) : (
-            <div className="grid grid-cols-1 gap-4">
-              {joinedChallenges.map((c) => (
-                <ChallengeCard
-                  key={c.id}
-                  id={c.id}
-                  title={c.title}
-                  metric={c.metric}
-                  visibility={c.visibility}
-                  inviteCode={c.invite_code}
-                  startDate={c.start_date}
-                  endDate={c.end_date}
-                  durationDays={c.duration_days}
-                  color={c.color}
-                  participants={c.participants}
-                />
-              ))}
-            </div>
-          )}
-        </section>
+      <CompeteTabs
+        duel={
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+            <section className="flex flex-col gap-4">
+              <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
+                {t("joinedHeading")}
+              </h2>
+              {joinedChallenges.length === 0 ? (
+                <p className="text-xs text-neutral-400">
+                  {t("joinedEmpty")}
+                </p>
+              ) : (
+                <div className="grid grid-cols-1 gap-4">
+                  {joinedChallenges.map((c) => (
+                    <ChallengeCard
+                      key={c.id}
+                      id={c.id}
+                      title={c.title}
+                      metric={c.metric}
+                      visibility={c.visibility}
+                      inviteCode={c.invite_code}
+                      startDate={c.start_date}
+                      endDate={c.end_date}
+                      durationDays={c.duration_days}
+                      color={c.color}
+                      participants={c.participants}
+                    />
+                  ))}
+                </div>
+              )}
+            </section>
 
-        <section className="flex flex-col gap-4">
-          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-            <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
-              {t("joinedSystemHeading")}
-            </h2>
-            <span className="text-[11px] text-neutral-400">{t("resetHint")}</span>
+            <section className="flex flex-col gap-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
+                  {t("openHeading")}
+                </h2>
+                <div className="flex gap-2">
+                  <CreateChallengeButton />
+                  <JoinByCodeButton />
+                </div>
+              </div>
+              {openChallenges.length === 0 ? (
+                <p className="text-xs text-neutral-400">
+                  {t("openEmpty")}
+                </p>
+              ) : (
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  {openChallenges.map((c) => (
+                    <OpenChallengeCard
+                      key={c.id}
+                      id={c.id}
+                      title={c.title}
+                      metric={c.metric}
+                      startDate={c.start_date}
+                      endDate={c.end_date}
+                      participantCount={c.participantCount}
+                    />
+                  ))}
+                </div>
+              )}
+            </section>
           </div>
-          {joinedSystemChallenges.length === 0 ? (
-            <p className="text-xs text-neutral-400">
-              {t("joinedSystemEmpty")}
-            </p>
-          ) : (
-            <div className="grid grid-cols-1 gap-4">
-              {joinedSystemChallenges.map((c) => {
-                const meta = c.kind ? SYSTEM_CHALLENGE_META[c.kind] : null;
-                return (
-                  <JoinedSystemChallengeCard
-                    key={c.id}
-                    id={c.id}
-                    title={c.kind ? tMeta(`${c.kind}.title`) : c.title}
-                    subLabel={c.kind ? tMeta(`${c.kind}.resetLabel`) : t("adminEventLabel")}
-                    startDate={c.start_date ?? today}
-                    endDate={c.end_date ?? today}
-                    myTodayChars={myTodayChars}
-                    dailyTarget={meta?.dailyTarget}
-                    draftDoneThisMonth={c.kind === "monthly_draft" ? draftDoneThisMonth : undefined}
-                    bgClass={c.kind ? SYSTEM_CHALLENGE_CARD_BG[c.kind] : ADMIN_EVENT_CARD_BG}
-                    isAdminEvent={c.is_admin_event}
-                  />
-                );
-              })}
-            </div>
-          )}
-        </section>
-      </div>
+        }
+        challenge={
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+            <section className="flex flex-col gap-4">
+              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
+                  {t("joinedSystemHeading")}
+                </h2>
+                <span className="text-[11px] text-neutral-400">{t("resetHint")}</span>
+              </div>
+              {joinedSystemChallenges.length === 0 ? (
+                <p className="text-xs text-neutral-400">
+                  {t("joinedSystemEmpty")}
+                </p>
+              ) : (
+                <div className="grid grid-cols-1 gap-4">
+                  {joinedSystemChallenges.map((c) => {
+                    const meta = c.kind ? SYSTEM_CHALLENGE_META[c.kind] : null;
+                    return (
+                      <JoinedSystemChallengeCard
+                        key={c.id}
+                        id={c.id}
+                        title={c.kind ? tMeta(`${c.kind}.title`) : c.title}
+                        subLabel={c.kind ? tMeta(`${c.kind}.resetLabel`) : t("adminEventLabel")}
+                        startDate={c.start_date ?? today}
+                        endDate={c.end_date ?? today}
+                        myTodayChars={myTodayChars}
+                        dailyTarget={meta?.dailyTarget}
+                        draftDoneThisMonth={c.kind === "monthly_draft" ? draftDoneThisMonth : undefined}
+                        bgClass={c.kind ? SYSTEM_CHALLENGE_CARD_BG[c.kind] : ADMIN_EVENT_CARD_BG}
+                        isAdminEvent={c.is_admin_event}
+                      />
+                    );
+                  })}
+                </div>
+              )}
+            </section>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-        <section className="flex flex-col gap-4">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
-              {t("openHeading")}
-            </h2>
-            <div className="flex gap-2">
-              <CreateChallengeButton />
-              <JoinByCodeButton />
-            </div>
+            <section className="flex flex-col gap-4">
+              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
+                  {t("openSystemHeading")}
+                </h2>
+                <span className="text-[11px] text-neutral-400">{t("resetHint")}</span>
+              </div>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {openSystemChallenges.map((c) => {
+                  const meta = c.kind ? SYSTEM_CHALLENGE_META[c.kind] : null;
+                  return (
+                    <OpenSystemChallengeCard
+                      key={c.id}
+                      id={c.id}
+                      title={c.kind ? tMeta(`${c.kind}.title`) : c.title}
+                      subLabel={c.kind ? tMeta(`${c.kind}.resetLabel`) : t("adminEventLabel")}
+                      startDate={c.start_date ?? today}
+                      endDate={c.end_date ?? today}
+                      participantCount={c.participantCount}
+                      dailyTarget={meta?.dailyTarget}
+                      bgClass={c.kind ? SYSTEM_CHALLENGE_CARD_BG[c.kind] : ADMIN_EVENT_CARD_BG}
+                      isAdminEvent={c.is_admin_event}
+                    />
+                  );
+                })}
+              </div>
+            </section>
           </div>
-          {openChallenges.length === 0 ? (
-            <p className="text-xs text-neutral-400">
-              {t("openEmpty")}
-            </p>
-          ) : (
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {openChallenges.map((c) => (
-                <OpenChallengeCard
-                  key={c.id}
-                  id={c.id}
-                  title={c.title}
-                  metric={c.metric}
-                  startDate={c.start_date}
-                  endDate={c.end_date}
-                  participantCount={c.participantCount}
-                />
-              ))}
-            </div>
-          )}
-        </section>
-
-        <section className="flex flex-col gap-4">
-          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-            <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
-              {t("openSystemHeading")}
-            </h2>
-            <span className="text-[11px] text-neutral-400">{t("resetHint")}</span>
-          </div>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {openSystemChallenges.map((c) => {
-              const meta = c.kind ? SYSTEM_CHALLENGE_META[c.kind] : null;
-              return (
-                <OpenSystemChallengeCard
-                  key={c.id}
-                  id={c.id}
-                  title={c.kind ? tMeta(`${c.kind}.title`) : c.title}
-                  subLabel={c.kind ? tMeta(`${c.kind}.resetLabel`) : t("adminEventLabel")}
-                  startDate={c.start_date ?? today}
-                  endDate={c.end_date ?? today}
-                  participantCount={c.participantCount}
-                  dailyTarget={meta?.dailyTarget}
-                  bgClass={c.kind ? SYSTEM_CHALLENGE_CARD_BG[c.kind] : ADMIN_EVENT_CARD_BG}
-                  isAdminEvent={c.is_admin_event}
-                />
-              );
-            })}
-          </div>
-        </section>
-      </div>
+        }
+      />
     </div>
     </PageAdRail>
   );

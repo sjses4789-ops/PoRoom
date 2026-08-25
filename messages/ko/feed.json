@@ -5,6 +5,13 @@
     "unknownUser": "알 수 없음"
   },
   "view": {
+    "category": {
+      "write": "집필",
+      "duel": "대결",
+      "challenge": "챌린지",
+      "submission": "투고",
+      "contest": "공모전"
+    },
     "moodPlaceholder": "오늘 하루 어땠나요?",
     "post": "게시",
     "posting": "게시 중...",
@@ -12,6 +19,27 @@
     "charsLabel": "글자수",
     "minuteUnit": "분",
     "charUnit": "자",
+    "countUnit": "곳",
+    "autoFilledHint": "오늘의 실제 기록에서 자동으로 불러와요.",
+    "publisherCountFieldLabel": "투고 출판사",
+    "publisherCountLabel": "투고 출판사 {count}곳",
+    "genreLabel": "장르",
+    "genrePlaceholder": "예: 로맨스판타지",
+    "contestNameLabel": "공모전 이름",
+    "contestNamePlaceholder": "공모전 이름",
+    "contestCharsLabel": "공모전 글자수",
+    "duelSelectLabel": "대결 선택",
+    "challengeSelectLabel": "챌린지 선택",
+    "selectPlaceholder": "선택해주세요",
+    "noDuels": "종료된 대결이 없어요.",
+    "noChallenges": "참여 중인 챌린지가 없어요.",
+    "duelResult": {
+      "win": "승",
+      "loss": "패",
+      "draw": "무"
+    },
+    "achieved": "달성",
+    "notAchieved": "미달성",
     "noPosts": "아직 올라온 소식이 없습니다.",
     "justNow": "방금 전",
     "delete": "삭제",

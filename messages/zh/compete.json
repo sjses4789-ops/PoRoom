@@ -1,6 +1,8 @@
 {
   "page": {
-    "title": "对决",
+    "title": "挑战",
+    "duelTab": "对决",
+    "challengeTab": "挑战赛",
     "joinedHeading": "已参加的对决",
     "joinedEmpty": "还没有参加中的对决。",
     "joinedSystemHeading": "已参加的挑战",

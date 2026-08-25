@@ -23,9 +23,9 @@ export const SYSTEM_CHALLENGE_CARD_BG: Record<SystemChallengeKind, string> = {
 };
 
 const CHALLENGE_TODO_CONTENT: Record<SystemChallengeKind, string> = {
-  daily5k: "매일 5천자 쓰기",
-  daily10k: "매일 1만자 쓰기",
-  monthly_draft: "초단 완고 치기",
+  daily5k: "(챌린지) 매일 5천자 쓰기",
+  daily10k: "(챌린지) 매일 1만자 쓰기",
+  monthly_draft: "(챌린지) 초단 완고 치기",
 };
 
 function pad2(n: number) {
@@ -107,10 +107,11 @@ export async function ensureSystemChallenge(
 }
 
 /**
- * 참여 중인 시스템 챌린지마다 "매일 5천자 쓰기" 같은 항목을 할 일 목록에
- * 자동으로 넣어준다 — 하루(초단 완고는 그 달) 단위로 다시 나타나야 하므로
- * for_date로 이미 오늘치가 있는지 확인 후 없을 때만 추가한다. 체크해서
- * 지워도 그날 다시 추가되진 않고, 다음 날짜가 되면 새로 추가된다.
+ * 참여 중인 시스템 챌린지마다 "(챌린지) 매일 5천자 쓰기" 같은 항목을 할
+ * 일 목록에 자동으로 넣어준다 — 하루(초단 완고는 그 달) 단위로 다시
+ * 나타나야 하므로 for_date로 이미 오늘치가 있는지 확인 후 없을 때만
+ * 추가한다. 지난 날짜/달의 항목은 먼저 정리(삭제)하고, 사용자가 이미
+ * 지운(todo_dismissals) 조합은 오늘/이번 달치라도 다시 만들지 않는다.
  */
 export async function ensureChallengeTodos(supabase: SupabaseClient, userId: string) {
   const today = todayKst();
@@ -132,23 +133,52 @@ export async function ensureChallengeTodos(supabase: SupabaseClient, userId: str
     .returns<{ kind: SystemChallengeKind }[]>();
   if (!challengeRows?.length) return;
 
+  // 어차피 다음 날/다음 달이 되면 새 항목이 추가되므로, 지난 날짜(매일)나
+  // 지난 달(초단 완고)의 자동 생성 항목은 지금 정리해서 목록에 쌓이지
+  // 않게 한다.
+  const dailyContents = [CHALLENGE_TODO_CONTENT.daily5k, CHALLENGE_TODO_CONTENT.daily10k];
+  await supabase
+    .from("todos")
+    .delete()
+    .eq("user_id", userId)
+    .in("content", dailyContents)
+    .lt("for_date", today);
+  await supabase
+    .from("todos")
+    .delete()
+    .eq("user_id", userId)
+    .eq("content", CHALLENGE_TODO_CONTENT.monthly_draft)
+    .lt("for_date", monthStart);
+
   const wanted = challengeRows.map((c) => ({
     content: CHALLENGE_TODO_CONTENT[c.kind],
     forDate: c.kind === "monthly_draft" ? monthStart : today,
   }));
 
-  // 오늘치(초단 완고는 이번 달치)가 이미 있는지 한 번의 쿼리로 확인한 뒤,
-  // 없는 것만 한 번에 추가한다 — 종류별로 왕복하지 않는다.
-  const { data: existingRows } = await supabase
-    .from("todos")
-    .select("content,for_date")
-    .eq("user_id", userId)
-    .in("for_date", [...new Set(wanted.map((w) => w.forDate))])
-    .returns<{ content: string; for_date: string }[]>();
+  // 오늘치(초단 완고는 이번 달치)가 이미 있는지, 혹은 사용자가 이미
+  // 지웠는지(todo_dismissals) 한 번씩의 쿼리로 확인한 뒤, 둘 다 아닌
+  // 것만 추가한다 — 종류별로 왕복하지 않는다.
+  const forDates = [...new Set(wanted.map((w) => w.forDate))];
+  const [{ data: existingRows }, { data: dismissedRows }] = await Promise.all([
+    supabase
+      .from("todos")
+      .select("content,for_date")
+      .eq("user_id", userId)
+      .in("for_date", forDates)
+      .returns<{ content: string; for_date: string }[]>(),
+    supabase
+      .from("todo_dismissals")
+      .select("content,for_date")
+      .eq("user_id", userId)
+      .in("for_date", forDates)
+      .returns<{ content: string; for_date: string }[]>(),
+  ]);
   const existingSet = new Set((existingRows ?? []).map((r) => `${r.content}|${r.for_date}`));
+  const dismissedSet = new Set((dismissedRows ?? []).map((r) => `${r.content}|${r.for_date}`));
 
   const toInsert = wanted
     .filter((w) => !existingSet.has(`${w.content}|${w.forDate}`))
+    .filter((w) => !dismissedSet.has(`${w.content}|${w.forDate}`))
     .map((w) => ({ user_id: userId, content: w.content, for_date: w.forDate }));
 
   if (toInsert.length) {

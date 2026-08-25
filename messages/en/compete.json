@@ -1,6 +1,8 @@
 {
   "page": {
-    "title": "Compete",
+    "title": "Challenge",
+    "duelTab": "Compete",
+    "challengeTab": "Challenges",
     "joinedHeading": "Challenges you're in",
     "joinedEmpty": "You haven't joined any challenges yet.",
     "joinedSystemHeading": "Challenges you've joined",
