@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { deleteAccount } from "@/lib/account";
+import { POMODORO_STORAGE_KEY } from "../pomodoro-context";
 
 export function DeleteAccountButton() {
   const t = useTranslations("me.deleteAccount");
@@ -27,6 +28,7 @@ export function DeleteAccountButton() {
             setError(result.error);
             return;
           }
+          window.localStorage.removeItem(POMODORO_STORAGE_KEY);
           router.push("/login");
           router.refresh();
         }}

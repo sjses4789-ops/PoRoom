@@ -39,7 +39,8 @@ const PomodoroContext = createContext<PomodoroContextValue | null>(null);
 
 // 뽀모도로 진행 중에 새로고침해도 진행 상황이 그대로 유지되도록,
 // 상태가 바뀔 때마다 localStorage에 스냅샷을 남기고 마운트 시 복원한다.
-const STORAGE_KEY = "poroom:pomodoro-state";
+export const POMODORO_STORAGE_KEY = "poroom:pomodoro-state";
+const STORAGE_KEY = POMODORO_STORAGE_KEY;
 
 type StoredPomodoroState = {
   activeRoom: ActiveRoom;
