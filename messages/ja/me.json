@@ -89,16 +89,7 @@
     "noWorks": "登録された作品がありません。",
     "deleteConfirm": "「{title}」を削除しますか？グラフからも削除されます。",
     "deleteTitle": "作品削除",
-    "renameTitle": "作品名を修正",
-    "importButton": "読み込み",
-    "importing": "読み込み中...",
-    "importTitle": "PomoWriterから作品リストを読み込む",
-    "importConfirm": "Googleドライブから作品リスト情報を読み込みます。\n(PomoWriter利用者のみ可能)",
-    "importNotPomoWriter": "PomoWriter利用者ではないため、作品リストの読み込みに失敗しました。",
-    "importNoDriveAccess": "Googleドライブへのアクセス権限がありません。ログアウトして再度ログインし、ドライブへのアクセスを許可してください。",
-    "importError": "作品リストの読み込み中にエラーが発生しました。",
-    "importSuccess": "{count}件の作品を読み込みました。",
-    "importNothingNew": "新しく読み込む作品がありません。すでにすべて登録されています。"
+    "renameTitle": "作品名を修正"
   },
   "pomodoroStats": {
     "title": "ポモドーロ統計",

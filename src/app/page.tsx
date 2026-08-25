@@ -1,9 +1,9 @@
 import { redirect } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { GoogleSignInButton } from "@/components/google-sign-in-button";
-import { SiteFooter } from "./(main)/site-footer";
 
 type Feature = { icon: string; title: string; desc: string };
 
@@ -14,6 +14,10 @@ type Feature = { icon: string; title: string; desc: string };
 // 비로그인 방문자에게 서비스 소개 콘텐츠를 보여주는 역할을 한다 — 구글
 // OAuth 심사에서 "홈페이지가 로그인 화면과 구분되지 않는다"는 지적을 받아,
 // 로그인 버튼만 있던 화면에서 실제 소개 콘텐츠가 있는 홈페이지로 개편했다.
+//
+// 이 페이지는 의도적으로 다크 모드를 적용하지 않는다(dark: 유틸리티를
+// 쓰지 않음) — 첫인상을 주는 랜딩페이지는 방문자의 시스템/사이트 테마
+// 설정과 무관하게 항상 같은 밝은 톤으로 보여주기 위함.
 export default async function Home() {
   const supabase = await createClient();
   const {
@@ -25,71 +29,66 @@ export default async function Home() {
   }
 
   const t = await getTranslations("login");
+  const tFooter = await getTranslations("layout.footer");
   const features = t.raw("landing.features") as Feature[];
   const audience = t.raw("landing.audience") as string[];
 
   return (
-    <main className="flex min-h-screen flex-col bg-white dark:bg-neutral-950">
+    <main className="flex min-h-screen flex-col bg-white">
       <header className="mx-auto flex w-full max-w-5xl items-center justify-between px-4 py-6 sm:px-6">
         <Image src="/poroom-logo.png" alt="PoRoom" width={1254} height={485} priority className="h-auto w-28" />
         <GoogleSignInButton
           label={t("google")}
-          className="hidden items-center gap-2 rounded-md border border-neutral-200 px-4 py-2 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50 sm:flex dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-900"
+          className="hidden items-center gap-2 rounded-md border border-neutral-200 px-4 py-2 text-sm font-medium text-neutral-700 transition hover:bg-neutral-50 sm:flex"
         />
       </header>
 
       <section className="mx-auto flex w-full max-w-3xl flex-col items-center gap-6 px-4 py-16 text-center sm:px-6 sm:py-24">
-        <span className="rounded-full border border-neutral-200 px-3 py-1 text-xs font-medium text-neutral-500 dark:border-neutral-700 dark:text-neutral-400">
+        <span className="rounded-full border border-neutral-200 px-3 py-1 text-xs font-medium text-neutral-500">
           {t("landing.eyebrow")}
         </span>
-        <h1 className="whitespace-pre-line text-3xl font-semibold tracking-tight text-neutral-900 sm:text-4xl dark:text-white">
+        <h1 className="whitespace-pre-line text-3xl font-semibold tracking-tight text-neutral-900 sm:text-4xl">
           {t("landing.heroTitle")}
         </h1>
-        <p className="max-w-xl text-sm leading-relaxed text-neutral-500 sm:text-base dark:text-neutral-400">
+        <p className="max-w-xl text-sm leading-relaxed text-neutral-500 sm:text-base">
           {t("landing.heroBody")}
         </p>
         <div className="flex flex-col items-center gap-2">
           <GoogleSignInButton
             label={t("google")}
-            className="flex items-center gap-3 rounded-md bg-neutral-900 px-6 py-3 text-sm font-medium text-white transition hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+            className="flex items-center gap-3 rounded-md bg-neutral-900 px-6 py-3 text-sm font-medium text-white transition hover:bg-neutral-700"
           />
-          <p className="text-xs text-neutral-400 dark:text-neutral-500">{t("landing.ctaHint")}</p>
+          <p className="text-xs text-neutral-400">{t("landing.ctaHint")}</p>
         </div>
       </section>
 
-      <section className="border-t border-neutral-100 dark:border-neutral-800">
+      <section className="border-t border-neutral-100">
         <div className="mx-auto w-full max-w-5xl px-4 py-16 sm:px-6">
-          <h2 className="mb-8 text-center text-xl font-semibold tracking-tight text-neutral-900 dark:text-white">
+          <h2 className="mb-8 text-center text-xl font-semibold tracking-tight text-neutral-900">
             {t("landing.featuresTitle")}
           </h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {features.map((f) => (
-              <div
-                key={f.title}
-                className="flex flex-col gap-2 rounded-sm border border-neutral-200 p-5 dark:border-neutral-800"
-              >
+              <div key={f.title} className="flex flex-col gap-2 rounded-sm border border-neutral-200 p-5">
                 <span className="text-2xl" aria-hidden>
                   {f.icon}
                 </span>
-                <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">{f.title}</h3>
-                <p className="text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">{f.desc}</p>
+                <h3 className="text-sm font-semibold text-neutral-900">{f.title}</h3>
+                <p className="text-xs leading-relaxed text-neutral-500">{f.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="border-t border-neutral-100 dark:border-neutral-800">
+      <section className="border-t border-neutral-100">
         <div className="mx-auto w-full max-w-2xl px-4 py-16 text-center sm:px-6">
-          <h2 className="mb-6 text-xl font-semibold tracking-tight text-neutral-900 dark:text-white">
+          <h2 className="mb-6 text-xl font-semibold tracking-tight text-neutral-900">
             {t("landing.audienceTitle")}
           </h2>
           <ul className="flex flex-col gap-3">
             {audience.map((a) => (
-              <li
-                key={a}
-                className="rounded-sm border border-neutral-200 px-4 py-3 text-sm text-neutral-600 dark:border-neutral-800 dark:text-neutral-300"
-              >
+              <li key={a} className="rounded-sm border border-neutral-200 px-4 py-3 text-sm text-neutral-600">
                 {a}
               </li>
             ))}
@@ -97,20 +96,60 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="border-t border-neutral-100 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900">
+      <section className="border-t border-neutral-100 bg-neutral-50">
         <div className="mx-auto flex w-full max-w-2xl flex-col items-center gap-4 px-4 py-16 text-center sm:px-6">
-          <h2 className="text-xl font-semibold tracking-tight text-neutral-900 dark:text-white">
+          <h2 className="text-xl font-semibold tracking-tight text-neutral-900">
             {t("landing.footerCtaTitle")}
           </h2>
-          <p className="text-sm text-neutral-500 dark:text-neutral-400">{t("landing.footerCtaBody")}</p>
+          <p className="text-sm text-neutral-500">{t("landing.footerCtaBody")}</p>
           <GoogleSignInButton
             label={t("google")}
-            className="flex items-center gap-3 rounded-md bg-neutral-900 px-6 py-3 text-sm font-medium text-white transition hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+            className="flex items-center gap-3 rounded-md bg-neutral-900 px-6 py-3 text-sm font-medium text-white transition hover:bg-neutral-700"
           />
         </div>
       </section>
 
-      <SiteFooter />
+      <footer className="mt-auto border-t border-neutral-100 px-4 py-8 text-xs text-neutral-400 sm:px-6 md:px-8">
+        <div className="mx-auto flex max-w-5xl flex-col gap-3">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-neutral-500">{tFooter("tagline")}</p>
+            <div className="flex items-center gap-3 text-sm text-neutral-500">
+              <span className="shrink-0 whitespace-nowrap text-xs text-neutral-400">
+                {tFooter("writingAppHint")}
+              </span>
+              <a
+                href="https://pomowriter.oopy.io/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="shrink-0 rounded-md border border-stone-300 bg-stone-100 px-2.5 py-1 text-xs font-bold text-stone-700 transition hover:bg-stone-200"
+              >
+                PomoWriter
+              </a>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <span>MADE BY. GGOZIL</span>
+            <span aria-hidden>·</span>
+            <a
+              href="https://pomowriter.oopy.io/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-neutral-600 hover:underline"
+            >
+              {tFooter("writingApp")}
+            </a>
+            <span aria-hidden>·</span>
+            <Link href="/feedback" className="hover:text-neutral-600 hover:underline">
+              {tFooter("feedback")}
+            </Link>
+            <span aria-hidden>·</span>
+            <Link href="/privacy" className="hover:text-neutral-600 hover:underline">
+              {tFooter("privacy")}
+            </Link>
+          </div>
+          <p className="text-neutral-300">{tFooter("copyright", { year: new Date().getFullYear() })}</p>
+        </div>
+      </footer>
     </main>
   );
 }

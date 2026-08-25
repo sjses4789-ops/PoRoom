@@ -89,16 +89,7 @@
     "noWorks": "还没有登记的作品。",
     "deleteConfirm": "确定删除《{title}》吗？图表中的数据也会一并删除。",
     "deleteTitle": "删除作品",
-    "renameTitle": "修改作品名称",
-    "importButton": "导入",
-    "importing": "导入中...",
-    "importTitle": "从PomoWriter导入作品列表",
-    "importConfirm": "将从Google云端硬盘导入作品列表信息。\n(仅限PomoWriter用户)",
-    "importNotPomoWriter": "由于您不是PomoWriter用户，导入作品列表失败。",
-    "importNoDriveAccess": "没有Google云端硬盘访问权限。请注销后重新登录并授权访问云端硬盘。",
-    "importError": "导入作品列表时发生错误。",
-    "importSuccess": "已导入{count}个作品。",
-    "importNothingNew": "没有新的作品可导入，均已注册。"
+    "renameTitle": "修改作品名称"
   },
   "pomodoroStats": {
     "title": "番茄钟统计",

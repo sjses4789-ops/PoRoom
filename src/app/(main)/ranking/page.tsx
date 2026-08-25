@@ -156,7 +156,7 @@ export default async function RankingPage() {
       <h1 className="text-lg font-semibold tracking-tight text-neutral-900 dark:text-white">
         {t("title")}
       </h1>
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className="overflow-hidden rounded-sm border border-neutral-400 p-4 dark:border-neutral-600">
           <RankingTabs
             records={records}

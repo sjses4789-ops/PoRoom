@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { createWork, deleteWork, renameWork } from "@/lib/works";
-import { importWorksFromDrive } from "@/lib/drive-import";
 import { WORK_LINE_COLORS as LINE_COLORS } from "@/lib/work-colors";
 import type { WorkMeta } from "./work-chart";
 
@@ -25,7 +24,6 @@ export function WorkList({
   const [busyId, setBusyId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
-  const [importing, setImporting] = useState(false);
 
   const confirmAdd = async () => {
     const title = newTitle.trim();
@@ -71,56 +69,18 @@ export function WorkList({
     setEditingId(null);
   };
 
-  const handleImport = async () => {
-    if (!window.confirm(t("importConfirm"))) return;
-    setImporting(true);
-    const result = await importWorksFromDrive();
-    setImporting(false);
-
-    if (!result.ok) {
-      if (result.reason === "not-pomowriter") {
-        window.alert(t("importNotPomoWriter"));
-      } else if (result.reason === "no-drive-access") {
-        window.alert(t("importNoDriveAccess"));
-      } else {
-        window.alert(result.message ?? t("importError"));
-      }
-      return;
-    }
-
-    if (result.imported.length > 0) {
-      onWorksChange((prev) => [...prev, ...result.imported]);
-    }
-    window.alert(
-      result.imported.length > 0
-        ? t("importSuccess", { count: result.imported.length })
-        : t("importNothingNew")
-    );
-  };
-
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("title")}</h2>
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={handleImport}
-            disabled={importing}
-            title={t("importTitle")}
-            className="rounded-md px-2 py-1 text-[11px] font-medium text-neutral-500 transition hover:bg-neutral-50 disabled:opacity-50 dark:text-neutral-400 dark:hover:bg-neutral-800"
-          >
-            {importing ? t("importing") : t("importButton")}
-          </button>
-          <button
-            type="button"
-            onClick={() => setAdding((v) => !v)}
-            title={t("addTitle")}
-            className="flex h-6 w-6 items-center justify-center rounded-full border border-neutral-200 text-neutral-500 transition hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
-          >
-            +
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => setAdding((v) => !v)}
+          title={t("addTitle")}
+          className="flex h-6 w-6 items-center justify-center rounded-full border border-neutral-200 text-neutral-500 transition hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
+        >
+          +
+        </button>
       </div>
 
       {adding && (

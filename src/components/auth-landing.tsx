@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { GoogleSignInButton } from "./google-sign-in-button";
 
@@ -24,6 +25,9 @@ export function AuthLanding({ banned = false }: { banned?: boolean }) {
         <p className="max-w-xs text-center text-sm text-red-500">{t("bannedNotice")}</p>
       )}
       <GoogleSignInButton label={t("google")} />
+      <Link href="/" className="text-xs text-neutral-400 hover:text-neutral-600 hover:underline">
+        ← {t("backHome")}
+      </Link>
     </main>
   );
 }

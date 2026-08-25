@@ -109,19 +109,7 @@ const CLAUSES_EN: Clause[] = [
         </Ul>
 
         <h3 className="mb-1.5 mt-4 text-sm font-semibold text-neutral-900 dark:text-white">
-          2. Collected only if you use Google Drive integration (optional)
-        </h3>
-        <P>
-          If you use the &quot;Import work list from PomoWriter&quot; feature on the [Me] page, PoRoom
-          requests an additional, <strong>read-only</strong> Google Drive scope
-          (drive.readonly). This permission is used solely to look up the <em>names</em> of the
-          folder <code>PomoWriter Projects</code> and its subfolders in your Drive — PoRoom does
-          not read file contents. The folder names retrieved are stored only as your work
-          titles; no Drive files are ever copied to or stored on PoRoom&apos;s servers.
-        </P>
-
-        <h3 className="mb-1.5 mt-4 text-sm font-semibold text-neutral-900 dark:text-white">
-          3. Generated while you use the Service
+          2. Generated while you use the Service
         </h3>
         <Table
           head={["Category", "Items"]}
@@ -150,7 +138,6 @@ const CLAUSES_EN: Clause[] = [
       <Ul>
         <li>Through Google OAuth sign-in</li>
         <li>Entered directly by you within the Service (nickname, chat, posts, records, etc.)</li>
-        <li>Via the Google Drive API, only when you explicitly request the PomoWriter import feature</li>
         <li>Automatically generated while you use the Service (access logs, cookies, etc.)</li>
       </Ul>
     ),
@@ -169,10 +156,6 @@ const CLAUSES_EN: Clause[] = [
           <strong>Core service delivery</strong> — creating and joining study rooms, syncing the
           Pomodoro timer and participant status, chat, character-count/focus-time logging,
           rankings, duels, challenges, calendar, polls, boards, and typing practice
-        </li>
-        <li>
-          <strong>PomoWriter integration</strong> — retrieving your Drive work-folder names, only
-          at your request, to auto-generate your work list
         </li>
         <li><strong>Service improvement</strong> — usage analytics, troubleshooting, and feature improvement</li>
         <li><strong>Advertising</strong> — serving ads through Google AdSense (see Article 10)</li>
@@ -238,7 +221,7 @@ const CLAUSES_EN: Clause[] = [
           head={["Processor", "Outsourced task"]}
           rows={[
             ["Supabase, Inc.", "Database, authentication (login sessions), and realtime communication (chat, presence) hosting"],
-            ["Google LLC", "Google OAuth sign-in, Google Drive API integration (optional feature), Google AdSense advertising"],
+            ["Google LLC", "Google OAuth sign-in, Google AdSense advertising"],
           ]}
         />
       </>
@@ -400,7 +383,7 @@ const CLAUSES_EN: Clause[] = [
           takes effect (at least 30 days for material changes).
         </P>
         <div className="rounded-sm bg-neutral-50 px-4 py-3 text-xs text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400">
-          Announced August 25, 2026 · Effective August 25, 2026 · Version v1.0
+          Announced August 25, 2026 · Effective August 25, 2026 · Version v1.1
         </div>
       </>
     ),
@@ -437,20 +420,7 @@ const CLAUSES_KO: Clause[] = [
         </Ul>
 
         <h3 className="mb-1.5 mt-4 text-sm font-semibold text-neutral-900 dark:text-white">
-          2. 구글 드라이브 연동(선택 기능) 시 수집되는 항목
-        </h3>
-        <P>
-          [개인] 페이지의 &quot;PomoWriter에서 작품 목록 불러오기&quot; 기능을 사용하는 이용자에
-          한해, 구글 드라이브 <strong>읽기 전용(drive.readonly)</strong> 권한을 추가로
-          요청합니다. 이 권한은 오직 이용자의 드라이브에서{" "}
-          <code>PomoWriter Projects</code> 폴더 및 그 하위 폴더의 <strong>이름</strong>을
-          조회하는 데에만 사용되며, 폴더나 파일의 내용에는 접근하지 않습니다. 조회된 폴더명은
-          이용자의 작품 목록 제목으로만 저장되고, 드라이브 파일 자체는 PoRoom 서버에 저장되지
-          않습니다.
-        </P>
-
-        <h3 className="mb-1.5 mt-4 text-sm font-semibold text-neutral-900 dark:text-white">
-          3. 서비스 이용 과정에서 생성·수집되는 항목
+          2. 서비스 이용 과정에서 생성·수집되는 항목
         </h3>
         <Table
           head={["구분", "항목"]}
@@ -479,7 +449,6 @@ const CLAUSES_KO: Clause[] = [
       <Ul>
         <li>구글(Google) OAuth 소셜 로그인을 통한 수집</li>
         <li>이용자가 서비스 화면에서 직접 입력(닉네임, 채팅, 게시글, 기록 등)</li>
-        <li>이용자가 명시적으로 요청한 경우에 한해 구글 드라이브 API를 통한 폴더명 조회</li>
         <li>서비스 이용 과정에서 자동으로 생성·수집(접속 기록, 쿠키 등)</li>
       </Ul>
     ),
@@ -492,7 +461,6 @@ const CLAUSES_KO: Clause[] = [
       <Ol>
         <li><strong>회원 관리</strong> — 구글 계정 기반 본인 확인 및 로그인, 부정 이용 방지, 신고·제재 처리</li>
         <li><strong>핵심 서비스 제공</strong> — 스터디룸 생성·참여, 뽀모도로 타이머 및 참여자 상태 동기화, 채팅, 글자수·집중시간 기록, 랭킹·대결·챌린지, 캘린더, 투표, 게시판, 타자 연습</li>
-        <li><strong>PomoWriter 연동</strong> — 이용자가 요청한 경우에 한해 구글 드라이브의 작품 폴더명을 불러와 작품 목록을 자동 생성</li>
         <li><strong>서비스 개선</strong> — 이용 통계 분석, 오류 확인 및 기능 개선</li>
         <li><strong>광고 게재</strong> — Google AdSense를 통한 광고 게재(제10조 참조)</li>
       </Ol>
@@ -552,7 +520,7 @@ const CLAUSES_KO: Clause[] = [
           head={["수탁업체", "위탁 업무 내용"]}
           rows={[
             ["Supabase, Inc.", "데이터베이스, 인증(로그인 세션), 실시간 통신(채팅·참여자 상태) 인프라 호스팅"],
-            ["Google LLC", "구글 소셜 로그인(OAuth) 인증, 구글 드라이브 API 연동(선택 기능), Google AdSense 광고 게재"],
+            ["Google LLC", "구글 소셜 로그인(OAuth) 인증, Google AdSense 광고 게재"],
           ]}
         />
       </>
@@ -710,7 +678,7 @@ const CLAUSES_KO: Clause[] = [
           변경은 최소 30일 전)에 서비스 내 공지사항 또는 피드백 페이지를 통해 고지합니다.
         </P>
         <div className="rounded-sm bg-neutral-50 px-4 py-3 text-xs text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400">
-          공고일자 2026. 8. 25. · 시행일자 2026. 8. 25. · 버전 v1.0
+          공고일자 2026. 8. 25. · 시행일자 2026. 8. 25. · 버전 v1.1
         </div>
       </>
     ),
@@ -730,11 +698,6 @@ const STRINGS = {
     summary: [
       <>
         Sign-in is <strong>Google-only</strong> — PoRoom never stores your password.
-      </>,
-      <>
-        <strong>Read-only Google Drive access</strong> is used only when you turn on the
-        &quot;Import work list from PomoWriter&quot; feature on the [Me] page, to look up folder
-        names.
       </>,
       <>
         Nicknames, chats, records, and posts you create are stored only to run the Service and
@@ -768,10 +731,6 @@ const STRINGS = {
     summary: [
       <>
         <strong>로그인은 구글 계정으로만</strong> 이루어지며, PoRoom은 이용자의 비밀번호를 저장하지 않습니다.
-      </>,
-      <>
-        <strong>구글 드라이브 읽기 전용 권한</strong>은 [개인] 페이지의 &quot;PomoWriter 작품 목록
-        불러오기&quot; 기능을 사용할 때만, 폴더명을 조회하는 용도로 사용됩니다.
       </>,
       <>서비스 이용 중 입력하는 닉네임·채팅·기록·게시글 등은 서비스 제공 목적으로만 저장되며, 임의로 공개되지 않습니다.</>,
       <>결제 기능은 <strong>아직 도입되지 않았으며</strong>, 도입 시 별도로 이 방침을 개정해 사전 고지합니다.</>,
