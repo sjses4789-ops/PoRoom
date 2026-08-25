@@ -23,7 +23,9 @@
     "participantsList": "参与者列表",
     "membersSuffix": "{count}/{capacity}人",
     "notice": "公告",
-    "onlineCount": "当前在线 {count} 人"
+    "onlineCount": "当前在线 {count} 人",
+    "dailyGoalToast": "🎉 达成今日目标字数啦！",
+    "monthlyGoalToast": "🎉 达成本月目标字数啦！"
   },
   "shareRecordsToggle": {
     "label": "我的记录",

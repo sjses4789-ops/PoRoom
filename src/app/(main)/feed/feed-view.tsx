@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import {
@@ -14,6 +14,8 @@ import {
   type ChallengeOption,
 } from "@/lib/feed";
 import { characterSrc } from "@/lib/characters";
+import { useCelebrationToast } from "@/components/celebration-toast";
+import { createClient } from "@/lib/supabase/client";
 
 export type { ReactionType, PostType, FeedPostMeta, DuelOption, ChallengeOption };
 
@@ -201,6 +203,7 @@ export function FeedView({
   initialPosts: FeedPost[];
 }) {
   const t = useTranslations("feed.view");
+  const { toast: celebrationToast, celebrate } = useCelebrationToast();
   const [posts, setPosts] = useState<FeedPost[]>(initialPosts);
   const [category, setCategory] = useState<CategoryFilter>("all");
   const [mood, setMood] = useState("");
@@ -218,6 +221,33 @@ export function FeedView({
   const [colorPickerOpen, setColorPickerOpen] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // 채팅과 동일한 이유로 postgres_changes 대신 Broadcast를 쓴다 — 새 글이
+  // 올라오거나 삭제됐을 때, 페이지에 머무는 다른 사용자에게도(카테고리를
+  // 눌러 필터만 바꿔도 새로고침 없이) 곧바로 반영되게 한다. DB
+  // 저장/삭제 자체는 서버 액션이 그대로 처리하고, 이 채널은 이미 완료된
+  // 결과를 실어 나르기만 한다.
+  const channelRef = useRef<ReturnType<ReturnType<typeof createClient>["channel"]> | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    const channel = supabase
+      .channel("feed:global")
+      .on("broadcast", { event: "new-post" }, ({ payload }) => {
+        const post = payload as FeedPost;
+        setPosts((prev) => (prev.some((p) => p.id === post.id) ? prev : [post, ...prev]));
+      })
+      .on("broadcast", { event: "delete-post" }, ({ payload }) => {
+        const { id } = payload as { id: string };
+        setPosts((prev) => prev.filter((p) => p.id !== id));
+      })
+      .subscribe();
+    channelRef.current = channel;
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   const resetComposer = () => {
     setMood("");
@@ -287,29 +317,32 @@ export function FeedView({
       clap: { count: 0, selfActive: false },
       fire: { count: 0, selfActive: false },
     };
-    setPosts((prev) => [
-      {
-        id: result.id,
-        postType: result.postType,
-        authorId: selfId,
-        authorName: selfName,
-        characterId: selfCharacterId,
-        mood: result.mood,
-        focusMinutes: result.focusMinutes,
-        chars: result.chars,
-        meta: result.meta,
-        createdAt: result.createdAt,
-        createdAtLabel: t("justNow"),
-        reactions: emptyReactions,
-      },
-      ...prev,
-    ]);
+    const newPost: FeedPost = {
+      id: result.id,
+      postType: result.postType,
+      authorId: selfId,
+      authorName: selfName,
+      characterId: selfCharacterId,
+      mood: result.mood,
+      focusMinutes: result.focusMinutes,
+      chars: result.chars,
+      meta: result.meta,
+      createdAt: result.createdAt,
+      createdAtLabel: t("justNow"),
+      reactions: emptyReactions,
+    };
+    setPosts((prev) => [newPost, ...prev]);
+    channelRef.current?.send({ type: "broadcast", event: "new-post", payload: newPost });
+    if (result.postType === "challenge" && result.meta.achieved) {
+      celebrate(t("challengeSuccessToast"));
+    }
     resetComposer();
   };
 
   const remove = async (postId: string) => {
     if (!window.confirm(t("deleteConfirm"))) return;
     setPosts((prev) => prev.filter((p) => p.id !== postId));
+    channelRef.current?.send({ type: "broadcast", event: "delete-post", payload: { id: postId } });
     await deleteFeedPost(postId);
   };
 
@@ -332,6 +365,8 @@ export function FeedView({
   };
 
   return (
+    <>
+    {celebrationToast}
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-[120px_1fr]">
       <div className="flex flex-row flex-wrap gap-1.5 lg:flex-col lg:flex-nowrap lg:border-r lg:border-neutral-100 lg:pr-4 dark:lg:border-neutral-800">
         {CATEGORIES.map((c) => (
@@ -689,5 +724,6 @@ export function FeedView({
         )}
       </div>
     </div>
+    </>
   );
 }

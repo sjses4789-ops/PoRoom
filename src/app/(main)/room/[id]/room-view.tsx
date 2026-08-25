@@ -13,6 +13,7 @@ import { sumTotals, type DailyRecord } from "@/lib/records";
 import { recordChars, touchLastSeen, setWorkStatus, type RecordVisibility } from "@/lib/rooms";
 import { effectiveRecordDate, toLocalDateKey } from "@/lib/time";
 import { RichContent } from "@/components/rich-content";
+import { useCelebrationToast } from "@/components/celebration-toast";
 
 export type Member = {
   id: string;
@@ -43,6 +44,8 @@ export function RoomView({
   selfTodayFocusMinutes,
   selfTodayGlobalChars,
   selfTodayGoalChars,
+  selfMonthGoalChars,
+  selfMonthChars,
   initialWorks,
 }: {
   roomId: string;
@@ -61,9 +64,15 @@ export function RoomView({
   selfTodayFocusMinutes: number;
   selfTodayGlobalChars: number;
   selfTodayGoalChars: number;
+  selfMonthGoalChars: number;
+  selfMonthChars: number;
   initialWorks: WorkItem[];
 }) {
   const t = useTranslations("room.roomView");
+  const { toast: celebrationToast, celebrate } = useCelebrationToast();
+  // 이번 달 글자수는 화면에 직접 렌더링하지 않고 목표 달성 감지에만
+  // 쓰므로, 리렌더를 유발하지 않는 ref로 들고 있는다.
+  const monthCharsRef = useRef(selfMonthChars);
   const { members, updateSelfWorkStatus } = useLiveMembers(
     roomId,
     selfId,
@@ -133,7 +142,19 @@ export function RoomView({
 
   const addChars = (n: number) => {
     setChars((c) => c + n);
-    setTodayChars((c) => c + n);
+    setTodayChars((prev) => {
+      const next = prev + n;
+      if (selfTodayGoalChars > 0 && prev < selfTodayGoalChars && next >= selfTodayGoalChars) {
+        celebrate(t("dailyGoalToast"));
+      }
+      return next;
+    });
+    const monthPrev = monthCharsRef.current;
+    const monthNext = monthPrev + n;
+    monthCharsRef.current = monthNext;
+    if (selfMonthGoalChars > 0 && monthPrev < selfMonthGoalChars && monthNext >= selfMonthGoalChars) {
+      celebrate(t("monthlyGoalToast"));
+    }
     recordChars(roomId, n, effectiveRecordDate(sessionStartRef.current));
   };
 
@@ -253,6 +274,8 @@ export function RoomView({
   const [chatCollapsed, setChatCollapsed] = useState(false);
 
   return (
+    <>
+    {celebrationToast}
     <div
       className={`grid grid-cols-1 gap-6 ${
         chatCollapsed ? "lg:grid-cols-[56px_1fr_260px]" : "lg:grid-cols-[300px_1fr_260px]"
@@ -370,5 +393,6 @@ export function RoomView({
           />
         </div>
     </div>
+    </>
   );
 }

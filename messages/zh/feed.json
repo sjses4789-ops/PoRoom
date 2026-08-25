@@ -57,6 +57,7 @@
     "notAchieved": "未达成",
     "noPosts": "还没有动态。",
     "justNow": "刚刚",
+    "challengeSuccessToast": "🎉 恭喜挑战成功！",
     "delete": "删除",
     "deleteConfirm": "确定删除这条动态吗？",
     "reaction": {

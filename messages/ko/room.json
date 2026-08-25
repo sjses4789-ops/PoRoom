@@ -23,7 +23,9 @@
     "participantsList": "참여자 목록",
     "membersSuffix": "{count}/{capacity}명",
     "notice": "공지사항",
-    "onlineCount": "현재 접속 중 {count}명"
+    "onlineCount": "현재 접속 중 {count}명",
+    "dailyGoalToast": "🎉 오늘의 목표 글자수를 달성했어요!",
+    "monthlyGoalToast": "🎉 이번 달 목표 글자수를 달성했어요!"
   },
   "shareRecordsToggle": {
     "label": "내 기록",

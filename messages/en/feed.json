@@ -57,6 +57,7 @@
     "notAchieved": "Not yet",
     "noPosts": "No updates yet.",
     "justNow": "Just now",
+    "challengeSuccessToast": "🎉 Congrats on completing the challenge!",
     "delete": "Delete",
     "deleteConfirm": "Delete this post?",
     "reaction": {

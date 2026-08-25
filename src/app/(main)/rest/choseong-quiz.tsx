@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { CHOSEONG_WORDS } from "@/lib/choseong-words";
 
@@ -19,14 +19,28 @@ function choseongOf(word: string): string {
   return Array.from(word).map(choseongOfChar).join("");
 }
 
-function pickEntry(exclude?: string): [string, string] {
-  const pool = exclude ? CHOSEONG_WORDS.filter(([w]) => w !== exclude) : CHOSEONG_WORDS;
+// 세션 동안 나온 단어는 다시 나오지 않게 제외한다 — 전체 목록을 다
+// 쓰면(드문 경우) 지금 단어만 제외하고 처음부터 다시 돈다.
+function pickEntry(used: Set<string>): [string, string] {
+  const pool = CHOSEONG_WORDS.filter(([w]) => !used.has(w));
+  if (pool.length === 0) {
+    used.clear();
+    return CHOSEONG_WORDS[Math.floor(Math.random() * CHOSEONG_WORDS.length)];
+  }
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
 export function ChoseongQuiz() {
   const t = useTranslations("rest.choseong");
-  const [[word, meaning], setEntry] = useState<[string, string]>(() => pickEntry());
+  const usedWordsRef = useRef<Set<string>>(new Set());
+  // 렌더 중에는 ref를 읽으면 안 되므로, 초기값은 빈 집합을 새로 만들어
+  // 뽑고(세션 시작이라 사실상 전체에서 무작위 추출과 같다) ref에는
+  // 마운트 이후 effect에서 기록한다.
+  const [[word, meaning], setEntry] = useState<[string, string]>(() => pickEntry(new Set()));
+  useEffect(() => {
+    usedWordsRef.current.add(word);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [input, setInput] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [correctCount, setCorrectCount] = useState(0);
@@ -39,14 +53,17 @@ export function ChoseongQuiz() {
   const quiz = choseongOf(word);
 
   const nextWord = useCallback(() => {
-    setEntry(pickEntry(word));
+    const entry = pickEntry(usedWordsRef.current);
+    usedWordsRef.current.add(entry[0]);
+    setEntry(entry);
     setInput("");
     setError(null);
     setPause(null);
-  }, [word]);
+  }, []);
 
   const reset = () => {
     setCorrectCount(0);
+    usedWordsRef.current.clear();
     nextWord();
     inputRef.current?.focus();
   };

@@ -26,7 +26,7 @@ const LONG_HIDDEN_MS = 10 * 1000;
 // 달리) DB에 실제로 남아있는 진실이므로, 이상 징후 여부와 무관하게
 // 일정 주기마다 무조건 다시 읽어와 "상태설정"·입장·퇴장이 화면에
 // 반영되기까지 걸리는 최대 시간을 보장한다.
-const POLL_INTERVAL_MS = 15 * 1000;
+const POLL_INTERVAL_MS = 5 * 1000;
 
 export function useLiveMembers(
   roomId: string,

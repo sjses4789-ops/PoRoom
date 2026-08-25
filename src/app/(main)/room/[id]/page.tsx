@@ -186,6 +186,8 @@ export default async function RoomPage({
     { data: selfTodayGlobalRows },
     { data: goalRows },
     { data: workRows },
+    { data: monthGoalRows },
+    { data: selfMonthGlobalRows },
   ] = await Promise.all([
     supabase
       .from("chat_messages")
@@ -245,6 +247,20 @@ export default async function RoomPage({
       .eq("user_id", user!.id)
       .order("created_at", { ascending: true })
       .returns<{ id: string; title: string; last_current_chars: number }[]>(),
+    // 이번 달 목표 글자수(달성 시 축하 토스트를 띄우기 위해 방 페이지에도
+    // 필요) — [개인] 페이지에서 설정하는 값과 같은 goals 테이블.
+    supabase
+      .from("goals")
+      .select("target_chars")
+      .eq("user_id", user!.id)
+      .eq("period", "month")
+      .maybeSingle<{ target_chars: number }>(),
+    supabase
+      .from("daily_records")
+      .select("chars")
+      .eq("user_id", user!.id)
+      .gte("record_date", `${today.slice(0, 7)}-01`)
+      .returns<{ chars: number }[]>(),
   ]);
 
   const pollIds = (pollRows ?? []).map((p) => p.id);
@@ -305,6 +321,8 @@ export default async function RoomPage({
     0
   );
   const selfTodayGoalChars = goalRows?.[0]?.target_chars ?? 0;
+  const selfMonthGoalChars = monthGoalRows?.target_chars ?? 0;
+  const selfMonthChars = (selfMonthGlobalRows ?? []).reduce((sum, r) => sum + r.chars, 0);
 
   const works = (workRows ?? []).map((w) => ({
     id: w.id,
@@ -485,6 +503,8 @@ export default async function RoomPage({
             selfTodayFocusMinutes={selfToday?.focusMinutes ?? 0}
             selfTodayGlobalChars={selfTodayGlobalChars}
             selfTodayGoalChars={selfTodayGoalChars}
+            selfMonthGoalChars={selfMonthGoalChars}
+            selfMonthChars={selfMonthChars}
             initialWorks={works}
           />
         }
