@@ -8,6 +8,10 @@
     "heroTitle": "离开只面对一堵墙的工作室，\n加入一起成长的工作室",
     "heroBody": "PoRoom 是为网络小说作者打造的在线番茄钟工作室。它能帮你集中精神、为你加油打气，有时也会推动你去竞争，从而不断成长。连载到完结，都有 PoRoom 陪着你。",
     "heroImageAlt": "在 PoRoom 房间中一起查看番茄钟和参与者卡片的画面",
+    "feedImageAlt": "PoRoom 动态页面预览",
+    "competeImageAlt": "PoRoom 挑战页面预览",
+    "rankingImageAlt": "PoRoom 排行榜页面预览",
+    "restImageAlt": "PoRoom 休息页面预览",
     "ctaHint": "只需一个 Google 账号，30 秒即可开始。",
     "audienceTitle": "这些人适合使用 PoRoom",
     "audience": [

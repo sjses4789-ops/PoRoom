@@ -8,6 +8,10 @@
     "heroTitle": "Leave the room where you stared at a wall.\nJoin one where you grow together.",
     "heroBody": "PoRoom is an online Pomodoro workspace built for web-novel writers. It helps you focus, cheers you on, and sometimes pushes you to compete — so you can grow. Stay with PoRoom all the way to the finish.",
     "heroImageAlt": "A PoRoom room in use, showing the Pomodoro timer and participant cards together",
+    "feedImageAlt": "Preview of the PoRoom Feed screen",
+    "competeImageAlt": "Preview of the PoRoom Challenge screen",
+    "rankingImageAlt": "Preview of the PoRoom Ranking screen",
+    "restImageAlt": "Preview of the PoRoom Break screen",
     "ctaHint": "All you need is a Google account — takes about 30 seconds.",
     "audienceTitle": "PoRoom is for you if you're...",
     "audience": [

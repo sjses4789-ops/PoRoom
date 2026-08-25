@@ -59,35 +59,70 @@ export default async function Home() {
         </div>
       </header>
 
-      <section className="mx-auto flex w-full max-w-3xl flex-col items-center gap-6 px-4 py-16 text-center sm:px-6 sm:py-24">
-        <span className="rounded-full border border-neutral-200 px-3 py-1 text-xs font-medium text-neutral-500">
-          {t("landing.eyebrow")}
-        </span>
-        <h1 className="whitespace-pre-line text-3xl font-semibold tracking-tight text-neutral-900 sm:text-4xl">
-          {t("landing.heroTitle")}
-        </h1>
-        <p className="max-w-xl text-sm leading-relaxed text-neutral-500 sm:text-base">
-          {t("landing.heroBody")}
-        </p>
-        <div className="flex flex-col items-center gap-2">
-          <GoogleSignInButton
-            label={t("google")}
-            className="flex items-center gap-3 rounded-md bg-neutral-900 px-6 py-3 text-sm font-medium text-white transition hover:bg-neutral-700"
-          />
-          <p className="text-xs text-neutral-400">{t("landing.ctaHint")}</p>
+      <section className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-10 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[1fr_1fr]">
+        <div className="flex flex-col items-start gap-6 text-left">
+          <span className="rounded-full border border-neutral-200 px-3 py-1 text-xs font-medium text-neutral-500">
+            {t("landing.eyebrow")}
+          </span>
+          <h1 className="whitespace-pre-line text-3xl font-semibold tracking-tight text-neutral-900 sm:text-4xl">
+            {t("landing.heroTitle")}
+          </h1>
+          <p className="max-w-xl text-sm leading-relaxed text-neutral-500 sm:text-base">
+            {t("landing.heroBody")}
+          </p>
+          <div className="flex flex-col items-start gap-2">
+            <GoogleSignInButton
+              label={t("google")}
+              className="flex items-center gap-3 rounded-md bg-neutral-900 px-6 py-3 text-sm font-medium text-white transition hover:bg-neutral-700"
+            />
+            <p className="text-xs text-neutral-400">{t("landing.ctaHint")}</p>
+          </div>
         </div>
 
-        {/* 방 참여 화면 스크린샷 — 아직 파일이 없으면 브라우저에서 깨진
-            이미지로만 보이고 페이지 자체는 정상 동작한다(빌드에 영향 없음).
-            파일명 poroom-room-preview.png, 권장 크기 1200x750px(가로 1.6:1),
-            public/ 폴더에 넣으면 바로 반영된다. */}
-        <Image
-          src="/poroom-room-preview.png"
-          alt={t("landing.heroImageAlt")}
-          width={1200}
-          height={750}
-          className="mt-4 w-full max-w-2xl rounded-xl border border-neutral-200 shadow-sm"
-        />
+        {/* 히어로 오른쪽 콜라주 — 로고 + 방 화면 스크린샷 + 기능별 미리보기
+            4장. 파일이 없는 이미지는 브라우저에 깨진 아이콘으로만 보이고
+            페이지 동작에는 영향이 없다. public/ 폴더에 넣으면 바로
+            반영된다.
+              - poroom-room-preview.png   1200x750px (메인, 이미 사용 중)
+              - poroom-feed-preview.png   400x250px  (피드 화면)
+              - poroom-compete-preview.png 400x250px (도전/대결 화면)
+              - poroom-ranking-preview.png 400x250px (랭킹 화면)
+              - poroom-rest-preview.png   400x250px  (휴식 화면) */}
+        <div className="flex flex-col items-center gap-4 lg:items-end">
+          <Image
+            src="/poroom-logo.png"
+            alt="PoRoom"
+            width={1254}
+            height={485}
+            className="h-auto w-28"
+          />
+          <div className="flex items-center gap-3">
+            <div className="flex flex-col gap-2">
+              {[
+                { src: "/poroom-feed-preview.png", alt: t("landing.feedImageAlt") },
+                { src: "/poroom-compete-preview.png", alt: t("landing.competeImageAlt") },
+                { src: "/poroom-ranking-preview.png", alt: t("landing.rankingImageAlt") },
+                { src: "/poroom-rest-preview.png", alt: t("landing.restImageAlt") },
+              ].map((img) => (
+                <Image
+                  key={img.src}
+                  src={img.src}
+                  alt={img.alt}
+                  width={400}
+                  height={250}
+                  className="h-14 w-24 rounded-lg border border-neutral-200 object-cover shadow-sm sm:h-16 sm:w-28"
+                />
+              ))}
+            </div>
+            <Image
+              src="/poroom-room-preview.png"
+              alt={t("landing.heroImageAlt")}
+              width={1200}
+              height={750}
+              className="w-64 rounded-xl border border-neutral-200 shadow-sm sm:w-80"
+            />
+          </div>
+        </div>
       </section>
 
       <section className="border-t border-neutral-100">

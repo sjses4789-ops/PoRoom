@@ -8,6 +8,10 @@
     "heroTitle": "壁だけを見つめていた作業室を出て、\n共に成長する作業室へ",
     "heroBody": "ポルム(PoRoom)は、Web小説作家のためのオンライン・ポモドーロ作業室です。執筆への集中を助け、応援し、時には競い合いながら成長できます。完結まで、ポルム(PoRoom)と一緒に。",
     "heroImageAlt": "PoRoomのルームでポモドーロタイマーと参加者カードを一緒に見ている画面",
+    "feedImageAlt": "PoRoomフィード画面のプレビュー",
+    "competeImageAlt": "PoRoom挑戦画面のプレビュー",
+    "rankingImageAlt": "PoRoomランキング画面のプレビュー",
+    "restImageAlt": "PoRoom休憩画面のプレビュー",
     "ctaHint": "Googleアカウントひとつで30秒あれば始められます。",
     "audienceTitle": "こんな方におすすめです",
     "audience": [
