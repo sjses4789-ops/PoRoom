@@ -21,7 +21,12 @@ type MemberRoomRow = {
 // postgres_changes·broadcast 이벤트는 되돌릴 방법이 없다(presence의
 // sync와 달리 재연결해도 놓친 이벤트가 다시 오지 않는다) — 그래서
 // 재연결 시 목록 자체를 DB에서 다시 통째로 읽어와 확실히 맞춘다.
-const LONG_HIDDEN_MS = 20 * 1000;
+const LONG_HIDDEN_MS = 10 * 1000;
+// 위 재연결 감지가 놓치는 경우에 대비한 안전망 — 회원 목록은 (프레즌스와
+// 달리) DB에 실제로 남아있는 진실이므로, 이상 징후 여부와 무관하게
+// 일정 주기마다 무조건 다시 읽어와 "상태설정"·입장·퇴장이 화면에
+// 반영되기까지 걸리는 최대 시간을 보장한다.
+const POLL_INTERVAL_MS = 15 * 1000;
 
 export function useLiveMembers(
   roomId: string,
@@ -209,6 +214,10 @@ export function useLiveMembers(
     };
     setup();
 
+    const pollId = setInterval(() => {
+      refetchAll();
+    }, POLL_INTERVAL_MS);
+
     // use-room-presence.ts와 동일한 이유로, 탭이 오래 숨겨져 있다 돌아오면
     // 연결이 조용히 죽어있을 수 있으니 채널을 통째로 새로 구독하고
     // 목록도 다시 불러온다.
@@ -238,6 +247,7 @@ export function useLiveMembers(
     return () => {
       cancelled = true;
       if (retrySubscribeId) clearTimeout(retrySubscribeId);
+      clearInterval(pollId);
       document.removeEventListener("visibilitychange", onVisibilityChange);
       window.removeEventListener("focus", onActive);
       window.removeEventListener("blur", onInactive);

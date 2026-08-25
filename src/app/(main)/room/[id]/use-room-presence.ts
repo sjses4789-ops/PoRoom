@@ -8,7 +8,7 @@ const TYPING_WINDOW_MS = 5000;
 const TRACK_THROTTLE_MS = 2000;
 // 위 타임아웃으로도 놓친 갱신이 있을 수 있으니, 주기적으로 현재 상태를
 // 다시 track()해서 다른 참여자 화면이 스스로 복구되도록 한다.
-const RETRACK_INTERVAL_MS = 15000;
+const RETRACK_INTERVAL_MS = 8000;
 // 브라우저는 백그라운드 탭의 setInterval/setTimeout을 강하게 쓰로틀링한다
 // (Chrome은 몇 분만 지나도 1분에 한 번 수준으로 줄인다) — supabase-js
 // realtime 클라이언트의 heartbeat도 내부적으로 타이머 기반이라, 참여자가
@@ -25,10 +25,13 @@ const PRESENCE_GRACE_MS = 5 * 60 * 1000;
 // 참여자가 뽀모도로를 멈추거나 방을 나가도 sync 이벤트 자체가 안 와서
 // 화면이 영원히 그 시점 상태로 멈춰 보인다. 그래서 (1) sync 이벤트가
 // 일정 시간 이상 안 온 채로 방치되면, (2) 탭이 오래 숨겨졌다 다시
-// 보이면, 채널을 통째로 버리고 새로 구독해 강제로 최신 상태를 받아온다.
-const STALE_SYNC_MS = 45 * 1000;
-const STALE_CHECK_INTERVAL_MS = 15 * 1000;
-const LONG_HIDDEN_MS = 20 * 1000;
+// 보이면, (3) 그 외에도 일정 주기마다 무조건, 채널을 통째로 버리고
+// 새로 구독해 강제로 최신 상태를 받아온다 — (1)의 감지 로직 자체가
+// 놓치는 경우가 있더라도 (3)이 최대 정체 시간을 보장한다.
+const STALE_SYNC_MS = 20 * 1000;
+const STALE_CHECK_INTERVAL_MS = 8 * 1000;
+const LONG_HIDDEN_MS = 10 * 1000;
+const FORCE_RECONNECT_INTERVAL_MS = 60 * 1000;
 
 type PomodoroPhase = "focus" | "break" | "idle";
 
@@ -195,6 +198,14 @@ export function useRoomPresence(
       }
     }, STALE_CHECK_INTERVAL_MS);
 
+    // 위 감지 로직이 놓치는 경우에 대비한 안전망 — 무슨 이유로든
+    // 이 탭이 다른 참여자의 최신 상태를 못 받아오고 있을 수 있으니,
+    // 이상 징후 여부와 무관하게 일정 주기마다 무조건 재연결해서 최대
+    // 정체 시간을 보장한다.
+    const forceReconnectId = setInterval(() => {
+      hardReconnect();
+    }, FORCE_RECONNECT_INTERVAL_MS);
+
     // 탭이 백그라운드에 있는 동안은 위 setInterval들 자체가 쓰로틀링돼서
     // 늦게(또는 거의 안) 실행된다. 잠깐 숨겨졌다 돌아온 정도면 재track만
     // 해도 충분하지만, 오래 숨겨져 있었다면(하트비트까지 쓰로틀링돼
@@ -229,6 +240,7 @@ export function useRoomPresence(
       clearInterval(tickId);
       clearInterval(retrackId);
       clearInterval(staleCheckId);
+      clearInterval(forceReconnectId);
       document.removeEventListener("visibilitychange", onVisibilityChange);
       window.removeEventListener("focus", onActive);
       window.removeEventListener("blur", onInactive);
