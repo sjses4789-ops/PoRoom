@@ -215,6 +215,7 @@ export function FeedView({
   const [challengeId, setChallengeId] = useState("");
   const [draftDone, setDraftDone] = useState(false);
   const [bgColor, setBgColor] = useState<string | null>(null);
+  const [colorPickerOpen, setColorPickerOpen] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -231,6 +232,7 @@ export function FeedView({
     setChallengeId("");
     setDraftDone(false);
     setBgColor(null);
+    setColorPickerOpen(false);
   };
 
   const selectedChallengeKind = challengeOptions.find((c) => c.id === challengeId)?.kind ?? null;
@@ -354,36 +356,66 @@ export function FeedView({
           <div className="flex items-start gap-3">
             <div className="flex flex-col items-center gap-1.5">
               <Avatar characterId={selfCharacterId} />
-              <div
-                className="grid grid-cols-5 gap-1"
-                role="group"
-                aria-label={t("bgColorLabel")}
-                title={t("bgColorLabel")}
-              >
+              <div className="relative">
                 <button
                   type="button"
-                  onClick={() => setBgColor(null)}
-                  title={t("bgColorNone")}
-                  aria-label={t("bgColorNone")}
-                  className={`flex h-3.5 w-3.5 items-center justify-center rounded-full border bg-white text-[8px] text-neutral-400 dark:bg-neutral-800 ${
-                    bgColor === null ? "border-neutral-900 dark:border-white" : "border-neutral-200 dark:border-neutral-600"
+                  onClick={() => setColorPickerOpen((v) => !v)}
+                  title={t("bgColorLabel")}
+                  aria-label={t("bgColorLabel")}
+                  className={`h-5 w-5 rounded-full border transition hover:opacity-80 ${
+                    bgColor ? "border-neutral-200 dark:border-neutral-600" : "border-dashed border-neutral-300 bg-white dark:border-neutral-600 dark:bg-neutral-800"
                   }`}
-                >
-                  ✕
-                </button>
-                {PASTEL_COLORS.slice(0, 19).map((c) => (
-                  <button
-                    key={c}
-                    type="button"
-                    onClick={() => setBgColor(c)}
-                    title={c}
-                    aria-label={c}
-                    className={`h-3.5 w-3.5 rounded-full border ${
-                      bgColor === c ? "border-neutral-900 dark:border-white" : "border-transparent"
-                    }`}
-                    style={{ backgroundColor: c }}
-                  />
-                ))}
+                  style={bgColor ? { backgroundColor: bgColor } : undefined}
+                />
+                {colorPickerOpen && (
+                  <>
+                    <div
+                      onClick={() => setColorPickerOpen(false)}
+                      className="fixed inset-0 z-10 bg-neutral-900/20"
+                    />
+                    <div className="fixed left-1/2 top-1/2 z-20 w-[min(16rem,calc(100vw-2.5rem))] -translate-x-1/2 -translate-y-1/2 rounded-md border border-neutral-300 bg-white p-3 shadow-lg dark:border-neutral-700 dark:bg-neutral-900">
+                      <p className="mb-2 text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                        {t("bgColorLabel")}
+                      </p>
+                      <div className="grid grid-cols-5 gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setBgColor(null);
+                            setColorPickerOpen(false);
+                          }}
+                          title={t("bgColorNone")}
+                          aria-label={t("bgColorNone")}
+                          className={`flex h-7 w-7 items-center justify-center rounded-full border bg-white text-xs text-neutral-400 transition dark:bg-neutral-800 ${
+                            bgColor === null
+                              ? "ring-2 ring-neutral-900 ring-offset-2 dark:ring-white"
+                              : "border-neutral-200 hover:opacity-80 dark:border-neutral-600"
+                          }`}
+                        >
+                          ✕
+                        </button>
+                        {PASTEL_COLORS.map((c) => (
+                          <button
+                            key={c}
+                            type="button"
+                            onClick={() => {
+                              setBgColor(c);
+                              setColorPickerOpen(false);
+                            }}
+                            title={c}
+                            aria-label={c}
+                            className={`h-7 w-7 rounded-full transition ${
+                              bgColor === c
+                                ? "ring-2 ring-neutral-900 ring-offset-2 dark:ring-white"
+                                : "opacity-90 hover:opacity-100"
+                            }`}
+                            style={{ backgroundColor: c }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
             <input

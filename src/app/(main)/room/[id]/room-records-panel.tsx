@@ -281,11 +281,8 @@ export function RoomRecordsPanel({
               <th className="sticky left-0 z-10 bg-white px-2 py-2 font-medium dark:bg-neutral-900">
                 {t("participant")}
               </th>
-              <th className="min-w-[64px] px-1 py-2 text-center font-medium">
-                {mode === "month" ? t("dayColumn", { day: columns[0] }) : t("monthColumn", { month: columns[0] })}
-              </th>
               <th className="min-w-[80px] px-2 py-2 text-center font-medium">{t("total")}</th>
-              {columns.slice(1).map((c) => (
+              {columns.map((c) => (
                 <th key={c} className="min-w-[64px] px-1 py-2 text-center font-medium">
                   {mode === "month" ? t("dayColumn", { day: c }) : t("monthColumn", { month: c })}
                 </th>
@@ -296,10 +293,11 @@ export function RoomRecordsPanel({
             {members.map((member, i) => {
               const rowBg = rowColorByIndex(i);
               const total = totalFor(member.id);
+              const rowBorder = "border-b-2 border-neutral-300 dark:border-neutral-600";
               return (
-                <tr key={member.id} className="border-b-2 border-neutral-300 dark:border-neutral-600">
+                <tr key={member.id}>
                   <td
-                    className={`sticky left-0 z-10 whitespace-nowrap border-r border-neutral-100 px-2 py-2 font-medium text-neutral-900 dark:border-neutral-700 ${rowBg}`}
+                    className={`sticky left-0 z-10 whitespace-nowrap border-r border-neutral-100 px-2 py-2 font-medium text-neutral-900 dark:border-neutral-700 ${rowBg} ${rowBorder}`}
                   >
                     <span className="flex items-center gap-1">
                       {member.name}
@@ -315,40 +313,13 @@ export function RoomRecordsPanel({
                       )}
                     </span>
                   </td>
-                  {(() => {
-                    const renderCell = (c: number) => {
-                      const cell = cellFor(member.id, c);
-                      const hasData = cell.chars > 0 || cell.minutes > 0;
-                      return (
-                        <td key={c} className={`px-1 py-2 text-center ${hasData ? rowBg : ""}`}>
-                          {hasData ? (
-                            <div className="flex flex-col leading-tight">
-                              <span className="text-neutral-800">
-                                {cell.chars.toLocaleString()}{tCommon("charUnit")}
-                              </span>
-                              <span className="text-neutral-400">{cell.minutes}{tCommon("minuteUnit")}</span>
-                            </div>
-                          ) : (
-                            <span className="text-neutral-200 dark:text-neutral-700">–</span>
-                          )}
-                        </td>
-                      );
-                    };
-                    return !member.recordsVisible ? (
-                      <td colSpan={1} className="px-2 py-2 text-center text-neutral-300 dark:text-neutral-600">
-                        {tCommon("recordsPrivate")}
-                      </td>
-                    ) : (
-                      renderCell(columns[0])
-                    );
-                  })()}
-                  <td className={`px-2 py-2 text-center font-medium ${rowBg}`}>
+                  <td className={`bg-neutral-100 px-2 py-2 text-center font-medium dark:bg-neutral-800 ${rowBorder}`}>
                     {member.recordsVisible ? (
                       <div className="flex flex-col leading-tight">
-                        <span className="text-neutral-900">
+                        <span className="text-neutral-900 dark:text-white">
                           {total.chars.toLocaleString()}{tCommon("charUnit")}
                         </span>
-                        <span className="text-neutral-500">{total.minutes}{tCommon("minuteUnit")}</span>
+                        <span className="text-neutral-500 dark:text-neutral-400">{total.minutes}{tCommon("minuteUnit")}</span>
                       </div>
                     ) : (
                       <span className="text-neutral-300 dark:text-neutral-600">–</span>
@@ -356,17 +327,17 @@ export function RoomRecordsPanel({
                   </td>
                   {!member.recordsVisible ? (
                     <td
-                      colSpan={columns.length - 1}
-                      className="px-2 py-2 text-center text-neutral-300 dark:text-neutral-600"
+                      colSpan={columns.length}
+                      className={`px-2 py-2 text-center text-neutral-300 dark:text-neutral-600 ${rowBorder}`}
                     >
                       {tCommon("recordsPrivate")}
                     </td>
                   ) : (
-                    columns.slice(1).map((c) => {
+                    columns.map((c) => {
                       const cell = cellFor(member.id, c);
                       const hasData = cell.chars > 0 || cell.minutes > 0;
                       return (
-                        <td key={c} className={`px-1 py-2 text-center ${hasData ? rowBg : ""}`}>
+                        <td key={c} className={`px-1 py-2 text-center ${rowBorder} ${hasData ? rowBg : ""}`}>
                           {hasData ? (
                             <div className="flex flex-col leading-tight">
                               <span className="text-neutral-800">
