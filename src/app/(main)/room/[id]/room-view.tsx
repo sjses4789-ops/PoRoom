@@ -12,6 +12,7 @@ import { CharInput, type WorkItem } from "./char-input";
 import { sumTotals, type DailyRecord } from "@/lib/records";
 import { recordChars, touchLastSeen, setWorkStatus, type RecordVisibility } from "@/lib/rooms";
 import { effectiveRecordDate, toLocalDateKey } from "@/lib/time";
+import { RichContent } from "@/components/rich-content";
 
 export type Member = {
   id: string;
@@ -326,9 +327,7 @@ export function RoomView({
                     ✕
                   </button>
                 </div>
-                <p className="whitespace-pre-wrap text-sm text-neutral-600 dark:text-neutral-300">
-                  {latestNotice.content}
-                </p>
+                <RichContent content={latestNotice.content} />
               </div>
             </>
           )}

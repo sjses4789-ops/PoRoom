@@ -1,12 +1,15 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import type { ReactNode } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import Link from "@tiptap/extension-link";
 import Highlight from "@tiptap/extension-highlight";
+import { TextStyle } from "@tiptap/extension-text-style";
+import Color from "@tiptap/extension-color";
+import TextAlign from "@tiptap/extension-text-align";
 import CharacterCount from "@tiptap/extension-character-count";
 import Placeholder from "@tiptap/extension-placeholder";
 
@@ -40,7 +43,10 @@ export function RichTextEditor({
         autolink: true,
         HTMLAttributes: { rel: "noopener noreferrer", target: "_blank" },
       }),
-      Highlight,
+      Highlight.configure({ multicolor: true }),
+      TextStyle,
+      Color,
+      TextAlign.configure({ types: ["heading", "paragraph"] }),
       CharacterCount.configure({ limit: MAX_CHARS }),
       Placeholder.configure({ placeholder: placeholder ?? "" }),
     ],
@@ -86,6 +92,8 @@ export function RichTextEditor({
   };
 
   const chars = editor.storage.characterCount.characters() as number;
+  const textColor = editor.getAttributes("textStyle").color as string | undefined;
+  const highlightColor = editor.getAttributes("highlight").color as string | undefined;
 
   return (
     <div className="overflow-hidden rounded-md border border-neutral-200 dark:border-neutral-700">
@@ -118,12 +126,47 @@ export function RichTextEditor({
 
         <Divider />
 
+        <ToolbarButton
+          active={editor.isActive({ textAlign: "left" })}
+          onClick={() => editor.chain().focus().setTextAlign("left").run()}
+          label="왼쪽 정렬"
+        >
+          <AlignIcon variant="left" />
+        </ToolbarButton>
+        <ToolbarButton
+          active={editor.isActive({ textAlign: "center" })}
+          onClick={() => editor.chain().focus().setTextAlign("center").run()}
+          label="가운데 정렬"
+        >
+          <AlignIcon variant="center" />
+        </ToolbarButton>
+        <ToolbarButton
+          active={editor.isActive({ textAlign: "right" })}
+          onClick={() => editor.chain().focus().setTextAlign("right").run()}
+          label="오른쪽 정렬"
+        >
+          <AlignIcon variant="right" />
+        </ToolbarButton>
+
+        <Divider />
+
         <ToolbarButton active={editor.isActive("blockquote")} onClick={() => editor.chain().focus().toggleBlockquote().run()} label="인용">
           <QuoteIcon />
         </ToolbarButton>
-        <ToolbarButton active={editor.isActive("highlight")} onClick={() => editor.chain().focus().toggleHighlight().run()} label="형광펜">
-          <HighlightIcon />
-        </ToolbarButton>
+        <ColorPicker
+          label="글자색"
+          color={textColor}
+          onPick={(c) => editor.chain().focus().setColor(c).run()}
+          onClear={() => editor.chain().focus().unsetColor().run()}
+          swatch={(c) => <TextColorIcon color={c} />}
+        />
+        <ColorPicker
+          label="글자 배경색"
+          color={highlightColor}
+          onPick={(c) => editor.chain().focus().setHighlight({ color: c }).run()}
+          onClear={() => editor.chain().focus().unsetHighlight().run()}
+          swatch={(c) => <BgColorIcon color={c} />}
+        />
         <ToolbarButton active={editor.isActive("link")} onClick={setLink} label="링크">
           <LinkIcon />
         </ToolbarButton>
@@ -172,18 +215,103 @@ function ToolbarButton({
   );
 }
 
+function ColorPicker({
+  label,
+  color,
+  onPick,
+  onClear,
+  swatch,
+}: {
+  label: string;
+  color: string | undefined;
+  onPick: (color: string) => void;
+  onClear: () => void;
+  swatch: (color: string | undefined) => ReactNode;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  return (
+    <span className="relative flex items-center">
+      <button
+        type="button"
+        title={label}
+        aria-label={label}
+        onClick={() => inputRef.current?.click()}
+        className="flex h-7 w-7 items-center justify-center rounded text-neutral-600 transition hover:bg-neutral-200 dark:text-neutral-300 dark:hover:bg-neutral-700"
+      >
+        {swatch(color)}
+      </button>
+      <input
+        ref={inputRef}
+        type="color"
+        value={color ?? "#c17b7b"}
+        onChange={(e) => onPick(e.target.value)}
+        className="absolute h-0 w-0 opacity-0"
+        tabIndex={-1}
+      />
+      {color && (
+        <button
+          type="button"
+          title="색 지우기"
+          aria-label="색 지우기"
+          onClick={onClear}
+          className="ml-0.5 text-[10px] text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200"
+        >
+          ×
+        </button>
+      )}
+    </span>
+  );
+}
+
+function TextColorIcon({ color }: { color?: string }) {
+  return (
+    <span className="flex flex-col items-center leading-none">
+      <span className="text-[13px] font-bold" style={{ color: color || "currentColor" }}>
+        A
+      </span>
+      <span className="mt-0.5 h-[3px] w-3.5 rounded-sm" style={{ background: color || "#a3a3a3" }} />
+    </span>
+  );
+}
+function BgColorIcon({ color }: { color?: string }) {
+  return (
+    <span
+      className="h-3.5 w-3.5 rounded-sm border border-neutral-300 dark:border-neutral-600"
+      style={{ background: color || "transparent" }}
+    />
+  );
+}
+function AlignIcon({ variant }: { variant: "left" | "center" | "right" }) {
+  const lines =
+    variant === "left"
+      ? [
+          [3, 15],
+          [3, 11],
+          [3, 8],
+        ]
+      : variant === "center"
+        ? [
+            [3, 15],
+            [5, 11],
+            [4, 8.5],
+          ]
+        : [
+            [3, 15],
+            [7, 11],
+            [5, 8],
+          ];
+  return (
+    <svg viewBox="0 0 20 20" fill="none" className="h-3.5 w-3.5" stroke="currentColor" strokeWidth="1.6">
+      <path d={`M${lines[0][0]} 5h${lines[0][1]}`} strokeLinecap="round" />
+      <path d={`M${lines[1][0]} 10h${lines[1][1]}`} strokeLinecap="round" />
+      <path d={`M${lines[2][0]} 15h${lines[2][1]}`} strokeLinecap="round" />
+    </svg>
+  );
+}
 function QuoteIcon() {
   return (
     <svg viewBox="0 0 20 20" fill="none" className="h-3.5 w-3.5" stroke="currentColor" strokeWidth="1.6">
       <path d="M7.5 6.5c-2 0-3.5 1.6-3.5 4v3h4v-4H5.5c0-1.4 1-2 2-2v-1zm7 0c-2 0-3.5 1.6-3.5 4v3h4v-4h-2.5c0-1.4 1-2 2-2v-1z" />
-    </svg>
-  );
-}
-function HighlightIcon() {
-  return (
-    <svg viewBox="0 0 20 20" className="h-3.5 w-3.5" fill="currentColor">
-      <rect x="3" y="14" width="14" height="3" rx="1" />
-      <path d="M6 12l6-9 4 3-8 8-4-2z" opacity="0.55" />
     </svg>
   );
 }

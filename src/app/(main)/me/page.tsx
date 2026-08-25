@@ -16,6 +16,7 @@ import { RankingStatusPanel } from "./ranking-status-panel";
 import { WorksPanel } from "./works-panel";
 import { PomodoroStatsPanel } from "./pomodoro-stats-panel";
 import { TodoList, type Todo } from "@/components/todo-list";
+import { ImportBackupButton } from "./import-backup-button";
 import { ensureChallengeTodos, type SystemChallengeKind } from "@/lib/system-challenges";
 import {
   computeWinLossByUser,
@@ -403,13 +404,13 @@ export default async function MePage() {
         <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("accountInfo")}</h2>
         <div className="grid grid-cols-1 divide-y divide-neutral-400 overflow-hidden rounded-md border border-neutral-400 dark:divide-neutral-600 dark:border-neutral-600 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
           <div className="flex flex-col justify-between p-4 text-sm">
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col items-center gap-1 text-center">
               <span className="text-neutral-900 dark:text-white">{myProfile?.name ?? t("noNickname")}</span>
               <span className="text-neutral-500">{user.email}</span>
               <span className="text-[12px] text-neutral-400">
                 {t("joinDate", { date: user.created_at.slice(0, 10).replace(/-/g, ".") })}
               </span>
-              <div className="mt-1 flex gap-2">
+              <div className="mt-1 flex flex-wrap justify-center gap-2">
                 <a
                   href="/api/export/excel"
                   className="rounded-md border border-neutral-200 px-2.5 py-1.5 text-xs font-medium text-neutral-600 transition hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
@@ -422,6 +423,7 @@ export default async function MePage() {
                 >
                   {t("backup")}
                 </a>
+                <ImportBackupButton />
               </div>
             </div>
             <div className="mt-3 flex justify-center">
