@@ -4,7 +4,10 @@
     "subtitle": "稍作休息，练习打字或与其他作者交流。"
   },
   "nav": {
-    "typing": "打字练习"
+    "typing": "打字练习",
+    "minesweeper": "扫雷",
+    "wordChain": "词语接龙",
+    "tetris": "俄罗斯方块"
   },
   "typing": {
     "title": "打字练习",
@@ -17,6 +20,40 @@
     "cpmValue": "{cpm}字/分",
     "accuracyValue": "准确率 {accuracy}%",
     "pressEnterNext": "按回车进入下一句"
+  },
+  "minesweeper": {
+    "title": "扫雷",
+    "hint": "点击打开格子，右键或旗帜模式标记地雷。",
+    "mineCount": "地雷 {count}",
+    "timeLabel": "{seconds}秒",
+    "flagMode": "旗帜模式",
+    "reset": "重新开始",
+    "won": "胜利！🎉",
+    "lost": "轰！游戏结束"
+  },
+  "wordChain": {
+    "title": "词语接龙",
+    "hint": "这是韩语词语接龙(끝말잇기)，不做词典校验，只检查接龙规则。",
+    "chainCount": "已接 {count} 个词",
+    "reset": "重新开始",
+    "inputPlaceholder": "请输入下一个词",
+    "submit": "提交",
+    "nextHint": "请输入以''{char}''开头的词",
+    "errorTooShort": "请输入至少两个字",
+    "errorNotConnected": "必须以''{char}''开头",
+    "errorAlreadyUsed": "这个词已经用过了"
+  },
+  "tetris": {
+    "title": "俄罗斯方块",
+    "controls": "← → 移动 · ↓ 软降 · ↑ 旋转 · Space 硬降",
+    "score": "分数 {score}",
+    "lines": "消行 {lines}",
+    "level": "等级 {level}",
+    "start": "开始",
+    "pause": "暂停",
+    "resume": "继续",
+    "reset": "重新开始",
+    "gameOver": "游戏结束"
   },
   "board": {
     "category": {

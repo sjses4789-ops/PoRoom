@@ -4,7 +4,10 @@
     "subtitle": "잠깐 쉬어가며 타자 연습을 하거나, 다른 작가들과 이야기를 나눠보세요."
   },
   "nav": {
-    "typing": "타자 연습"
+    "typing": "타자 연습",
+    "minesweeper": "지뢰 찾기",
+    "wordChain": "끝말잇기",
+    "tetris": "테트리스"
   },
   "typing": {
     "title": "타자 연습",
@@ -17,6 +20,40 @@
     "cpmValue": "{cpm}타/분",
     "accuracyValue": "정확도 {accuracy}%",
     "pressEnterNext": "엔터를 누르면 다음 문장으로 넘어가요"
+  },
+  "minesweeper": {
+    "title": "지뢰 찾기",
+    "hint": "칸을 클릭해 열고, 우클릭이나 깃발 모드로 표시하세요.",
+    "mineCount": "지뢰 {count}",
+    "timeLabel": "{seconds}초",
+    "flagMode": "깃발 모드",
+    "reset": "다시 시작",
+    "won": "승리했어요! 🎉",
+    "lost": "펑! 게임 오버"
+  },
+  "wordChain": {
+    "title": "끝말잇기",
+    "hint": "사전 검증 없이 이어지는 규칙만 확인해요.",
+    "chainCount": "이어진 단어 {count}개",
+    "reset": "다시 시작",
+    "inputPlaceholder": "다음 단어를 입력하세요",
+    "submit": "제출",
+    "nextHint": "''{char}''(으)로 시작하는 단어를 입력하세요",
+    "errorTooShort": "두 글자 이상 입력해주세요",
+    "errorNotConnected": "''{char}''(으)로 시작해야 해요",
+    "errorAlreadyUsed": "이미 사용한 단어예요"
+  },
+  "tetris": {
+    "title": "테트리스",
+    "controls": "← → 이동 · ↓ 소프트 드롭 · ↑ 회전 · Space 하드 드롭",
+    "score": "점수 {score}",
+    "lines": "줄 {lines}",
+    "level": "레벨 {level}",
+    "start": "시작",
+    "pause": "일시정지",
+    "resume": "계속하기",
+    "reset": "다시 시작",
+    "gameOver": "게임 오버"
   },
   "board": {
     "category": {

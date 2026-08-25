@@ -4,7 +4,10 @@
     "subtitle": "少し休みながらタイピング練習をしたり、他の作家と交流してみましょう。"
   },
   "nav": {
-    "typing": "タイピング練習"
+    "typing": "タイピング練習",
+    "minesweeper": "マインスイーパー",
+    "wordChain": "しりとり",
+    "tetris": "テトリス"
   },
   "typing": {
     "title": "タイピング練習",
@@ -17,6 +20,40 @@
     "cpmValue": "{cpm}打/分",
     "accuracyValue": "正確度 {accuracy}%",
     "pressEnterNext": "エンターキーで次の文章へ"
+  },
+  "minesweeper": {
+    "title": "マインスイーパー",
+    "hint": "クリックでマスを開き、右クリックかフラグモードで印を付けます。",
+    "mineCount": "地雷 {count}",
+    "timeLabel": "{seconds}秒",
+    "flagMode": "フラグモード",
+    "reset": "リスタート",
+    "won": "クリア！🎉",
+    "lost": "ドカン！ゲームオーバー"
+  },
+  "wordChain": {
+    "title": "しりとり",
+    "hint": "韓国語の単語しりとり(끝말잇기)です。辞書チェックはなく、つながりのルールだけ確認します。",
+    "chainCount": "{count}語つながりました",
+    "reset": "リスタート",
+    "inputPlaceholder": "次の単語を入力してください",
+    "submit": "送信",
+    "nextHint": "''{char}''で始まる単語を入力してください",
+    "errorTooShort": "2文字以上入力してください",
+    "errorNotConnected": "''{char}''で始める必要があります",
+    "errorAlreadyUsed": "すでに使った単語です"
+  },
+  "tetris": {
+    "title": "テトリス",
+    "controls": "← → 移動 · ↓ ソフトドロップ · ↑ 回転 · Space ハードドロップ",
+    "score": "スコア {score}",
+    "lines": "ライン {lines}",
+    "level": "レベル {level}",
+    "start": "スタート",
+    "pause": "一時停止",
+    "resume": "再開",
+    "reset": "リスタート",
+    "gameOver": "ゲームオーバー"
   },
   "board": {
     "category": {

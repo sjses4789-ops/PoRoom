@@ -4,7 +4,10 @@
     "subtitle": "Take a short break — practice typing or chat with other writers."
   },
   "nav": {
-    "typing": "Typing Practice"
+    "typing": "Typing Practice",
+    "minesweeper": "Minesweeper",
+    "wordChain": "Word Chain",
+    "tetris": "Tetris"
   },
   "typing": {
     "title": "Typing Practice",
@@ -17,6 +20,40 @@
     "cpmValue": "{cpm} cpm",
     "accuracyValue": "{accuracy}% accuracy",
     "pressEnterNext": "Press Enter for the next sentence"
+  },
+  "minesweeper": {
+    "title": "Minesweeper",
+    "hint": "Click to reveal a cell, right-click or flag mode to mark it.",
+    "mineCount": "Mines {count}",
+    "timeLabel": "{seconds}s",
+    "flagMode": "Flag mode",
+    "reset": "Restart",
+    "won": "You won! 🎉",
+    "lost": "Boom! Game over"
+  },
+  "wordChain": {
+    "title": "Word Chain",
+    "hint": "A Korean word-chain game (끝말잇기) — no dictionary check, just the chaining rule.",
+    "chainCount": "{count} words chained",
+    "reset": "Restart",
+    "inputPlaceholder": "Type the next word",
+    "submit": "Submit",
+    "nextHint": "Type a word starting with ''{char}''",
+    "errorTooShort": "Enter at least two characters",
+    "errorNotConnected": "Must start with ''{char}''",
+    "errorAlreadyUsed": "That word was already used"
+  },
+  "tetris": {
+    "title": "Tetris",
+    "controls": "← → move · ↓ soft drop · ↑ rotate · Space hard drop",
+    "score": "Score {score}",
+    "lines": "Lines {lines}",
+    "level": "Level {level}",
+    "start": "Start",
+    "pause": "Pause",
+    "resume": "Resume",
+    "reset": "Restart",
+    "gameOver": "Game over"
   },
   "board": {
     "category": {
