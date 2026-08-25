@@ -24,8 +24,8 @@
     "membersSuffix": "{count}/{capacity}",
     "notice": "Notice",
     "onlineCount": "{count} online now",
-    "dailyGoalToast": "🎉 You reached today's character goal!",
-    "monthlyGoalToast": "🎉 You reached this month's character goal!"
+    "dailyGoalToast": "🎉 Congrats on reaching today's character goal!",
+    "monthlyGoalToast": "🎉 Congrats on reaching this month's character goal!"
   },
   "shareRecordsToggle": {
     "label": "My records",

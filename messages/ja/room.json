@@ -24,8 +24,8 @@
     "membersSuffix": "{count}/{capacity}人",
     "notice": "お知らせ",
     "onlineCount": "現在{count}人が接続中",
-    "dailyGoalToast": "🎉 今日の目標文字数を達成しました！",
-    "monthlyGoalToast": "🎉 今月の目標文字数を達成しました！"
+    "dailyGoalToast": "🎉 今日の目標文字数の達成、おめでとうございます！",
+    "monthlyGoalToast": "🎉 今月の目標文字数の達成、おめでとうございます！"
   },
   "shareRecordsToggle": {
     "label": "自分の記録",
