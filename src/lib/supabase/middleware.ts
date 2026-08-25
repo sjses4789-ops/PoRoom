@@ -33,11 +33,18 @@ export async function updateSession(request: NextRequest) {
   // (비로그인 방문자·구글 애드센스 크롤러도 리다이렉트 없이 콘텐츠와
   // 애드센스 스크립트를 바로 받아야 소유권 확인이 되기 때문) — 로그인
   // 여부에 따른 분기는 "/" 페이지 컴포넌트 자신이 처리한다.
+  // 구글 서치 콘솔 소유권 확인용 HTML 파일(예: /google7ce16fc....html)은
+  // public/ 아래 정적 파일로 서빙되지만, 로그인 안 한 구글 검증 봇이
+  // 접근해야 하므로 로그인 리다이렉트 대상에서 제외한다.
+  const isGoogleVerificationFile =
+    /^\/google[a-z0-9]+\.html$/.test(request.nextUrl.pathname);
+
   const isPublicRoute =
     request.nextUrl.pathname === "/" ||
     request.nextUrl.pathname.startsWith("/login") ||
     request.nextUrl.pathname.startsWith("/auth") ||
-    request.nextUrl.pathname.startsWith("/privacy");
+    request.nextUrl.pathname.startsWith("/privacy") ||
+    isGoogleVerificationFile;
 
   if (!user && !isPublicRoute) {
     const url = request.nextUrl.clone();
