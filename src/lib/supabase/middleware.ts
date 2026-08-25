@@ -44,6 +44,10 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/login") ||
     request.nextUrl.pathname.startsWith("/auth") ||
     request.nextUrl.pathname.startsWith("/privacy") ||
+    // 검색엔진 크롤러(구글봇 등)는 로그인 상태가 아니므로, 검색 최적화용
+    // 파일들도 로그인 리다이렉트 대상에서 제외해야 한다.
+    request.nextUrl.pathname === "/sitemap.xml" ||
+    request.nextUrl.pathname === "/robots.txt" ||
     isGoogleVerificationFile;
 
   if (!user && !isPublicRoute) {

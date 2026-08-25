@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -5,10 +6,18 @@ import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { GoogleSignInButton } from "@/components/google-sign-in-button";
 import { UsageGuideSection } from "./usage-guide-section";
+import { SITE_URL } from "@/lib/site";
 
 type Feature = { icon: string; title: string; desc: string };
 type UsageItem = { icon: string; title: string; desc: string };
 type FaqItem = { q: string; a: string };
+
+export const metadata: Metadata = {
+  title: "포룸 | 함께 집중하는 온라인 뽀모도로 작업실",
+  description:
+    "웹소설 작가를 위한 온라인 뽀모도로 작업실 포룸. 화상회의 없이 함께 집중하고, 글자수 랭킹과 집필 챌린지로 꾸준히 쓰는 습관을 만드세요.",
+  alternates: { canonical: SITE_URL },
+};
 
 // 로그인 안 한 방문자(구글 애드센스 크롤러, 구글 OAuth 브랜딩 심사 봇 포함)도
 // 리다이렉트 없이 바로 이 페이지에서 콘텐츠(및 <head>의 애드센스 스크립트)를
