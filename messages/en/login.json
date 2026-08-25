@@ -1,14 +1,30 @@
 {
   "tagline": "An online Pomodoro workspace to focus together",
-  "google": "Sign in with Google",
+  "google": "Enter with your Google account",
   "bannedNotice": "This account has been suspended and can no longer sign in.",
   "backHome": "Back to homepage",
   "landing": {
     "eyebrow": "An Online Workspace for Web-Novel Writers",
-    "heroTitle": "No video calls.\nJust the feeling of writing side by side.",
-    "heroBody": "PoRoom is an online workspace where web-novel writers run a Pomodoro timer together in the same room. Serializing alone, without the feeling of being alone.",
+    "heroTitle": "Leave the room where you stared at a wall.\nJoin one where you grow together.",
+    "heroBody": "PoRoom is an online Pomodoro workspace built for web-novel writers. It helps you focus, cheers you on, and sometimes pushes you to compete — so you can grow. Stay with PoRoom all the way to the finish.",
+    "heroImageAlt": "A PoRoom room in use, showing the Pomodoro timer and participant cards together",
     "ctaHint": "All you need is a Google account — takes about 30 seconds.",
-    "featuresTitle": "What you can do on PoRoom",
+    "audienceTitle": "PoRoom is for you if you're...",
+    "audience": [
+      "A web-novel writer serializing or drafting a work",
+      "Always racing the clock on your next chapter deadline",
+      "Someone who can't focus alone and keeps pushing updates back"
+    ],
+    "highlightsTitle": "What makes PoRoom different",
+    "highlights": [
+      { "icon": "🗂️", "title": "Everything scattered across apps, now in one place", "desc": "Online meetups used to be split across different programs and sites. Each PoRoom room has chat, posts, a calendar, polls, and records built in — no more hopping between tools." },
+      { "icon": "🌙", "title": "Company, even in the lonely small hours", "desc": "Find people to work alongside even at 3am, when everyone else seems asleep, in the always-open dawn room." },
+      { "icon": "🔥", "title": "Character-count duels light a competitive fire", "desc": "Going head-to-head with another writer on character count sparks a competitive drive that speeds up your writing." },
+      { "icon": "🏆", "title": "Event challenges keep you on deadline", "desc": "Join event-challenge rooms that open around contest and submission seasons to stay motivated and hit your deadlines." },
+      { "icon": "📰", "title": "The Feed recharges your motivation", "desc": "Seeing how other writers are doing in the Feed is often all it takes to want to open your draft again." },
+      { "icon": "🍅", "title": "See your focus, broken down by work", "desc": "Pomodoro sharpens your focus, and you can check exactly how focused you were on each individual work." }
+    ],
+    "featuresTitle": "PoRoom Features",
     "features": [
       { "icon": "🚪", "title": "An online writing room", "desc": "No camera, no video call — just walk into a room and feel other web-novel writers sitting alongside you." },
       { "icon": "🍅", "title": "A synced Pomodoro timer", "desc": "See everyone's focus and break status in real time, so it's easier to stay locked in than writing alone." },
@@ -16,12 +32,6 @@
       { "icon": "💬", "title": "Chat & whispers", "desc": "Chat freely in the room, or send a private whisper to just one participant when you need to." },
       { "icon": "🏆", "title": "Rankings, duels & challenges", "desc": "See how you rank by character count and focus time, challenge another writer to a duel, or join a group challenge." },
       { "icon": "🗓️", "title": "Calendar, polls & boards", "desc": "Share your update deadlines on a calendar, gather opinions with polls, and browse the Free / Info / Recruiting boards." }
-    ],
-    "audienceTitle": "PoRoom is for you if you're...",
-    "audience": [
-      "A web-novel writer serializing or drafting a work",
-      "Always racing the clock on your next chapter deadline",
-      "Someone who can't focus alone and keeps pushing updates back"
     ],
     "whyTitle": "Why Pomodoro, why an online room",
     "whyPomodoroTitle": "Why the Pomodoro Technique fits serialization so well",
@@ -37,12 +47,12 @@
     ],
     "usageTitle": "How to use PoRoom",
     "usageGuide": [
-      { "icon": "🏠", "title": "Forum", "desc": "The main screen. Browse open rooms and join one, or create your own with tags. Save the rooms you visit often to your favorites so you can find them instantly next time." },
-      { "icon": "🚪", "title": "Room", "desc": "Everything lives here: participant cards, the Pomodoro timer, chat, and the character-count input. Start the timer and your focus status shows up in real time for everyone else in the room — plus a calendar, polls, and a board tab." },
-      { "icon": "📰", "title": "Feed", "desc": "Post a short update about your day and trade encouragement with other writers. Pick whichever category fits — Writing, Duel, Challenge, Submission, or Contest." },
-      { "icon": "🏆", "title": "Challenge", "desc": "Create a 1-on-1 duel against another writer measured by character count or focus time (or join one with a code), and take part in recurring daily/monthly challenges." },
-      { "icon": "📊", "title": "Ranking", "desc": "See where you stand by character count, focus time, duel record, and typing speed." },
-      { "icon": "☕", "title": "Break", "desc": "Clear your head with a quick typing exercise, or browse the Free / Info / Recruiting boards." }
+      { "icon": "🏠", "title": "Forum", "desc": "The main screen. Browse currently open rooms and join whichever one you like, or create your own with tags — you can set details like a member cap or record visibility right when you create it.\n\nSave the rooms you visit often to your favorites so you can find them at the top of the list next time, and during the small hours you can jump straight into the always-open \"dawn room.\"" },
+      { "icon": "🚪", "title": "Room", "desc": "Everything lives in one screen here: participant cards, the Pomodoro timer, chat, and the character-count input. Start the timer and your focus/break status shows up in real time for everyone else in the room — and you can see theirs too.\n\nThe room also has calendar, poll, and board tabs, so you can share your update schedule or gather opinions with a poll right inside the room." },
+      { "icon": "📰", "title": "Feed", "desc": "Post a short update about your day and trade encouragement with other writers. Pick whichever category fits your situation — Writing, Duel, Challenge, Submission, or Contest — and your Writing/Challenge posts automatically carry the character count and focus time pulled from your actual records.\n\nYou can leave a Cheer, Nice, or Amazing reaction on someone else's post to root for them." },
+      { "icon": "🏆", "title": "Challenge", "desc": "Create a new 1-on-1 duel against another writer measured by character count or focus time, or join an existing one with a code.\n\nYou can also freely join recurring challenges like 5,000 characters daily, 10,000 characters daily, or finishing a draft monthly — the moment you join, it's automatically reflected in your to-do list on the [Me] page." },
+      { "icon": "📊", "title": "Ranking", "desc": "See where you stand by character count, focus time, duel record, and typing speed. You can view rankings by room or across all users, giving you a few different angles on where you fall." },
+      { "icon": "☕", "title": "Break", "desc": "Clear your head with a quick typing exercise when you need a breather. The Free / Info / Recruiting boards are also here, for chatting about things unrelated to writing or finding people to team up with." }
     ],
     "faqTitle": "Frequently asked questions",
     "faq": [

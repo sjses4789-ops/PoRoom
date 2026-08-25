@@ -4,6 +4,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { GoogleSignInButton } from "@/components/google-sign-in-button";
+import { UsageGuideSection } from "./usage-guide-section";
 
 type Feature = { icon: string; title: string; desc: string };
 type UsageItem = { icon: string; title: string; desc: string };
@@ -33,6 +34,7 @@ export default async function Home() {
   const t = await getTranslations("login");
   const tFooter = await getTranslations("layout.footer");
   const features = t.raw("landing.features") as Feature[];
+  const highlights = t.raw("landing.highlights") as Feature[];
   const audience = t.raw("landing.audience") as string[];
   const benefits = t.raw("landing.benefits") as string[];
   const usageGuide = t.raw("landing.usageGuide") as UsageItem[];
@@ -74,9 +76,76 @@ export default async function Home() {
           />
           <p className="text-xs text-neutral-400">{t("landing.ctaHint")}</p>
         </div>
+
+        {/* 방 참여 화면 스크린샷 — 아직 파일이 없으면 브라우저에서 깨진
+            이미지로만 보이고 페이지 자체는 정상 동작한다(빌드에 영향 없음).
+            파일명 poroom-room-preview.png, 권장 크기 1200x750px(가로 1.6:1),
+            public/ 폴더에 넣으면 바로 반영된다. */}
+        <Image
+          src="/poroom-room-preview.png"
+          alt={t("landing.heroImageAlt")}
+          width={1200}
+          height={750}
+          className="mt-4 w-full max-w-2xl rounded-xl border border-neutral-200 shadow-sm"
+        />
+      </section>
+
+      <section className="border-t border-neutral-100">
+        <div className="mx-auto w-full max-w-2xl px-4 py-16 text-center sm:px-6">
+          <h2 className="mb-6 text-xl font-semibold tracking-tight text-neutral-900">
+            {t("landing.audienceTitle")}
+          </h2>
+          <ul className="flex flex-col gap-3">
+            {audience.map((a) => (
+              <li key={a} className="rounded-sm border border-neutral-200 px-4 py-3 text-sm text-neutral-600">
+                {a}
+              </li>
+            ))}
+          </ul>
+        </div>
       </section>
 
       <section className="border-t border-neutral-100 bg-neutral-50">
+        <div className="mx-auto w-full max-w-5xl px-4 py-16 sm:px-6">
+          <h2 className="mb-8 text-center text-xl font-semibold tracking-tight text-neutral-900">
+            {t("landing.highlightsTitle")}
+          </h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {highlights.map((h) => (
+              <div key={h.title} className="flex flex-col gap-2 rounded-sm border border-neutral-200 bg-white p-5">
+                <span className="text-2xl" aria-hidden>
+                  {h.icon}
+                </span>
+                <h3 className="text-sm font-semibold text-neutral-900">{h.title}</h3>
+                <p className="text-xs leading-relaxed text-neutral-500">{h.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-t border-neutral-100">
+        <div className="mx-auto w-full max-w-5xl px-4 py-16 sm:px-6">
+          <h2 className="mb-8 text-center text-xl font-semibold tracking-tight text-neutral-900">
+            {t("landing.featuresTitle")}
+          </h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {features.map((f) => (
+              <div key={f.title} className="flex flex-col gap-2 rounded-sm border border-neutral-200 p-5">
+                <span className="text-2xl" aria-hidden>
+                  {f.icon}
+                </span>
+                <h3 className="text-sm font-semibold text-neutral-900">{f.title}</h3>
+                <p className="text-xs leading-relaxed text-neutral-500">{f.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <UsageGuideSection title={t("landing.usageTitle")} items={usageGuide} />
+
+      <section className="border-t border-neutral-100">
         <div className="mx-auto w-full max-w-3xl px-4 py-16 sm:px-6">
           <h2 className="mb-10 text-center text-xl font-semibold tracking-tight text-neutral-900">
             {t("landing.whyTitle")}
@@ -109,7 +178,7 @@ export default async function Home() {
                 ))}
             </div>
 
-            <div className="rounded-xl border border-neutral-200 bg-white p-5">
+            <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-5">
               <h3 className="mb-3 text-sm font-semibold text-neutral-900">
                 {t("landing.benefitsTitle")}
               </h3>
@@ -126,65 +195,12 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="border-t border-neutral-100">
-        <div className="mx-auto w-full max-w-5xl px-4 py-16 sm:px-6">
-          <h2 className="mb-8 text-center text-xl font-semibold tracking-tight text-neutral-900">
-            {t("landing.featuresTitle")}
-          </h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {features.map((f) => (
-              <div key={f.title} className="flex flex-col gap-2 rounded-sm border border-neutral-200 p-5">
-                <span className="text-2xl" aria-hidden>
-                  {f.icon}
-                </span>
-                <h3 className="text-sm font-semibold text-neutral-900">{f.title}</h3>
-                <p className="text-xs leading-relaxed text-neutral-500">{f.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       <section className="border-t border-neutral-100 bg-neutral-50">
-        <div className="mx-auto w-full max-w-5xl px-4 py-16 sm:px-6">
-          <h2 className="mb-8 text-center text-xl font-semibold tracking-tight text-neutral-900">
-            {t("landing.usageTitle")}
-          </h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {usageGuide.map((u) => (
-              <div key={u.title} className="flex flex-col gap-2 rounded-sm border border-neutral-200 bg-white p-5">
-                <span className="text-2xl" aria-hidden>
-                  {u.icon}
-                </span>
-                <h3 className="text-sm font-semibold text-neutral-900">{u.title}</h3>
-                <p className="text-xs leading-relaxed text-neutral-500">{u.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="border-t border-neutral-100">
-        <div className="mx-auto w-full max-w-2xl px-4 py-16 text-center sm:px-6">
-          <h2 className="mb-6 text-xl font-semibold tracking-tight text-neutral-900">
-            {t("landing.audienceTitle")}
-          </h2>
-          <ul className="flex flex-col gap-3">
-            {audience.map((a) => (
-              <li key={a} className="rounded-sm border border-neutral-200 px-4 py-3 text-sm text-neutral-600">
-                {a}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      <section className="border-t border-neutral-100">
         <div className="mx-auto w-full max-w-2xl px-4 py-16 sm:px-6">
           <h2 className="mb-8 text-center text-xl font-semibold tracking-tight text-neutral-900">
             {t("landing.faqTitle")}
           </h2>
-          <div className="flex flex-col divide-y divide-neutral-100 rounded-sm border border-neutral-200">
+          <div className="flex flex-col divide-y divide-neutral-100 rounded-sm border border-neutral-200 bg-white">
             {faq.map((item) => (
               <details key={item.q} className="group px-5 py-4">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-medium text-neutral-900 marker:content-none">
@@ -203,7 +219,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="border-t border-neutral-100 bg-neutral-50">
+      <section className="border-t border-neutral-100">
         <div className="mx-auto flex w-full max-w-2xl flex-col items-center gap-4 px-4 py-16 text-center sm:px-6">
           <h2 className="text-xl font-semibold tracking-tight text-neutral-900">
             {t("landing.footerCtaTitle")}
