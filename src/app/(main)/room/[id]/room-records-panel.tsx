@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import type { DailyRecord } from "@/lib/records";
-import { rowColorByIndex } from "@/lib/palette";
 import { characterSrc } from "@/lib/characters";
 import { setDailyChars } from "@/lib/rooms";
 import type { Member } from "./room-view";
@@ -290,14 +289,16 @@ export function RoomRecordsPanel({
             </tr>
           </thead>
           <tbody>
-            {members.map((member, i) => {
-              const rowBg = rowColorByIndex(i);
+            {members.map((member) => {
               const total = totalFor(member.id);
               const rowBorder = "border-b-2 border-neutral-300 dark:border-neutral-600";
+              // 합계보다 옅은 색으로, 날짜별 글자수 칸이 합계 칸과
+              // 뚜렷이 구분되도록 한다.
+              const dataCellBg = "bg-neutral-50 dark:bg-neutral-800/50";
               return (
                 <tr key={member.id}>
                   <td
-                    className={`sticky left-0 z-10 whitespace-nowrap border-r border-neutral-100 px-2 py-2 font-medium text-neutral-900 dark:border-neutral-700 ${rowBg} ${rowBorder}`}
+                    className={`sticky left-0 z-10 whitespace-nowrap border-r border-neutral-100 bg-white px-2 py-2 font-medium text-neutral-900 dark:border-neutral-700 dark:bg-neutral-900 ${rowBorder}`}
                   >
                     <span className="flex items-center gap-1">
                       {member.name}
@@ -337,7 +338,7 @@ export function RoomRecordsPanel({
                       const cell = cellFor(member.id, c);
                       const hasData = cell.chars > 0 || cell.minutes > 0;
                       return (
-                        <td key={c} className={`px-1 py-2 text-center ${rowBorder} ${hasData ? rowBg : ""}`}>
+                        <td key={c} className={`px-1 py-2 text-center ${rowBorder} ${hasData ? dataCellBg : ""}`}>
                           {hasData ? (
                             <div className="flex flex-col leading-tight">
                               <span className="text-neutral-800">

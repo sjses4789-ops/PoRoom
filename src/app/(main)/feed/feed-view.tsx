@@ -52,10 +52,10 @@ const CATEGORY_ICON: Record<CategoryFilter, string> = {
 const CATEGORIES: CategoryFilter[] = ["all", "write", "duel", "challenge", "submission", "contest"];
 
 const PASTEL_COLORS = [
-  "#FDE2E4", "#FFD8BE", "#FFF1BA", "#E3F4C1", "#C8F4DE",
-  "#C4F1F9", "#C9E4FF", "#D6CDFE", "#F0C9F9", "#FFC9DE",
-  "#F6BFC0", "#FBE0C4", "#FFF4B8", "#CDEFC4", "#BEEFDE",
-  "#BEE3F8", "#C7D2FE", "#E4C1F9", "#F5C6EC", "#FFB5C0",
+  "#FBE7E9", "#FCE8DC", "#FBF3D3", "#EAF4D8", "#DCF2E6",
+  "#D9F0F4", "#DCEBFB", "#E6E2FB", "#F3E3FA", "#FCE3EE",
+  "#F5DEDE", "#FAE9D8", "#FBF4CE", "#E3F1DB", "#D8F0E6",
+  "#D6EAF7", "#E2E7FC", "#EFE1FA", "#FAE6F1", "#FBDDE4",
 ];
 
 function Avatar({ characterId, size = 40 }: { characterId: string | null; size?: number }) {
@@ -362,8 +362,8 @@ export function FeedView({
                   onClick={() => setColorPickerOpen((v) => !v)}
                   title={t("bgColorLabel")}
                   aria-label={t("bgColorLabel")}
-                  className={`h-5 w-5 rounded-full border transition hover:opacity-80 ${
-                    bgColor ? "border-neutral-200 dark:border-neutral-600" : "border-dashed border-neutral-300 bg-white dark:border-neutral-600 dark:bg-neutral-800"
+                  className={`h-5 w-5 rounded-full border-2 transition hover:opacity-80 ${
+                    bgColor ? "border-neutral-500 dark:border-neutral-300" : "border-dashed border-neutral-500 bg-white dark:border-neutral-400 dark:bg-neutral-800"
                   }`}
                   style={bgColor ? { backgroundColor: bgColor } : undefined}
                 />

@@ -86,6 +86,7 @@ type PostRow = {
   content: string;
   created_at: string;
   category: PostCategory;
+  pinned: boolean;
 };
 
 type CategoryRow = { id: string; name: string; color: string };
@@ -205,7 +206,7 @@ export default async function RoomPage({
       .returns<EventRow[]>(),
     supabase
       .from("room_posts")
-      .select("id,user_id,title,content,created_at,category")
+      .select("id,user_id,title,content,created_at,category,pinned")
       .eq("room_id", id)
       .order("created_at", { ascending: false })
       .returns<PostRow[]>(),
@@ -356,9 +357,15 @@ export default async function RoomPage({
     authorId: p.user_id,
     authorName: nameMap.get(p.user_id) ?? tCommon("unknown"),
     category: p.category,
+    pinned: p.pinned,
   }));
 
-  const latestNoticePost = posts.find((p) => p.category === "공지사항") ?? null;
+  // 고정된 공지가 있으면 그 글을, 없으면 가장 최근 공지를 배너로 보여준다
+  // (posts가 이미 최신순이라 안정 정렬로 고정 글만 앞으로 당기면 된다).
+  const latestNoticePost =
+    posts
+      .filter((p) => p.category === "공지사항")
+      .sort((a, b) => Number(b.pinned) - Number(a.pinned))[0] ?? null;
   const latestNotice = latestNoticePost
     ? {
         title: latestNoticePost.title,

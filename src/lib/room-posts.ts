@@ -13,13 +13,15 @@ export type PostResult =
       content: string;
       createdAt: string;
       category: PostCategory;
+      pinned: boolean;
     };
 
 export async function createPost(
   roomId: string,
   title: string,
   content: string,
-  category: PostCategory
+  category: PostCategory,
+  pinned = false
 ): Promise<PostResult> {
   const supabase = await createClient();
   const {
@@ -32,6 +34,9 @@ export async function createPost(
   if (!trimmedTitle) return { error: "제목을 입력해주세요." };
   if (!trimmedContent) return { error: "내용을 입력해주세요." };
 
+  // 고정은 공지사항 글에서만 의미가 있다 — 다른 카테고리면 무시한다.
+  const isNotice = category === "공지사항";
+
   const { data, error } = await supabase
     .from("room_posts")
     .insert({
@@ -40,9 +45,10 @@ export async function createPost(
       title: trimmedTitle,
       content: trimmedContent,
       category,
-      is_notice: category === "공지사항",
+      is_notice: isNotice,
+      pinned: isNotice && pinned,
     })
-    .select("id,title,content,created_at,category")
+    .select("id,title,content,created_at,category,pinned")
     .single();
 
   if (error || !data) {
@@ -56,6 +62,7 @@ export async function createPost(
     content: data.content,
     createdAt: data.created_at,
     category: data.category,
+    pinned: data.pinned,
   };
 }
 

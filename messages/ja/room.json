@@ -51,6 +51,7 @@
     "cancel": "キャンセル",
     "titlePlaceholder": "タイトル",
     "contentPlaceholder": "内容",
+    "pinLabel": "固定",
     "submitting": "投稿中...",
     "submit": "投稿",
     "noPosts": "まだ投稿がありません。",

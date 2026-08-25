@@ -51,6 +51,7 @@
     "cancel": "취소",
     "titlePlaceholder": "제목",
     "contentPlaceholder": "내용",
+    "pinLabel": "고정",
     "submitting": "등록 중...",
     "submit": "등록",
     "noPosts": "아직 게시글이 없습니다.",

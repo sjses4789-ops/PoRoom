@@ -14,6 +14,7 @@ export type RoomPost = {
   authorId: string;
   authorName: string;
   category: PostCategory;
+  pinned: boolean;
 };
 
 // PostCategory values stay in canonical Korean (the DB/type identifier),
@@ -68,6 +69,7 @@ export function BoardPanel({
   const [writing, setWriting] = useState(false);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [pinned, setPinned] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [openId, setOpenId] = useState<string | null>(null);
@@ -83,7 +85,7 @@ export function BoardPanel({
   const submit = async () => {
     setPending(true);
     setError(null);
-    const result = await createPost(roomId, title, content, activeCategory);
+    const result = await createPost(roomId, title, content, activeCategory, pinned);
     setPending(false);
     if ("error" in result) {
       setError(result.error);
@@ -92,6 +94,7 @@ export function BoardPanel({
     setPosts((prev) => [{ ...result, authorId: selfId, authorName: selfName }, ...prev]);
     setTitle("");
     setContent("");
+    setPinned(false);
     setWriting(false);
   };
 
@@ -132,7 +135,11 @@ export function BoardPanel({
     setOpenId(null);
   };
 
-  const visiblePosts = posts.filter((p) => p.category === activeCategory);
+  // 고정된 공지는 항상 맨 위로 — Array#sort는 안정 정렬이라 고정 여부가
+  // 같으면 원래 순서(최신순)가 그대로 유지된다.
+  const visiblePosts = posts
+    .filter((p) => p.category === activeCategory)
+    .sort((a, b) => Number(b.pinned) - Number(a.pinned));
 
   return (
     <div className="grid grid-cols-1 gap-4 overflow-hidden rounded-sm border border-neutral-400 p-4 lg:grid-cols-[140px_1fr] dark:border-neutral-600">
@@ -180,6 +187,17 @@ export function BoardPanel({
               className="rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
             />
             <RichTextEditor value={content} onChange={setContent} placeholder={t("contentPlaceholder")} />
+            {activeCategory === "공지사항" && (
+              <label className="flex w-fit items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-300">
+                <input
+                  type="checkbox"
+                  checked={pinned}
+                  onChange={(e) => setPinned(e.target.checked)}
+                  className="accent-neutral-900"
+                />
+                📌 {t("pinLabel")}
+              </label>
+            )}
             {error && <p className="text-xs text-red-500">{error}</p>}
             <button
               onClick={submit}
@@ -218,6 +236,11 @@ export function BoardPanel({
                         {num}
                       </span>
                       <span className="min-w-0 truncate font-medium text-neutral-900 dark:text-white">
+                        {p.pinned && (
+                          <span className="mr-1 text-amber-500" aria-hidden>
+                            📌
+                          </span>
+                        )}
                         {p.title}
                       </span>
                       <span className="hidden truncate text-center text-[12px] text-neutral-400 sm:block">
