@@ -16,8 +16,11 @@ export function GoogleSignInButton({
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
         // PomoWriter 작품 목록 불러오기 기능(구글 드라이브 조회)을 위해
-        // 로그인 시 드라이브 읽기 전용 권한을 함께 요청한다.
-        scopes: "https://www.googleapis.com/auth/drive.readonly",
+        // 로그인 시 드라이브 권한을 함께 요청한다. drive.readonly(전체
+        // 드라이브 읽기, 제한된 범위)는 구글 앱 인증 없이는 "확인하지
+        // 않은 앱" 경고를 띄우므로, OAuth 동의 화면에 이미 등록돼 있고
+        // 별도 인증이 필요 없는 drive.file(민감하지 않은 범위)로 사용.
+        scopes: "https://www.googleapis.com/auth/drive.file",
         queryParams: {
           access_type: "offline",
           prompt: "consent",
