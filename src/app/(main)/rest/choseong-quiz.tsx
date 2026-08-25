@@ -30,11 +30,10 @@ export function ChoseongQuiz() {
   const [input, setInput] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [correctCount, setCorrectCount] = useState(0);
-  const [justCorrect, setJustCorrect] = useState<string | null>(null);
-  // 초성은 맞았지만 정확한 단어가 아닐 때: 오답으로 처리하고 정답을
-  // 공개한 채로 멈춰 있다가, 한 번 더 엔터(또는 제출)를 누르면 다음
-  // 문제로 넘어간다.
-  const [revealed, setRevealed] = useState(false);
+  // 정답을 맞혔을 때(correct)와 초성만 맞고 단어가 틀렸을 때(wrong) 모두
+  // 결과를 공개한 채로 멈춰 있다가, 한 번 더 엔터(또는 버튼)를 누르면
+  // 다음 문제로 넘어간다.
+  const [pause, setPause] = useState<"correct" | "wrong" | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const quiz = choseongOf(word);
@@ -43,18 +42,17 @@ export function ChoseongQuiz() {
     setEntry(pickEntry(word));
     setInput("");
     setError(null);
-    setRevealed(false);
+    setPause(null);
   }, [word]);
 
   const reset = () => {
     setCorrectCount(0);
-    setJustCorrect(null);
     nextWord();
     inputRef.current?.focus();
   };
 
   const submit = () => {
-    if (revealed) {
+    if (pause) {
       nextWord();
       return;
     }
@@ -62,17 +60,18 @@ export function ChoseongQuiz() {
     const guess = input.trim();
     if (guess.length === 0) return;
 
-    // 정확한 정답일 때만 정답으로 센다.
+    // 정확한 정답일 때만 정답으로 센다 — 정답을 공개하고 다음 엔터를
+    // 기다린다.
     if (guess === word) {
-      setJustCorrect(word);
       setCorrectCount((c) => c + 1);
-      nextWord();
+      setPause("correct");
+      setError(null);
       return;
     }
     // 초성만 맞고 단어가 다르면 오답 처리 — 정답을 공개하고 다음 엔터를
     // 기다린다.
     if (guess.length === word.length && choseongOf(guess) === quiz) {
-      setRevealed(true);
+      setPause("wrong");
       setError(null);
       return;
     }
@@ -100,19 +99,25 @@ export function ChoseongQuiz() {
           </button>
         </div>
 
-        {justCorrect && (
-          <p className="mb-3 text-center text-sm font-semibold text-emerald-600">
-            {t("correctReveal", { word: justCorrect })}
+        {pause === "correct" && (
+          <p className="mb-3 text-center text-sm font-semibold text-blue-600">
+            {t("correctReveal")}
           </p>
         )}
-        {revealed && (
+        {pause === "wrong" && (
           <p className="mb-3 text-center text-sm font-semibold text-red-600">
             {t("failedReveal")}
           </p>
         )}
 
-        {revealed ? (
-          <p className="mx-auto mb-3 max-w-md text-center text-2xl font-bold text-red-500">✕</p>
+        {pause ? (
+          <p
+            className={`mx-auto mb-3 max-w-md text-center text-2xl font-bold ${
+              pause === "correct" ? "text-blue-500" : "text-red-500"
+            }`}
+          >
+            {pause === "correct" ? "O" : "✕"}
+          </p>
         ) : (
           <p className="mx-auto mb-3 max-w-md text-center text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
             {meaning}
@@ -121,10 +126,14 @@ export function ChoseongQuiz() {
 
         <p
           className={`text-center text-3xl font-bold tracking-[0.3em] ${
-            revealed ? "text-red-500" : "text-neutral-900 dark:text-white"
+            pause === "correct"
+              ? "text-blue-500"
+              : pause === "wrong"
+                ? "text-red-500"
+                : "text-neutral-900 dark:text-white"
           }`}
         >
-          {revealed ? word : quiz}
+          {pause ? word : quiz}
         </p>
       </div>
 
@@ -136,12 +145,11 @@ export function ChoseongQuiz() {
             onChange={(e) => {
               setInput(e.target.value);
               setError(null);
-              setJustCorrect(null);
             }}
             onKeyDown={(e) => e.key === "Enter" && submit()}
-            readOnly={revealed}
+            readOnly={pause !== null}
             autoFocus
-            placeholder={revealed ? t("pressEnterNext") : t("inputPlaceholder")}
+            placeholder={pause ? t("pressEnterNext") : t("inputPlaceholder")}
             className="min-w-0 flex-1 rounded-sm border border-neutral-400 px-3 py-2 text-sm text-neutral-900 outline-none focus:border-neutral-600 dark:border-neutral-600 dark:text-white dark:focus:border-neutral-400"
           />
           <button
@@ -149,7 +157,7 @@ export function ChoseongQuiz() {
             onClick={submit}
             className="shrink-0 rounded-sm bg-neutral-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
           >
-            {revealed ? t("next") : t("submit")}
+            {pause ? t("next") : t("submit")}
           </button>
         </div>
         {error && <p className="text-xs text-red-500">{error}</p>}
