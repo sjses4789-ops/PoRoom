@@ -271,9 +271,16 @@ export function MainRoomLists({ initialRooms }: { initialRooms: RoomListItem[] }
             {selectedTags.size > 0 ? t("noRoomsMatch") : t("noRoomsYet")}
           </p>
         ) : (
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          // 태그 개수에 따라 카드 높이가 제각각이라, 일반 grid로 배치하면
+          // 같은 줄의 카드끼리 높이를 맞추느라 짧은 카드 아래에 큰 빈
+          // 여백이 생긴다(줄이 맞을 필요는 없다고 하셔서) — 세로로 빈틈
+          // 없이 차곡차곡 쌓이는 다단(칼럼) 레이아웃으로 바꾼다. 태그는
+          // 그대로 다 보여주고, 카드 높이가 다른 채로 세로 간격만 없앤다.
+          <div className="columns-1 gap-3 sm:columns-2 lg:columns-3">
             {allRooms.map((room) => (
-              <RoomCard key={room.id} room={room} />
+              <div key={room.id} className="mb-3 break-inside-avoid">
+                <RoomCard room={room} />
+              </div>
             ))}
           </div>
         )}
