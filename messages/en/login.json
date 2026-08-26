@@ -62,7 +62,8 @@
       { "q": "Can't I share photos?", "a": "Not yet — unfortunately, photo sharing hasn't been built yet." },
       { "q": "Does it support video?", "a": "No, PoRoom doesn't support a webcam. It's left out on purpose, so writers who feel uneasy about sharing their screen or face can still use the online workspace comfortably." },
       { "q": "Does signing in with Google collect my information?", "a": "Only the minimum needed to confirm who you are, like your email and name — nothing else is pulled from your Google account (Drive, contacts, etc.). See the Privacy Policy for the full details." },
-      { "q": "Is my work list visible to other users?", "a": "No. Your work list data is never shared with other users. Only character counts and Pomodoro status are shared, and in a room with record-sharing turned off, you can use the Pomodoro timer without sharing any records at all." }
+      { "q": "There's a participant bothering me.", "a": "You can remove or ban a specific participant. Click the settings button (gear icon) at the top right of the room page, then hit that participant's 'Ban' button in member management — they'll be removed from the room immediately and can't rejoin until the room owner lifts the ban. Keep your workspace comfortable." },
+      { "q": "Is there a mobile app?", "a": "No, not yet. We're focused on the web app for now and plan to build an app later on." }
     ],
     "footerCtaTitle": "Get started right now",
     "footerCtaBody": "All you need is a Google account — no credit card, no separate sign-up.",

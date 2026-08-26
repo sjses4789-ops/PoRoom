@@ -82,6 +82,64 @@ export async function kickMember(roomId: string, targetUserId: string) {
   revalidatePath(`/room/${roomId}`);
 }
 
+// 차단 = 즉시 강제 퇴장 + 방장이 풀어주기 전까지 재입장 금지(초대코드,
+// 오픈방 참여 둘 다 막음 — joinRoomByCode/joinOpenRoom에서 확인).
+export async function banMember(roomId: string, targetUserId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user || user.id === targetUserId) return;
+
+  await supabase
+    .from("room_bans")
+    .upsert(
+      { room_id: roomId, user_id: targetUserId, banned_by: user.id },
+      { onConflict: "room_id,user_id" }
+    );
+
+  await supabase
+    .from("room_members")
+    .delete()
+    .eq("room_id", roomId)
+    .eq("user_id", targetUserId);
+
+  revalidatePath(`/room/${roomId}`);
+}
+
+export async function unbanMember(roomId: string, targetUserId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return;
+
+  await supabase
+    .from("room_bans")
+    .delete()
+    .eq("room_id", roomId)
+    .eq("user_id", targetUserId);
+
+  revalidatePath(`/room/${roomId}`);
+}
+
+export type BannedMember = { userId: string; name: string };
+
+export async function getBannedMembers(roomId: string): Promise<BannedMember[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("room_bans")
+    .select("user_id,users(name,email)")
+    .eq("room_id", roomId)
+    .order("banned_at", { ascending: false })
+    .returns<{ user_id: string; users: { name: string | null; email: string } | null }[]>();
+
+  return (data ?? []).map((r) => ({
+    userId: r.user_id,
+    name: r.users?.name || r.users?.email || "알 수 없음",
+  }));
+}
+
 export async function setViceStatus(
   roomId: string,
   targetUserId: string,

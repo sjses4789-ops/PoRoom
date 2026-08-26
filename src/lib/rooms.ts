@@ -117,6 +117,14 @@ export async function joinRoomByCode(
   if (roomError) return { error: roomError.message };
   if (!room) return { error: "존재하지 않는 초대코드입니다." };
 
+  const { data: ban } = await supabase
+    .from("room_bans")
+    .select("room_id")
+    .eq("room_id", room.id)
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (ban) return { error: "방장에게 차단되어 입장할 수 없습니다." };
+
   const { error: joinError } = await supabase
     .from("room_members")
     .insert({ room_id: room.id, user_id: user.id });
@@ -142,6 +150,14 @@ export async function joinOpenRoom(roomId: string) {
     .maybeSingle<{ id: string; join_type: JoinType }>();
 
   if (!room || room.join_type !== "open") return;
+
+  const { data: ban } = await supabase
+    .from("room_bans")
+    .select("room_id")
+    .eq("room_id", roomId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (ban) return;
 
   await supabase
     .from("room_members")

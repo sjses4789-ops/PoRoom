@@ -9,6 +9,9 @@ import {
   kickMember,
   transferOwnership,
   setViceStatus,
+  banMember,
+  unbanMember,
+  type BannedMember,
 } from "@/lib/room-admin";
 import { createCategory } from "@/lib/room-categories";
 import { PALETTE, paletteDot } from "@/lib/palette";
@@ -28,6 +31,7 @@ export function RoomSettingsButton({
   currentRecordVisibility,
   members,
   categories: initialCategories,
+  bannedMembers: initialBannedMembers,
 }: {
   roomId: string;
   currentName: string;
@@ -37,6 +41,7 @@ export function RoomSettingsButton({
   currentRecordVisibility: RecordVisibility;
   members: SettingsMember[];
   categories: SettingsCategory[];
+  bannedMembers: BannedMember[];
 }) {
   const t = useTranslations("room.roomSettingsButton");
   const tTags = useTranslations("tags");
@@ -76,6 +81,9 @@ export function RoomSettingsButton({
   const [viceIds, setViceIds] = useState(
     new Set(members.filter((m) => m.isVice).map((m) => m.id))
   );
+  const [bannedMembers, setBannedMembers] = useState(initialBannedMembers);
+  const [kickedIds, setKickedIds] = useState<Set<string>>(new Set());
+  const [banBusyId, setBanBusyId] = useState<string | null>(null);
   const [nukeStep, setNukeStep] = useState(0);
   const [nukeText, setNukeText] = useState("");
   const [nukePending, setNukePending] = useState(false);
@@ -297,11 +305,11 @@ export function RoomSettingsButton({
 
             <div className="mt-5 flex flex-col gap-2 border-t border-neutral-100 pt-4 dark:border-neutral-800">
               <h3 className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">{t("memberManagement")}</h3>
-              {members.length === 0 ? (
+              {members.filter((m) => !kickedIds.has(m.id)).length === 0 ? (
                 <p className="text-xs text-neutral-400">{t("noOtherMembers")}</p>
               ) : (
                 <ul className="flex flex-col divide-y divide-neutral-100 dark:divide-neutral-800">
-                  {members.map((m) => {
+                  {members.filter((m) => !kickedIds.has(m.id)).map((m) => {
                     const isVice = viceIds.has(m.id);
                     return (
                       <li key={m.id} className="flex items-center justify-between gap-2 py-2">
@@ -357,10 +365,27 @@ export function RoomSettingsButton({
                               setBusyId(m.id);
                               await kickMember(roomId, m.id);
                               setBusyId(null);
+                              setKickedIds((prev) => new Set(prev).add(m.id));
                             }}
                             className="rounded-md border border-red-200 px-2 py-1 text-[12px] font-medium text-red-500 transition hover:bg-red-50 disabled:opacity-50"
                           >
                             {t("kick")}
+                          </button>
+                          <button
+                            disabled={banBusyId === m.id}
+                            onClick={async () => {
+                              if (!window.confirm(t("banConfirm", { name: m.name }))) {
+                                return;
+                              }
+                              setBanBusyId(m.id);
+                              await banMember(roomId, m.id);
+                              setBanBusyId(null);
+                              setKickedIds((prev) => new Set(prev).add(m.id));
+                              setBannedMembers((prev) => [{ userId: m.id, name: m.name }, ...prev]);
+                            }}
+                            className="rounded-md border border-red-300 bg-red-50 px-2 py-1 text-[12px] font-medium text-red-600 transition hover:bg-red-100 disabled:opacity-50 dark:border-red-900/60 dark:bg-red-950/40 dark:hover:bg-red-950/70"
+                          >
+                            {t("ban")}
                           </button>
                         </div>
                       </li>
@@ -369,6 +394,33 @@ export function RoomSettingsButton({
                 </ul>
               )}
             </div>
+
+            {bannedMembers.length > 0 && (
+              <div className="mt-5 flex flex-col gap-2 border-t border-neutral-100 pt-4 dark:border-neutral-800">
+                <h3 className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">{t("bannedMembers")}</h3>
+                <ul className="flex flex-col divide-y divide-neutral-100 dark:divide-neutral-800">
+                  {bannedMembers.map((b) => (
+                    <li key={b.userId} className="flex items-center justify-between gap-2 py-2">
+                      <span className="min-w-0 truncate text-sm text-neutral-500 dark:text-neutral-400">
+                        {b.name}
+                      </span>
+                      <button
+                        disabled={banBusyId === b.userId}
+                        onClick={async () => {
+                          setBanBusyId(b.userId);
+                          await unbanMember(roomId, b.userId);
+                          setBanBusyId(null);
+                          setBannedMembers((prev) => prev.filter((x) => x.userId !== b.userId));
+                        }}
+                        className="shrink-0 rounded-md border border-neutral-200 px-2 py-1 text-[12px] font-medium text-neutral-600 transition hover:bg-neutral-50 disabled:opacity-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+                      >
+                        {t("unban")}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             <div className="mt-5 flex flex-col gap-2 border-t border-red-100 pt-4 dark:border-red-900/40">
               <h3 className="text-xs font-semibold text-red-500">{t("dangerZone")}</h3>

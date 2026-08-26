@@ -20,6 +20,7 @@
     }
   },
   "roomView": {
+    "resizeChatAria": "Resize chat width",
     "participantsList": "Participants",
     "membersSuffix": "{count}/{capacity}",
     "notice": "Notice",
@@ -257,6 +258,10 @@
     "transferOwnership": "Transfer ownership",
     "kickConfirm": "Remove {name} from this room?",
     "kick": "Remove",
+    "banConfirm": "Ban {name}? They'll be removed from this room immediately and won't be able to rejoin until you unban them.",
+    "ban": "Ban",
+    "bannedMembers": "Banned users",
+    "unban": "Unban",
     "dangerZone": "Danger zone",
     "nukeButton": "Delete this room",
     "nukeConfirm1": "Are you sure you want to delete this room? Chat, records, events, and posts will all be permanently deleted and cannot be recovered.",

@@ -28,6 +28,11 @@ export type Member = {
 
 const LAST_SEEN_HEARTBEAT_MS = 30000;
 
+const CHAT_WIDTH_STORAGE_KEY = "poroom:chat-width";
+const DEFAULT_CHAT_WIDTH = 340;
+const MIN_CHAT_WIDTH = 260;
+const MAX_CHAT_WIDTH = 560;
+
 export function RoomView({
   roomId,
   roomName,
@@ -290,15 +295,60 @@ export function RoomView({
   const [noticeOpen, setNoticeOpen] = useState(false);
   const [chatCollapsed, setChatCollapsed] = useState(false);
 
+  // 채팅창 너비를 참여자가 직접 드래그로 조절할 수 있게 한다 — 마지막
+  // 값은 기기에 저장해두고 다음에 이 방을 열 때도 유지한다. 기본값은
+  // 기존 300px보다 조금 넓힌 340px.
+  const [chatWidth, setChatWidth] = useState(DEFAULT_CHAT_WIDTH);
+  const chatWidthRef = useRef(chatWidth);
+  useEffect(() => {
+    chatWidthRef.current = chatWidth;
+  }, [chatWidth]);
+
+  // 저장된 값 읽기는 마운트 시 한 번만 필요한 정당한 초기화라, 규칙이
+  // 스스로 인정하는 예외에 해당한다(다른 로컬스토리지 동기화와 동일 패턴).
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    try {
+      const stored = Number(window.localStorage.getItem(CHAT_WIDTH_STORAGE_KEY));
+      if (stored >= MIN_CHAT_WIDTH && stored <= MAX_CHAT_WIDTH) setChatWidth(stored);
+    } catch {
+      // 로컬스토리지를 못 쓰는 환경이면 기본값을 그대로 둔다.
+    }
+  }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
+
+  const startChatResize = (e: React.PointerEvent) => {
+    e.preventDefault();
+    const startX = e.clientX;
+    const startWidth = chatWidthRef.current;
+    const onMove = (moveEvent: PointerEvent) => {
+      const next = Math.min(
+        MAX_CHAT_WIDTH,
+        Math.max(MIN_CHAT_WIDTH, startWidth + (moveEvent.clientX - startX))
+      );
+      setChatWidth(next);
+    };
+    const onUp = () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      try {
+        window.localStorage.setItem(CHAT_WIDTH_STORAGE_KEY, String(chatWidthRef.current));
+      } catch {
+        // 저장 실패해도 이번 세션 내 너비 조절 자체는 계속 동작한다.
+      }
+    };
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+  };
+
   return (
     <>
     {celebrationToast}
     <div
-      className={`grid grid-cols-1 gap-6 ${
-        chatCollapsed ? "lg:grid-cols-[56px_1fr_260px]" : "lg:grid-cols-[300px_1fr_260px]"
-      }`}
+      className="grid grid-cols-1 gap-6 lg:grid-cols-[var(--chat-w)_1fr_260px]"
+      style={{ "--chat-w": chatCollapsed ? "56px" : `${chatWidth}px` } as React.CSSProperties}
     >
-        <div className="lg:order-1">
+        <div className="relative lg:order-1">
           <ChatPanel
             roomId={roomId}
             selfId={selfId}
@@ -309,6 +359,20 @@ export function RoomView({
             collapsed={chatCollapsed}
             onToggleCollapsed={() => setChatCollapsed((v) => !v)}
           />
+          {/* 채팅창 오른쪽 경계를 드래그해서 너비를 조절한다 — 접힌
+              상태에서는 조절할 너비가 없으므로 숨긴다. */}
+          {!chatCollapsed && (
+            <div
+              onPointerDown={startChatResize}
+              role="separator"
+              aria-orientation="vertical"
+              aria-label={t("resizeChatAria")}
+              title={t("resizeChatAria")}
+              className="absolute -right-3 top-0 hidden h-full w-3 cursor-col-resize touch-none items-center justify-center lg:flex"
+            >
+              <span className="h-10 w-1 rounded-full bg-neutral-200 transition hover:bg-neutral-400 dark:bg-neutral-700 dark:hover:bg-neutral-500" />
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col gap-3 lg:order-2">

@@ -20,6 +20,7 @@
     }
   },
   "roomView": {
+    "resizeChatAria": "チャット幅を調整",
     "participantsList": "参加者リスト",
     "membersSuffix": "{count}/{capacity}人",
     "notice": "お知らせ",
@@ -257,6 +258,10 @@
     "transferOwnership": "リーダーを委任",
     "kickConfirm": "{name}さんをこのルームから退出させますか?",
     "kick": "退出させる",
+    "banConfirm": "{name}さんを遮断しますか? すぐにこのルームから退出させられ、解除するまで再入場できなくなります。",
+    "ban": "遮断",
+    "bannedMembers": "遮断されたユーザー",
+    "unban": "遮断解除",
     "dangerZone": "危険区域",
     "nukeButton": "ルームを削除",
     "nukeConfirm1": "本当にこのルームを削除しますか? チャット、記録、予定、投稿がすべて完全に削除され、元に戻せません。",

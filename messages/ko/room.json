@@ -20,6 +20,7 @@
     }
   },
   "roomView": {
+    "resizeChatAria": "채팅창 너비 조절",
     "participantsList": "참여자 목록",
     "membersSuffix": "{count}/{capacity}명",
     "notice": "공지사항",
@@ -257,6 +258,10 @@
     "transferOwnership": "방장 위임",
     "kickConfirm": "{name}님을 이 방에서 내보낼까요?",
     "kick": "내보내기",
+    "banConfirm": "{name}님을 차단할까요? 즉시 이 방에서 내보내지고, 차단을 풀기 전까지 다시 입장할 수 없어요.",
+    "ban": "차단",
+    "bannedMembers": "차단된 사용자",
+    "unban": "차단 해제",
     "dangerZone": "위험 구역",
     "nukeButton": "방 폭파하기",
     "nukeConfirm1": "정말로 이 방을 폭파하시겠어요? 채팅, 기록, 일정, 게시글이 모두 영구히 삭제되며 되돌릴 수 없습니다.",

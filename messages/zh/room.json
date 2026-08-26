@@ -20,6 +20,7 @@
     }
   },
   "roomView": {
+    "resizeChatAria": "调整聊天窗口宽度",
     "participantsList": "参与者列表",
     "membersSuffix": "{count}/{capacity}人",
     "notice": "公告",
@@ -257,6 +258,10 @@
     "transferOwnership": "转让房主",
     "kickConfirm": "要将 {name} 移出这个房间吗?",
     "kick": "移出",
+    "banConfirm": "要屏蔽 {name} 吗？将立即被移出该房间，在解除屏蔽之前无法再次进入。",
+    "ban": "屏蔽",
+    "bannedMembers": "被屏蔽的用户",
+    "unban": "解除屏蔽",
     "dangerZone": "危险区域",
     "nukeButton": "解散房间",
     "nukeConfirm1": "确定要解散这个房间吗?聊天记录、字数记录、日程、帖子都将被永久删除且无法恢复。",

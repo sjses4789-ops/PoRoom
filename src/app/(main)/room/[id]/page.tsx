@@ -20,6 +20,7 @@ import {
   type SettingsMember,
   type SettingsCategory,
 } from "./room-settings-button";
+import { getBannedMembers } from "@/lib/room-admin";
 import { LeaveRoomButton } from "./leave-room-button";
 import { SystemRoomLeaveGuard } from "./system-room-leave-guard";
 import { paletteDot } from "@/lib/palette";
@@ -193,6 +194,7 @@ export default async function RoomPage({
     { data: monthGoalRows },
     { data: selfMonthGlobalRows },
     { data: personalRecordRows },
+    bannedMembers,
   ] = await Promise.all([
     supabase
       .from("chat_messages")
@@ -262,6 +264,7 @@ export default async function RoomPage({
           .in("user_id", Array.from(visibleUserIds))
           .returns<PersonalDailyRecordRow[]>()
       : Promise.resolve({ data: [] as PersonalDailyRecordRow[] }),
+    isOwner ? getBannedMembers(id) : Promise.resolve([]),
   ]);
 
   const pollIds = (pollRows ?? []).map((p) => p.id);
@@ -475,6 +478,7 @@ export default async function RoomPage({
               currentRecordVisibility={room.record_visibility}
               members={settingsMembers}
               categories={settingsCategories}
+              bannedMembers={bannedMembers}
             />
           )}
           <LeaveRoomButton roomId={room.id} selfId={user!.id} />

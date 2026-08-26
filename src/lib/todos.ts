@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { todayKst } from "@/lib/time";
+import { isTodoRowActive } from "@/lib/system-challenges";
 
 export type CreateTodoResult = { error: string } | { id: string; content: string };
 
@@ -57,15 +58,27 @@ export async function getTodosForDate(date: string): Promise<TodoHistoryItem[]> 
   } = await supabase.auth.getUser();
   if (!user) return [];
 
+  const monthStart = `${date.slice(0, 7)}-01`;
+
+  // 수동으로 적은 할 일은 그 날 만들어진 것(todo_date)만 그 날짜 기록에
+  // 속하지만, 챌린지 자동 생성 항목(매일/이번 달)은 처음 만들어진 날의
+  // todo_date만으로는 찾을 수 없다 — 예를 들어 초단 완고 챌린지 항목은
+  // 그 달 첫 참여일에 딱 한 번만 만들어지고 todo_date도 그날로 고정되지만,
+  // 실제로는 그 달 내내 "오늘의 할 일"에 계속 떠 있으므로 for_date로도
+  // 함께 찾아야 한다.
   const { data } = await supabase
     .from("todos")
-    .select("id,content,completed_at")
+    .select("id,content,completed_at,todo_date,for_date")
     .eq("user_id", user.id)
-    .eq("todo_date", date)
+    .or(`todo_date.eq.${date},for_date.eq.${date},for_date.eq.${monthStart}`)
     .order("created_at", { ascending: true })
-    .returns<{ id: string; content: string; completed_at: string | null }[]>();
+    .returns<
+      { id: string; content: string; completed_at: string | null; todo_date: string; for_date: string | null }[]
+    >();
 
-  return (data ?? []).map((r) => ({ id: r.id, content: r.content, completed: !!r.completed_at }));
+  return (data ?? [])
+    .filter((r) => !r.for_date || isTodoRowActive({ content: r.content, for_date: r.for_date }, date))
+    .map((r) => ({ id: r.id, content: r.content, completed: !!r.completed_at }));
 }
 
 export async function updateTodo(id: string, content: string) {
