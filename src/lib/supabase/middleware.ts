@@ -46,6 +46,10 @@ export async function updateSession(request: NextRequest) {
   const isPublicRoute =
     request.nextUrl.pathname === "/" ||
     homeLocaleMatch !== null ||
+    // 로그인 없이 (main) 레이아웃 헤더(테마 토글 등)를 재현해 실제
+    // 배포 환경에서 테스트하기 위한 숨김 QA 페이지 — 어디에도 링크되지
+    // 않고 robots.ts에서도 색인을 막아둔다.
+    request.nextUrl.pathname.startsWith("/qa-x7f3") ||
     request.nextUrl.pathname.startsWith("/login") ||
     request.nextUrl.pathname.startsWith("/auth") ||
     request.nextUrl.pathname.startsWith("/privacy") ||

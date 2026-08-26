@@ -67,12 +67,16 @@ export async function ActivityLogList({ entries }: { entries: LogEntry[] }) {
     );
   }
 
+  // 바깥 테두리는 이 컴포넌트가 아니라 page.tsx의 공유 그리드 카드(채팅
+  // 열과 테두리를 나눠 쓰는 divide-x 레이아웃)가 맡는다 — 예전엔 여기만
+  // 안쪽 목록에 자체 테두리가 있어 채팅의 전체 영역 테두리와 높이가
+  // 어긋나 보였다.
   return (
-    <ul className="flex flex-col divide-y divide-neutral-400 overflow-hidden rounded-md border border-neutral-400">
+    <ul className="flex flex-col divide-y divide-neutral-200 dark:divide-neutral-700">
       {entries.map((entry) => (
         <li
           key={entry.id}
-          className="flex items-center gap-3 px-4 py-2.5 text-sm"
+          className="flex items-center gap-3 py-2.5 text-sm"
         >
           <span aria-hidden>{ICON[entry.type]}</span>
           <span className="flex-1 text-neutral-800 dark:text-white">{describe(entry, t)}</span>

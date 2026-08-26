@@ -22,7 +22,7 @@
   "challengeDetailPage": {
     "backLink": "← 対決一覧へ",
     "dailyTargetSuffix": " · 1日{target}文字が目標",
-    "feedHeading": "フィード",
+    "feedHeading": "ログ",
     "logHeading": "対決ログ",
     "participantsHeading": "参加者一覧",
     "settings": "設定",

@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
@@ -102,8 +101,34 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang={locale}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      // <head> 맨 앞의 동기 스크립트(아래)가 하이드레이션보다 먼저 이
+      // 태그에 dark 클래스를 붙인다 — 서버가 그린 값(dark 없음)과 실제
+      // DOM(dark 있음)이 달라, 이 표시가 없으면 리액트가 하이드레이션 중
+      // 이 불일치를 "고치려다" 방금 붙은 dark 클래스를 지워버려 새로고침
+      // 직후 다크모드가 라이트로 보이는 원인이 된다.
+      suppressHydrationWarning
     >
       <head>
+        {/* next/script의 beforeInteractive는 "하이드레이션 전에 실행됨"이
+            아니라 "초기 HTML에 일찍 삽입·다운로드됨"만 보장한다(공식 문서:
+            "does not block page hydration from occurring") — 실제 실행
+            시점은 하이드레이션과 경쟁한다. (main) 처럼 클라이언트 JS가
+            무거운 페이지에서는 이 스크립트가 하이드레이션보다 늦게 실행돼
+            테마 토글은 dark인데 화면은 라이트로 남는 문제가 있었다(공개
+            페이지처럼 가벼운 곳에서는 거의 안 보였음). 그래서 순수 HTML
+            <script> 태그로 <head> 맨 앞에 직접 박아 넣는다 — 이건 브라우저가
+            HTML을 파싱하는 동안 동기적으로 실행되므로 이후에 나오는 어떤
+            번들 스크립트(하이드레이션 포함)보다도 먼저 끝난다. 애드센스
+            소유권 확인 스크립트를 아래에 순수 태그로 넣은 것과 같은 이유. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try {
+              if (localStorage.getItem('poroom-theme') === 'dark') {
+                document.documentElement.classList.add('dark');
+              }
+            } catch (e) {}`,
+          }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
@@ -124,13 +149,6 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col">
         <DisableRightClickAndDrag />
         <GoogleAnalytics />
-        <Script id="theme-init" strategy="beforeInteractive">
-          {`try {
-            if (localStorage.getItem('poroom-theme') === 'dark') {
-              document.documentElement.classList.add('dark');
-            }
-          } catch (e) {}`}
-        </Script>
         <NextIntlClientProvider locale={locale} messages={messages}>
           {children}
         </NextIntlClientProvider>

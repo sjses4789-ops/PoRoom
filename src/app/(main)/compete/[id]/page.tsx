@@ -287,23 +287,40 @@ export default async function ChallengeDetailPage({
       )}
 
       {iAmParticipant && (
-        <div className={`grid grid-cols-1 gap-4 ${isSystemKind ? "lg:grid-cols-2" : "lg:grid-cols-3"}`}>
-          <ChallengeChatPanel
-            challengeId={challenge.id}
-            selfId={user!.id}
-            members={chatMembers}
-            initialMessages={chatMessages}
-          />
-          <section className="flex flex-col gap-3">
+        // 채팅·로그(·참여자) 열이 각자 따로 테두리를 두르던 예전 방식은
+        // 채팅은 전체 영역에 테두리가 있는데 로그는 안쪽 목록에만 테두리가
+        // 있어 높이도 선도 어긋나 보였다 — [개인] 페이지의 출석일/할일/
+        // 목표현황처럼 하나의 카드를 divide-x로 나눠 쓰는 표 형식으로
+        // 통일해서, 테두리 하나를 셋이 공유하고 높이도 자동으로 맞는다.
+        <div
+          className={`grid grid-cols-1 divide-y divide-neutral-400 overflow-hidden rounded-md border border-neutral-400 dark:divide-neutral-600 dark:border-neutral-600 ${
+            isSystemKind ? "lg:grid-cols-2 lg:divide-x lg:divide-y-0" : "lg:grid-cols-3 lg:divide-x lg:divide-y-0"
+          }`}
+        >
+          <div className="p-4">
+            <ChallengeChatPanel
+              challengeId={challenge.id}
+              selfId={user!.id}
+              members={chatMembers}
+              initialMessages={chatMessages}
+            />
+          </div>
+          <div className="flex flex-col gap-3 p-4">
             <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
               {isSystemKind ? t("feedHeading") : t("logHeading")}
             </h2>
-            <div className="h-[420px] overflow-y-auto">
+            {/* flex-1(그리드가 채팅 쪽 높이에 맞춰 셀을 늘려주는 것)로는
+                안 된다 — 로그 항목이 많아지면 grid의 auto 행 높이 계산이
+                이 셀의 실제(늘어난) 내용 높이를 기준으로 잡아버려서, 결국
+                채팅까지 포함한 행 전체가 로그 길이만큼 늘어져버린다.
+                채팅 쪽 열의 실제 높이(제목+메시지창 340px+입력창+광고
+                자리)와 맞춘 고정 높이를 줘야 항상 서로 높이가 같다. */}
+            <div className="h-[460px] overflow-y-auto">
               <ActivityLogList entries={logEntries} />
             </div>
-          </section>
+          </div>
           {!isSystemKind && (
-            <section className="flex flex-col gap-3">
+            <div className="flex flex-col gap-3 p-4">
               <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
                 {t("participantsHeading")}
               </h2>
@@ -320,7 +337,7 @@ export default async function ChallengeDetailPage({
               ) : (
                 <ChallengeRankingBars participants={participants} metric={challenge.metric} />
               )}
-            </section>
+            </div>
           )}
         </div>
       )}

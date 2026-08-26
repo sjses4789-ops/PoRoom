@@ -22,7 +22,7 @@
   "challengeDetailPage": {
     "backLink": "← 대결 목록으로",
     "dailyTargetSuffix": " · 하루 {target}자 목표",
-    "feedHeading": "피드",
+    "feedHeading": "로그",
     "logHeading": "대결 로그",
     "participantsHeading": "참여자 목록",
     "settings": "설정",

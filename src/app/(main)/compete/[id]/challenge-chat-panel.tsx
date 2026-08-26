@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { chatBubbleClass } from "@/lib/palette";
+import { AdSlot } from "@/components/ad-slot";
 
 export type ChallengeChatMessage = {
   id: string;
@@ -81,11 +82,16 @@ export function ChallengeChatPanel({
   };
 
   return (
-    <div className="flex h-[420px] flex-col overflow-hidden rounded-md border border-neutral-400 dark:border-neutral-600">
-      <div className="border-b border-neutral-100 px-4 py-3 dark:border-neutral-800">
-        <span className="text-sm font-semibold text-neutral-900 dark:text-white">{t("title")}</span>
-      </div>
-      <div ref={listRef} className="chat-scroll flex-1 space-y-3 overflow-y-auto px-4 py-3">
+    // 바깥 테두리는 이 컴포넌트가 아니라 page.tsx의 공유 그리드 카드(로그·
+    // 참여자 열과 같은 테두리를 나눠 쓰는 divide-x 레이아웃)가 맡는다 —
+    // 예전엔 채팅만 자체 테두리가 있고 로그는 안쪽 목록에만 테두리가 있어
+    // 디자인이 어긋나 보였다.
+    <div className="flex h-full flex-col gap-3">
+      <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("title")}</h2>
+      <div
+        ref={listRef}
+        className="chat-scroll h-[340px] space-y-3 overflow-y-auto rounded-md border border-neutral-200 px-4 py-3 dark:border-neutral-700"
+      >
         {messages.length === 0 ? (
           <p className="text-xs text-neutral-400">
             {t("emptyHint")}
@@ -116,7 +122,7 @@ export function ChallengeChatPanel({
           })
         )}
       </div>
-      <div className="flex gap-2 border-t border-neutral-100 p-3 dark:border-neutral-800">
+      <div className="flex gap-2">
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -130,6 +136,9 @@ export function ChallengeChatPanel({
         >
           {t("send")}
         </button>
+      </div>
+      <div className="h-14 overflow-hidden rounded-md border border-neutral-200 dark:border-neutral-700">
+        <AdSlot className="h-14" />
       </div>
     </div>
   );
