@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const STORAGE_KEY = "poroom-theme";
 
@@ -21,6 +21,22 @@ export function ThemeToggle() {
   const [dark, setDark] = useState(
     () => typeof document !== "undefined" && document.documentElement.classList.contains("dark")
   );
+
+  // 서버는 항상 라이트로 렌더링하니, 이 버튼의 아이콘/위치는 다크 상태일
+  // 때 서버-클라이언트 하이드레이션 결과가 달라진다 — suppressHydrationWarning로
+  // 경고는 죽였지만, 그 부작용으로 리액트가 "첫 하이드레이션에서는 이미
+  // 화면에 있는(서버가 그린 라이트용) DOM을 그대로 믿고 건드리지 않는다"라서,
+  // 새로고침 직후 실제로는 다크인데도(<html>에 dark 클래스는 이미 붙어
+  // 있음) 버튼 자체는 라이트 모양(☀️, 왼쪽 위치)으로 잠깐~계속 멈춰 있는
+  // 경우가 있었다. 마운트 직후 한 번 실제 상태로 다시 맞춰 이 어긋남을
+  // 없앤다(이미 맞으면 setDark가 같은 값이라 리렌더는 안 일어난다).
+  // 마운트 시 한 번만 외부 상태(<html> 클래스)를 읽어와 리액트 state에
+  // 반영하는 정당한 동기화라 규칙이 스스로 인정하는 예외에 해당한다.
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    setDark(document.documentElement.classList.contains("dark"));
+  }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const toggle = () => {
     const next = !dark;
