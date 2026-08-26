@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { ROOM_TAGS, translateRoomTag } from "@/lib/room-tags";
@@ -10,6 +10,17 @@ import Link from "next/link";
 import CreateRoomButton from "./create-room-button";
 import InviteCodeButton from "./invite-code-button";
 import RoomCard, { type RoomListItem } from "./room-card";
+
+// 검색 버튼(돋보기) 아이콘 — 이모지 대신 직접 그려서 다크모드에서도
+// currentColor로 자연스럽게 색이 맞도록 한다.
+function SearchIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden fill="none">
+      <circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" strokeWidth="2" />
+      <line x1="15.5" y1="15.5" x2="21" y2="21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
 
 type NewRoomRow = {
   id: string;
@@ -79,6 +90,7 @@ function MyRoomCard({
 export function MainRoomLists({ initialRooms }: { initialRooms: RoomListItem[] }) {
   const t = useTranslations("main.roomLists");
   const tTags = useTranslations("tags");
+  const tRoomCard = useTranslations("main.roomCard");
   const SORT_OPTIONS: { key: SortMode; label: string }[] = [
     { key: "chars", label: t("sortChars") },
     { key: "members", label: t("sortMembers") },
@@ -89,6 +101,28 @@ export function MainRoomLists({ initialRooms }: { initialRooms: RoomListItem[] }
   const [sortMode, setSortMode] = useState<SortMode>("chars");
   const [sortDir, setSortDir] = useState<SortDirection>("desc");
   const [openPopover, setOpenPopover] = useState<"create" | "invite" | null>(null);
+
+  // "공개방"/"비공개방"은 방 생성·설정에서 쓰는 ROOM_TAGS와는 별개다 —
+  // 오로지 이 검색 화면에서만 방의 join_type으로 거르기 위한 것이라, 방
+  // 태그 목록에 섞지 않고 별도 필터 상태로 관리한다.
+  const [joinTypeFilter, setJoinTypeFilter] = useState<"open" | "invite" | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [appliedSearch, setAppliedSearch] = useState("");
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  const openSearch = () => {
+    setSearchOpen(true);
+    // 방금 열린 input에 포커스를 주기 위해, 렌더링이 반영된 다음 프레임에
+    // focus를 건다.
+    requestAnimationFrame(() => searchInputRef.current?.focus());
+  };
+
+  const closeSearch = () => {
+    setSearchOpen(false);
+    setSearchQuery("");
+    setAppliedSearch("");
+  };
 
   const handleSortClick = (key: SortMode) => {
     if (sortMode === key) {
@@ -184,11 +218,16 @@ export function MainRoomLists({ initialRooms }: { initialRooms: RoomListItem[] }
   // "전체/추천 방"은 내가 이미 입장한 방을 포함해 생성된 모든 방을 보여준다
   // (별도 요청: "생성되어있는 방의 전체 목록이 나타나도록").
   // 태그를 2개 이상 고르면, 그 태그를 전부 가진 방만 보여준다(AND 조건).
+  // 검색어(방 이름 부분 일치)와 공개/비공개 필터는 태그 필터와 AND로 겹쳐진다.
+  const normalizedSearch = appliedSearch.trim().toLowerCase();
+  const isFiltering = selectedTags.size > 0 || joinTypeFilter !== null || normalizedSearch !== "";
   const allRooms = rooms
     .filter(
       (r) =>
-        selectedTags.size === 0 ||
-        Array.from(selectedTags).every((t) => r.tags.includes(t))
+        (selectedTags.size === 0 ||
+          Array.from(selectedTags).every((t) => r.tags.includes(t))) &&
+        (joinTypeFilter === null || r.joinType === joinTypeFilter) &&
+        (normalizedSearch === "" || r.name.toLowerCase().includes(normalizedSearch))
     )
     .sort(sortFn);
 
@@ -221,14 +260,31 @@ export function MainRoomLists({ initialRooms }: { initialRooms: RoomListItem[] }
 
       <section className="flex flex-col gap-3">
         <div className="flex flex-wrap gap-1.5">
-          {selectedTags.size > 0 && (
+          {(selectedTags.size > 0 || joinTypeFilter !== null || appliedSearch !== "") && (
             <button
-              onClick={() => setSelectedTags(new Set())}
+              onClick={() => {
+                setSelectedTags(new Set());
+                setJoinTypeFilter(null);
+                closeSearch();
+              }}
               className="rounded-full border border-neutral-300 px-2 py-0.5 text-[12px] text-neutral-500 transition hover:bg-neutral-50 dark:border-neutral-600 dark:text-neutral-400 dark:hover:bg-neutral-800"
             >
               {t("reset")}
             </button>
           )}
+          {(["open", "invite"] as const).map((jt) => (
+            <button
+              key={jt}
+              onClick={() => setJoinTypeFilter((prev) => (prev === jt ? null : jt))}
+              className={`rounded-full border px-2 py-0.5 text-[12px] transition ${
+                joinTypeFilter === jt
+                  ? "border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-neutral-900"
+                  : "border-neutral-200 text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+              }`}
+            >
+              {jt === "open" ? tRoomCard("joinTypeOpen") : tRoomCard("joinTypeInvite")}
+            </button>
+          ))}
           {ROOM_TAGS.map((tag) => (
             <button
               key={tag}
@@ -244,10 +300,46 @@ export function MainRoomLists({ initialRooms }: { initialRooms: RoomListItem[] }
           ))}
         </div>
 
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
-            {t("allRooms")}
-          </h2>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex min-w-0 items-center gap-1.5">
+            <h2 className="shrink-0 text-sm font-semibold text-neutral-900 dark:text-white">
+              {t("allRooms")}
+            </h2>
+            <button
+              type="button"
+              onClick={() => (searchOpen ? closeSearch() : openSearch())}
+              aria-label={t("searchToggle")}
+              aria-pressed={searchOpen}
+              className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full transition ${
+                searchOpen
+                  ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900"
+                  : "text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600 dark:hover:bg-neutral-800 dark:hover:text-neutral-300"
+              }`}
+            >
+              <SearchIcon />
+            </button>
+            <input
+              ref={searchInputRef}
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") setAppliedSearch(searchQuery.trim());
+                else if (e.key === "Escape") closeSearch();
+              }}
+              placeholder={t("searchPlaceholder")}
+              aria-label={t("searchToggle")}
+              tabIndex={searchOpen ? 0 : -1}
+              // 돋보기를 누르면 오른쪽으로 입력창이 길어지면서 나타나도록
+              // width를 트랜지션한다. 닫혀있을 땐 폭 0으로 숨기되 DOM에서는
+              // 제거하지 않아 애니메이션이 매끄럽다.
+              className={`min-w-0 rounded-full border bg-white px-2.5 py-0.5 text-[12px] text-neutral-700 outline-none transition-all duration-200 placeholder:text-neutral-400 focus:border-neutral-400 dark:bg-neutral-900 dark:text-neutral-200 dark:placeholder:text-neutral-500 dark:focus:border-neutral-500 ${
+                searchOpen
+                  ? "w-40 border-neutral-200 opacity-100 sm:w-48 dark:border-neutral-700"
+                  : "w-0 border-transparent px-0 opacity-0"
+              }`}
+            />
+          </div>
           <div className="flex gap-1">
             {SORT_OPTIONS.map((opt) => (
               <button
@@ -268,7 +360,7 @@ export function MainRoomLists({ initialRooms }: { initialRooms: RoomListItem[] }
 
         {allRooms.length === 0 ? (
           <p className="text-xs text-neutral-400">
-            {selectedTags.size > 0 ? t("noRoomsMatch") : t("noRoomsYet")}
+            {isFiltering ? t("noRoomsMatch") : t("noRoomsYet")}
           </p>
         ) : (
           // 태그 개수에 따라 카드 높이가 제각각이라, 일반 grid로 배치하면
