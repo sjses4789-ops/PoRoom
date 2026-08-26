@@ -254,8 +254,9 @@ export function RoomRecordsPanel({
     return rateById;
   }, [dailyRecords]);
 
+  // 출석률이 가장 높은 참여자가 맨 위, 낮을수록 아래로 가도록 내림차순.
   const sortedMembers = [...members].sort(
-    (a, b) => (attendanceRateById.get(a.id) ?? 0) - (attendanceRateById.get(b.id) ?? 0)
+    (a, b) => (attendanceRateById.get(b.id) ?? 0) - (attendanceRateById.get(a.id) ?? 0)
   );
 
   return (

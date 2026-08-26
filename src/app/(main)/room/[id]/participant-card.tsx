@@ -75,15 +75,24 @@ export function ParticipantCard({
       } ${cardBg ? "" : "bg-white dark:bg-neutral-900"}`}
       style={cardBg ? { backgroundColor: cardBg } : undefined}
     >
-      <div
-        className={`relative aspect-[4/3] w-full overflow-hidden rounded-md bg-neutral-50 ${
-          isOffline ? "grayscale" : ""
-        }`}
-      >
+      {/* grayscale은 사진(아바타)에만 걸어야 한다 — 이 박스 전체에
+          걸면 방장/부방장 왕관 배지까지 회색으로 바래서, 비접속
+          상태에서도 왕관 색이 그대로 보여야 한다는 요구를 못 지킨다. */}
+      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-md bg-neutral-50">
         {avatarSrc ? (
-          <Image src={avatarSrc} alt="" fill sizes="240px" className="object-cover" />
+          <Image
+            src={avatarSrc}
+            alt=""
+            fill
+            sizes="240px"
+            className={`object-cover ${isOffline ? "grayscale" : ""}`}
+          />
         ) : (
-          <div className="flex h-full items-center justify-center text-2xl text-neutral-300">
+          <div
+            className={`flex h-full items-center justify-center text-2xl text-neutral-300 ${
+              isOffline ? "grayscale" : ""
+            }`}
+          >
             🙂
           </div>
         )}

@@ -173,6 +173,16 @@ export function useLiveMembers(
         .on("broadcast", { event: "member-left" }, ({ payload }) => {
           removeMember((payload as { userId: string }).userId);
         })
+        // 방장 위임/부방장 지정은 5초 폴링을 기다리지 않고 즉시 모두의
+        // 화면(왕관 배지)에 반영되어야 하므로 방송으로도 알린다.
+        .on("broadcast", { event: "owner-changed" }, ({ payload }) => {
+          const { userId } = payload as { userId: string };
+          setMembers((prev) => prev.map((m) => ({ ...m, isOwner: m.id === userId })));
+        })
+        .on("broadcast", { event: "vice-changed" }, ({ payload }) => {
+          const { userId, isVice } = payload as { userId: string; isVice: boolean };
+          setMembers((prev) => prev.map((m) => (m.id === userId ? { ...m, isVice } : m)));
+        })
         .on(
           "postgres_changes",
           { event: "UPDATE", schema: "public", table: "users" },

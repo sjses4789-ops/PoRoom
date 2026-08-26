@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { createEvent, celebrateEvent, updateEvent, deleteEvent } from "@/lib/room-events";
-import { paletteDot } from "@/lib/palette";
+import { paletteDot, paletteCard } from "@/lib/palette";
 
 export type EventCategory = { id: string; name: string; color: string };
 
@@ -223,7 +223,12 @@ export function CalendarPanel({
               const category = e.categoryId ? categoryMap.get(e.categoryId) : null;
               const isAnnouncement = category?.name === "출간";
               return (
-                <li key={e.id} className="rounded-md bg-neutral-50 px-2.5 py-2 text-xs dark:bg-neutral-800">
+                <li
+                  key={e.id}
+                  className={`rounded-md px-2.5 py-2 text-xs ${
+                    category ? paletteCard(category.color) : "bg-neutral-50 dark:bg-neutral-800"
+                  }`}
+                >
                   <div className="flex items-center justify-between gap-1.5">
                     <div className="flex min-w-0 items-center gap-1.5">
                       {category && (

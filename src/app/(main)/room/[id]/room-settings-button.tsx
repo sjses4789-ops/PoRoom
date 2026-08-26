@@ -77,6 +77,20 @@ export function RoomSettingsButton({
     router.refresh();
   };
 
+  // 방장 위임/부방장 지정을 다른 참여자의 화면(왕관 배지)에도 5초
+  // 폴링을 기다리지 않고 곧바로 반영되도록, room-view.tsx가 구독 중인
+  // 같은 채널로 방송한다(입장/퇴장 알림과 같은 방식).
+  const broadcastMemberChange = (event: "owner-changed" | "vice-changed", payload: object) => {
+    const supabase = createClient();
+    const channel = supabase.channel(`room-members-list:${roomId}`);
+    channel.subscribe((status) => {
+      if (status === "SUBSCRIBED") {
+        channel.send({ type: "broadcast", event, payload });
+        setTimeout(() => supabase.removeChannel(channel), 500);
+      }
+    });
+  };
+
   const [busyId, setBusyId] = useState<string | null>(null);
   const [viceIds, setViceIds] = useState(
     new Set(members.filter((m) => m.isVice).map((m) => m.id))
@@ -336,7 +350,12 @@ export function RoomSettingsButton({
                                 else copy.delete(m.id);
                                 return copy;
                               });
+                              broadcastMemberChange("vice-changed", { userId: m.id, isVice: next });
                               setBusyId(null);
+                              // 방송은 다른 사람 화면용 — 내 화면(참여자
+                              // 카드)에는 내 소켓 연결로 되돌아오지 않으니
+                              // 새로고침으로 반영한다.
+                              router.refresh();
                             }}
                             className="rounded-md border border-sky-200 px-2 py-1 text-[12px] font-medium text-sky-600 transition hover:bg-sky-50 disabled:opacity-50"
                           >
@@ -347,8 +366,13 @@ export function RoomSettingsButton({
                             onClick={async () => {
                               setBusyId(m.id);
                               await transferOwnership(roomId, m.id);
+                              broadcastMemberChange("owner-changed", { userId: m.id });
                               setBusyId(null);
                               setOpen(false);
+                              // 방장이 바뀌면 이 설정 버튼 자체가 더 이상
+                              // 안 보여야 하는 등 서버에서 계산해 내려주는
+                              // 값들이 여럿 바뀌므로 새로고침한다.
+                              router.refresh();
                             }}
                             className="rounded-md border border-neutral-200 px-2 py-1 text-[12px] font-medium text-neutral-600 transition hover:bg-neutral-50 disabled:opacity-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
                           >
