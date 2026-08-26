@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { todayKst } from "@/lib/time";
-import { paletteBg } from "@/lib/palette";
+import { paletteCard } from "@/lib/palette";
 import { ChallengeRankingBars } from "./challenge-ranking-bars";
 
 export type ChallengeParticipant = {
@@ -62,8 +62,8 @@ export async function ChallengeCard({
 
   const content = (
     <div
-      className={`flex flex-col gap-3 overflow-hidden rounded-lg border border-neutral-200/60 p-4 transition hover:border-neutral-300 ${
-        color ? paletteBg(color) : ""
+      className={`flex flex-col gap-3 overflow-hidden rounded-lg border border-neutral-200/60 p-4 transition hover:border-neutral-300 dark:border-neutral-700/60 dark:hover:border-neutral-600 ${
+        color ? paletteCard(color) : ""
       }`}
     >
       <div className="flex flex-wrap items-center justify-between gap-2">

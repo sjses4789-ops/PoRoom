@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { joinOpenRoom } from "@/lib/rooms";
-import { paletteDot, paletteBgFaded } from "@/lib/palette";
+import { paletteDot, paletteCard } from "@/lib/palette";
 import { translateRoomTag } from "@/lib/room-tags";
 
 export type RoomListItem = {
@@ -26,30 +26,26 @@ function RoomCardBody({ room }: { room: RoomListItem }) {
   const t = useTranslations("main.roomCard");
   const tTags = useTranslations("tags");
   const joinTypeLabel = room.joinType === "invite" ? t("joinTypeInvite") : t("joinTypeOpen");
-  // 방 색상은 항상 옅은 파스텔이라, 카드 배경으로 쓰면 텍스트는 테마와
-  // 무관하게 항상 어두운 색으로 유지해야 읽힌다. 색을 30% 투명도로만
-  // 얹기 위해, 바탕은 테마와 무관하게 항상 흰색으로 고정해두고(다크
-  // 모드 배경 위에 그대로 얹으면 옅은 색이 어둡게 섞여버려 텍스트
-  // 대비가 오히려 나빠진다) 그 위에 색상을 30% 투명도로 겹친다.
   return (
-    <div className="relative overflow-hidden rounded-lg border border-neutral-200/60 bg-white transition hover:border-neutral-300">
-      <div className={`pointer-events-none absolute inset-0 ${paletteBgFaded(room.color)}`} />
-      <div className="relative flex flex-col gap-2 p-4">
+    <div
+      className={`overflow-hidden rounded-lg border border-neutral-200/60 transition hover:border-neutral-300 dark:border-neutral-700/60 dark:hover:border-neutral-600 ${paletteCard(room.color)}`}
+    >
+      <div className="flex flex-col gap-2 p-4">
       <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
-        <span className="flex min-w-0 items-center gap-1.5 truncate text-sm font-medium text-neutral-900">
+        <span className="flex min-w-0 items-center gap-1.5 truncate text-sm font-medium text-neutral-900 dark:text-white">
           <span className={`h-2 w-2 shrink-0 rounded-full ${paletteDot(room.color)}`} />
           {room.name}
         </span>
-        <span className="shrink-0 whitespace-nowrap text-xs text-neutral-500">
+        <span className="shrink-0 whitespace-nowrap text-xs text-neutral-500 dark:text-neutral-400">
           {t("membersJoined", { count: room.memberCount })}
         </span>
       </div>
-      <div className="flex flex-wrap items-center gap-3 text-xs text-neutral-600">
-        <span className="rounded border border-neutral-300 px-1.5 py-0.5 text-[11px] text-neutral-500">
+      <div className="flex flex-wrap items-center gap-3 text-xs text-neutral-600 dark:text-neutral-300">
+        <span className="rounded border border-neutral-300 px-1.5 py-0.5 text-[11px] text-neutral-500 dark:border-neutral-600 dark:text-neutral-400">
           {joinTypeLabel}
         </span>
       </div>
-      <div className="flex items-center gap-3 text-[12px] text-neutral-600">
+      <div className="flex items-center gap-3 text-[12px] text-neutral-600 dark:text-neutral-300">
         <span>{t("allTimeChars", { count: room.allTimeChars.toLocaleString() })}</span>
         <span>{t("monthChars", { count: room.monthChars.toLocaleString() })}</span>
       </div>
@@ -58,7 +54,7 @@ function RoomCardBody({ room }: { room: RoomListItem }) {
           {room.tags.map((tag) => (
             <span
               key={tag}
-              className="rounded-full bg-white/60 px-1.5 py-0.5 text-[11px] text-neutral-600"
+              className="rounded-full bg-white/60 px-1.5 py-0.5 text-[11px] text-neutral-600 dark:bg-black/20 dark:text-neutral-300"
             >
               {translateRoomTag(tTags, tag)}
             </span>

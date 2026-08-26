@@ -12,12 +12,8 @@
     "basic": "BASIC",
     "premium": "PREMIUM",
     "basicDesc": "您目前是免费(BASIC)版。",
-    "premiumDesc": "您是PREMIUM会员。没有广告，还可以在参与者卡片的角色图像上设置宠物形象。",
+    "premiumDesc": "您是PREMIUM会员。没有广告。",
     "perkAdFree": "去除广告",
-    "perkPet": "在参与者卡片角色图像上设置宠物形象",
-    "perkEmoji": "在房间聊天中使用表情符号",
-    "perkExe": "支持 poroom.exe",
-    "perkPomodoroDecoration": "支持番茄钟装饰",
     "price": "{amount}韩元",
     "comingSoon": "支付功能即将上线！"
   }

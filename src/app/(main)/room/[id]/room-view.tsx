@@ -14,6 +14,7 @@ import { recordChars, touchLastSeen, setWorkStatus, type RecordVisibility } from
 import { effectiveRecordDate, toLocalDateKey } from "@/lib/time";
 import { RichContent } from "@/components/rich-content";
 import { useCelebrationToast } from "@/components/celebration-toast";
+import { useTodayCharsSync } from "./today-chars-sync";
 
 export type Member = {
   id: string;
@@ -140,7 +141,11 @@ export function RoomView({
     return () => clearInterval(id);
   }, []);
 
-  const addChars = (n: number) => {
+  // 오늘 글자수에 델타(n)만큼 반영한다 — DB 반영은 호출부 책임(이 방에서
+  // 직접 입력했을 때는 addChars가, 기록 탭에서 오늘 값을 수정했을 때는
+  // 그쪽에서 이미 저장을 마친 뒤 델타만 이 함수로 알려준다).
+  const applyTodayCharsDelta = (n: number) => {
+    if (n === 0) return;
     setChars((c) => c + n);
     setTodayChars((prev) => {
       const next = prev + n;
@@ -155,8 +160,20 @@ export function RoomView({
     if (selfMonthGoalChars > 0 && monthPrev < selfMonthGoalChars && monthNext >= selfMonthGoalChars) {
       celebrate(t("monthlyGoalToast"));
     }
+  };
+
+  const addChars = (n: number) => {
+    applyTodayCharsDelta(n);
     recordChars(roomId, n, effectiveRecordDate(sessionStartRef.current));
   };
+
+  // 기록 탭(RoomRecordsPanel)에서 오늘 날짜의 글자수를 수정하면, 형제
+  // 컴포넌트인 이곳에도 그 변화량이 즉시 반영되도록 구독한다.
+  const todayCharsSync = useTodayCharsSync();
+  useEffect(() => {
+    return todayCharsSync?.subscribe(applyTodayCharsDelta);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [todayCharsSync]);
 
   const handleStart = () =>
     pomodoro.start({ id: roomId, name: roomName, isSystemRoom }, selfTodayFocusMinutes * 60);

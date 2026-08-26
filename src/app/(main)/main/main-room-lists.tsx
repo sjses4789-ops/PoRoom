@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { ROOM_TAGS, translateRoomTag } from "@/lib/room-tags";
-import { paletteDot, paletteBgFaded } from "@/lib/palette";
+import { paletteDot, paletteCard } from "@/lib/palette";
 import { toggleFavoriteRoom } from "@/lib/rooms";
 import Link from "next/link";
 import CreateRoomButton from "./create-room-button";
@@ -33,12 +33,10 @@ function MyRoomCard({
 }) {
   const t = useTranslations("main.roomLists");
   const tTags = useTranslations("tags");
-  // room-card.tsx와 동일한 이유로, 바탕은 항상 흰색으로 고정하고 그 위에
-  // 방 색상을 30% 투명도로만 겹친다(다크 모드 배경 위에 옅은 파스텔을
-  // 그대로 얹으면 색이 어둡게 섞여 텍스트 대비가 나빠지기 때문).
   return (
-    <div className="relative overflow-hidden rounded-lg border border-neutral-200/60 bg-white transition hover:border-neutral-300">
-      <div className={`pointer-events-none absolute inset-0 -z-10 ${paletteBgFaded(room.color)}`} />
+    <div
+      className={`relative overflow-hidden rounded-lg border border-neutral-200/60 transition hover:border-neutral-300 dark:border-neutral-700/60 dark:hover:border-neutral-600 ${paletteCard(room.color)}`}
+    >
       <button
         type="button"
         onClick={(e) => {
@@ -58,18 +56,18 @@ function MyRoomCard({
       >
         <span className="flex min-w-0 items-center gap-1.5">
           <span className={`h-2 w-2 shrink-0 rounded-full ${paletteDot(room.color)}`} />
-          <span className="min-w-0 truncate font-medium text-neutral-900">{room.name}</span>
+          <span className="min-w-0 truncate font-medium text-neutral-900 dark:text-white">{room.name}</span>
         </span>
         <span className="flex flex-wrap items-center gap-1.5">
           {room.tags.slice(0, 3).map((tag) => (
             <span
               key={tag}
-              className="rounded-full bg-white/60 px-1.5 py-0.5 text-[11px] text-neutral-600"
+              className="rounded-full bg-white/60 px-1.5 py-0.5 text-[11px] text-neutral-600 dark:bg-black/20 dark:text-neutral-300"
             >
               {translateRoomTag(tTags, tag)}
             </span>
           ))}
-          <span className="ml-auto whitespace-nowrap text-[12px] text-neutral-500">
+          <span className="ml-auto whitespace-nowrap text-[12px] text-neutral-500 dark:text-neutral-400">
             {t("membersSuffix", { count: room.memberCount })}
           </span>
         </span>

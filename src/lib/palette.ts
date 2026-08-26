@@ -1,26 +1,31 @@
+// card: 방목록/대결방 카드처럼 카드 전체를 채우는 용도 — 라이트에서는
+// 옅은 파스텔(bg), 다크에서는 그 파스텔이 그대로 번지지 않도록 같은
+// 색상 계열의 진한 톤을 낮은 불투명도로 얹어 다크 테마에 어울리게 한다
+// (시스템 챌린지 카드의 "라이트 옅은 배경 / 다크 진한 배경" 톤과 같은
+// 접근이며, 리터럴 문자열이라 Tailwind JIT가 인식한다).
 export const PALETTE = [
-  { key: "neutral", label: "회색", dot: "bg-neutral-500", bg: "bg-neutral-100", bgFaded: "bg-neutral-100/30" },
-  { key: "slate", label: "슬레이트", dot: "bg-slate-500", bg: "bg-slate-100", bgFaded: "bg-slate-100/30" },
-  { key: "zinc", label: "징크", dot: "bg-zinc-500", bg: "bg-zinc-100", bgFaded: "bg-zinc-100/30" },
-  { key: "stone", label: "스톤", dot: "bg-stone-500", bg: "bg-stone-100", bgFaded: "bg-stone-100/30" },
-  { key: "red", label: "빨강", dot: "bg-red-500", bg: "bg-red-50", bgFaded: "bg-red-50/30" },
-  { key: "rose", label: "장미", dot: "bg-rose-500", bg: "bg-rose-50", bgFaded: "bg-rose-50/30" },
-  { key: "pink", label: "분홍", dot: "bg-pink-500", bg: "bg-pink-50", bgFaded: "bg-pink-50/30" },
-  { key: "fuchsia", label: "자홍", dot: "bg-fuchsia-500", bg: "bg-fuchsia-50", bgFaded: "bg-fuchsia-50/30" },
-  { key: "purple", label: "보라", dot: "bg-purple-500", bg: "bg-purple-50", bgFaded: "bg-purple-50/30" },
-  { key: "violet", label: "바이올렛", dot: "bg-violet-500", bg: "bg-violet-50", bgFaded: "bg-violet-50/30" },
-  { key: "indigo", label: "인디고", dot: "bg-indigo-500", bg: "bg-indigo-50", bgFaded: "bg-indigo-50/30" },
-  { key: "blue", label: "파랑", dot: "bg-blue-500", bg: "bg-blue-50", bgFaded: "bg-blue-50/30" },
-  { key: "sky", label: "하늘", dot: "bg-sky-500", bg: "bg-sky-50", bgFaded: "bg-sky-50/30" },
-  { key: "cyan", label: "시안", dot: "bg-cyan-500", bg: "bg-cyan-50", bgFaded: "bg-cyan-50/30" },
-  { key: "teal", label: "청록", dot: "bg-teal-500", bg: "bg-teal-50", bgFaded: "bg-teal-50/30" },
-  { key: "emerald", label: "에메랄드", dot: "bg-emerald-500", bg: "bg-emerald-50", bgFaded: "bg-emerald-50/30" },
-  { key: "green", label: "초록", dot: "bg-green-500", bg: "bg-green-50", bgFaded: "bg-green-50/30" },
-  { key: "lime", label: "연두", dot: "bg-lime-500", bg: "bg-lime-50", bgFaded: "bg-lime-50/30" },
-  { key: "yellow", label: "노랑", dot: "bg-yellow-500", bg: "bg-yellow-50", bgFaded: "bg-yellow-50/30" },
-  { key: "amber", label: "호박", dot: "bg-amber-500", bg: "bg-amber-50", bgFaded: "bg-amber-50/30" },
-  { key: "orange", label: "주황", dot: "bg-orange-500", bg: "bg-orange-50", bgFaded: "bg-orange-50/30" },
-  { key: "gray", label: "그레이", dot: "bg-gray-500", bg: "bg-gray-100", bgFaded: "bg-gray-100/30" },
+  { key: "neutral", label: "회색", dot: "bg-neutral-500", bg: "bg-neutral-100", card: "bg-neutral-100 dark:bg-neutral-800/60" },
+  { key: "slate", label: "슬레이트", dot: "bg-slate-500", bg: "bg-slate-100", card: "bg-slate-100 dark:bg-slate-800/60" },
+  { key: "zinc", label: "징크", dot: "bg-zinc-500", bg: "bg-zinc-100", card: "bg-zinc-100 dark:bg-zinc-800/60" },
+  { key: "stone", label: "스톤", dot: "bg-stone-500", bg: "bg-stone-100", card: "bg-stone-100 dark:bg-stone-800/60" },
+  { key: "red", label: "빨강", dot: "bg-red-500", bg: "bg-red-50", card: "bg-red-50 dark:bg-red-950/40" },
+  { key: "rose", label: "장미", dot: "bg-rose-500", bg: "bg-rose-50", card: "bg-rose-50 dark:bg-rose-950/40" },
+  { key: "pink", label: "분홍", dot: "bg-pink-500", bg: "bg-pink-50", card: "bg-pink-50 dark:bg-pink-950/40" },
+  { key: "fuchsia", label: "자홍", dot: "bg-fuchsia-500", bg: "bg-fuchsia-50", card: "bg-fuchsia-50 dark:bg-fuchsia-950/40" },
+  { key: "purple", label: "보라", dot: "bg-purple-500", bg: "bg-purple-50", card: "bg-purple-50 dark:bg-purple-950/40" },
+  { key: "violet", label: "바이올렛", dot: "bg-violet-500", bg: "bg-violet-50", card: "bg-violet-50 dark:bg-violet-950/40" },
+  { key: "indigo", label: "인디고", dot: "bg-indigo-500", bg: "bg-indigo-50", card: "bg-indigo-50 dark:bg-indigo-950/40" },
+  { key: "blue", label: "파랑", dot: "bg-blue-500", bg: "bg-blue-50", card: "bg-blue-50 dark:bg-blue-950/40" },
+  { key: "sky", label: "하늘", dot: "bg-sky-500", bg: "bg-sky-50", card: "bg-sky-50 dark:bg-sky-950/40" },
+  { key: "cyan", label: "시안", dot: "bg-cyan-500", bg: "bg-cyan-50", card: "bg-cyan-50 dark:bg-cyan-950/40" },
+  { key: "teal", label: "청록", dot: "bg-teal-500", bg: "bg-teal-50", card: "bg-teal-50 dark:bg-teal-950/40" },
+  { key: "emerald", label: "에메랄드", dot: "bg-emerald-500", bg: "bg-emerald-50", card: "bg-emerald-50 dark:bg-emerald-950/40" },
+  { key: "green", label: "초록", dot: "bg-green-500", bg: "bg-green-50", card: "bg-green-50 dark:bg-green-950/40" },
+  { key: "lime", label: "연두", dot: "bg-lime-500", bg: "bg-lime-50", card: "bg-lime-50 dark:bg-lime-950/40" },
+  { key: "yellow", label: "노랑", dot: "bg-yellow-500", bg: "bg-yellow-50", card: "bg-yellow-50 dark:bg-yellow-950/40" },
+  { key: "amber", label: "호박", dot: "bg-amber-500", bg: "bg-amber-50", card: "bg-amber-50 dark:bg-amber-950/40" },
+  { key: "orange", label: "주황", dot: "bg-orange-500", bg: "bg-orange-50", card: "bg-orange-50 dark:bg-orange-950/40" },
+  { key: "gray", label: "그레이", dot: "bg-gray-500", bg: "bg-gray-100", card: "bg-gray-100 dark:bg-gray-800/60" },
 ] as const;
 
 export type PaletteKey = (typeof PALETTE)[number]["key"];
@@ -35,12 +40,11 @@ export function paletteBg(key: string) {
   return (BY_KEY.get(key as PaletteKey) ?? PALETTE[0]).bg;
 }
 
-// 30% 투명도 버전 — Tailwind는 클래스 이름이 소스에 그대로(문자열
-// 리터럴로) 있어야 CSS를 생성해주므로, `${paletteBg(key)}/30`처럼
-// 런타임에 조립한 클래스 이름은 인식하지 못한다. 그래서 PALETTE에
-// "bg-xxx-50/30" 형태를 통째로 리터럴로 미리 적어두고 그대로 꺼내 쓴다.
-export function paletteBgFaded(key: string) {
-  return (BY_KEY.get(key as PaletteKey) ?? PALETTE[0]).bgFaded;
+// 카드 전체를 색으로 채우는 용도(방목록 카드, 대결방 카드 등) — 다크
+// 테마에서도 옅은 라이트 파스텔이 그대로 번지지 않고 테마에 어울리는
+// 진한 톤으로 바뀐다.
+export function paletteCard(key: string) {
+  return (BY_KEY.get(key as PaletteKey) ?? PALETTE[0]).card;
 }
 
 // row colors for the records matrix — cycles through the palette by index

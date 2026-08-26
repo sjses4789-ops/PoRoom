@@ -6,7 +6,15 @@ import { useTranslations } from "next-intl";
 import type { DailyRecord } from "@/lib/records";
 import { characterSrc } from "@/lib/characters";
 import { setDailyChars } from "@/lib/rooms";
+import { todayKst } from "@/lib/time";
+import { useTodayCharsSync } from "./today-chars-sync";
 import type { Member } from "./room-view";
+
+// 글자수는 결국 방의 데이터가 아니라 개인 당사자의 데이터라서, 이
+// 패널이 받는 dailyRecords는 이 방뿐 아니라 그 이용자가 기록을 남긴
+// 모든 방을 합친 것이다 — 오늘 날짜 수정 시 "이 방 자신의 몫"을
+// 구분해내려면 각 행이 어느 방에서 난 기록인지(roomId)가 필요하다.
+export type PersonalDailyRecord = DailyRecord & { roomId: string };
 
 type Mode = "month" | "year";
 
@@ -27,10 +35,11 @@ export function RoomRecordsPanel({
   roomId: string;
   selfId: string;
   members: Member[];
-  dailyRecords: DailyRecord[];
+  dailyRecords: PersonalDailyRecord[];
 }) {
   const t = useTranslations("room.roomRecordsPanel");
   const tCommon = useTranslations("room.common");
+  const todayCharsSync = useTodayCharsSync();
   const now = new Date();
   const [mode, setMode] = useState<Mode>("month");
   const [year, setYear] = useState(now.getFullYear());
@@ -85,8 +94,12 @@ export function RoomRecordsPanel({
     const values: Record<string, string> = {};
     for (let d = 1; d <= editDaysInMonth; d++) {
       const dateKey = `${editYear}-${pad2(editMonth + 1)}-${pad2(d)}`;
-      const found = selfRecords.find((r) => r.date === dateKey);
-      values[dateKey] = found && found.chars > 0 ? String(found.chars) : "";
+      // 같은 날짜라도 여러 방에서 나눠 기록했을 수 있어(개인 데이터라
+      // 방을 합쳐 보여주므로), 그 날의 합계를 보여준다.
+      const total = selfRecords
+        .filter((r) => r.date === dateKey)
+        .reduce((sum, r) => sum + r.chars, 0);
+      values[dateKey] = total > 0 ? String(total) : "";
     }
     setEditValues(values);
     setEditOpen(true);
@@ -112,24 +125,38 @@ export function RoomRecordsPanel({
 
   const saveEditRow = async (dateKey: string) => {
     const chars = Math.max(0, Math.floor(Number(editValues[dateKey])) || 0);
+    // setDailyChars는 "이 방"에서의 그 날짜 기록만 덮어쓴다 — 표시는
+    // 여러 방을 합친 값이라도, 수정은 항상 지금 있는 이 방의 몫만
+    // 바뀐다(다른 방에서 같은 날 기록한 몫은 그대로 둔다).
+    const existing = dailyRecords.find(
+      (r) => r.userId === selfId && r.date === dateKey && r.roomId === roomId
+    );
+    const previousOwnChars = existing?.chars ?? 0;
     setEditBusyDate(dateKey);
     const result = await setDailyChars(roomId, dateKey, chars);
     setEditBusyDate(null);
     if (result && "error" in result) return;
 
     setDailyRecordsState((prev) => {
-      const rest = prev.filter((r) => !(r.userId === selfId && r.date === dateKey));
+      const rest = prev.filter(
+        (r) => !(r.userId === selfId && r.date === dateKey && r.roomId === roomId)
+      );
       if (chars <= 0) return rest;
-      const existing = prev.find((r) => r.userId === selfId && r.date === dateKey);
       return [
         ...rest,
-        { userId: selfId, date: dateKey, chars, focusMinutes: existing?.focusMinutes ?? 0 },
+        { userId: selfId, date: dateKey, chars, focusMinutes: existing?.focusMinutes ?? 0, roomId },
       ];
     });
+
+    // 오늘 날짜를 수정했다면, 방 탭에 떠 있는 "글자수 기록" 표시도 같은
+    // 변화량만큼 즉시 반영되도록 알린다.
+    if (dateKey === todayKst()) {
+      todayCharsSync?.notifyTodayDelta(chars - previousOwnChars);
+    }
   };
 
   const recordsByUser = useMemo(() => {
-    const map = new Map<string, DailyRecord[]>();
+    const map = new Map<string, PersonalDailyRecord[]>();
     for (const r of dailyRecords) {
       const list = map.get(r.userId) ?? [];
       list.push(r);
@@ -138,8 +165,16 @@ export function RoomRecordsPanel({
     return map;
   }, [dailyRecords]);
 
-  const lookup = (userId: string, dateKey: string) =>
-    (recordsByUser.get(userId) ?? []).find((r) => r.date === dateKey);
+  // 같은 날짜라도 여러 방에서 나눠 기록됐을 수 있어(개인 데이터라 방을
+  // 합쳐 보여주므로), 하나만 찾지 않고 그 날짜의 모든 방 몫을 합산한다.
+  const lookup = (userId: string, dateKey: string) => {
+    const rows = (recordsByUser.get(userId) ?? []).filter((r) => r.date === dateKey);
+    if (rows.length === 0) return undefined;
+    return {
+      chars: rows.reduce((s, r) => s + r.chars, 0),
+      focusMinutes: rows.reduce((s, r) => s + r.focusMinutes, 0),
+    };
+  };
 
   const columns =
     mode === "month"

@@ -8,7 +8,8 @@ import type { DailyRecord } from "@/lib/records";
 import { formatRelativeTime, todayKst } from "@/lib/time";
 import { ShareRecordsToggle } from "./share-records-toggle";
 import { RoomTabs } from "./room-tabs";
-import { RoomRecordsPanel } from "./room-records-panel";
+import { RoomRecordsPanel, type PersonalDailyRecord } from "./room-records-panel";
+import { TodayCharsSyncProvider } from "./today-chars-sync";
 import { CalendarPanel, type RoomEvent, type EventCategory } from "./calendar-panel";
 import { BoardPanel, type RoomPost } from "./board-panel";
 import { PollPanel, type Poll } from "./poll-panel";
@@ -68,6 +69,8 @@ type DailyRecordRow = {
   chars: number;
   focus_minutes: number;
 };
+
+type PersonalDailyRecordRow = DailyRecordRow & { room_id: string };
 
 type EventRow = {
   id: string;
@@ -161,6 +164,9 @@ export default async function RoomPage({
   }));
 
   const nameMap = new Map(members.map((m) => [m.id, m.name]));
+  const visibleUserIds = new Set(
+    members.filter((m) => m.recordsVisible).map((m) => m.id)
+  );
   const selfMember = members.find((m) => m.id === user!.id);
   const selfShareRecords = shareRecordsMap.get(user!.id) ?? true;
   const isOwner = !room.is_system && room.owner_id === user!.id;
@@ -188,6 +194,7 @@ export default async function RoomPage({
     { data: workRows },
     { data: monthGoalRows },
     { data: selfMonthGlobalRows },
+    { data: personalRecordRows },
   ] = await Promise.all([
     supabase
       .from("chat_messages")
@@ -261,6 +268,16 @@ export default async function RoomPage({
       .eq("user_id", user!.id)
       .gte("record_date", `${today.slice(0, 7)}-01`)
       .returns<{ chars: number }[]>(),
+    // [방]-'기록' 탭에 보여줄 데이터 — 글자수는 방이 아니라 결국 그
+    // 이용자 개인의 기록이라, 이 방만이 아니라 기록이 공개된 멤버가
+    // 어느 방에서 남겼든 전부 가져온다(방을 나중에 나가도 유지).
+    visibleUserIds.size > 0
+      ? supabase
+          .from("daily_records")
+          .select("user_id,record_date,chars,focus_minutes,room_id")
+          .in("user_id", Array.from(visibleUserIds))
+          .returns<PersonalDailyRecordRow[]>()
+      : Promise.resolve({ data: [] as PersonalDailyRecordRow[] }),
   ]);
 
   const pollIds = (pollRows ?? []).map((p) => p.id);
@@ -299,10 +316,6 @@ export default async function RoomPage({
     targetUserId: m.target_user_id,
   }));
 
-  const visibleUserIds = new Set(
-    members.filter((m) => m.recordsVisible).map((m) => m.id)
-  );
-
   const dailyRecords: DailyRecord[] = (recordRows ?? [])
     .filter((r) => visibleUserIds.has(r.user_id))
     .map((r) => ({
@@ -311,6 +324,14 @@ export default async function RoomPage({
       chars: r.chars,
       focusMinutes: r.focus_minutes,
     }));
+
+  const personalDailyRecords: PersonalDailyRecord[] = (personalRecordRows ?? []).map((r) => ({
+    userId: r.user_id,
+    date: r.record_date,
+    chars: r.chars,
+    focusMinutes: r.focus_minutes,
+    roomId: r.room_id,
+  }));
 
   const selfToday = dailyRecords.find(
     (r) => r.userId === user!.id && r.date === today
@@ -479,6 +500,7 @@ export default async function RoomPage({
 
       {room.is_system && <SystemRoomLeaveGuard roomId={room.id} />}
 
+      <TodayCharsSyncProvider>
       <RoomTabs
         roomId={room.id}
         isSystemRoom={room.is_system}
@@ -513,7 +535,7 @@ export default async function RoomPage({
             roomId={room.id}
             selfId={user!.id}
             members={members}
-            dailyRecords={dailyRecords}
+            dailyRecords={personalDailyRecords}
           />
         }
         calendar={
@@ -538,6 +560,7 @@ export default async function RoomPage({
           />
         }
       />
+      </TodayCharsSyncProvider>
     </div>
   );
 }
