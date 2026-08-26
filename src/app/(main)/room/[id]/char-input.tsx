@@ -3,20 +3,15 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { setDailyCharGoal } from "@/lib/daily-goal";
-import { createWork, deleteWork, recordWorkChars } from "@/lib/works";
-
-export type WorkItem = { id: string; title: string; lastCurrentChars: number };
 
 export function CharInput({
   todayChars,
   todayGoalChars,
-  initialWorks,
   onAdd,
   onActivity,
 }: {
   todayChars: number;
   todayGoalChars: number;
-  initialWorks: WorkItem[];
   onAdd: (n: number) => void;
   onActivity?: () => void;
 }) {
@@ -29,13 +24,6 @@ export function CharInput({
   const [goalInput, setGoalInput] = useState(String(todayGoalChars || ""));
   const [goalPending, setGoalPending] = useState(false);
 
-  const [works, setWorks] = useState<WorkItem[]>(initialWorks ?? []);
-  const [activeWorkId, setActiveWorkId] = useState<string | null>(null);
-  const [workPickerOpen, setWorkPickerOpen] = useState(false);
-  const [addingWork, setAddingWork] = useState(false);
-  const [newWorkTitle, setNewWorkTitle] = useState("");
-  const [workPending, setWorkPending] = useState(false);
-
   const baselineNum = Number(baseline) || 0;
   // Number("")는 0이라서, "현재 글자수"를 아직 안 쳤을 때 currentNum이
   // 그대로 0이 되어 delta가 -baselineNum(큰 음수)으로 나오는 문제가
@@ -44,51 +32,12 @@ export function CharInput({
   const currentNum = current.trim() === "" ? baselineNum : Number(current) || 0;
   const delta = currentNum - baselineNum;
 
-  const selectWork = (work: WorkItem | null) => {
-    setActiveWorkId(work?.id ?? null);
-    setBaseline(String(work?.lastCurrentChars ?? 0));
-    setCurrent("");
-  };
-
   const calculate = () => {
     if (delta === 0) return;
     onAdd(delta);
-    if (activeWorkId) {
-      recordWorkChars(activeWorkId, delta, currentNum);
-      setWorks((prev) =>
-        prev.map((w) => (w.id === activeWorkId ? { ...w, lastCurrentChars: currentNum } : w))
-      );
-    }
     setBaseline(String(currentNum));
     setCurrent("");
   };
-
-  const confirmAddWork = async () => {
-    const title = newWorkTitle.trim();
-    if (!title) return;
-    setWorkPending(true);
-    const result = await createWork(title);
-    setWorkPending(false);
-    if ("error" in result) return;
-    const work: WorkItem = { id: result.id, title: result.title, lastCurrentChars: 0 };
-    setWorks((prev) => [...prev, work]);
-    setNewWorkTitle("");
-    setAddingWork(false);
-    selectWork(work);
-  };
-
-  const removeWork = async (workId: string) => {
-    const work = works.find((w) => w.id === workId);
-    if (!work) return;
-    if (!window.confirm(t("deleteWorkConfirm", { title: work.title }))) {
-      return;
-    }
-    await deleteWork(workId);
-    setWorks((prev) => prev.filter((w) => w.id !== workId));
-    if (activeWorkId === workId) selectWork(null);
-  };
-
-  const activeWork = works.find((w) => w.id === activeWorkId) ?? null;
 
   const saveGoal = async () => {
     const value = Math.max(0, Math.floor(Number(goalInput)) || 0);
@@ -145,120 +94,7 @@ export function CharInput({
         )}
       </div>
 
-      <div className="flex flex-col gap-1.5 border-t border-neutral-100 pt-3 dark:border-neutral-800">
-        <span className="text-[12px] text-neutral-500 dark:text-neutral-400">
-          {t("recordByWork")}
-        </span>
-        <button
-          type="button"
-          onClick={() => setWorkPickerOpen(true)}
-          className="flex items-center justify-between rounded-md border border-neutral-200 px-2.5 py-1.5 text-xs text-neutral-700 transition hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
-        >
-          <span className="truncate">{activeWork ? activeWork.title : t("notSelected")}</span>
-          <span className="text-neutral-400">▾</span>
-        </button>
-      </div>
-
-      {workPickerOpen && (
-        <>
-          <div
-            onClick={() => {
-              setWorkPickerOpen(false);
-              setAddingWork(false);
-            }}
-            className="fixed inset-0 z-10 bg-neutral-900/20"
-          />
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="fixed left-1/2 top-1/2 z-20 flex max-h-[80vh] w-[min(22rem,calc(100vw-2.5rem))] -translate-x-1/2 -translate-y-1/2 flex-col gap-3 overflow-y-auto rounded-md border border-neutral-300 bg-white p-4 shadow-lg dark:border-neutral-700 dark:bg-neutral-900"
-          >
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-semibold text-neutral-900 dark:text-white">{t("selectWorkTitle")}</p>
-              <button
-                onClick={() => {
-                  setWorkPickerOpen(false);
-                  setAddingWork(false);
-                }}
-                className="text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200"
-              >
-                ✕
-              </button>
-            </div>
-            <div className="flex flex-col gap-1">
-              <button
-                type="button"
-                onClick={() => {
-                  selectWork(null);
-                  setWorkPickerOpen(false);
-                }}
-                className={`rounded-md px-2.5 py-1.5 text-left text-xs transition ${
-                  !activeWorkId
-                    ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900"
-                    : "text-neutral-600 hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-neutral-800"
-                }`}
-              >
-                {t("notSelected")}
-              </button>
-              {works.map((w) => (
-                <div key={w.id} className="flex items-center gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      selectWork(w);
-                      setWorkPickerOpen(false);
-                    }}
-                    className={`flex-1 truncate rounded-md px-2.5 py-1.5 text-left text-xs transition ${
-                      activeWorkId === w.id
-                        ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900"
-                        : "text-neutral-600 hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-neutral-800"
-                    }`}
-                  >
-                    {w.title}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => removeWork(w.id)}
-                    title={t("deleteWorkTitle")}
-                    className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-neutral-200 text-neutral-500 transition hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
-                  >
-                    −
-                  </button>
-                </div>
-              ))}
-            </div>
-            {addingWork ? (
-              <div className="flex gap-1.5">
-                <input
-                  autoFocus
-                  value={newWorkTitle}
-                  onChange={(e) => setNewWorkTitle(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && confirmAddWork()}
-                  placeholder={t("workNamePlaceholder")}
-                  className="flex-1 rounded-md border border-neutral-200 px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
-                />
-                <button
-                  type="button"
-                  onClick={confirmAddWork}
-                  disabled={workPending}
-                  className="rounded-md bg-neutral-900 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-neutral-700 disabled:opacity-50 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
-                >
-                  {t("add")}
-                </button>
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setAddingWork(true)}
-                className="rounded-md border border-dashed border-neutral-300 px-2.5 py-1.5 text-xs text-neutral-500 transition hover:bg-neutral-50 dark:border-neutral-600 dark:text-neutral-400 dark:hover:bg-neutral-800"
-              >
-                {t("addWork")}
-              </button>
-            )}
-          </div>
-        </>
-      )}
-
-      <div className="flex gap-2">
+      <div className="flex gap-2 border-t border-neutral-100 pt-3 dark:border-neutral-800">
         <label className="flex min-w-0 flex-1 flex-col gap-1 text-[12px] text-neutral-500">
           {t("startChars")}
           <input

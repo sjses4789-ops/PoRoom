@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { isCurrentUserAdmin } from "@/lib/admin";
 import { getMyJoinedRooms } from "@/lib/rest";
+import type { RestInfoCategory } from "@/lib/rest-types";
 import { PageAdRail } from "@/components/page-ad-rail";
 import { RestNav } from "./rest-nav";
 import type { RestPost } from "./rest-board";
@@ -14,6 +15,8 @@ type PostRow = {
   created_at: string;
   category: "자유" | "정보" | "인원 모집";
   room_id: string | null;
+  info_category: RestInfoCategory | null;
+  pinned: boolean;
 };
 type UserRow = { id: string; name: string | null; email: string };
 type RoomRow = { id: string; name: string };
@@ -41,7 +44,7 @@ export default async function RestPage() {
       .maybeSingle<{ name: string | null }>(),
     supabase
       .from("rest_posts")
-      .select("id,user_id,title,content,created_at,category,room_id")
+      .select("id,user_id,title,content,created_at,category,room_id,info_category,pinned")
       .order("created_at", { ascending: false })
       .returns<PostRow[]>(),
     supabase.from("users").select("id,name,email").returns<UserRow[]>(),
@@ -71,6 +74,8 @@ export default async function RestPage() {
     authorId: p.user_id,
     authorName: userNames[p.user_id] ?? "알 수 없음",
     category: p.category,
+    infoCategory: p.info_category,
+    pinned: p.pinned,
     roomId: p.room_id,
     roomName: p.room_id ? roomNames[p.room_id] ?? null : null,
   }));

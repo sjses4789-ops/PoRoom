@@ -5,7 +5,8 @@ import dynamic from "next/dynamic";
 import { useLocale, useTranslations } from "next-intl";
 import { TypingPractice } from "./typing-practice";
 import { RestBoard, type RestPost } from "./rest-board";
-import type { RestPostCategory, JoinedRoom } from "@/lib/rest";
+import type { JoinedRoom } from "@/lib/rest";
+import type { RestPostCategory } from "@/lib/rest-types";
 
 // 게임들은 시작 상태에 Math.random()을 쓰기 때문에(시작 단어, 초성 퀴즈
 // 등) 서버에서 미리 렌더링하면 서버와 클라이언트가 서로 다른 값을 그려

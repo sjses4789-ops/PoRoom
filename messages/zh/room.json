@@ -72,14 +72,6 @@
     "setGoalAria": "设置今日目标字数",
     "todayGoalLabel": "今日目标字数",
     "setGoalHint": "点击 ⚙️ 按钮设置今日目标字数吧。",
-    "recordByWork": "按作品记录(可选)",
-    "notSelected": "未选择",
-    "selectWorkTitle": "选择作品",
-    "deleteWorkTitle": "删除作品",
-    "workNamePlaceholder": "作品名称",
-    "add": "添加",
-    "addWork": "+ 添加作品",
-    "deleteWorkConfirm": "要从列表中删除《{title}》吗?已记录的字数图表将会保留。",
     "startChars": "开始前字数",
     "currentChars": "当前字数",
     "currentCharsPlaceholder": "目前为止写的总字数",
@@ -159,7 +151,8 @@
     "monthColumn": "{month}月",
     "total": "合计",
     "editRecordsTitle": "修改字数记录",
-    "editRecordsHint": "按日期输入字数会自动保存。设为0则从记录中消失。"
+    "editRecordsHint": "按日期输入字数会自动保存。设为0则从记录中消失。",
+    "preJoinCellTitle": "加入本房间之前，在其他房间记录的数据。"
   },
   "workStatusPicker": {
     "setStatus": "设置状态",

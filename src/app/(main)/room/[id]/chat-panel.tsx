@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { AdSlot } from "@/components/ad-slot";
 import { chatBubbleClass } from "@/lib/palette";
+import { characterSrc } from "@/lib/characters";
 import { ChatColorPicker } from "./chat-color-picker";
 import { WhisperTargetPicker } from "./whisper-target-picker";
 import type { Member } from "./room-view";
@@ -68,6 +70,11 @@ export function ChatPanel({
     userId === selfId
       ? tCommon("self")
       : members.find((m) => m.id === userId)?.name ?? tCommon("unknown");
+
+  // 채팅 메시지 옆에 보낸 사람의 캐릭터를 원형으로 보여줘서, 색상 말고도
+  // 캐릭터로 구분할 수 있게 한다.
+  const characterIdOf = (userId: string) =>
+    members.find((m) => m.id === userId)?.characterId ?? null;
 
   const selfColor =
     selfColorOverride ?? members.find((m) => m.id === selfId)?.chatColor ?? null;
@@ -223,42 +230,52 @@ export function ChatPanel({
         {messages.map((m) => {
           const isSelf = m.userId === selfId;
           const canDelete = isSelf || canModerate;
+          const avatarSrc = characterSrc(characterIdOf(m.userId));
           return (
             <div
               key={m.id}
-              className={`group flex flex-col text-sm ${isSelf ? "items-end" : "items-start"}`}
+              className={`group flex items-end gap-1.5 text-sm ${isSelf ? "flex-row-reverse" : "flex-row"}`}
             >
-              <span className="flex items-center gap-1 text-[12px] text-neutral-400">
-                {nameOf(m.userId)}
-                {m.targetUserId && (
-                  <span className="text-amber-500">
-                    🤫{" "}
-                    {isSelf
-                      ? t("whisperToLabel", { name: nameOf(m.targetUserId) })
-                      : t("whisperTag")}
-                  </span>
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full border border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800">
+                {avatarSrc ? (
+                  <Image src={avatarSrc} alt="" width={28} height={28} className="h-full w-full object-cover" />
+                ) : (
+                  <span className="text-xs text-neutral-300">🙂</span>
                 )}
-              </span>
-              <span className="flex max-w-[85%] items-center gap-1">
-                <span
-                  className={`mt-0.5 break-words rounded-lg px-3 py-1.5 ${chatBubbleClass(
-                    colorOf(m.userId),
-                    isSelf
-                  )}`}
-                >
-                  {m.content}
+              </div>
+              <div className={`flex min-w-0 flex-col ${isSelf ? "items-end" : "items-start"}`}>
+                <span className="flex items-center gap-1 text-[12px] text-neutral-400">
+                  {nameOf(m.userId)}
+                  {m.targetUserId && (
+                    <span className="text-amber-500">
+                      🤫{" "}
+                      {isSelf
+                        ? t("whisperToLabel", { name: nameOf(m.targetUserId) })
+                        : t("whisperTag")}
+                    </span>
+                  )}
                 </span>
-                {canDelete && (
-                  <button
-                    type="button"
-                    onClick={() => removeMessage(m.id)}
-                    title={t("deleteMessage")}
-                    className="shrink-0 text-[11px] text-neutral-300 opacity-0 transition hover:text-red-500 group-hover:opacity-100 dark:text-neutral-600"
+                <span className="flex max-w-[85%] items-center gap-1">
+                  <span
+                    className={`mt-0.5 break-words rounded-lg px-3 py-1.5 ${chatBubbleClass(
+                      colorOf(m.userId),
+                      isSelf
+                    )}`}
                   >
-                    ✕
-                  </button>
-                )}
-              </span>
+                    {m.content}
+                  </span>
+                  {canDelete && (
+                    <button
+                      type="button"
+                      onClick={() => removeMessage(m.id)}
+                      title={t("deleteMessage")}
+                      className="shrink-0 text-[11px] text-neutral-300 opacity-0 transition hover:text-red-500 group-hover:opacity-100 dark:text-neutral-600"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </span>
+              </div>
             </div>
           );
         })}

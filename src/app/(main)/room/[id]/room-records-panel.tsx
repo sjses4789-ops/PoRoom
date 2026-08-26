@@ -188,7 +188,13 @@ export function RoomRecordsPanel({
     if (mode === "month") {
       const dateKey = `${year}-${pad2(month + 1)}-${pad2(col)}`;
       const r = lookup(userId, dateKey);
-      return { chars: r?.chars ?? 0, minutes: r?.focusMinutes ?? 0 };
+      // 그날 이 방에서도 직접 기록한 게 있는지 — 있으면 "입장 후" 데이터로
+      // 본다(다른 방 몫도 같이 있어도 마찬가지). 이 방 몫이 전혀 없고
+      // 다른 방에서만 기록됐다면 "입장 전" 데이터로 구분해 흐리게 표시한다.
+      const ownedByThisRoom = (recordsByUser.get(userId) ?? []).some(
+        (row) => row.date === dateKey && row.roomId === roomId
+      );
+      return { chars: r?.chars ?? 0, minutes: r?.focusMinutes ?? 0, ownedByThisRoom };
     }
     const monthPrefix = `${year}-${pad2(col)}`;
     const rows = (recordsByUser.get(userId) ?? []).filter((r) =>
@@ -197,6 +203,7 @@ export function RoomRecordsPanel({
     return {
       chars: rows.reduce((s, r) => s + r.chars, 0),
       minutes: rows.reduce((s, r) => s + r.focusMinutes, 0),
+      ownedByThisRoom: true,
     };
   };
 
@@ -330,6 +337,9 @@ export function RoomRecordsPanel({
               // 합계보다 옅은 색으로, 날짜별 글자수 칸이 합계 칸과
               // 뚜렷이 구분되도록 한다.
               const dataCellBg = "bg-neutral-50 dark:bg-neutral-800/50";
+              // 이 방에 입장하기 전, 다른 방에서만 기록된 날은 훨씬 더
+              // 흐리게 표시해 입장 전/후 데이터를 시각적으로 구분한다.
+              const preJoinCellBg = "bg-neutral-50/40 dark:bg-neutral-800/20";
               return (
                 <tr key={member.id}>
                   <td
@@ -372,14 +382,21 @@ export function RoomRecordsPanel({
                     columns.map((c) => {
                       const cell = cellFor(member.id, c);
                       const hasData = cell.chars > 0 || cell.minutes > 0;
+                      const isPreJoin = hasData && !cell.ownedByThisRoom;
                       return (
-                        <td key={c} className={`px-1 py-2 text-center ${rowBorder} ${hasData ? dataCellBg : ""}`}>
+                        <td
+                          key={c}
+                          title={isPreJoin ? t("preJoinCellTitle") : undefined}
+                          className={`px-1 py-2 text-center ${rowBorder} ${
+                            hasData ? (isPreJoin ? preJoinCellBg : dataCellBg) : ""
+                          }`}
+                        >
                           {hasData ? (
                             <div className="flex flex-col leading-tight">
-                              <span className="text-neutral-800">
+                              <span className={isPreJoin ? "text-neutral-400 dark:text-neutral-500" : "text-neutral-800 dark:text-neutral-100"}>
                                 {cell.chars.toLocaleString()}{tCommon("charUnit")}
                               </span>
-                              <span className="text-neutral-400">{cell.minutes}{tCommon("minuteUnit")}</span>
+                              <span className="text-neutral-400 dark:text-neutral-500">{cell.minutes}{tCommon("minuteUnit")}</span>
                             </div>
                           ) : (
                             <span className="text-neutral-200 dark:text-neutral-700">–</span>

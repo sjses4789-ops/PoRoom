@@ -7,9 +7,10 @@ import {
   createRestPost,
   updateRestPost,
   deleteRestPost,
-  type RestPostCategory,
+  setRestPostPinned,
   type JoinedRoom,
 } from "@/lib/rest";
+import { REST_INFO_CATEGORIES, type RestPostCategory, type RestInfoCategory } from "@/lib/rest-types";
 import { RichTextEditor } from "@/components/rich-text-editor";
 import { RichContent } from "@/components/rich-content";
 
@@ -21,8 +22,19 @@ export type RestPost = {
   authorId: string;
   authorName: string;
   category: RestPostCategory;
+  infoCategory: RestInfoCategory | null;
+  pinned: boolean;
   roomId: string | null;
   roomName: string | null;
+};
+
+// 카테고리마다 다른 색으로 구분한다 — 옅은 배경 + 진한 글자(라이트),
+// 어두운 배경 + 밝은 글자(다크) 쌍.
+const INFO_CATEGORY_COLOR: Record<RestInfoCategory, string> = {
+  "팁&노하우": "bg-sky-50 text-sky-700 dark:bg-sky-950 dark:text-sky-300",
+  "공모전": "bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300",
+  "질문": "bg-violet-50 text-violet-700 dark:bg-violet-950 dark:text-violet-300",
+  "기타": "bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300",
 };
 
 function formatDate(iso: string) {
@@ -55,6 +67,7 @@ export function RestBoard({
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [roomId, setRoomId] = useState("");
+  const [infoCategory, setInfoCategory] = useState<RestInfoCategory | "">("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [openId, setOpenId] = useState<string | null>(null);
@@ -62,16 +75,27 @@ export function RestBoard({
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
   const [editRoomId, setEditRoomId] = useState("");
+  const [editInfoCategory, setEditInfoCategory] = useState<RestInfoCategory | "">("");
   const [editPending, setEditPending] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
+  const [pinBusyId, setPinBusyId] = useState<string | null>(null);
 
   const isRecruit = category === "인원 모집";
-  const visiblePosts = posts.filter((p) => p.category === category);
+  const isInfo = category === "정보";
+  const visiblePosts = posts
+    .filter((p) => p.category === category)
+    .sort((a, b) => Number(b.pinned) - Number(a.pinned));
 
   const submit = async () => {
     setPending(true);
     setError(null);
-    const result = await createRestPost(title, content, category, isRecruit ? roomId || null : null);
+    const result = await createRestPost(
+      title,
+      content,
+      category,
+      isRecruit ? roomId || null : null,
+      isInfo ? infoCategory || null : null
+    );
     setPending(false);
     if ("error" in result) {
       setError(result.error);
@@ -89,6 +113,7 @@ export function RestBoard({
     setTitle("");
     setContent("");
     setRoomId("");
+    setInfoCategory("");
     setWriting(false);
   };
 
@@ -99,6 +124,7 @@ export function RestBoard({
     setEditTitle(p.title);
     setEditContent(p.content);
     setEditRoomId(p.roomId ?? "");
+    setEditInfoCategory(p.infoCategory ?? "");
     setEditError(null);
   };
 
@@ -109,7 +135,8 @@ export function RestBoard({
       postId,
       editTitle,
       editContent,
-      isRecruit ? editRoomId || null : null
+      isRecruit ? editRoomId || null : null,
+      isInfo ? editInfoCategory || null : null
     );
     setEditPending(false);
     if ("error" in result) {
@@ -125,6 +152,7 @@ export function RestBoard({
               content: editContent.trim(),
               roomId: isRecruit ? editRoomId || null : null,
               roomName: isRecruit ? myRooms.find((r) => r.id === editRoomId)?.name ?? null : null,
+              infoCategory: isInfo ? editInfoCategory || null : null,
             }
           : p
       )
@@ -142,6 +170,36 @@ export function RestBoard({
     setPosts((prev) => prev.filter((p) => p.id !== postId));
     setOpenId(null);
   };
+
+  const togglePin = async (p: RestPost) => {
+    const next = !p.pinned;
+    setPinBusyId(p.id);
+    const result = await setRestPostPinned(p.id, next);
+    setPinBusyId(null);
+    if ("error" in result) {
+      window.alert(result.error);
+      return;
+    }
+    setPosts((prev) => prev.map((post) => (post.id === p.id ? { ...post, pinned: next } : post)));
+  };
+
+  const infoCategorySelect = (
+    value: RestInfoCategory | "",
+    onChange: (v: RestInfoCategory | "") => void
+  ) => (
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value as RestInfoCategory | "")}
+      className="rounded-md border border-neutral-200 bg-white px-2.5 py-1.5 text-sm text-neutral-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white outline-none focus:border-neutral-400"
+    >
+      <option value="">{t("noInfoCategory")}</option>
+      {REST_INFO_CATEGORIES.map((c) => (
+        <option key={c} value={c}>
+          {c}
+        </option>
+      ))}
+    </select>
+  );
 
   const roomSelect = (value: string, onChange: (v: string) => void) => (
     <select
@@ -187,6 +245,12 @@ export function RestBoard({
               {roomSelect(roomId, setRoomId)}
             </label>
           )}
+          {isInfo && (
+            <label className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400">
+              {t("infoCategoryLabel")}
+              {infoCategorySelect(infoCategory, setInfoCategory)}
+            </label>
+          )}
           {error && <p className="text-xs text-red-500">{error}</p>}
           <button
             onClick={submit}
@@ -225,6 +289,18 @@ export function RestBoard({
                       {num}
                     </span>
                     <span className="min-w-0 truncate font-medium text-neutral-900 dark:text-white">
+                      {p.pinned && (
+                        <span className="mr-1 text-amber-500" aria-hidden>
+                          📌
+                        </span>
+                      )}
+                      {p.infoCategory && (
+                        <span
+                          className={`mr-1 rounded px-1.5 py-0.5 text-[11px] font-medium ${INFO_CATEGORY_COLOR[p.infoCategory]}`}
+                        >
+                          {p.infoCategory}
+                        </span>
+                      )}
                       {p.roomId && (
                         <span className="mr-1 text-[11px] text-emerald-600 dark:text-emerald-400">🔗</span>
                       )}
@@ -251,14 +327,27 @@ export function RestBoard({
                           🔗 {p.roomName ?? t("unknownRoom")} {t("goToRoom")}
                         </Link>
                       )}
-                      {canModify(p) && (
+                      {(canModify(p) || (isAdmin && isInfo)) && (
                         <div className="flex gap-3 text-[11px] text-neutral-400">
-                          <button onClick={() => startEdit(p)} className="hover:text-neutral-700 dark:hover:text-neutral-200">
-                            {t("edit")}
-                          </button>
-                          <button onClick={() => removePost(p.id)} className="hover:text-red-500">
-                            {t("delete")}
-                          </button>
+                          {isAdmin && isInfo && (
+                            <button
+                              onClick={() => togglePin(p)}
+                              disabled={pinBusyId === p.id}
+                              className="hover:text-amber-600 disabled:opacity-50 dark:hover:text-amber-400"
+                            >
+                              {p.pinned ? t("unpin") : t("pin")}
+                            </button>
+                          )}
+                          {canModify(p) && (
+                            <>
+                              <button onClick={() => startEdit(p)} className="hover:text-neutral-700 dark:hover:text-neutral-200">
+                                {t("edit")}
+                              </button>
+                              <button onClick={() => removePost(p.id)} className="hover:text-red-500">
+                                {t("delete")}
+                              </button>
+                            </>
+                          )}
                         </div>
                       )}
                     </div>
@@ -276,6 +365,12 @@ export function RestBoard({
                         <label className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400">
                           {t("linkRoomLabel")}
                           {roomSelect(editRoomId, setEditRoomId)}
+                        </label>
+                      )}
+                      {isInfo && (
+                        <label className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400">
+                          {t("infoCategoryLabel")}
+                          {infoCategorySelect(editInfoCategory, setEditInfoCategory)}
                         </label>
                       )}
                       {editError && <p className="text-xs text-red-500">{editError}</p>}

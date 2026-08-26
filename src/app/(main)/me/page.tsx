@@ -13,7 +13,6 @@ import { AttendanceCalendar } from "./attendance-calendar";
 import { ChallengeRecordPanel } from "./challenge-record-panel";
 import { SystemChallengeRecordPanel } from "./system-challenge-record-panel";
 import { RankingStatusPanel } from "./ranking-status-panel";
-import { WorksPanel } from "./works-panel";
 import { PomodoroStatsPanel } from "./pomodoro-stats-panel";
 import { TodoList, type Todo } from "@/components/todo-list";
 import { ImportBackupButton } from "./import-backup-button";
@@ -108,9 +107,6 @@ export default async function MePage() {
     { data: myChallengeParticipants },
     { data: allUserChallenges },
     { data: globalMilestoneLogs },
-    { data: workRows },
-    { data: workRecordRows },
-    { data: workEntryRows },
     { data: pomodoroSessionLogs },
     { data: siteTimeRows },
     { data: myAttendanceLogs },
@@ -166,22 +162,6 @@ export default async function MePage() {
       .select("user_id,type")
       .in("type", ["milestone_5k", "milestone_10k", "draft_done"])
       .returns<{ user_id: string; type: string }[]>(),
-    supabase
-      .from("works")
-      .select("id,title")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: true })
-      .returns<{ id: string; title: string }[]>(),
-    supabase
-      .from("work_records")
-      .select("work_id,record_date,chars")
-      .eq("user_id", user.id)
-      .returns<{ work_id: string; record_date: string; chars: number }[]>(),
-    supabase
-      .from("work_record_entries")
-      .select("work_id,delta,created_at")
-      .eq("user_id", user.id)
-      .returns<{ work_id: string; delta: number; created_at: string }[]>(),
     // 뽀모도로 통계(하단 패널)의 "일별 횟수"는 뽀모도로를 (재)시작할 때마다
     // 남는 session_start 로그로 센다.
     supabase
@@ -331,18 +311,6 @@ export default async function MePage() {
   const siteTime = (siteTimeRows ?? []).map((r) => ({
     date: r.record_date,
     seconds: r.seconds,
-  }));
-
-  const works = workRows ?? [];
-  const workRecords = (workRecordRows ?? []).map((r) => ({
-    workId: r.work_id,
-    date: r.record_date,
-    chars: r.chars,
-  }));
-  const workEntries = (workEntryRows ?? []).map((r) => ({
-    workId: r.work_id,
-    delta: r.delta,
-    createdAt: r.created_at,
   }));
 
   const [, { data: allChallengeParticipants }] = await Promise.all([
@@ -537,10 +505,6 @@ export default async function MePage() {
             />
           </div>
         </div>
-      </section>
-
-      <section className="flex flex-col gap-3">
-        <WorksPanel works={works} records={workRecords} entries={workEntries} />
       </section>
 
       <section className="flex flex-col gap-3">

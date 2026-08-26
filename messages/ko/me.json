@@ -63,26 +63,6 @@
     "nextDate": "다음 날짜",
     "notCurrentHint": "현재 기간에서만 목표를 수정할 수 있어요."
   },
-  "workChart": {
-    "title": "작품별 글자수",
-    "noWorks": "등록된 작품이 없습니다. 오른쪽 작품 목록에서 추가해보세요.",
-    "periodEntry": "입력 기준",
-    "periodDay": "일자별",
-    "periodMonth": "월별",
-    "entryChangeFor": "{title}의 입력별 변동",
-    "noEntries": "아직 입력 기록이 없습니다.",
-    "monthLabel": "{month}월",
-    "yearLabel": "{year}년",
-    "prevMonth": "이전 달",
-    "nextMonth": "다음 달",
-    "prevYear": "이전 해",
-    "nextYear": "다음 해",
-    "editTitle": "표로 수정",
-    "backToChart": "그래프로 보기",
-    "charsPlaceholder": "글자수",
-    "add": "추가",
-    "deleteEntryTitle": "기록 삭제"
-  },
   "rankingStatus": {
     "title": "랭킹 현황",
     "yearMonth": "{year}년 {month}월",
@@ -97,16 +77,6 @@
     "challengeLabel": "챌린지",
     "noChallenge": "챌린지 기록 없음",
     "challengeRank": "{rank}위 / {total}명"
-  },
-  "workList": {
-    "title": "작품 목록",
-    "addTitle": "작품 추가",
-    "namePlaceholder": "작품 이름",
-    "add": "추가",
-    "noWorks": "등록된 작품이 없습니다.",
-    "deleteConfirm": "\"{title}\" 작품을 삭제할까요? 그래프에서도 사라져요.",
-    "deleteTitle": "작품 삭제",
-    "renameTitle": "작품 이름 수정"
   },
   "pomodoroStats": {
     "title": "뽀모도로 통계",

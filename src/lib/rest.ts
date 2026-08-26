@@ -2,8 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-
-export type RestPostCategory = "자유" | "정보" | "인원 모집";
+import { isCurrentUserAdmin } from "@/lib/admin";
+import { REST_INFO_CATEGORIES, type RestPostCategory, type RestInfoCategory } from "@/lib/rest-types";
 
 export type RestPostResult =
   | { error: string }
@@ -13,14 +13,17 @@ export type RestPostResult =
       content: string;
       createdAt: string;
       category: RestPostCategory;
+      infoCategory: RestInfoCategory | null;
       roomId: string | null;
+      pinned: boolean;
     };
 
 export async function createRestPost(
   title: string,
   content: string,
   category: RestPostCategory,
-  roomId?: string | null
+  roomId?: string | null,
+  infoCategory?: RestInfoCategory | null
 ): Promise<RestPostResult> {
   const supabase = await createClient();
   const {
@@ -47,6 +50,11 @@ export async function createRestPost(
     linkedRoomId = membership?.room_id ?? null;
   }
 
+  const linkedInfoCategory =
+    category === "정보" && infoCategory && REST_INFO_CATEGORIES.includes(infoCategory)
+      ? infoCategory
+      : null;
+
   const { data, error } = await supabase
     .from("rest_posts")
     .insert({
@@ -55,8 +63,9 @@ export async function createRestPost(
       content: trimmedContent,
       category,
       room_id: linkedRoomId,
+      info_category: linkedInfoCategory,
     })
-    .select("id,title,content,created_at,category,room_id")
+    .select("id,title,content,created_at,category,room_id,info_category,pinned")
     .single();
 
   if (error || !data) {
@@ -70,8 +79,27 @@ export async function createRestPost(
     content: data.content,
     createdAt: data.created_at,
     category: data.category,
+    infoCategory: data.info_category,
     roomId: data.room_id,
+    pinned: data.pinned,
   };
+}
+
+// 관리자만 '정보' 게시판 글을 상단에 고정할 수 있다 — 고정된 공지는
+// 클라이언트에서 pinned desc, created_at desc로 정렬해 항상 맨 위에 온다.
+export async function setRestPostPinned(
+  postId: string,
+  pinned: boolean
+): Promise<{ error: string } | { ok: true }> {
+  const isAdmin = await isCurrentUserAdmin();
+  if (!isAdmin) return { error: "관리자만 고정할 수 있어요." };
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("rest_posts").update({ pinned }).eq("id", postId);
+  if (error) return { error: error.message };
+
+  revalidatePath("/rest");
+  return { ok: true };
 }
 
 export type JoinedRoom = { id: string; name: string };
@@ -100,7 +128,8 @@ export async function updateRestPost(
   postId: string,
   title: string,
   content: string,
-  roomId?: string | null
+  roomId?: string | null,
+  infoCategory?: RestInfoCategory | null
 ): Promise<RestPostEditResult> {
   const supabase = await createClient();
   const {
@@ -124,10 +153,18 @@ export async function updateRestPost(
     linkedRoomId = membership?.room_id ?? null;
   }
 
-  const { error } = await supabase
-    .from("rest_posts")
-    .update({ title: trimmedTitle, content: trimmedContent, room_id: linkedRoomId })
-    .eq("id", postId);
+  const update: {
+    title: string;
+    content: string;
+    room_id: string | null;
+    info_category?: RestInfoCategory | null;
+  } = { title: trimmedTitle, content: trimmedContent, room_id: linkedRoomId };
+  if (infoCategory !== undefined) {
+    update.info_category =
+      infoCategory && REST_INFO_CATEGORIES.includes(infoCategory) ? infoCategory : null;
+  }
+
+  const { error } = await supabase.from("rest_posts").update(update).eq("id", postId);
 
   if (error) return { error: error.message };
   revalidatePath("/rest");

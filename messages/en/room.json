@@ -72,14 +72,6 @@
     "setGoalAria": "Set today's character goal",
     "todayGoalLabel": "Today's character goal",
     "setGoalHint": "Tap ⚙️ to set today's character goal.",
-    "recordByWork": "Track by work (optional)",
-    "notSelected": "None selected",
-    "selectWorkTitle": "Select a work",
-    "deleteWorkTitle": "Delete work",
-    "workNamePlaceholder": "Work title",
-    "add": "Add",
-    "addWork": "+ Add work",
-    "deleteWorkConfirm": "Remove \"{title}\" from your work list? Its recorded character graph will be kept.",
     "startChars": "Starting character count",
     "currentChars": "Current character count",
     "currentCharsPlaceholder": "Total characters written so far",
@@ -159,7 +151,8 @@
     "monthColumn": "M{month}",
     "total": "Total",
     "editRecordsTitle": "Edit character count records",
-    "editRecordsHint": "Entering a value per date saves it automatically. Leave it at 0 to remove that day's record."
+    "editRecordsHint": "Entering a value per date saves it automatically. Leave it at 0 to remove that day's record.",
+    "preJoinCellTitle": "Recorded in another room, before joining this one."
   },
   "workStatusPicker": {
     "setStatus": "Set status",

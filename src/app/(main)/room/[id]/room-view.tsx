@@ -8,7 +8,7 @@ import { useLiveMembers } from "./use-live-members";
 import { ParticipantCard, type ParticipantData } from "./participant-card";
 import { ChatPanel, type ChatMessage, type LatestNotice } from "./chat-panel";
 import { PomodoroPanel } from "./pomodoro-panel";
-import { CharInput, type WorkItem } from "./char-input";
+import { CharInput } from "./char-input";
 import { sumTotals, type DailyRecord } from "@/lib/records";
 import { recordChars, touchLastSeen, setWorkStatus, type RecordVisibility } from "@/lib/rooms";
 import { effectiveRecordDate, toLocalDateKey } from "@/lib/time";
@@ -41,13 +41,12 @@ export function RoomView({
   canModerate,
   latestNotice,
   dailyRecords,
-  selfTodayChars,
+  personalTodayChars,
   selfTodayFocusMinutes,
   selfTodayGlobalChars,
   selfTodayGoalChars,
   selfMonthGoalChars,
   selfMonthChars,
-  initialWorks,
 }: {
   roomId: string;
   roomName: string;
@@ -61,13 +60,14 @@ export function RoomView({
   canModerate: boolean;
   latestNotice: LatestNotice | null;
   dailyRecords: DailyRecord[];
-  selfTodayChars: number;
+  // 오늘의 개인 글자수(방 무관, 전체 합산) — 참여자 카드와 글자수 기록
+  // 영역 모두 이 값을 보여준다. 기록이 공개된 멤버만 들어있다.
+  personalTodayChars: Record<string, number>;
   selfTodayFocusMinutes: number;
   selfTodayGlobalChars: number;
   selfTodayGoalChars: number;
   selfMonthGoalChars: number;
   selfMonthChars: number;
-  initialWorks: WorkItem[];
 }) {
   const t = useTranslations("room.roomView");
   const { toast: celebrationToast, celebrate } = useCelebrationToast();
@@ -83,7 +83,6 @@ export function RoomView({
   const pomodoro = usePomodoroContext();
   const isActiveRoom = pomodoro.activeRoomId === roomId;
 
-  const [chars, setChars] = useState(selfTodayChars);
   const [todayChars, setTodayChars] = useState(selfTodayGlobalChars);
   const { reportTyping, getStatus, setPomodoroState, getPomodoroState } = useRoomPresence(
     roomId,
@@ -134,7 +133,6 @@ export function RoomView({
       if (currentDateKey === lastCheckedDateRef.current) return;
       lastCheckedDateRef.current = currentDateKey;
       if (effectiveRecordDate(sessionStartRef.current) === currentDateKey) {
-        setChars(0);
         setTodayChars(0);
       }
     }, 30000);
@@ -146,7 +144,6 @@ export function RoomView({
   // 그쪽에서 이미 저장을 마친 뒤 델타만 이 함수로 알려준다).
   const applyTodayCharsDelta = (n: number) => {
     if (n === 0) return;
-    setChars((c) => c + n);
     setTodayChars((prev) => {
       const next = prev + n;
       if (selfTodayGoalChars > 0 && prev < selfTodayGoalChars && next >= selfTodayGoalChars) {
@@ -242,7 +239,7 @@ export function RoomView({
     breakMinutes: pomodoro.breakMinutes,
     elapsedFraction: displayElapsedFraction,
     accumulatedFocusMinutes: displayAccumulatedFocusMinutes,
-    accumulatedChars: chars,
+    accumulatedChars: todayChars,
     presence: getStatus(selfId),
     recordsVisible: true,
     lastSeenLabel: null,
@@ -250,6 +247,9 @@ export function RoomView({
   };
 
   const otherParticipants: ParticipantData[] = otherMembers.map((m) => {
+    // 집중 시간은 여전히 "이 방에서" 누적된 값(이 방의 daily_records)을
+    // 보여주지만, 글자수는 방 무관 개인 데이터라 오늘 하루치 합산값을
+    // 보여준다(personalTodayChars, page.tsx에서 방을 가리지 않고 계산).
     const totals = sumTotals(dailyRecords, m.id);
     const pomodoroState = getPomodoroState(m.id);
     const presence = getStatus(m.id);
@@ -262,7 +262,7 @@ export function RoomView({
       focusMinutes: 25,
       breakMinutes: 5,
       accumulatedFocusMinutes: totals.focusMinutes,
-      accumulatedChars: totals.chars,
+      accumulatedChars: personalTodayChars[m.id] ?? 0,
       presence,
       recordsVisible: m.recordsVisible,
       lastSeenLabel: m.lastSeenLabel,
@@ -404,7 +404,6 @@ export function RoomView({
           <CharInput
             todayChars={todayChars}
             todayGoalChars={selfTodayGoalChars}
-            initialWorks={initialWorks}
             onAdd={addChars}
             onActivity={reportTyping}
           />

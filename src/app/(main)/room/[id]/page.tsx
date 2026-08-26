@@ -189,9 +189,7 @@ export default async function RoomPage({
     { data: postRows },
     { data: categoryRows },
     { data: pollRows },
-    { data: selfTodayGlobalRows },
     { data: goalRows },
-    { data: workRows },
     { data: monthGoalRows },
     { data: selfMonthGlobalRows },
     { data: personalRecordRows },
@@ -230,14 +228,6 @@ export default async function RoomPage({
       .eq("room_id", id)
       .order("created_at", { ascending: false })
       .returns<PollRow[]>(),
-    // "오늘의 글자수"는 이 방만이 아니라 그날 어느 방에서 입력했든 합산되는
-    // 개인 기록이다 — 방이 나중에 삭제돼도 사라지지 않는다.
-    supabase
-      .from("daily_records")
-      .select("chars")
-      .eq("user_id", user!.id)
-      .eq("record_date", today)
-      .returns<{ chars: number }[]>(),
     // 오늘 적용되는 목표 글자수 — 오늘 또는 그 이전 날짜에 설정된 값 중
     // 가장 최근 것.
     supabase
@@ -248,12 +238,6 @@ export default async function RoomPage({
       .order("effective_date", { ascending: false })
       .limit(1)
       .returns<{ target_chars: number }[]>(),
-    supabase
-      .from("works")
-      .select("id,title,last_current_chars")
-      .eq("user_id", user!.id)
-      .order("created_at", { ascending: true })
-      .returns<{ id: string; title: string; last_current_chars: number }[]>(),
     // 이번 달 목표 글자수(달성 시 축하 토스트를 띄우기 위해 방 페이지에도
     // 필요) — [개인] 페이지에서 설정하는 값과 같은 goals 테이블.
     supabase
@@ -337,19 +321,18 @@ export default async function RoomPage({
     (r) => r.userId === user!.id && r.date === today
   );
 
-  const selfTodayGlobalChars = (selfTodayGlobalRows ?? []).reduce(
-    (sum, r) => sum + r.chars,
-    0
-  );
+  // 참여자 카드·글자수 기록 영역에 보여줄 "오늘의 개인 글자수" — 방이
+  // 아니라 그날 어느 방에서 입력했든 합산되는 개인 기록이므로, 이미
+  // 가져온 personalDailyRecords에서 오늘 날짜만 모아 이용자별로 더한다.
+  const personalTodayByUser = new Map<string, number>();
+  for (const r of personalDailyRecords) {
+    if (r.date !== today) continue;
+    personalTodayByUser.set(r.userId, (personalTodayByUser.get(r.userId) ?? 0) + r.chars);
+  }
+  const selfTodayGlobalChars = personalTodayByUser.get(user!.id) ?? 0;
   const selfTodayGoalChars = goalRows?.[0]?.target_chars ?? 0;
   const selfMonthGoalChars = monthGoalRows?.target_chars ?? 0;
   const selfMonthChars = (selfMonthGlobalRows ?? []).reduce((sum, r) => sum + r.chars, 0);
-
-  const works = (workRows ?? []).map((w) => ({
-    id: w.id,
-    title: w.title,
-    lastCurrentChars: w.last_current_chars,
-  }));
 
   const categoryNameById = new Map((categoryRows ?? []).map((c) => [c.id, c.name]));
 
@@ -521,13 +504,12 @@ export default async function RoomPage({
             canModerate={canModerateChat}
             latestNotice={latestNotice}
             dailyRecords={dailyRecords}
-            selfTodayChars={selfToday?.chars ?? 0}
+            personalTodayChars={Object.fromEntries(personalTodayByUser)}
             selfTodayFocusMinutes={selfToday?.focusMinutes ?? 0}
             selfTodayGlobalChars={selfTodayGlobalChars}
             selfTodayGoalChars={selfTodayGoalChars}
             selfMonthGoalChars={selfMonthGoalChars}
             selfMonthChars={selfMonthChars}
-            initialWorks={works}
           />
         }
         records={

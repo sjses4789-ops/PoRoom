@@ -92,6 +92,10 @@
     "dateColumn": "发布日期",
     "linkRoomLabel": "关联房间",
     "noRoomLink": "不关联",
+    "infoCategoryLabel": "分类",
+    "noInfoCategory": "无分类",
+    "pin": "置顶",
+    "unpin": "取消置顶",
     "goToRoom": "前往房间",
     "unknownRoom": "未知房间"
   }

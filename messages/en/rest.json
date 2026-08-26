@@ -92,6 +92,10 @@
     "dateColumn": "Date",
     "linkRoomLabel": "Link a room",
     "noRoomLink": "No link",
+    "infoCategoryLabel": "Category",
+    "noInfoCategory": "No category",
+    "pin": "Pin",
+    "unpin": "Unpin",
     "goToRoom": "Go to room",
     "unknownRoom": "Unknown room"
   }

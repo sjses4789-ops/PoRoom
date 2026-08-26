@@ -72,14 +72,6 @@
     "setGoalAria": "오늘의 목표 글자수 설정",
     "todayGoalLabel": "오늘의 목표 글자수",
     "setGoalHint": "⚙️ 버튼으로 오늘의 목표 글자수를 설정해보세요.",
-    "recordByWork": "작품별로 기록하기 (선택)",
-    "notSelected": "선택 안 함",
-    "selectWorkTitle": "작품 선택",
-    "deleteWorkTitle": "작품 삭제",
-    "workNamePlaceholder": "작품 이름",
-    "add": "추가",
-    "addWork": "+ 작품 추가",
-    "deleteWorkConfirm": "\"{title}\" 작품을 목록에서 삭제할까요? 기록된 글자수 그래프는 유지돼요.",
     "startChars": "시작 전 글자수",
     "currentChars": "현재 글자수",
     "currentCharsPlaceholder": "지금까지 쓴 총 글자수",
@@ -159,7 +151,8 @@
     "monthColumn": "{month}월",
     "total": "합계",
     "editRecordsTitle": "글자수 기록 수정",
-    "editRecordsHint": "날짜별 글자수를 입력하면 자동으로 저장돼요. 0으로 두면 기록에서 사라져요."
+    "editRecordsHint": "날짜별 글자수를 입력하면 자동으로 저장돼요. 0으로 두면 기록에서 사라져요.",
+    "preJoinCellTitle": "이 방에 입장하기 전, 다른 방에서 기록한 데이터예요."
   },
   "workStatusPicker": {
     "setStatus": "상태 설정",

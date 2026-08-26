@@ -72,14 +72,6 @@
     "setGoalAria": "今日の目標文字数を設定",
     "todayGoalLabel": "今日の目標文字数",
     "setGoalHint": "⚙️ボタンで今日の目標文字数を設定してみましょう。",
-    "recordByWork": "作品別に記録する(任意)",
-    "notSelected": "選択なし",
-    "selectWorkTitle": "作品を選択",
-    "deleteWorkTitle": "作品を削除",
-    "workNamePlaceholder": "作品名",
-    "add": "追加",
-    "addWork": "+ 作品を追加",
-    "deleteWorkConfirm": "「{title}」をリストから削除しますか? 記録された文字数グラフは保持されます。",
     "startChars": "開始前の文字数",
     "currentChars": "現在の文字数",
     "currentCharsPlaceholder": "これまでに書いた総文字数",
@@ -159,7 +151,8 @@
     "monthColumn": "{month}月",
     "total": "合計",
     "editRecordsTitle": "文字数記録を修正",
-    "editRecordsHint": "日付ごとに文字数を入力すると自動的に保存されます。0にすると記録から消えます。"
+    "editRecordsHint": "日付ごとに文字数を入力すると自動的に保存されます。0にすると記録から消えます。",
+    "preJoinCellTitle": "この部屋に入る前、他の部屋で記録されたデータです。"
   },
   "workStatusPicker": {
     "setStatus": "状態を設定",

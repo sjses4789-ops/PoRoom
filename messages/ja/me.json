@@ -63,26 +63,6 @@
     "nextDate": "次の日付",
     "notCurrentHint": "現在の期間でのみ目標を編集できます。"
   },
-  "workChart": {
-    "title": "作品別文字数",
-    "noWorks": "登録された作品がありません。右の作品リストから追加してください。",
-    "periodEntry": "入力基準",
-    "periodDay": "日別",
-    "periodMonth": "月別",
-    "entryChangeFor": "{title}の入力別変動",
-    "noEntries": "まだ入力記録がありません。",
-    "monthLabel": "{month}月",
-    "yearLabel": "{year}年",
-    "prevMonth": "前の月",
-    "nextMonth": "次の月",
-    "prevYear": "前の年",
-    "nextYear": "次の年",
-    "editTitle": "表で修正",
-    "backToChart": "グラフで見る",
-    "charsPlaceholder": "文字数",
-    "add": "追加",
-    "deleteEntryTitle": "記録削除"
-  },
   "rankingStatus": {
     "title": "ランキング状況",
     "yearMonth": "{year}年{month}月",
@@ -97,16 +77,6 @@
     "challengeLabel": "チャレンジ",
     "noChallenge": "チャレンジ記録なし",
     "challengeRank": "{rank}位 / {total}人"
-  },
-  "workList": {
-    "title": "作品リスト",
-    "addTitle": "作品追加",
-    "namePlaceholder": "作品名",
-    "add": "追加",
-    "noWorks": "登録された作品がありません。",
-    "deleteConfirm": "「{title}」を削除しますか？グラフからも削除されます。",
-    "deleteTitle": "作品削除",
-    "renameTitle": "作品名を修正"
   },
   "pomodoroStats": {
     "title": "ポモドーロ統計",

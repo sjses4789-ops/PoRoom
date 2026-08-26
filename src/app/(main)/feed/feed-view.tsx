@@ -60,6 +60,37 @@ const PASTEL_COLORS = [
   "#D6EAF7", "#E2E7FC", "#EFE1FA", "#FAE6F1", "#FBDDE4",
 ];
 
+// PASTEL_COLORS와 같은 순서 — 다크 테마에서는 옅은 파스텔이 흰 바탕에
+// 30% 투명도로 얹히던 걸 걷어내고, 같은 색조의 어두운 톤을 직접 쓴다
+// ([도전] 챌린지 카드의 라이트/다크 톤 쌍과 같은 접근). Tailwind가 CSS를
+// 생성하려면 클래스 이름이 소스에 리터럴로 있어야 해서 통째로 적어둔다.
+const PASTEL_CARD_CLASS: Record<string, string> = {
+  "#FBE7E9": "bg-[#FBE7E9] dark:bg-[#3a2224]",
+  "#FCE8DC": "bg-[#FCE8DC] dark:bg-[#3a2a1e]",
+  "#FBF3D3": "bg-[#FBF3D3] dark:bg-[#332e14]",
+  "#EAF4D8": "bg-[#EAF4D8] dark:bg-[#232a18]",
+  "#DCF2E6": "bg-[#DCF2E6] dark:bg-[#16281f]",
+  "#D9F0F4": "bg-[#D9F0F4] dark:bg-[#142a2c]",
+  "#DCEBFB": "bg-[#DCEBFB] dark:bg-[#16232f]",
+  "#E6E2FB": "bg-[#E6E2FB] dark:bg-[#211f30]",
+  "#F3E3FA": "bg-[#F3E3FA] dark:bg-[#2c2030]",
+  "#FCE3EE": "bg-[#FCE3EE] dark:bg-[#331f28]",
+  "#F5DEDE": "bg-[#F5DEDE] dark:bg-[#332323]",
+  "#FAE9D8": "bg-[#FAE9D8] dark:bg-[#33291b]",
+  "#FBF4CE": "bg-[#FBF4CE] dark:bg-[#332f16]",
+  "#E3F1DB": "bg-[#E3F1DB] dark:bg-[#212b1a]",
+  "#D8F0E6": "bg-[#D8F0E6] dark:bg-[#142a20]",
+  "#D6EAF7": "bg-[#D6EAF7] dark:bg-[#14242f]",
+  "#E2E7FC": "bg-[#E2E7FC] dark:bg-[#1e2030]",
+  "#EFE1FA": "bg-[#EFE1FA] dark:bg-[#2a2032]",
+  "#FAE6F1": "bg-[#FAE6F1] dark:bg-[#32212a]",
+  "#FBDDE4": "bg-[#FBDDE4] dark:bg-[#331f26]",
+};
+
+function pastelCardClass(hex: string) {
+  return PASTEL_CARD_CLASS[hex] ?? "bg-white dark:bg-neutral-900";
+}
+
 function Avatar({ characterId, size = 40 }: { characterId: string | null; size?: number }) {
   const src = characterSrc(characterId);
   return (
@@ -646,30 +677,15 @@ export function FeedView({
                 key={p.id}
                 className={`relative overflow-hidden rounded-2xl border p-4 shadow-sm transition hover:shadow-md ${
                   p.meta.bgColor
-                    ? "border-black/5 bg-white"
+                    ? `border-black/5 dark:border-white/10 ${pastelCardClass(p.meta.bgColor)}`
                     : "border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-900"
                 }`}
               >
-                {p.meta.bgColor && (
-                  // 채움색은 항상 30% 투명도로만 얹는다 — 바탕은 위에서
-                  // 이미 테마와 무관하게 흰색으로 고정해뒀으니(다크 모드
-                  // 배경 위에 그대로 얹으면 색이 어둡게 섞여 아래 텍스트
-                  // 대비가 나빠진다), 이 위에서는 텍스트도 항상 어두운
-                  // 색으로 고정한다.
-                  <div
-                    className="pointer-events-none absolute inset-0 -z-10"
-                    style={{ backgroundColor: p.meta.bgColor, opacity: 0.3 }}
-                  />
-                )}
                 <div className="flex items-start gap-3">
                   <Avatar characterId={p.characterId} size={36} />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
-                      <span
-                        className={`flex min-w-0 items-center gap-1.5 truncate text-sm font-semibold ${
-                          p.meta.bgColor ? "text-neutral-900" : "text-neutral-900 dark:text-white"
-                        }`}
-                      >
+                      <span className="flex min-w-0 items-center gap-1.5 truncate text-sm font-semibold text-neutral-900 dark:text-white">
                         {p.authorName}
                         <span aria-hidden className="text-xs">
                           {CATEGORY_ICON[p.postType]}
@@ -688,11 +704,7 @@ export function FeedView({
                         )}
                       </div>
                     </div>
-                    <p
-                      className={`mt-1 whitespace-pre-wrap text-sm ${
-                        p.meta.bgColor ? "text-neutral-700" : "text-neutral-700 dark:text-neutral-200"
-                      }`}
-                    >
+                    <p className="mt-1 whitespace-pre-wrap text-sm text-neutral-700 dark:text-neutral-200">
                       {p.mood}
                     </p>
                     <PostBadges post={p} t={t} />

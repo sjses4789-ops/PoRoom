@@ -92,6 +92,10 @@
     "dateColumn": "作成日",
     "linkRoomLabel": "ルーム連携",
     "noRoomLink": "連携しない",
+    "infoCategoryLabel": "カテゴリー",
+    "noInfoCategory": "カテゴリーなし",
+    "pin": "固定",
+    "unpin": "固定解除",
     "goToRoom": "ルームへ移動",
     "unknownRoom": "不明なルーム"
   }
