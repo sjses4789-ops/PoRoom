@@ -224,6 +224,40 @@ export function RoomRecordsPanel({
     .sort((a, b) => b.chars - a.chars)
     .slice(0, 10);
 
+  // 표의 참여자 행 순서 — DB에서 멤버 목록을 정렬 없이 가져오다 보니
+  // 탭을 다시 열 때마다(서버 재조회 때마다) 순서가 들쭉날쭉했다. 실제
+  // 기록 데이터(출석률)로 순서를 매겨 데이터가 바뀌지 않는 한 순서도
+  // 그대로 유지되도록 한다 — 월/연도 전환이나 이 패널 안에서의 수정
+  // 같은 로컬 상호작용으로는 재정렬되지 않는다.
+  const attendanceRateById = useMemo(() => {
+    const dates = dailyRecords.filter((r) => r.chars > 0).map((r) => r.date);
+    const rateById = new Map<string, number>();
+    if (dates.length === 0) return rateById;
+
+    const minDate = dates.reduce((min, d) => (d < min ? d : min), dates[0]);
+    const dayMs = 24 * 60 * 60 * 1000;
+    const totalDays = Math.max(
+      1,
+      Math.round((new Date(`${todayKst()}T00:00:00Z`).getTime() - new Date(`${minDate}T00:00:00Z`).getTime()) / dayMs) + 1
+    );
+
+    const attendedByUser = new Map<string, Set<string>>();
+    for (const r of dailyRecords) {
+      if (r.chars <= 0) continue;
+      const set = attendedByUser.get(r.userId) ?? new Set<string>();
+      set.add(r.date);
+      attendedByUser.set(r.userId, set);
+    }
+    for (const [userId, set] of attendedByUser) {
+      rateById.set(userId, set.size / totalDays);
+    }
+    return rateById;
+  }, [dailyRecords]);
+
+  const sortedMembers = [...members].sort(
+    (a, b) => (attendanceRateById.get(a.id) ?? 0) - (attendanceRateById.get(b.id) ?? 0)
+  );
+
   return (
     <div className="flex flex-col gap-3 overflow-hidden rounded-sm border border-neutral-400 p-4 dark:border-neutral-600">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -331,7 +365,7 @@ export function RoomRecordsPanel({
             </tr>
           </thead>
           <tbody>
-            {members.map((member) => {
+            {sortedMembers.map((member) => {
               const total = totalFor(member.id);
               const rowBorder = "border-b-2 border-neutral-300 dark:border-neutral-600";
               // 합계보다 옅은 색으로, 날짜별 글자수 칸이 합계 칸과

@@ -37,6 +37,8 @@ export default async function RankingPage() {
     { data: users },
     { data: userChallenges },
     { data: milestoneLogs },
+    { data: adminAchievementChallenges },
+    { data: typingScoreRows },
   ] = await Promise.all([
     supabase
       .from("daily_records")
@@ -60,16 +62,21 @@ export default async function RankingPage() {
       .select("user_id,type")
       .in("type", ["milestone_5k", "milestone_10k", "draft_done"])
       .returns<{ user_id: string; type: string }[]>(),
+    // 관리자가 만든 "달성 여부" 임시 이벤트는 마일스톤 로그 대신
+    // challenge_participants.achieved 자가 신고로 성공 여부를 판단한다 —
+    // 이 조회 자체는 위 배치와 서로 무관하므로 같이 보낸다.
+    supabase
+      .from("challenges")
+      .select("id")
+      .eq("is_admin_event", true)
+      .eq("metric", "achievement")
+      .returns<{ id: string }[]>(),
+    supabase
+      .from("typing_scores")
+      .select("user_id,cpm")
+      .returns<{ user_id: string; cpm: number }[]>(),
   ]);
 
-  // 관리자가 만든 "달성 여부" 임시 이벤트는 마일스톤 로그 대신
-  // challenge_participants.achieved 자가 신고로 성공 여부를 판단한다.
-  const { data: adminAchievementChallenges } = await supabase
-    .from("challenges")
-    .select("id")
-    .eq("is_admin_event", true)
-    .eq("metric", "achievement")
-    .returns<{ id: string }[]>();
   const adminAchievementIds = (adminAchievementChallenges ?? []).map((c) => c.id);
   const { data: adminAchievedRows } = adminAchievementIds.length
     ? await supabase
@@ -79,11 +86,6 @@ export default async function RankingPage() {
         .eq("achieved", true)
         .returns<{ user_id: string | null }[]>()
     : { data: [] as { user_id: string | null }[] };
-
-  const { data: typingScoreRows } = await supabase
-    .from("typing_scores")
-    .select("user_id,cpm")
-    .returns<{ user_id: string; cpm: number }[]>();
 
   const roomNames: Record<string, string> = {};
   for (const r of rooms ?? []) roomNames[r.id] = r.name;

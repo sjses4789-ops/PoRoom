@@ -33,17 +33,38 @@ export async function createTodo(content: string): Promise<CreateTodoResult> {
 // 체크(완료)해도 더 이상 지우지 않고 completed_at만 채운다 — [개인]
 // 페이지의 날짜별 팝오버에서 완료 여부까지 확인할 수 있도록.
 export async function completeTodo(id: string) {
+  await setTodoCompleted(id, true);
+}
+
+// "+더보기" 팝오버에서 과거 날짜의 항목도 체크/해제할 수 있어야 해서,
+// 완료 여부를 양방향으로 바꾸는 함수로 통일한다. 챌린지가 아니라
+// 사용자가 직접 적은 할 일은, 완료 처리한 그 날짜에서 "+더보기"로 다시
+// 찾을 수 있어야 하므로 완료 시 todo_date를 오늘로 다시 찍는다(챌린지
+// 자동 생성 항목은 for_date로 활성 기간을 판단하므로 건드리지 않는다).
+export async function setTodoCompleted(id: string, completed: boolean) {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return;
 
-  await supabase
-    .from("todos")
-    .update({ completed_at: new Date().toISOString() })
-    .eq("id", id)
-    .eq("user_id", user.id);
+  const update: { completed_at: string | null; todo_date?: string } = {
+    completed_at: completed ? new Date().toISOString() : null,
+  };
+
+  if (completed) {
+    const { data: todo } = await supabase
+      .from("todos")
+      .select("for_date")
+      .eq("id", id)
+      .eq("user_id", user.id)
+      .maybeSingle<{ for_date: string | null }>();
+    if (!todo?.for_date) {
+      update.todo_date = todayKst();
+    }
+  }
+
+  await supabase.from("todos").update(update).eq("id", id).eq("user_id", user.id);
 
   revalidatePath("/me");
   revalidatePath("/main");

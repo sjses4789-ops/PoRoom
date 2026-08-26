@@ -24,6 +24,8 @@ export type Member = {
   recordsVisible: boolean;
   lastSeenLabel: string | null;
   workStatus: string | null;
+  isOwner: boolean;
+  isVice: boolean;
 };
 
 const LAST_SEEN_HEARTBEAT_MS = 30000;
@@ -79,11 +81,17 @@ export function RoomView({
   // 이번 달 글자수는 화면에 직접 렌더링하지 않고 목표 달성 감지에만
   // 쓰므로, 리렌더를 유발하지 않는 ref로 들고 있는다.
   const monthCharsRef = useRef(selfMonthChars);
+  // useLiveMembers가 재조회/실시간 갱신 때도 방장 왕관 표시를 유지하려면
+  // 방장 id를 알아야 하는데, 서버에서 이미 계산해 초기 members에 실어
+  // 보낸 isOwner 플래그에서 그대로 뽑아 쓰면 별도 prop이 필요 없다.
+  const ownerId = initialMembers.find((m) => m.isOwner)?.id ?? "";
   const { members, updateSelfWorkStatus } = useLiveMembers(
     roomId,
     selfId,
     initialMembers,
-    recordVisibility
+    recordVisibility,
+    ownerId,
+    isSystemRoom
   );
   const pomodoro = usePomodoroContext();
   const isActiveRoom = pomodoro.activeRoomId === roomId;
@@ -249,6 +257,8 @@ export function RoomView({
     recordsVisible: true,
     lastSeenLabel: null,
     workStatus: selfMember?.workStatus ?? null,
+    isOwner: selfMember?.isOwner ?? false,
+    isVice: selfMember?.isVice ?? false,
   };
 
   const otherParticipants: ParticipantData[] = otherMembers.map((m) => {
@@ -278,6 +288,8 @@ export function RoomView({
       // 때 비접속이면 그냥 표시만 비운다(저장된 값 자체는 그대로 둬서
       // 다시 접속하면 원래 상태가 곧바로 돌아온다).
       workStatus: presence === "offline" ? null : m.workStatus,
+      isOwner: m.isOwner,
+      isVice: m.isVice,
     };
   });
 

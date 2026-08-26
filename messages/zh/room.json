@@ -87,6 +87,8 @@
   "chatPanel": {
     "title": "聊天",
     "bubbleColorLabel": "气泡颜色",
+    "fontSizeDown": "缩小文字",
+    "fontSizeUp": "放大文字",
     "inputPlaceholder": "输入消息...",
     "whisperInputPlaceholder": "输入悄悄话...",
     "send": "发送",
@@ -173,6 +175,8 @@
     }
   },
   "participantCard": {
+    "ownerBadge": "房主",
+    "viceBadge": "副房主",
     "phase": {
       "focus": "专注中",
       "break": "休息中",

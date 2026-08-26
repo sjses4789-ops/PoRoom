@@ -87,6 +87,8 @@
   "chatPanel": {
     "title": "チャット",
     "bubbleColorLabel": "吹き出しの色",
+    "fontSizeDown": "文字を小さく",
+    "fontSizeUp": "文字を大きく",
     "inputPlaceholder": "メッセージを入力...",
     "whisperInputPlaceholder": "ひそひそ話を入力...",
     "send": "送信",
@@ -173,6 +175,8 @@
     }
   },
   "participantCard": {
+    "ownerBadge": "ルームオーナー",
+    "viceBadge": "副オーナー",
     "phase": {
       "focus": "集中中",
       "break": "休憩中",

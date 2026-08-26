@@ -16,6 +16,8 @@
     "moreButton": "+ もっと見る",
     "historyEmpty": "この日のやることはありません。",
     "historyClose": "閉じる",
+    "historyMarkComplete": "完了にする",
+    "historyMarkIncomplete": "完了を取り消す",
     "prevDate": "前の日付",
     "nextDate": "次の日付"
   },

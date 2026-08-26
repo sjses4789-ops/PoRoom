@@ -123,28 +123,38 @@ export default async function RoomPage({
   };
   const supabase = await createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const { data: room } = await supabase
-    .from("rooms")
-    .select(
-      "id,name,invite_code,owner_id,color,tags,record_visibility,join_type,capacity,is_system"
-    )
-    .eq("id", id)
-    .maybeSingle()
-    .returns<RoomRow>();
+  // 방 입장 지연의 상당 부분은, 서로 의존하지 않는 조회 네 개(내 인증
+  // 정보, 방 정보, 멤버 목록, 사이트 관리자 여부)를 하나씩 순서대로
+  // 기다리고 있던 데서 왔다 — 넷 다 route param(id)이나 각자의 인증
+  // 컨텍스트만 있으면 되고 서로의 결과가 필요 없으므로 한 배치로 보낸다.
+  const [
+    {
+      data: { user },
+    },
+    { data: room },
+    { data: memberRows },
+    isSiteAdmin,
+  ] = await Promise.all([
+    supabase.auth.getUser(),
+    supabase
+      .from("rooms")
+      .select(
+        "id,name,invite_code,owner_id,color,tags,record_visibility,join_type,capacity,is_system"
+      )
+      .eq("id", id)
+      .maybeSingle()
+      .returns<RoomRow>(),
+    supabase
+      .from("room_members")
+      .select(
+        "user_id,share_records,last_seen_at,is_vice,users(name,email,character_id,chat_color,work_status)"
+      )
+      .eq("room_id", id)
+      .returns<MemberRow[]>(),
+    isCurrentUserAdmin(),
+  ]);
 
   if (!room) notFound();
-
-  const { data: memberRows } = await supabase
-    .from("room_members")
-    .select(
-      "user_id,share_records,last_seen_at,is_vice,users(name,email,character_id,chat_color,work_status)"
-    )
-    .eq("room_id", id)
-    .returns<MemberRow[]>();
 
   const shareRecordsMap = new Map(
     (memberRows ?? []).map((m) => [m.user_id, m.share_records])
@@ -162,6 +172,8 @@ export default async function RoomPage({
       (room.record_visibility === "free" && shareRecordsMap.get(m.user_id) === true),
     lastSeenLabel: formatRelativeTime(m.last_seen_at),
     workStatus: m.users?.work_status ?? null,
+    isOwner: !room.is_system && m.user_id === room.owner_id,
+    isVice: m.is_vice,
   }));
 
   const nameMap = new Map(members.map((m) => [m.id, m.name]));
@@ -175,7 +187,6 @@ export default async function RoomPage({
   const canPostNotice = isOwner || isVice;
   // 사이트 관리자는 방장/부방장이 아니어도 어느 방에서나 채팅을 지울 수
   // 있다(불순한 의도의 채팅 신고 대응용) — 공지 작성 권한과는 별개.
-  const isSiteAdmin = await isCurrentUserAdmin();
   const canModerateChat = canPostNotice || isSiteAdmin;
 
   const today = todayKst();

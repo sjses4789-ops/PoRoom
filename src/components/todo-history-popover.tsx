@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { getTodosForDate, type TodoHistoryItem } from "@/lib/todos";
+import { getTodosForDate, setTodoCompleted, type TodoHistoryItem } from "@/lib/todos";
 import { todayKst, kstDatePlusDays } from "@/lib/time";
 
 export function TodoHistoryPopover({ onClose }: { onClose: () => void }) {
@@ -15,17 +15,58 @@ export function TodoHistoryPopover({ onClose }: { onClose: () => void }) {
   const [loadedDate, setLoadedDate] = useState<string | null>(null);
   const loading = loadedDate !== date;
 
+  // 한 번 불러온 날짜는 캐시해뒀다가 다시 그 날짜로 돌아오면 곧바로
+  // 보여준다 — 옆 날짜(어제/내일)도 미리 가져와둬서, 화살표로 넘길 때
+  // 대부분 기다림 없이 바로 나타나게 한다.
+  const cacheRef = useRef(new Map<string, TodoHistoryItem[]>());
+
+  const fetchAndCache = (d: string) => {
+    if (cacheRef.current.has(d)) return Promise.resolve(cacheRef.current.get(d)!);
+    return getTodosForDate(d).then((result) => {
+      cacheRef.current.set(d, result);
+      return result;
+    });
+  };
+
   useEffect(() => {
     let cancelled = false;
-    getTodosForDate(date).then((result) => {
-      if (cancelled) return;
-      setItems(result);
+
+    // 캐시에 있으면 기다림 없이 바로 보여준다.
+    const cached = cacheRef.current.get(date);
+    if (cached) {
+      setItems(cached);
       setLoadedDate(date);
-    });
+    } else {
+      fetchAndCache(date).then((result) => {
+        if (cancelled) return;
+        setItems(result);
+        setLoadedDate(date);
+      });
+    }
+
+    // 이전/다음 날짜를 미리 받아둔다(실패해도 조용히 무시 — 어차피
+    // 그 날짜로 넘어갈 때 다시 시도된다).
+    fetchAndCache(kstDatePlusDays(-1, date)).catch(() => {});
+    fetchAndCache(kstDatePlusDays(1, date)).catch(() => {});
+
     return () => {
       cancelled = true;
     };
   }, [date]);
+
+  const toggleItem = (item: TodoHistoryItem) => {
+    const next = !item.completed;
+    setItems((prev) => prev.map((it) => (it.id === item.id ? { ...it, completed: next } : it)));
+    // 캐시된 이 날짜 스냅샷도 같이 갱신해둬야, 다른 날짜를 봤다 돌아와도
+    // 체크한 상태가 유지된다.
+    cacheRef.current.set(
+      date,
+      (cacheRef.current.get(date) ?? items).map((it) =>
+        it.id === item.id ? { ...it, completed: next } : it
+      )
+    );
+    setTodoCompleted(item.id, next);
+  };
 
   return (
     <>
@@ -62,16 +103,18 @@ export function TodoHistoryPopover({ onClose }: { onClose: () => void }) {
           <ul className="flex flex-col gap-1.5">
             {items.map((item) => (
               <li key={item.id} className="flex items-center gap-2">
-                <span
-                  aria-hidden
-                  className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border text-[10px] leading-none ${
+                <button
+                  type="button"
+                  onClick={() => toggleItem(item)}
+                  aria-label={item.completed ? t("historyMarkIncomplete") : t("historyMarkComplete")}
+                  className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border text-[10px] leading-none transition ${
                     item.completed
                       ? "border-emerald-500 bg-emerald-500 text-white"
-                      : "border-neutral-300 dark:border-neutral-600"
+                      : "border-neutral-300 hover:border-neutral-400 dark:border-neutral-600 dark:hover:border-neutral-500"
                   }`}
                 >
                   {item.completed ? "✓" : ""}
-                </span>
+                </button>
                 <span
                   className={`min-w-0 flex-1 truncate text-xs ${
                     item.completed

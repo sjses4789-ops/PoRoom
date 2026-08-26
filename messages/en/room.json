@@ -87,6 +87,8 @@
   "chatPanel": {
     "title": "Chat",
     "bubbleColorLabel": "Bubble color",
+    "fontSizeDown": "Smaller text",
+    "fontSizeUp": "Larger text",
     "inputPlaceholder": "Type a message...",
     "whisperInputPlaceholder": "Type a whisper...",
     "send": "Send",
@@ -173,6 +175,8 @@
     }
   },
   "participantCard": {
+    "ownerBadge": "Room owner",
+    "viceBadge": "Deputy",
     "phase": {
       "focus": "Focusing",
       "break": "On break",

@@ -7,6 +7,7 @@ import type { Member } from "./room-view";
 
 type MemberRoomRow = {
   share_records: boolean;
+  is_vice: boolean;
   users: {
     name: string | null;
     email: string;
@@ -32,7 +33,9 @@ export function useLiveMembers(
   roomId: string,
   selfId: string,
   initialMembers: Member[],
-  recordVisibility: RecordVisibility
+  recordVisibility: RecordVisibility,
+  ownerId: string,
+  isSystemRoom: boolean
 ) {
   const [members, setMembers] = useState<Member[]>(initialMembers);
 
@@ -64,7 +67,7 @@ export function useLiveMembers(
     const addMember = async (userId: string) => {
       const { data: row } = await supabase
         .from("room_members")
-        .select("share_records,users(name,email,character_id,chat_color,work_status)")
+        .select("share_records,is_vice,users(name,email,character_id,chat_color,work_status)")
         .eq("room_id", roomId)
         .eq("user_id", userId)
         .maybeSingle<MemberRoomRow>();
@@ -87,6 +90,8 @@ export function useLiveMembers(
             recordsVisible,
             lastSeenLabel: null,
             workStatus: row.users?.work_status ?? null,
+            isOwner: !isSystemRoom && userId === ownerId,
+            isVice: row.is_vice,
           },
         ];
       });
@@ -102,7 +107,7 @@ export function useLiveMembers(
     const refetchAll = async () => {
       const { data: rows } = await supabase
         .from("room_members")
-        .select("user_id,share_records,users(name,email,character_id,chat_color,work_status)")
+        .select("user_id,share_records,is_vice,users(name,email,character_id,chat_color,work_status)")
         .eq("room_id", roomId)
         .returns<(MemberRoomRow & { user_id: string })[]>();
       if (!rows || cancelled) return;
@@ -121,6 +126,8 @@ export function useLiveMembers(
               (recordVisibility === "free" && row.share_records === true),
             lastSeenLabel: existing?.lastSeenLabel ?? null,
             workStatus: row.users?.work_status ?? null,
+            isOwner: !isSystemRoom && row.user_id === ownerId,
+            isVice: row.is_vice,
           };
         });
       });
@@ -256,7 +263,7 @@ export function useLiveMembers(
       window.removeEventListener("blur", onInactive);
       if (currentChannel) supabase.removeChannel(currentChannel);
     };
-  }, [roomId, selfId, recordVisibility]);
+  }, [roomId, selfId, recordVisibility, ownerId, isSystemRoom]);
 
   return { members, updateSelfWorkStatus };
 }

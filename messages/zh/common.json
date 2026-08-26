@@ -16,6 +16,8 @@
     "moreButton": "+ 更多",
     "historyEmpty": "这天没有待办事项。",
     "historyClose": "关闭",
+    "historyMarkComplete": "标记为已完成",
+    "historyMarkIncomplete": "取消完成标记",
     "prevDate": "上一天",
     "nextDate": "下一天"
   },

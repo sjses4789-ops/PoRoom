@@ -25,6 +25,11 @@ export type LatestNotice = {
   authorName: string;
 };
 
+const CHAT_FONT_SIZE_STORAGE_KEY = "poroom:chat-font-size";
+const DEFAULT_CHAT_FONT_SIZE = 14;
+const MIN_CHAT_FONT_SIZE = 11;
+const MAX_CHAT_FONT_SIZE = 20;
+
 export function ChatPanel({
   roomId,
   selfId,
@@ -65,6 +70,32 @@ export function ChatPanel({
     setSyncedCollapsed(collapsed);
     if (!collapsed) setUnreadCount(0);
   }
+
+  // 채팅 메시지 글자 크기를 참여자가 직접 조절할 수 있게 한다 — 기기에
+  // 저장해두고 다음에 이 방을 열 때도 유지한다.
+  const [chatFontSize, setChatFontSize] = useState(DEFAULT_CHAT_FONT_SIZE);
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    try {
+      const stored = Number(window.localStorage.getItem(CHAT_FONT_SIZE_STORAGE_KEY));
+      if (stored >= MIN_CHAT_FONT_SIZE && stored <= MAX_CHAT_FONT_SIZE) setChatFontSize(stored);
+    } catch {
+      // 로컬스토리지를 못 쓰는 환경이면 기본값을 그대로 둔다.
+    }
+  }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
+
+  const adjustChatFontSize = (delta: number) => {
+    setChatFontSize((prev) => {
+      const next = Math.min(MAX_CHAT_FONT_SIZE, Math.max(MIN_CHAT_FONT_SIZE, prev + delta));
+      try {
+        window.localStorage.setItem(CHAT_FONT_SIZE_STORAGE_KEY, String(next));
+      } catch {
+        // 저장 실패해도 이번 세션 내 크기 조절 자체는 계속 동작한다.
+      }
+      return next;
+    });
+  };
 
   const nameOf = (userId: string) =>
     userId === selfId
@@ -210,17 +241,41 @@ export function ChatPanel({
   return (
     <div className="flex h-[500px] flex-col overflow-hidden rounded-sm border border-neutral-400 lg:h-[680px] dark:border-neutral-600">
       <div className="flex items-center justify-between border-b border-neutral-100 px-4 py-3 dark:border-neutral-800">
-        <button
-          type="button"
-          onClick={onToggleCollapsed}
-          title={t("collapse")}
-          className="flex items-center gap-1.5 text-sm font-semibold text-neutral-900 dark:text-white"
-        >
-          <span aria-hidden className="text-neutral-400">
-            ◂
-          </span>
-          {t("title")}
-        </button>
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={onToggleCollapsed}
+            title={t("collapse")}
+            className="flex items-center gap-1.5 text-sm font-semibold text-neutral-900 dark:text-white"
+          >
+            <span aria-hidden className="text-neutral-400">
+              ◂
+            </span>
+            {t("title")}
+          </button>
+          <div className="flex items-center gap-0.5">
+            <button
+              type="button"
+              onClick={() => adjustChatFontSize(-1)}
+              disabled={chatFontSize <= MIN_CHAT_FONT_SIZE}
+              title={t("fontSizeDown")}
+              aria-label={t("fontSizeDown")}
+              className="flex h-6 w-6 items-center justify-center rounded-md border border-neutral-200 text-xs text-neutral-500 transition hover:bg-neutral-50 disabled:opacity-40 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
+            >
+              −
+            </button>
+            <button
+              type="button"
+              onClick={() => adjustChatFontSize(1)}
+              disabled={chatFontSize >= MAX_CHAT_FONT_SIZE}
+              title={t("fontSizeUp")}
+              aria-label={t("fontSizeUp")}
+              className="flex h-6 w-6 items-center justify-center rounded-md border border-neutral-200 text-xs text-neutral-500 transition hover:bg-neutral-50 disabled:opacity-40 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
+            >
+              +
+            </button>
+          </div>
+        </div>
         <div className="flex items-center gap-1.5">
           <span className="text-xs text-neutral-400">{t("bubbleColorLabel")}</span>
           <ChatColorPicker current={selfColor} onChange={setSelfColorOverride} />
@@ -243,21 +298,32 @@ export function ChatPanel({
                   <span className="text-xs text-neutral-300">🙂</span>
                 )}
               </div>
-              <div className={`flex min-w-0 flex-col ${isSelf ? "items-end" : "items-start"}`}>
-                <span className="flex items-center gap-1 text-[12px] text-neutral-400">
-                  {nameOf(m.userId)}
-                  {m.targetUserId && (
-                    <span className="text-amber-500">
-                      🤫{" "}
-                      {isSelf
-                        ? t("whisperToLabel", { name: nameOf(m.targetUserId) })
-                        : t("whisperTag")}
-                    </span>
-                  )}
-                </span>
-                <span className="flex max-w-[85%] items-center gap-1">
+              {/* 말풍선 정렬을 flex 교차축(items-end/items-start)이 아니라
+                  text-align으로 한다 — 한글처럼 어디서든 줄바꿈 가능한
+                  텍스트가 "flex-col items-end + 퍼센트 max-width" 조합
+                  안에 있으면, 실제로는 공간이 충분한데도 브라우저가 내용
+                  너비를 실제보다 훨씬 좁게(글자 한두 개 폭으로) 어림해
+                  버블이 필요 이상으로 줄바꿈되는 문제가 있었다(문의 캡처
+                  확인). min-w-0 flex-1 + text-align 조합은 이 계산
+                  경로를 타지 않아 버블이 항상 제 너비대로 한 줄에 들어간다. */}
+              <div className="min-w-0 flex-1">
+                <div className={isSelf ? "text-right" : "text-left"}>
+                  <span className="inline-flex items-center gap-1 text-[12px] text-neutral-400">
+                    {nameOf(m.userId)}
+                    {m.targetUserId && (
+                      <span className="text-amber-500">
+                        🤫{" "}
+                        {isSelf
+                          ? t("whisperToLabel", { name: nameOf(m.targetUserId) })
+                          : t("whisperTag")}
+                      </span>
+                    )}
+                  </span>
+                </div>
+                <div className={isSelf ? "text-right" : "text-left"}>
                   <span
-                    className={`mt-0.5 break-words rounded-lg px-3 py-1.5 ${chatBubbleClass(
+                    style={{ fontSize: chatFontSize }}
+                    className={`mt-0.5 inline-block max-w-[85%] break-words rounded-lg px-3 py-1.5 text-left ${chatBubbleClass(
                       colorOf(m.userId),
                       isSelf
                     )}`}
@@ -269,12 +335,12 @@ export function ChatPanel({
                       type="button"
                       onClick={() => removeMessage(m.id)}
                       title={t("deleteMessage")}
-                      className="shrink-0 text-[11px] text-neutral-300 opacity-0 transition hover:text-red-500 group-hover:opacity-100 dark:text-neutral-600"
+                      className="ml-1 align-middle text-[11px] text-neutral-300 opacity-0 transition hover:text-red-500 group-hover:opacity-100 dark:text-neutral-600"
                     >
                       ✕
                     </button>
                   )}
-                </span>
+                </div>
               </div>
             </div>
           );

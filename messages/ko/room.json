@@ -87,6 +87,8 @@
   "chatPanel": {
     "title": "채팅",
     "bubbleColorLabel": "말풍선 색상",
+    "fontSizeDown": "글자 작게",
+    "fontSizeUp": "글자 크게",
     "inputPlaceholder": "메시지 입력...",
     "whisperInputPlaceholder": "귓속말 입력...",
     "send": "전송",
@@ -173,6 +175,8 @@
     }
   },
   "participantCard": {
+    "ownerBadge": "방장",
+    "viceBadge": "부방장",
     "phase": {
       "focus": "집중 중",
       "break": "휴식 중",

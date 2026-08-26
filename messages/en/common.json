@@ -16,6 +16,8 @@
     "moreButton": "+ More",
     "historyEmpty": "No to-dos for this date.",
     "historyClose": "Close",
+    "historyMarkComplete": "Mark complete",
+    "historyMarkIncomplete": "Mark incomplete",
     "prevDate": "Previous date",
     "nextDate": "Next date"
   },

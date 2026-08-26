@@ -16,6 +16,8 @@
     "moreButton": "+ 더보기",
     "historyEmpty": "이 날짜엔 할 일이 없어요.",
     "historyClose": "닫기",
+    "historyMarkComplete": "완료로 표시",
+    "historyMarkIncomplete": "완료 취소",
     "prevDate": "이전 날짜",
     "nextDate": "다음 날짜"
   },

@@ -22,6 +22,8 @@ export type ParticipantData = {
   recordsVisible: boolean;
   lastSeenLabel: string | null;
   workStatus: string | null;
+  isOwner: boolean;
+  isVice: boolean;
 };
 
 const PHASE_COLOR: Record<ParticipantData["phase"], string> = {
@@ -35,6 +37,16 @@ const PRESENCE_DOT: Record<PresenceStatus, string> = {
   typing: "bg-emerald-500",
   idle: "bg-neutral-400",
 };
+
+// 이모지는 색을 바꿀 수 없어서(금색 왕관·핑크색 왕관을 구분해야 하므로)
+// 직접 그린 왕관 SVG를 fill로 칠한다.
+function CrownIcon({ color, size }: { color: string; size: number }) {
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden>
+      <path fill={color} d="M2 18h20l-1.5-9-5 4-3.5-7-3.5 7-5-4L2 18z" />
+    </svg>
+  );
+}
 
 export function ParticipantCard({
   data,
@@ -83,6 +95,23 @@ export function ParticipantCard({
             strokeWidth={7}
           />
         </div>
+        {data.isOwner ? (
+          <div
+            className="absolute right-1 top-1 rounded-full bg-white/90 p-1 shadow-sm"
+            title={t("ownerBadge")}
+          >
+            <CrownIcon color="#F2B705" size={16} />
+          </div>
+        ) : (
+          data.isVice && (
+            <div
+              className="absolute right-1 top-1 rounded-full bg-white/90 p-1 shadow-sm"
+              title={t("viceBadge")}
+            >
+              <CrownIcon color="#F472B6" size={12} />
+            </div>
+          )
+        )}
       </div>
 
       <div className="flex min-w-0 items-center justify-between gap-1.5">

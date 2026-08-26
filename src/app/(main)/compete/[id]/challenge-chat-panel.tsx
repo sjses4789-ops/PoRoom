@@ -93,20 +93,24 @@ export function ChallengeChatPanel({
         ) : (
           messages.map((m) => {
             const isSelf = m.userId === selfId;
+            // 정렬을 flex 교차축이 아니라 text-align으로 한다 —
+            // room/[id]/chat-panel.tsx와 같은 이유(줄바꿈 가능한 한글
+            // 텍스트가 flex-col items-end + 퍼센트 max-width 조합 안에
+            // 있으면 실제보다 훨씬 좁게 계산되어 불필요하게 줄바꿈되는
+            // 문제가 있었다).
             return (
-              <div
-                key={m.id}
-                className={`flex flex-col text-sm ${isSelf ? "items-end" : "items-start"}`}
-              >
+              <div key={m.id} className={`text-sm ${isSelf ? "text-right" : "text-left"}`}>
                 <span className="text-[12px] text-neutral-400">{nameOf(m.userId)}</span>
-                <span
-                  className={`mt-0.5 max-w-[85%] break-words rounded-lg px-3 py-1.5 ${chatBubbleClass(
-                    colorOf(m.userId),
-                    isSelf
-                  )}`}
-                >
-                  {m.content}
-                </span>
+                <div>
+                  <span
+                    className={`mt-0.5 inline-block max-w-[85%] break-words rounded-lg px-3 py-1.5 text-left ${chatBubbleClass(
+                      colorOf(m.userId),
+                      isSelf
+                    )}`}
+                  >
+                    {m.content}
+                  </span>
+                </div>
               </div>
             );
           })
