@@ -5,6 +5,11 @@
     "expand": "Show more",
     "collapse": "Show less"
   },
+  "positionToggle": {
+    "aria": "Switch between web novelist and webtoon artist rankings",
+    "novelist": "Novel",
+    "webtoon": "Webtoon"
+  },
   "winLossRanking": {
     "heading": "Head-to-head win/loss ranking",
     "empty": "No completed 1:1 challenge records yet.",
@@ -15,6 +20,7 @@
     "colDraws": "D"
   },
   "rankingTabs": {
+    "heading": "Overall ranking",
     "scopeRoom": "Room",
     "scopeUser": "User",
     "periodDay": "Daily",
@@ -24,9 +30,11 @@
     "colRoomName": "Room name",
     "colName": "Name",
     "colChars": "Characters",
+    "colCuts": "Panels",
     "colMinutes": "Focus time",
     "empty": "No records for this period yet.",
     "charsSuffix": "{count} chars",
+    "cutsSuffix": "{count} panels",
     "minutesSuffix": "{count} min",
     "unknownUser": "Unknown",
     "myRankLine": "My rank (by user, {period}): #{rank} / {total}",

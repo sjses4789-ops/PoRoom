@@ -5,6 +5,11 @@
     "expand": "展开",
     "collapse": "收起"
   },
+  "positionToggle": {
+    "aria": "切换网络小说作者/webtoon作者排行榜",
+    "novelist": "网络小说",
+    "webtoon": "webtoon"
+  },
   "winLossRanking": {
     "heading": "对决胜负排行榜",
     "empty": "还没有已结束的个人对决记录。",
@@ -15,6 +20,7 @@
     "colDraws": "平"
   },
   "rankingTabs": {
+    "heading": "综合排行",
     "scopeRoom": "房间",
     "scopeUser": "个人",
     "periodDay": "按日",
@@ -24,9 +30,11 @@
     "colRoomName": "房间名称",
     "colName": "姓名",
     "colChars": "字数",
+    "colCuts": "格数",
     "colMinutes": "专注时长",
     "empty": "该时间段内还没有统计记录。",
     "charsSuffix": "{count}字",
+    "cutsSuffix": "{count}格",
     "minutesSuffix": "{count}分钟",
     "unknownUser": "未知用户",
     "myRankLine": "我的排名（按个人统计，{period}）：第{rank}名 / 共{total}人",

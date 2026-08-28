@@ -26,10 +26,14 @@ export async function ChallengeCard({
   startSlot,
   showRanking = true,
   color,
+  targetPosition = null,
 }: {
   id: string;
   title: string;
   metric: "chars" | "minutes" | "achievement";
+  // metric이 "chars"일 때 웹툰 작가 대상 대결이면 "글자수" 대신
+  // "컷수"로 표시한다.
+  targetPosition?: "novelist" | "webtoon" | null;
   visibility: "open" | "private";
   inviteCode?: string | null;
   startDate: string | null;
@@ -75,7 +79,9 @@ export async function ChallengeCard({
             {t("metricLabel", {
               metric:
                 metric === "chars"
-                  ? t("metricChars")
+                  ? targetPosition === "webtoon"
+                    ? t("metricCuts")
+                    : t("metricChars")
                   : metric === "minutes"
                     ? t("metricMinutes")
                     : t("metricAchievement"),

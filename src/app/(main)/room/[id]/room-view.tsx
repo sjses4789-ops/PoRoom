@@ -24,6 +24,9 @@ export type Member = {
   recordsVisible: boolean;
   lastSeenLabel: string | null;
   workStatus: string | null;
+  // 참여자 카드에 누적 글자수/작업량을 보여줄 때 "자"/"컷" 중 어떤
+  // 단위로 표시할지는 그 참여자 본인의 직업을 따른다.
+  position: "novelist" | "webtoon";
   isOwner: boolean;
   isVice: boolean;
 };
@@ -54,6 +57,7 @@ export function RoomView({
   selfTodayGoalChars,
   selfMonthGoalChars,
   selfMonthChars,
+  selfPosition,
 }: {
   roomId: string;
   roomName: string;
@@ -75,6 +79,9 @@ export function RoomView({
   selfTodayGoalChars: number;
   selfMonthGoalChars: number;
   selfMonthChars: number;
+  // [개인] 페이지에서 고른 내 직업 — 웹툰 작가면 [방]의 상태 설정 목록과
+  // 작업 단위(글자수→컷수) 표기가 달라진다.
+  selfPosition: "novelist" | "webtoon";
 }) {
   const t = useTranslations("room.roomView");
   const { toast: celebrationToast, celebrate } = useCelebrationToast();
@@ -160,7 +167,7 @@ export function RoomView({
     setTodayChars((prev) => {
       const next = prev + n;
       if (selfTodayGoalChars > 0 && prev < selfTodayGoalChars && next >= selfTodayGoalChars) {
-        celebrate(t("dailyGoalToast"));
+        celebrate(t(selfPosition === "webtoon" ? "dailyGoalToastWebtoon" : "dailyGoalToast"));
       }
       return next;
     });
@@ -168,7 +175,7 @@ export function RoomView({
     const monthNext = monthPrev + n;
     monthCharsRef.current = monthNext;
     if (selfMonthGoalChars > 0 && monthPrev < selfMonthGoalChars && monthNext >= selfMonthGoalChars) {
-      celebrate(t("monthlyGoalToast"));
+      celebrate(t(selfPosition === "webtoon" ? "monthlyGoalToastWebtoon" : "monthlyGoalToast"));
     }
   };
 
@@ -257,6 +264,7 @@ export function RoomView({
     recordsVisible: true,
     lastSeenLabel: null,
     workStatus: selfMember?.workStatus ?? null,
+    position: selfMember?.position ?? selfPosition,
     isOwner: selfMember?.isOwner ?? false,
     isVice: selfMember?.isVice ?? false,
   };
@@ -288,6 +296,7 @@ export function RoomView({
       // 때 비접속이면 그냥 표시만 비운다(저장된 값 자체는 그대로 둬서
       // 다시 접속하면 원래 상태가 곧바로 돌아온다).
       workStatus: presence === "offline" ? null : m.workStatus,
+      position: m.position,
       isOwner: m.isOwner,
       isVice: m.isVice,
     };
@@ -453,6 +462,7 @@ export function RoomView({
                 key={p.id}
                 data={p}
                 onChangeWorkStatus={p.isSelf ? handleChangeWorkStatus : undefined}
+                selfPosition={selfPosition}
               />
             ))}
           </div>
@@ -482,6 +492,7 @@ export function RoomView({
             todayGoalChars={selfTodayGoalChars}
             onAdd={addChars}
             onActivity={reportTyping}
+            position={selfPosition}
           />
         </div>
     </div>

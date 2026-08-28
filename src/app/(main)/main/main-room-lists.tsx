@@ -28,6 +28,7 @@ type NewRoomRow = {
   color: string;
   tags: string[] | null;
   join_type: "invite" | "open";
+  target_position: "novelist" | "webtoon" | null;
   is_system: boolean;
   created_at: string;
 };
@@ -106,6 +107,11 @@ export function MainRoomLists({ initialRooms }: { initialRooms: RoomListItem[] }
   // 오로지 이 검색 화면에서만 방의 join_type으로 거르기 위한 것이라, 방
   // 태그 목록에 섞지 않고 별도 필터 상태로 관리한다.
   const [joinTypeFilter, setJoinTypeFilter] = useState<"open" | "invite" | null>(null);
+  // 방 생성 시 고르는 "입장 가능 직업"(target_position) 기준 필터 —
+  // 이것도 ROOM_TAGS와는 별개의 검색 전용 필터다.
+  const [targetPositionFilter, setTargetPositionFilter] = useState<
+    "novelist" | "webtoon" | null
+  >(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [appliedSearch, setAppliedSearch] = useState("");
@@ -162,6 +168,7 @@ export function MainRoomLists({ initialRooms }: { initialRooms: RoomListItem[] }
                     color: row.color,
                     tags: row.tags ?? [],
                     joinType: row.join_type,
+                    targetPosition: row.target_position,
                     isMember: false,
                     createdAt: row.created_at,
                     allTimeChars: 0,
@@ -220,13 +227,18 @@ export function MainRoomLists({ initialRooms }: { initialRooms: RoomListItem[] }
   // 태그를 2개 이상 고르면, 그 태그를 전부 가진 방만 보여준다(AND 조건).
   // 검색어(방 이름 부분 일치)와 공개/비공개 필터는 태그 필터와 AND로 겹쳐진다.
   const normalizedSearch = appliedSearch.trim().toLowerCase();
-  const isFiltering = selectedTags.size > 0 || joinTypeFilter !== null || normalizedSearch !== "";
+  const isFiltering =
+    selectedTags.size > 0 ||
+    joinTypeFilter !== null ||
+    targetPositionFilter !== null ||
+    normalizedSearch !== "";
   const allRooms = rooms
     .filter(
       (r) =>
         (selectedTags.size === 0 ||
           Array.from(selectedTags).every((t) => r.tags.includes(t))) &&
         (joinTypeFilter === null || r.joinType === joinTypeFilter) &&
+        (targetPositionFilter === null || r.targetPosition === targetPositionFilter) &&
         (normalizedSearch === "" || r.name.toLowerCase().includes(normalizedSearch))
     )
     .sort(sortFn);
@@ -260,11 +272,15 @@ export function MainRoomLists({ initialRooms }: { initialRooms: RoomListItem[] }
 
       <section className="flex flex-col gap-3">
         <div className="flex flex-wrap gap-1.5">
-          {(selectedTags.size > 0 || joinTypeFilter !== null || appliedSearch !== "") && (
+          {(selectedTags.size > 0 ||
+            joinTypeFilter !== null ||
+            targetPositionFilter !== null ||
+            appliedSearch !== "") && (
             <button
               onClick={() => {
                 setSelectedTags(new Set());
                 setJoinTypeFilter(null);
+                setTargetPositionFilter(null);
                 closeSearch();
               }}
               className="rounded-full border border-neutral-300 bg-neutral-200 px-2 py-0.5 text-[12px] text-neutral-600 transition hover:bg-neutral-300 dark:border-neutral-600 dark:bg-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-600"
@@ -283,6 +299,19 @@ export function MainRoomLists({ initialRooms }: { initialRooms: RoomListItem[] }
               }`}
             >
               {jt === "open" ? tRoomCard("joinTypeOpen") : tRoomCard("joinTypeInvite")}
+            </button>
+          ))}
+          {(["novelist", "webtoon"] as const).map((tp) => (
+            <button
+              key={tp}
+              onClick={() => setTargetPositionFilter((prev) => (prev === tp ? null : tp))}
+              className={`rounded-full border px-2 py-0.5 text-[12px] transition ${
+                targetPositionFilter === tp
+                  ? "border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-neutral-900"
+                  : "border-neutral-200 text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+              }`}
+            >
+              {tp === "novelist" ? tRoomCard("targetNovelist") : tRoomCard("targetWebtoon")}
             </button>
           ))}
           {ROOM_TAGS.map((tag) => (

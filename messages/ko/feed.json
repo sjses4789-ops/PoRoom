@@ -7,7 +7,7 @@
   "view": {
     "category": {
       "all": "ALL",
-      "write": "집필",
+      "write": "작업",
       "duel": "대결",
       "challenge": "챌린지",
       "submission": "투고",
@@ -18,8 +18,10 @@
     "posting": "게시 중...",
     "focusLabel": "집중시간",
     "charsLabel": "글자수",
+    "cutsLabel": "작업량",
     "minuteUnit": "분",
     "charUnit": "자",
+    "cutUnit": "컷",
     "countUnit": "곳",
     "autoFilledHint": "오늘의 실제 기록에서 자동으로 불러와요.",
     "publisherCountFieldLabel": "투고 출판사",
@@ -53,6 +55,7 @@
       "loss": "패",
       "draw": "무"
     },
+    "duelRank": "{total}명 중 {rank}위",
     "achieved": "달성",
     "notAchieved": "미달성",
     "noPosts": "아직 올라온 소식이 없습니다.",

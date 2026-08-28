@@ -5,6 +5,11 @@
     "expand": "펼치기",
     "collapse": "접기"
   },
+  "positionToggle": {
+    "aria": "웹소설 작가/웹툰 작가 랭킹 전환",
+    "novelist": "웹소설",
+    "webtoon": "웹툰"
+  },
   "winLossRanking": {
     "heading": "대결 승패 랭킹",
     "empty": "종료된 개인 간 대결 기록이 아직 없습니다.",
@@ -15,6 +20,7 @@
     "colDraws": "무"
   },
   "rankingTabs": {
+    "heading": "전체 랭킹",
     "scopeRoom": "방",
     "scopeUser": "개인",
     "periodDay": "일별",
@@ -24,9 +30,11 @@
     "colRoomName": "방 이름",
     "colName": "이름",
     "colChars": "글자수",
+    "colCuts": "컷수",
     "colMinutes": "작업시간",
     "empty": "해당 기간에 집계된 기록이 없습니다.",
     "charsSuffix": "{count}자",
+    "cutsSuffix": "{count}컷",
     "minutesSuffix": "{count}분",
     "unknownUser": "알 수 없음",
     "myRankLine": "내 순위 (개인 기준, {period}): {rank}위 / {total}명",

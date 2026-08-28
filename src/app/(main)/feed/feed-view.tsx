@@ -25,6 +25,9 @@ export type FeedPost = {
   authorId: string;
   authorName: string;
   characterId: string | null;
+  // '작업' 카테고리 배지가 글자수/컷수 중 어느 단위로 보일지는 글쓴이
+  // 본인의 직업을 따른다(보는 사람 기준이 아니다).
+  authorPosition: "novelist" | "webtoon";
   mood: string;
   focusMinutes: number;
   chars: number;
@@ -112,6 +115,7 @@ const BADGE_TEXT = "text-[13px]";
 function PostBadges({ post, t }: { post: FeedPost; t: ReturnType<typeof useTranslations> }) {
   if (post.postType === "write") {
     if (post.focusMinutes <= 0 && post.chars <= 0) return null;
+    const isWebtoon = post.authorPosition === "webtoon";
     return (
       <div className="mt-2 flex flex-wrap gap-1.5">
         {post.focusMinutes > 0 && (
@@ -122,8 +126,8 @@ function PostBadges({ post, t }: { post: FeedPost; t: ReturnType<typeof useTrans
         )}
         {post.chars > 0 && (
           <span className={`rounded-full bg-neutral-100 px-2.5 py-1 ${BADGE_TEXT} font-medium text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300`}>
-            ✍️ {post.chars.toLocaleString()}
-            {t("charUnit")}
+            {isWebtoon ? "🎨" : "✍️"} {post.chars.toLocaleString()}
+            {isWebtoon ? t("cutUnit") : t("charUnit")}
           </span>
         )}
       </div>
@@ -167,10 +171,16 @@ function PostBadges({ post, t }: { post: FeedPost; t: ReturnType<typeof useTrans
         : result === "draw"
           ? "bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300"
           : "bg-rose-50 text-rose-600 dark:bg-rose-950 dark:text-rose-300";
+    // 예전 글은 등수 정보가 없을 수 있다(이 기능 추가 전에 작성됨).
+    const rank = post.meta.rank;
+    const participantCount = post.meta.participantCount;
     return (
       <div className="mt-2 flex flex-wrap gap-1.5">
         <span className={`rounded-full px-2.5 py-1 ${BADGE_TEXT} font-medium ${style}`}>
           ⚔️ {post.meta.challengeTitle} · {t(`duelResult.${result}`)}
+          {rank != null &&
+            participantCount != null &&
+            ` · ${t("duelRank", { rank, total: participantCount })}`}
         </span>
       </div>
     );
@@ -218,6 +228,7 @@ export function FeedView({
   selfId,
   selfName,
   selfCharacterId,
+  selfPosition,
   todayFocusMinutes,
   todayChars,
   duelOptions,
@@ -227,6 +238,7 @@ export function FeedView({
   selfId: string;
   selfName: string;
   selfCharacterId: string | null;
+  selfPosition: "novelist" | "webtoon";
   todayFocusMinutes: number;
   todayChars: number;
   duelOptions: DuelOption[];
@@ -354,6 +366,7 @@ export function FeedView({
       authorId: selfId,
       authorName: selfName,
       characterId: selfCharacterId,
+      authorPosition: selfPosition,
       mood: result.mood,
       focusMinutes: result.focusMinutes,
       chars: result.chars,
@@ -508,8 +521,10 @@ export function FeedView({
                   {t("minuteUnit")}
                 </span>
                 <span className="rounded-full bg-white px-2.5 py-1 dark:bg-neutral-800">
-                  ✍️ {t("charsLabel")} {todayChars.toLocaleString()}
-                  {t("charUnit")}
+                  {selfPosition === "webtoon" ? "🎨" : "✍️"}{" "}
+                  {selfPosition === "webtoon" ? t("cutsLabel") : t("charsLabel")}{" "}
+                  {todayChars.toLocaleString()}
+                  {selfPosition === "webtoon" ? t("cutUnit") : t("charUnit")}
                 </span>
                 <span className="text-[11px] text-neutral-400">{t("autoFilledHint")}</span>
               </>

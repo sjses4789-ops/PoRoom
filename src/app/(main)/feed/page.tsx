@@ -15,7 +15,13 @@ type PostRow = {
   meta: FeedPostMeta;
   created_at: string;
 };
-type UserRow = { id: string; name: string | null; email: string; character_id: string | null };
+type UserRow = {
+  id: string;
+  name: string | null;
+  email: string;
+  character_id: string | null;
+  position: string | null;
+};
 type ReactionRow = { id: string; post_id: string; user_id: string; reaction_type: ReactionType };
 
 const REACTION_TYPES: ReactionType[] = ["heart", "clap", "fire"];
@@ -37,7 +43,7 @@ export default async function FeedPage() {
         .order("created_at", { ascending: false })
         .limit(100)
         .returns<PostRow[]>(),
-      supabase.from("users").select("id,name,email,character_id").returns<UserRow[]>(),
+      supabase.from("users").select("id,name,email,character_id,position").returns<UserRow[]>(),
       supabase
         .from("feed_reactions")
         .select("id,post_id,user_id,reaction_type")
@@ -53,9 +59,11 @@ export default async function FeedPage() {
 
   const userNames: Record<string, string> = {};
   const userCharacters: Record<string, string | null> = {};
+  const userPositions: Record<string, "novelist" | "webtoon"> = {};
   for (const u of users ?? []) {
     userNames[u.id] = u.name || u.email;
     userCharacters[u.id] = u.character_id;
+    userPositions[u.id] = u.position === "webtoon" ? "webtoon" : "novelist";
   }
 
   const reactionsByPost = new Map<string, ReactionRow[]>();
@@ -83,6 +91,7 @@ export default async function FeedPage() {
       authorId: p.user_id,
       authorName: userNames[p.user_id] ?? t("unknownUser"),
       characterId: userCharacters[p.user_id] ?? null,
+      authorPosition: userPositions[p.user_id] ?? "novelist",
       mood: p.mood,
       focusMinutes: p.focus_minutes,
       chars: p.chars,
@@ -109,6 +118,7 @@ export default async function FeedPage() {
           selfId={user!.id}
           selfName={userNames[user!.id] ?? t("unknownUser")}
           selfCharacterId={userCharacters[user!.id] ?? null}
+          selfPosition={userPositions[user!.id] ?? "novelist"}
           todayFocusMinutes={todayFocusMinutes}
           todayChars={todayChars}
           duelOptions={options.duels}

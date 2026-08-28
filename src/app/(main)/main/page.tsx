@@ -16,6 +16,7 @@ type RoomRow = {
   color: string;
   tags: string[];
   join_type: "invite" | "open";
+  target_position: string | null;
   is_system: boolean;
   created_at: string;
 };
@@ -59,7 +60,7 @@ export default async function MainPage() {
   ] = await Promise.all([
     supabase
       .from("rooms")
-      .select("id,name,invite_code,color,tags,join_type,is_system,created_at")
+      .select("id,name,invite_code,color,tags,join_type,target_position,is_system,created_at")
       .order("created_at", { ascending: false })
       .returns<RoomRow[]>(),
     supabase.from("room_members").select("room_id").returns<
@@ -179,6 +180,9 @@ export default async function MainPage() {
       color: r.color,
       tags: r.tags,
       joinType: r.join_type,
+      targetPosition: r.target_position === "novelist" || r.target_position === "webtoon"
+        ? r.target_position
+        : null,
       isMember: myRoomIdSet.has(r.id),
       isFavorite: favoriteMap.get(r.id) ?? false,
       inviteCode: myRoomIdSet.has(r.id) ? r.invite_code : undefined,

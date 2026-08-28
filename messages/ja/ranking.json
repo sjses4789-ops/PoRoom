@@ -5,6 +5,11 @@
     "expand": "もっと見る",
     "collapse": "閉じる"
   },
+  "positionToggle": {
+    "aria": "Web小説作家/ウェブトゥーン作家ランキング切り替え",
+    "novelist": "Web小説",
+    "webtoon": "ウェブトゥーン"
+  },
   "winLossRanking": {
     "heading": "対決 勝敗ランキング",
     "empty": "終了した個人間対決の記録がまだありません。",
@@ -15,6 +20,7 @@
     "colDraws": "分"
   },
   "rankingTabs": {
+    "heading": "全体ランキング",
     "scopeRoom": "部屋",
     "scopeUser": "個人",
     "periodDay": "日別",
@@ -24,9 +30,11 @@
     "colRoomName": "部屋名",
     "colName": "名前",
     "colChars": "文字数",
+    "colCuts": "カット数",
     "colMinutes": "作業時間",
     "empty": "該当期間に集計された記録がありません。",
     "charsSuffix": "{count}文字",
+    "cutsSuffix": "{count}カット",
     "minutesSuffix": "{count}分",
     "unknownUser": "不明",
     "myRankLine": "自分の順位（個人基準、{period}）: {rank}位 / {total}人",

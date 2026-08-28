@@ -22,6 +22,8 @@ export type ActionResult = { error: string } | null;
 
 export type RecordVisibility = "shared" | "private" | "free";
 export type JoinType = "invite" | "open";
+// null(선택 안 함) = 직업 무관 누구나 입장 가능.
+export type TargetPosition = "novelist" | "webtoon" | null;
 
 export async function createRoom(
   _prevState: ActionResult,
@@ -40,6 +42,9 @@ export async function createRoom(
     formData.get("recordVisibility") ?? "shared"
   ) as RecordVisibility;
   const joinType = String(formData.get("joinType") ?? "invite") as JoinType;
+  const targetPositionRaw = String(formData.get("targetPosition") ?? "");
+  const targetPosition: TargetPosition =
+    targetPositionRaw === "novelist" || targetPositionRaw === "webtoon" ? targetPositionRaw : null;
 
   if (!name) return { error: "방 이름을 입력해주세요." };
   if (!["shared", "private", "free"].includes(recordVisibility)) {
@@ -63,6 +68,7 @@ export async function createRoom(
         tags,
         record_visibility: recordVisibility,
         join_type: joinType,
+        target_position: targetPosition,
       })
       .select("id")
       .single();
@@ -110,9 +116,9 @@ export async function joinRoomByCode(
 
   const { data: room, error: roomError } = await supabase
     .from("rooms")
-    .select("id")
+    .select("id,target_position")
     .eq("invite_code", code)
-    .maybeSingle();
+    .maybeSingle<{ id: string; target_position: string | null }>();
 
   if (roomError) return { error: roomError.message };
   if (!room) return { error: "존재하지 않는 초대코드입니다." };
@@ -124,6 +130,22 @@ export async function joinRoomByCode(
     .eq("user_id", user.id)
     .maybeSingle();
   if (ban) return { error: "방장에게 차단되어 입장할 수 없습니다." };
+
+  if (room.target_position) {
+    const { data: profile } = await supabase
+      .from("users")
+      .select("position")
+      .eq("id", user.id)
+      .maybeSingle<{ position: string | null }>();
+    if (profile?.position !== room.target_position) {
+      return {
+        error:
+          room.target_position === "webtoon"
+            ? "웹툰 작가만 입장할 수 있는 방입니다."
+            : "웹소설 작가만 입장할 수 있는 방입니다.",
+      };
+    }
+  }
 
   const { error: joinError } = await supabase
     .from("room_members")
@@ -145,9 +167,9 @@ export async function joinOpenRoom(roomId: string) {
 
   const { data: room } = await supabase
     .from("rooms")
-    .select("id,join_type")
+    .select("id,join_type,target_position")
     .eq("id", roomId)
-    .maybeSingle<{ id: string; join_type: JoinType }>();
+    .maybeSingle<{ id: string; join_type: JoinType; target_position: string | null }>();
 
   if (!room || room.join_type !== "open") return;
 
@@ -158,6 +180,15 @@ export async function joinOpenRoom(roomId: string) {
     .eq("user_id", user.id)
     .maybeSingle();
   if (ban) return;
+
+  if (room.target_position) {
+    const { data: profile } = await supabase
+      .from("users")
+      .select("position")
+      .eq("id", user.id)
+      .maybeSingle<{ position: string | null }>();
+    if (profile?.position !== room.target_position) return;
+  }
 
   await supabase
     .from("room_members")

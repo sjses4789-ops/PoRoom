@@ -4,6 +4,7 @@
     "unknown": "未知",
     "recordsPrivate": "记录不公开",
     "charUnit": "字",
+    "cutUnit": "格",
     "minuteUnit": "分钟",
     "cancel": "取消",
     "save": "保存",
@@ -26,7 +27,9 @@
     "notice": "公告",
     "onlineCount": "当前在线 {count} 人",
     "dailyGoalToast": "🎉 恭喜达成今日目标字数！",
-    "monthlyGoalToast": "🎉 恭喜达成本月目标字数！"
+    "monthlyGoalToast": "🎉 恭喜达成本月目标字数！",
+    "dailyGoalToastWebtoon": "🎉 恭喜达成今日目标作业量！",
+    "monthlyGoalToastWebtoon": "🎉 恭喜达成本月目标作业量！"
   },
   "shareRecordsToggle": {
     "label": "我的记录",
@@ -82,7 +85,18 @@
     "goalPlaceholder": "例如: 3000",
     "saving": "保存中...",
     "save": "保存",
-    "cancel": "取消"
+    "cancel": "取消",
+    "webtoon": {
+      "title": "作业量记录",
+      "setGoalAria": "设置今日目标作业量",
+      "todayGoalLabel": "今日目标作业量",
+      "setGoalHint": "点击 ⚙️ 按钮设置今日目标作业量吧。",
+      "cutCountLabel": "今日完成的格数",
+      "cutCountPlaceholder": "例如: 5",
+      "addLabel": "添加",
+      "goalModalHint": "今日设置的目标会从今天起持续生效。再次更改时,新数值将从修改起生效。",
+      "goalPlaceholder": "例如: 20"
+    }
   },
   "chatPanel": {
     "title": "聊天",
@@ -171,7 +185,16 @@
       "proofreading": "校对中",
       "research": "资料调研",
       "resting": "休息中",
-      "away": "暂时离开"
+      "away": "暂时离开",
+      "idea": "构思中",
+      "webtoonResearch": "资料调研",
+      "storyboard": "分镜",
+      "background": "背景",
+      "sketch": "草稿",
+      "inking": "描线",
+      "coloring": "上色",
+      "postEdit": "后期编辑",
+      "finishing": "收尾"
     }
   },
   "participantCard": {

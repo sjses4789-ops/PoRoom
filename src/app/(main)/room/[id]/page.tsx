@@ -53,6 +53,7 @@ type MemberRow = {
     character_id: string | null;
     chat_color: string | null;
     work_status: string | null;
+    position: string | null;
   } | null;
 };
 
@@ -147,7 +148,7 @@ export default async function RoomPage({
     supabase
       .from("room_members")
       .select(
-        "user_id,share_records,last_seen_at,is_vice,users(name,email,character_id,chat_color,work_status)"
+        "user_id,share_records,last_seen_at,is_vice,users(name,email,character_id,chat_color,work_status,position)"
       )
       .eq("room_id", id)
       .returns<MemberRow[]>(),
@@ -172,6 +173,9 @@ export default async function RoomPage({
       (room.record_visibility === "free" && shareRecordsMap.get(m.user_id) === true),
     lastSeenLabel: formatRelativeTime(m.last_seen_at),
     workStatus: m.users?.work_status ?? null,
+    position: (m.users?.position === "webtoon" ? "webtoon" : "novelist") as
+      | "novelist"
+      | "webtoon",
     isOwner: !room.is_system && m.user_id === room.owner_id,
     isVice: m.is_vice,
   }));
@@ -182,6 +186,13 @@ export default async function RoomPage({
   );
   const selfMember = members.find((m) => m.id === user!.id);
   const selfShareRecords = shareRecordsMap.get(user!.id) ?? true;
+  // 웹툰 작가로 설정된 사용자는 상태 설정 목록과 작업 단위(글자수→컷수)
+  // 표기가 달라진다 — 이건 방의 설정이 아니라 각자의 [개인] 직업
+  // 설정을 따르므로, memberRows에서 내 행만 찾아 꺼낸다.
+  const selfPosition: "novelist" | "webtoon" =
+    memberRows?.find((m) => m.user_id === user!.id)?.users?.position === "webtoon"
+      ? "webtoon"
+      : "novelist";
   const isOwner = !room.is_system && room.owner_id === user!.id;
   const isVice = viceMap.get(user!.id) ?? false;
   const canPostNotice = isOwner || isVice;
@@ -525,6 +536,7 @@ export default async function RoomPage({
             selfTodayGoalChars={selfTodayGoalChars}
             selfMonthGoalChars={selfMonthGoalChars}
             selfMonthChars={selfMonthChars}
+            selfPosition={selfPosition}
           />
         }
         records={

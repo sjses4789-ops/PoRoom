@@ -8,15 +8,24 @@ export async function ChallengeRankingBars({
   participants,
   metric,
   target,
+  targetPosition = null,
 }: {
   participants: ChallengeParticipant[];
   metric: "chars" | "minutes" | "achievement";
   target?: number;
+  targetPosition?: "novelist" | "webtoon" | null;
 }) {
   const t = await getTranslations("compete.challengeCard");
   const ranked = [...participants].sort((a, b) => b.value - a.value);
   const max = target ?? Math.max(1, ...ranked.map((p) => p.value));
-  const unit = metric === "chars" ? t("unitChars") : metric === "minutes" ? t("unitMinutes") : "";
+  const unit =
+    metric === "chars"
+      ? targetPosition === "webtoon"
+        ? t("unitCuts")
+        : t("unitChars")
+      : metric === "minutes"
+        ? t("unitMinutes")
+        : "";
 
   return (
     <div className="flex flex-col gap-2">

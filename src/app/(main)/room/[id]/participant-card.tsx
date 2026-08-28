@@ -22,6 +22,7 @@ export type ParticipantData = {
   recordsVisible: boolean;
   lastSeenLabel: string | null;
   workStatus: string | null;
+  position: "novelist" | "webtoon";
   isOwner: boolean;
   isVice: boolean;
 };
@@ -51,9 +52,13 @@ function CrownIcon({ color, size }: { color: string; size: number }) {
 export function ParticipantCard({
   data,
   onChangeWorkStatus,
+  selfPosition,
 }: {
   data: ParticipantData;
   onChangeWorkStatus?: (status: string | null) => void;
+  // 상태 설정 선택지 목록이 직업(웹소설/웹툰)에 따라 달라진다 —
+  // onChangeWorkStatus가 있는(=본인) 카드에서만 실제로 쓰인다.
+  selfPosition?: "novelist" | "webtoon";
 }) {
   const t = useTranslations("room.participantCard");
   const tCommon = useTranslations("room.common");
@@ -140,6 +145,7 @@ export function ParticipantCard({
             current={data.workStatus}
             onChange={onChangeWorkStatus}
             onPastelBg={!!cardBg}
+            position={selfPosition ?? "novelist"}
           />
         ) : (
           data.workStatus && (
@@ -155,7 +161,9 @@ export function ParticipantCard({
       <div className="flex items-center justify-between text-[12px]">
         <span className={cardBg ? "text-neutral-600" : "text-neutral-500 dark:text-neutral-400"}>
           {data.recordsVisible
-            ? `${data.accumulatedChars.toLocaleString()}${tCommon("charUnit")}`
+            ? `${data.accumulatedChars.toLocaleString()}${
+                data.position === "webtoon" ? tCommon("cutUnit") : tCommon("charUnit")
+              }`
             : tCommon("recordsPrivate")}
         </span>
         {isOffline ? (

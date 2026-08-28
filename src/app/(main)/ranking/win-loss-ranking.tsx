@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { RANK_STYLE } from "@/lib/rank-style";
 import { RankExpandToggle } from "./rank-expand-toggle";
+import { PositionToggle } from "./position-toggle";
 
 export type WinLossRow = {
   rank: number;
@@ -16,17 +17,35 @@ export type WinLossRow = {
 
 const VISIBLE_LIMIT = 10;
 
-export function WinLossRanking({ rows }: { rows: WinLossRow[] }) {
+export function WinLossRanking({
+  rows: allRows,
+  userPositions,
+  defaultPosition,
+}: {
+  rows: WinLossRow[];
+  userPositions: Record<string, "novelist" | "webtoon">;
+  defaultPosition: "novelist" | "webtoon";
+}) {
   const t = useTranslations("ranking.winLossRanking");
   const [expanded, setExpanded] = useState(false);
+  const [position, setPosition] = useState(defaultPosition);
+  // 선택한 직업의 사용자만 남기고, 순위를 다시 1부터 매긴다.
+  const rows = useMemo(
+    () =>
+      allRows
+        .filter((r) => (userPositions[r.userId] ?? "novelist") === position)
+        .map((r, i) => ({ ...r, rank: i + 1 })),
+    [allRows, userPositions, position]
+  );
   const visibleRows = expanded ? rows : rows.slice(0, VISIBLE_LIMIT);
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex items-center border-b border-neutral-100 pb-2">
+      <div className="flex items-center justify-between border-b border-neutral-100 pb-2">
         <span className="px-1 text-sm font-medium text-neutral-900 dark:text-white">
           {t("heading")}
         </span>
+        <PositionToggle value={position} onChange={setPosition} />
       </div>
 
       {rows.length === 0 ? (

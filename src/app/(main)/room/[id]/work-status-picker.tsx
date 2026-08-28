@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 // this is a free-text status the user picks or types (not a fixed enum
 // used elsewhere in the app), so unlike room tags we store and broadcast
 // the actual translated label the user saw and picked, in their locale.
-const PRESET_KEYS = [
+const NOVELIST_PRESET_KEYS = [
   "brainstorming",
   "drafting",
   "revising",
@@ -16,21 +16,37 @@ const PRESET_KEYS = [
   "away",
 ] as const;
 
+// 웹툰 작가는 집필 단계 대신 만화 제작 공정 단계를 고른다.
+const WEBTOON_PRESET_KEYS = [
+  "idea",
+  "webtoonResearch",
+  "storyboard",
+  "background",
+  "sketch",
+  "inking",
+  "coloring",
+  "postEdit",
+  "finishing",
+] as const;
+
 export function WorkStatusPicker({
   current,
   onChange,
   onPastelBg = false,
+  position = "novelist",
 }: {
   current: string | null;
   onChange: (status: string | null) => void;
   // true when the picker sits on a fixed-light work-status pastel card
   // background, which stays light regardless of theme.
   onPastelBg?: boolean;
+  position?: "novelist" | "webtoon";
 }) {
   const t = useTranslations("room.workStatusPicker");
   const [open, setOpen] = useState(false);
   const [customMode, setCustomMode] = useState(false);
   const [customText, setCustomText] = useState(current ?? "");
+  const presetKeys = position === "webtoon" ? WEBTOON_PRESET_KEYS : NOVELIST_PRESET_KEYS;
 
   const choose = (status: string | null) => {
     onChange(status);
@@ -76,7 +92,7 @@ export function WorkStatusPicker({
                     {t("clearStatus")}
                   </button>
                 )}
-                {PRESET_KEYS.map((key) => {
+                {presetKeys.map((key) => {
                   const label = t(`presets.${key}`);
                   return (
                     <button

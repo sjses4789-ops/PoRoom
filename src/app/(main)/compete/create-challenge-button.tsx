@@ -14,7 +14,12 @@ export default function CreateChallengeButton() {
   const [color, setColor] = useState<string>(PALETTE[0].key);
   const [capacity, setCapacity] = useState("");
   const [startMode, setStartMode] = useState<"manual" | "full">("manual");
+  const [targetPosition, setTargetPosition] = useState<"novelist" | "webtoon" | "">("");
+  const [metric, setMetric] = useState<"chars" | "minutes">("chars");
   const hasCapacity = capacity.trim() !== "";
+  // 글자수/컷수는 직업마다 단위가 달라서, "모두"(대상 제한 없음)로는
+  // 집중 시간 기준만 고를 수 있다.
+  const charsMetricDisabled = targetPosition === "";
   const [state, formAction, pending] = useActionState<ActionResult, FormData>(
     createChallenge,
     null
@@ -46,29 +51,76 @@ export default function CreateChallengeButton() {
 
             <div className="flex flex-col gap-1.5">
               <span className="text-[12px] font-medium text-neutral-500 dark:text-neutral-400">
+                {t("targetPositionLabel")}
+              </span>
+              <input type="hidden" name="targetPosition" value={targetPosition} />
+              <div className="flex gap-3">
+                {(
+                  [
+                    { value: "", label: t("targetPositionAny") },
+                    { value: "novelist", label: t("targetPositionNovelist") },
+                    { value: "webtoon", label: t("targetPositionWebtoon") },
+                  ] as const
+                ).map((opt) => (
+                  <label
+                    key={opt.value}
+                    className="flex items-center gap-1.5 text-xs text-neutral-700 dark:text-neutral-300"
+                  >
+                    <input
+                      type="radio"
+                      checked={targetPosition === opt.value}
+                      onChange={() => {
+                        setTargetPosition(opt.value);
+                        // "모두"로 바꾸면 글자수/컷수는 고를 수 없으니
+                        // 집중 시간으로 자동 전환한다.
+                        if (opt.value === "") setMetric("minutes");
+                      }}
+                      className="accent-neutral-900"
+                    />
+                    {opt.label}
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[12px] font-medium text-neutral-500 dark:text-neutral-400">
                 {t("metricLabel")}
               </span>
               <div className="flex gap-3">
-                <label className="flex items-center gap-1.5 text-xs text-neutral-700 dark:text-neutral-300">
+                <label
+                  className={`flex items-center gap-1.5 text-xs ${
+                    charsMetricDisabled
+                      ? "text-neutral-300 dark:text-neutral-600"
+                      : "text-neutral-700 dark:text-neutral-300"
+                  }`}
+                >
                   <input
                     type="radio"
                     name="metric"
                     value="chars"
-                    defaultChecked
+                    checked={metric === "chars"}
+                    disabled={charsMetricDisabled}
+                    onChange={() => setMetric("chars")}
                     className="accent-neutral-900"
                   />
-                  {t("metricChars")}
+                  {targetPosition === "webtoon" ? t("metricCuts") : t("metricChars")}
                 </label>
                 <label className="flex items-center gap-1.5 text-xs text-neutral-700 dark:text-neutral-300">
                   <input
                     type="radio"
                     name="metric"
                     value="minutes"
+                    checked={metric === "minutes"}
+                    onChange={() => setMetric("minutes")}
                     className="accent-neutral-900"
                   />
                   {t("metricMinutes")}
                 </label>
               </div>
+              {charsMetricDisabled && (
+                <p className="text-[11px] text-neutral-400">{t("metricCharsDisabledHint")}</p>
+              )}
             </div>
 
             <div className="flex flex-col gap-1.5">

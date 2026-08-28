@@ -14,6 +14,7 @@ export type RoomListItem = {
   color: string;
   tags: string[];
   joinType: "invite" | "open";
+  targetPosition: "novelist" | "webtoon" | null;
   isMember: boolean;
   isFavorite?: boolean;
   inviteCode?: string;
@@ -44,6 +45,11 @@ function RoomCardBody({ room }: { room: RoomListItem }) {
         <span className="rounded border border-neutral-300 px-1.5 py-0.5 text-[11px] text-neutral-500 dark:border-neutral-600 dark:text-neutral-400">
           {joinTypeLabel}
         </span>
+        {room.targetPosition && (
+          <span className="rounded border border-neutral-300 px-1.5 py-0.5 text-[11px] text-neutral-500 dark:border-neutral-600 dark:text-neutral-400">
+            {room.targetPosition === "webtoon" ? t("targetWebtoon") : t("targetNovelist")}
+          </span>
+        )}
       </div>
       <div className="flex items-center gap-3 text-[12px] text-neutral-600 dark:text-neutral-300">
         <span>{t("allTimeChars", { count: room.allTimeChars.toLocaleString() })}</span>

@@ -20,7 +20,7 @@ type DailyRecordRow = {
   focus_minutes: number;
 };
 type RoomRow = { id: string; name: string };
-type UserRow = { id: string; name: string | null; email: string };
+type UserRow = { id: string; name: string | null; email: string; position: string | null };
 
 type ParticipantRow = { challenge_id: string; user_id: string | null };
 
@@ -45,7 +45,7 @@ export default async function RankingPage() {
       .select("room_id,user_id,record_date,chars,focus_minutes")
       .returns<DailyRecordRow[]>(),
     supabase.from("rooms").select("id,name").returns<RoomRow[]>(),
-    supabase.from("users").select("id,name,email").returns<UserRow[]>(),
+    supabase.from("users").select("id,name,email,position").returns<UserRow[]>(),
     // 대결 승패 랭킹: 종료된 개인 간(1:1 이상) 대결에서 기간 내 값이 가장
     // 높은 참가자가 승, 나를 포함해 공동 1위면 무, 그 외엔 패 — 이걸 볼 수
     // 있는 모든 대결(RLS상 공개방이거나 내가 참여한 대결)에 대해 집계한다.
@@ -90,7 +90,12 @@ export default async function RankingPage() {
   const roomNames: Record<string, string> = {};
   for (const r of rooms ?? []) roomNames[r.id] = r.name;
   const userNames: Record<string, string> = {};
-  for (const u of users ?? []) userNames[u.id] = u.name || u.email;
+  const userPositions: Record<string, "novelist" | "webtoon"> = {};
+  for (const u of users ?? []) {
+    userNames[u.id] = u.name || u.email;
+    userPositions[u.id] = u.position === "webtoon" ? "webtoon" : "novelist";
+  }
+  const selfPosition = userPositions[user!.id] ?? "novelist";
 
   const records: RankingRecord[] = (dailyRecords ?? []).map((r) => ({
     roomId: r.room_id,
@@ -164,18 +169,32 @@ export default async function RankingPage() {
             records={records}
             roomNames={roomNames}
             userNames={userNames}
+            userPositions={userPositions}
+            defaultPosition={selfPosition}
             today={today}
             selfId={user!.id}
           />
         </div>
         <div className="overflow-hidden rounded-sm border border-neutral-400 p-4 dark:border-neutral-600">
-          <WinLossRanking rows={winLossRows} />
+          <WinLossRanking
+            rows={winLossRows}
+            userPositions={userPositions}
+            defaultPosition={selfPosition}
+          />
         </div>
         <div className="overflow-hidden rounded-sm border border-neutral-400 p-4 dark:border-neutral-600">
-          <ChallengeRanking rows={challengeRankingRows} />
+          <ChallengeRanking
+            rows={challengeRankingRows}
+            userPositions={userPositions}
+            defaultPosition={selfPosition}
+          />
         </div>
         <div className="overflow-hidden rounded-sm border border-neutral-400 p-4 dark:border-neutral-600">
-          <TypingRanking rows={typingRankingRows} />
+          <TypingRanking
+            rows={typingRankingRows}
+            userPositions={userPositions}
+            defaultPosition={selfPosition}
+          />
         </div>
       </div>
     </div>

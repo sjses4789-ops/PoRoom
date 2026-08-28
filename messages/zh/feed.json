@@ -7,7 +7,7 @@
   "view": {
     "category": {
       "all": "ALL",
-      "write": "写作",
+      "write": "创作",
       "duel": "对决",
       "challenge": "挑战",
       "submission": "投稿",
@@ -18,8 +18,10 @@
     "posting": "发布中...",
     "focusLabel": "专注时长",
     "charsLabel": "字数",
+    "cutsLabel": "作业量",
     "minuteUnit": "分钟",
     "charUnit": "字",
+    "cutUnit": "格",
     "countUnit": "家",
     "autoFilledHint": "自动从今天的实际记录中获取。",
     "publisherCountFieldLabel": "投稿出版社",
@@ -53,6 +55,7 @@
       "loss": "负",
       "draw": "平"
     },
+    "duelRank": "{total}人中第{rank}名",
     "achieved": "已达成",
     "notAchieved": "未达成",
     "noPosts": "还没有动态。",

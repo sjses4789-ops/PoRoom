@@ -20,6 +20,10 @@ function generateInviteCode(length = 6) {
 export type ChallengeMetric = "chars" | "minutes";
 export type ChallengeVisibility = "open" | "private";
 export type ChallengeStartMode = "manual" | "full";
+// null(누구나) = 직업 무관 참여 가능 — chars 기준(글자수/컷수)은 단위가
+// 갈리므로 특정 직업으로 좁혀야 하고, minutes(집중 시간) 기준일 때만
+// 누구나로 둘 수 있다.
+export type ChallengeTargetPosition = "novelist" | "webtoon" | null;
 
 export async function createChallenge(
   _prevState: ActionResult,
@@ -41,10 +45,18 @@ export async function createChallenge(
   const capacityRaw = String(formData.get("capacity") ?? "").trim();
   const capacity = capacityRaw ? Number(capacityRaw) : null;
   const startModeRaw = String(formData.get("startMode") ?? "manual") as ChallengeStartMode;
+  const targetPositionRaw = String(formData.get("targetPosition") ?? "");
+  const targetPosition: ChallengeTargetPosition =
+    targetPositionRaw === "novelist" || targetPositionRaw === "webtoon" ? targetPositionRaw : null;
 
   if (!title) return { error: "대결 이름을 입력해주세요." };
   if (!["chars", "minutes"].includes(metric)) {
     return { error: "잘못된 기준입니다." };
+  }
+  // 글자수/컷수는 직업마다 단위가 다르므로, 누구나(대상 제한 없음)로
+  // 두려면 반드시 집중 시간 기준이어야 한다.
+  if (metric === "chars" && targetPosition === null) {
+    return { error: "글자수/컷수 기준 대결은 대상 직업을 웹소설 작가 또는 웹툰 작가 중 하나로 정해야 해요." };
   }
   if (!["open", "private"].includes(visibility)) {
     return { error: "잘못된 공개 설정입니다." };
@@ -81,6 +93,7 @@ export async function createChallenge(
         color,
         capacity,
         start_mode: startMode,
+        target_position: targetPosition,
         created_by: user.id,
       })
       .select("id")
@@ -153,7 +166,7 @@ export async function joinChallenge(challengeId: string): Promise<JoinChallengeR
 
   const { data: challenge } = await supabase
     .from("challenges")
-    .select("id,end_date,kind,capacity,started_at,start_mode,duration_days")
+    .select("id,end_date,kind,capacity,started_at,start_mode,duration_days,target_position")
     .eq("id", challengeId)
     .maybeSingle<{
       id: string;
@@ -163,6 +176,7 @@ export async function joinChallenge(challengeId: string): Promise<JoinChallengeR
       started_at: string | null;
       start_mode: string;
       duration_days: number;
+      target_position: string | null;
     }>();
 
   if (!challenge) return { error: "존재하지 않는 대결입니다." };
@@ -170,6 +184,22 @@ export async function joinChallenge(challengeId: string): Promise<JoinChallengeR
   const today = todayKst();
   if (challenge.end_date && today > challenge.end_date) {
     return { error: "이미 종료된 대결입니다." };
+  }
+
+  if (challenge.target_position) {
+    const { data: profile } = await supabase
+      .from("users")
+      .select("position")
+      .eq("id", user.id)
+      .maybeSingle<{ position: string | null }>();
+    if (profile?.position !== challenge.target_position) {
+      return {
+        error:
+          challenge.target_position === "webtoon"
+            ? "웹툰 작가만 참여할 수 있는 대결입니다."
+            : "웹소설 작가만 참여할 수 있는 대결입니다.",
+      };
+    }
   }
 
   // 챌린지(kind가 있는 시스템 챌린지)는 정원 제한이 없다. 1:1형 대결은
@@ -219,7 +249,7 @@ export async function joinChallengeByCode(
 
   const { data: challenge, error } = await supabase
     .from("challenges")
-    .select("id,end_date,kind,capacity,started_at,start_mode,duration_days")
+    .select("id,end_date,kind,capacity,started_at,start_mode,duration_days,target_position")
     .eq("invite_code", code)
     .maybeSingle<{
       id: string;
@@ -229,6 +259,7 @@ export async function joinChallengeByCode(
       started_at: string | null;
       start_mode: string;
       duration_days: number;
+      target_position: string | null;
     }>();
 
   if (error) return { error: error.message };
@@ -237,6 +268,22 @@ export async function joinChallengeByCode(
   const today = todayKst();
   if (challenge.end_date && today > challenge.end_date) {
     return { error: "이미 종료된 대결입니다." };
+  }
+
+  if (challenge.target_position) {
+    const { data: profile } = await supabase
+      .from("users")
+      .select("position")
+      .eq("id", user.id)
+      .maybeSingle<{ position: string | null }>();
+    if (profile?.position !== challenge.target_position) {
+      return {
+        error:
+          challenge.target_position === "webtoon"
+            ? "웹툰 작가만 참여할 수 있는 대결입니다."
+            : "웹소설 작가만 참여할 수 있는 대결입니다.",
+      };
+    }
   }
 
   if (challenge.capacity != null) {

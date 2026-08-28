@@ -7,7 +7,7 @@
   "view": {
     "category": {
       "all": "ALL",
-      "write": "Writing",
+      "write": "Work",
       "duel": "Duel",
       "challenge": "Challenge",
       "submission": "Submission",
@@ -18,8 +18,10 @@
     "posting": "Posting...",
     "focusLabel": "Focus:",
     "charsLabel": "Chars:",
+    "cutsLabel": "Panels:",
     "minuteUnit": "min",
     "charUnit": "chars",
+    "cutUnit": "panels",
     "countUnit": "",
     "autoFilledHint": "Auto-filled from today's actual records.",
     "publisherCountFieldLabel": "Publishers",
@@ -53,6 +55,7 @@
       "loss": "Loss",
       "draw": "Draw"
     },
+    "duelRank": "#{rank} of {total}",
     "achieved": "Achieved",
     "notAchieved": "Not yet",
     "noPosts": "No updates yet.",

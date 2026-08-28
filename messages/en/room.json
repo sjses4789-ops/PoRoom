@@ -4,6 +4,7 @@
     "unknown": "Unknown",
     "recordsPrivate": "Private records",
     "charUnit": " chars",
+    "cutUnit": " panels",
     "minuteUnit": " min",
     "cancel": "Cancel",
     "save": "Save",
@@ -26,7 +27,9 @@
     "notice": "Notice",
     "onlineCount": "{count} online now",
     "dailyGoalToast": "🎉 Congrats on reaching today's character goal!",
-    "monthlyGoalToast": "🎉 Congrats on reaching this month's character goal!"
+    "monthlyGoalToast": "🎉 Congrats on reaching this month's character goal!",
+    "dailyGoalToastWebtoon": "🎉 Congrats on reaching today's work goal!",
+    "monthlyGoalToastWebtoon": "🎉 Congrats on reaching this month's work goal!"
   },
   "shareRecordsToggle": {
     "label": "My records",
@@ -82,7 +85,18 @@
     "goalPlaceholder": "e.g. 3000",
     "saving": "Saving...",
     "save": "Save",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "webtoon": {
+      "title": "Work log",
+      "setGoalAria": "Set today's work goal",
+      "todayGoalLabel": "Today's work goal",
+      "setGoalHint": "Tap ⚙️ to set today's work goal.",
+      "cutCountLabel": "Panels drawn today",
+      "cutCountPlaceholder": "e.g. 5",
+      "addLabel": "Add",
+      "goalModalHint": "Today's goal applies from today onward. Changing it applies the new value from that point on.",
+      "goalPlaceholder": "e.g. 20"
+    }
   },
   "chatPanel": {
     "title": "Chat",
@@ -171,7 +185,16 @@
       "proofreading": "Proofreading",
       "research": "Researching",
       "resting": "Resting",
-      "away": "Away"
+      "away": "Away",
+      "idea": "Brainstorming",
+      "webtoonResearch": "Researching",
+      "storyboard": "Storyboard",
+      "background": "Background art",
+      "sketch": "Sketching",
+      "inking": "Inking",
+      "coloring": "Coloring",
+      "postEdit": "Post-editing",
+      "finishing": "Finishing"
     }
   },
   "participantCard": {

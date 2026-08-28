@@ -4,6 +4,7 @@
     "unknown": "알 수 없음",
     "recordsPrivate": "기록 비공개",
     "charUnit": "자",
+    "cutUnit": "컷",
     "minuteUnit": "분",
     "cancel": "취소",
     "save": "저장",
@@ -26,7 +27,9 @@
     "notice": "공지사항",
     "onlineCount": "현재 접속 중 {count}명",
     "dailyGoalToast": "🎉 오늘의 목표 글자수 달성을 축하해요!",
-    "monthlyGoalToast": "🎉 이번 달 목표 글자수 달성을 축하해요!"
+    "monthlyGoalToast": "🎉 이번 달 목표 글자수 달성을 축하해요!",
+    "dailyGoalToastWebtoon": "🎉 오늘의 목표 작업량 달성을 축하해요!",
+    "monthlyGoalToastWebtoon": "🎉 이번 달 목표 작업량 달성을 축하해요!"
   },
   "shareRecordsToggle": {
     "label": "내 기록",
@@ -82,7 +85,18 @@
     "goalPlaceholder": "예: 3000",
     "saving": "저장 중...",
     "save": "저장",
-    "cancel": "취소"
+    "cancel": "취소",
+    "webtoon": {
+      "title": "작업량 기록",
+      "setGoalAria": "오늘의 목표 작업량 설정",
+      "todayGoalLabel": "오늘의 목표 작업량",
+      "setGoalHint": "⚙️ 버튼으로 오늘의 목표 작업량을 설정해보세요.",
+      "cutCountLabel": "오늘 작업한 컷 수",
+      "cutCountPlaceholder": "예: 5",
+      "addLabel": "추가",
+      "goalModalHint": "오늘 설정한 목표는 오늘과 이후 날짜에 계속 적용돼요. 다시 바꾸면 그 시점부터 새 값이 적용돼요.",
+      "goalPlaceholder": "예: 20"
+    }
   },
   "chatPanel": {
     "title": "채팅",
@@ -171,7 +185,16 @@
       "proofreading": "교정중",
       "research": "자료조사",
       "resting": "휴식 중",
-      "away": "자리 비움"
+      "away": "자리 비움",
+      "idea": "구상 중",
+      "webtoonResearch": "자료 조사",
+      "storyboard": "콘티",
+      "background": "배경",
+      "sketch": "스케치",
+      "inking": "펜터치",
+      "coloring": "채색",
+      "postEdit": "후편집",
+      "finishing": "마무리"
     }
   },
   "participantCard": {

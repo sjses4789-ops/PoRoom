@@ -8,6 +8,17 @@ const WORK_STATUS_BG: Record<string, string> = {
   "자료조사": "#F1EEF5",
   "휴식 중": "#EAF2F1",
   "자리 비움": "#F0F0EE",
+  // 웹툰 작가 전용 상태(work-status-picker.tsx의 WEBTOON_PRESET_KEYS) —
+  // 제작 공정 순서를 은근히 따라가는 색 흐름으로 골랐다.
+  "구상 중": "#EEF1F4",
+  "자료 조사": "#F1EEF5",
+  "콘티": "#EFEFF6",
+  "배경": "#EAF0EC",
+  "스케치": "#F2F0EA",
+  "펜터치": "#F0EFEA",
+  "채색": "#F5EAEE",
+  "후편집": "#EAEEF5",
+  "마무리": "#EEF3EE",
 };
 
 export function workStatusBg(status: string | null): string | undefined {

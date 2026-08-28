@@ -36,6 +36,7 @@ type ChallengeRow = {
   started_at: string | null;
   is_admin_event: boolean;
   start_mode: "manual" | "full";
+  target_position: string | null;
 };
 
 type UserRow = {
@@ -82,7 +83,7 @@ export default async function ChallengeDetailPage({
   const { data: challenge } = await supabase
     .from("challenges")
     .select(
-      "id,title,metric,visibility,invite_code,start_date,end_date,kind,created_by,color,capacity,duration_days,started_at,is_admin_event,start_mode"
+      "id,title,metric,visibility,invite_code,start_date,end_date,kind,created_by,color,capacity,duration_days,started_at,is_admin_event,start_mode,target_position"
     )
     .eq("id", id)
     .maybeSingle<ChallengeRow>();
@@ -270,6 +271,11 @@ export default async function ChallengeDetailPage({
           participants={participants}
           linkable={false}
           showRanking={false}
+          targetPosition={
+            challenge.target_position === "novelist" || challenge.target_position === "webtoon"
+              ? challenge.target_position
+              : null
+          }
           startSlot={
             isPending && isCreator ? (
               challenge.start_mode === "full" ? (
@@ -335,7 +341,16 @@ export default async function ChallengeDetailPage({
                   }))}
                 />
               ) : (
-                <ChallengeRankingBars participants={participants} metric={challenge.metric} />
+                <ChallengeRankingBars
+                  participants={participants}
+                  metric={challenge.metric}
+                  targetPosition={
+                    challenge.target_position === "novelist" ||
+                    challenge.target_position === "webtoon"
+                      ? challenge.target_position
+                      : null
+                  }
+                />
               )}
             </div>
           )}

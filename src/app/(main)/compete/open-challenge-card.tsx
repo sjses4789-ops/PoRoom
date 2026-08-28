@@ -8,6 +8,7 @@ export function OpenChallengeCard({
   id,
   title,
   metric,
+  targetPosition = null,
   startDate,
   endDate,
   participantCount,
@@ -15,6 +16,7 @@ export function OpenChallengeCard({
   id: string;
   title: string;
   metric: "chars" | "minutes" | "achievement";
+  targetPosition?: "novelist" | "webtoon" | null;
   startDate: string | null;
   endDate: string | null;
   participantCount: number;
@@ -23,6 +25,14 @@ export function OpenChallengeCard({
   const [joining, setJoining] = useState(false);
   const [joined, setJoined] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const metricLabel =
+    metric === "chars"
+      ? targetPosition === "webtoon"
+        ? t("metricCuts")
+        : t("metricChars")
+      : metric === "minutes"
+        ? t("metricMinutes")
+        : t("metricAchievement");
 
   return (
     <div className="flex flex-col gap-2 overflow-hidden rounded-lg border border-neutral-200 p-4">
@@ -36,24 +46,8 @@ export function OpenChallengeCard({
       </div>
       <p className="text-[12px] text-neutral-400">
         {startDate && endDate
-          ? t("metaLine", {
-              startDate,
-              endDate,
-              metric:
-                metric === "chars"
-                  ? t("metricChars")
-                  : metric === "minutes"
-                    ? t("metricMinutes")
-                    : t("metricAchievement"),
-            })
-          : t("pendingLine", {
-              metric:
-                metric === "chars"
-                  ? t("metricChars")
-                  : metric === "minutes"
-                    ? t("metricMinutes")
-                    : t("metricAchievement"),
-            })}
+          ? t("metaLine", { startDate, endDate, metric: metricLabel })
+          : t("pendingLine", { metric: metricLabel })}
       </p>
       <button
         disabled={joining || joined}

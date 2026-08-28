@@ -35,6 +35,7 @@ type ChallengeRow = {
   duration_days: number;
   started_at: string | null;
   is_admin_event: boolean;
+  target_position: string | null;
 };
 
 type ParticipantRow = {
@@ -52,7 +53,7 @@ type RecordRow = {
 };
 
 const CHALLENGE_SELECT =
-  "id,title,metric,visibility,invite_code,start_date,end_date,kind,created_by,color,capacity,duration_days,started_at,is_admin_event";
+  "id,title,metric,visibility,invite_code,start_date,end_date,kind,created_by,color,capacity,duration_days,started_at,is_admin_event,target_position";
 
 export default async function CompetePage() {
   const t = await getTranslations("compete.page");
@@ -207,6 +208,11 @@ export default async function CompetePage() {
                       durationDays={c.duration_days}
                       color={c.color}
                       participants={c.participants}
+                      targetPosition={
+                        c.target_position === "novelist" || c.target_position === "webtoon"
+                          ? c.target_position
+                          : null
+                      }
                     />
                   ))}
                 </div>
@@ -235,6 +241,11 @@ export default async function CompetePage() {
                       id={c.id}
                       title={c.title}
                       metric={c.metric}
+                      targetPosition={
+                        c.target_position === "novelist" || c.target_position === "webtoon"
+                          ? c.target_position
+                          : null
+                      }
                       startDate={c.start_date}
                       endDate={c.end_date}
                       participantCount={c.participantCount}

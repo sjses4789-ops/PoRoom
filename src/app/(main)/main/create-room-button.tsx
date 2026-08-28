@@ -27,6 +27,12 @@ export default function CreateRoomButton({
     { value: "open", label: t("joinOpen") },
   ] as const;
 
+  const TARGET_POSITION_OPTIONS = [
+    { value: "", label: t("targetPositionAny") },
+    { value: "novelist", label: t("targetPositionNovelist") },
+    { value: "webtoon", label: t("targetPositionWebtoon") },
+  ] as const;
+
   const [color, setColor] = useState<string>(PALETTE[0].key);
   const [tags, setTags] = useState<Set<string>>(new Set());
   const toggleTag = (tag: string) => {
@@ -123,6 +129,29 @@ export default function CreateRoomButton({
                     <input
                       type="radio"
                       name="joinType"
+                      value={opt.value}
+                      defaultChecked={i === 0}
+                      className="accent-neutral-900"
+                    />
+                    {opt.label}
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[12px] font-medium text-neutral-500 dark:text-neutral-400">
+                {t("targetPositionLabel")}
+              </span>
+              <div className="flex gap-3">
+                {TARGET_POSITION_OPTIONS.map((opt, i) => (
+                  <label
+                    key={opt.value}
+                    className="flex items-center gap-1.5 text-xs text-neutral-700 dark:text-neutral-300"
+                  >
+                    <input
+                      type="radio"
+                      name="targetPosition"
                       value={opt.value}
                       defaultChecked={i === 0}
                       className="accent-neutral-900"

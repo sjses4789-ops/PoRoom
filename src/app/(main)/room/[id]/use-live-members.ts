@@ -14,6 +14,7 @@ type MemberRoomRow = {
     character_id: string | null;
     chat_color: string | null;
     work_status: string | null;
+    position: string | null;
   } | null;
 };
 
@@ -67,7 +68,7 @@ export function useLiveMembers(
     const addMember = async (userId: string) => {
       const { data: row } = await supabase
         .from("room_members")
-        .select("share_records,is_vice,users(name,email,character_id,chat_color,work_status)")
+        .select("share_records,is_vice,users(name,email,character_id,chat_color,work_status,position)")
         .eq("room_id", roomId)
         .eq("user_id", userId)
         .maybeSingle<MemberRoomRow>();
@@ -90,6 +91,7 @@ export function useLiveMembers(
             recordsVisible,
             lastSeenLabel: null,
             workStatus: row.users?.work_status ?? null,
+            position: row.users?.position === "webtoon" ? "webtoon" : "novelist",
             isOwner: !isSystemRoom && userId === ownerId,
             isVice: row.is_vice,
           },
@@ -107,7 +109,7 @@ export function useLiveMembers(
     const refetchAll = async () => {
       const { data: rows } = await supabase
         .from("room_members")
-        .select("user_id,share_records,is_vice,users(name,email,character_id,chat_color,work_status)")
+        .select("user_id,share_records,is_vice,users(name,email,character_id,chat_color,work_status,position)")
         .eq("room_id", roomId)
         .returns<(MemberRoomRow & { user_id: string })[]>();
       if (!rows || cancelled) return;
@@ -126,6 +128,7 @@ export function useLiveMembers(
               (recordVisibility === "free" && row.share_records === true),
             lastSeenLabel: existing?.lastSeenLabel ?? null,
             workStatus: row.users?.work_status ?? null,
+            position: row.users?.position === "webtoon" ? "webtoon" : "novelist",
             isOwner: !isSystemRoom && row.user_id === ownerId,
             isVice: row.is_vice,
           };
@@ -194,6 +197,7 @@ export function useLiveMembers(
               character_id: string | null;
               chat_color: string | null;
               work_status: string | null;
+              position: string | null;
             };
             setMembers((prev) =>
               prev.map((m) =>
@@ -204,6 +208,7 @@ export function useLiveMembers(
                       characterId: row.character_id ?? null,
                       chatColor: row.chat_color ?? null,
                       workStatus: row.work_status ?? null,
+                      position: row.position === "webtoon" ? "webtoon" : "novelist",
                     }
                   : m
               )

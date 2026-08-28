@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { inPeriod, type Period } from "@/lib/records";
 import { RANK_STYLE } from "@/lib/rank-style";
 import { RankExpandToggle } from "./rank-expand-toggle";
+import { PositionToggle } from "./position-toggle";
 
 const VISIBLE_LIMIT = 10;
 
@@ -31,12 +32,19 @@ export default function RankingTabs({
   records,
   roomNames,
   userNames,
+  userPositions,
+  defaultPosition,
   today,
   selfId,
 }: {
   records: RankingRecord[];
   roomNames: Record<string, string>;
   userNames: Record<string, string>;
+  // 글자수 칸은 웹소설 작가에겐 글자수, 웹툰 작가에겐 컷수를 담고
+  // 있어서(같은 daily_records.chars 컬럼을 재사용) 서로 단위가 다르다
+  // — 그래서 이 랭킹은 한 번에 한 직업만 보여주고, 토글로 바꿔 본다.
+  userPositions: Record<string, "novelist" | "webtoon">;
+  defaultPosition: "novelist" | "webtoon";
   today: string;
   selfId: string;
 }) {
@@ -44,11 +52,18 @@ export default function RankingTabs({
   const [scope, setScope] = useState<"room" | "user">("room");
   const [period, setPeriod] = useState<Period>("month");
   const [expanded, setExpanded] = useState(false);
+  const [position, setPosition] = useState(defaultPosition);
+  const isWebtoon = position === "webtoon";
 
   // 방이 삭제된(room_id가 비워진) 기록은 개인 기준 랭킹엔 그대로 반영되고
-  // 방 기준 랭킹에서만 제외된다 — 더는 존재하지 않는 방이라서.
+  // 방 기준 랭킹에서만 제외된다 — 더는 존재하지 않는 방이라서. 직업이
+  // 다른 사용자의 기록은 여기서 아예 걸러낸다(방 기준일 때도 마찬가지 —
+  // 방에 웹소설·웹툰 작가가 섞여 있어도 선택한 직업의 기록만 합산).
   const filtered = records.filter(
-    (r) => inPeriod(r.date, period, today) && (scope !== "room" || r.roomId)
+    (r) =>
+      inPeriod(r.date, period, today) &&
+      (scope !== "room" || r.roomId) &&
+      (userPositions[r.userId] ?? "novelist") === position
   );
   const totals = new Map<string, { chars: number; minutes: number }>();
   for (const r of filtered) {
@@ -71,8 +86,11 @@ export default function RankingTabs({
     .map((r, i) => ({ rank: i + 1, ...r }));
 
   // 상단 탭(방/개인) 선택과 무관하게, 하단 고정바는 항상 "개인 기준"
-  // 전체 순위에서 나의 위치를 보여준다.
-  const periodFiltered = records.filter((r) => inPeriod(r.date, period, today));
+  // 전체 순위에서 나의 위치를 보여준다(단, 직업 토글은 그대로 따른다 —
+  // 안 그러면 단위가 다른 값끼리 비교하게 된다).
+  const periodFiltered = records.filter(
+    (r) => inPeriod(r.date, period, today) && (userPositions[r.userId] ?? "novelist") === position
+  );
   const userTotals = new Map<string, number>();
   for (const r of periodFiltered) {
     userTotals.set(r.userId, (userTotals.get(r.userId) ?? 0) + r.chars);
@@ -90,6 +108,18 @@ export default function RankingTabs({
 
   return (
     <div className="flex flex-col gap-5">
+      <div className="flex items-center justify-between">
+        <span className="px-1 text-sm font-medium text-neutral-900 dark:text-white">
+          {t("heading")}
+        </span>
+        <PositionToggle
+          value={position}
+          onChange={(next) => {
+            setPosition(next);
+            setExpanded(false);
+          }}
+        />
+      </div>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex gap-1 border-b border-neutral-100">
           {SCOPES.map((s) => (
@@ -142,7 +172,9 @@ export default function RankingTabs({
               <th className="py-2 font-medium">
                 {scope === "room" ? t("colRoomName") : t("colName")}
               </th>
-              <th className="py-2 text-right font-medium">{t("colChars")}</th>
+              <th className="py-2 text-right font-medium">
+                {isWebtoon ? t("colCuts") : t("colChars")}
+              </th>
               <th className="py-2 text-right font-medium">{t("colMinutes")}</th>
             </tr>
           </thead>
@@ -164,7 +196,9 @@ export default function RankingTabs({
                     {r.name}
                   </td>
                   <td className="py-2.5 text-right text-neutral-600">
-                    {t("charsSuffix", { count: r.chars.toLocaleString() })}
+                    {isWebtoon
+                      ? t("cutsSuffix", { count: r.chars.toLocaleString() })
+                      : t("charsSuffix", { count: r.chars.toLocaleString() })}
                   </td>
                   <td className="py-2.5 text-right text-neutral-600">
                     {t("minutesSuffix", { count: r.minutes.toLocaleString() })}

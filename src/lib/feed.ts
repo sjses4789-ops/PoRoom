@@ -13,6 +13,12 @@ export type ContestMode = "chars" | "complete" | "round";
 export type FeedPostMeta = {
   challengeTitle?: string;
   result?: "win" | "loss" | "draw";
+  // 대결 최종 등수 — 동점자는 같은 등수(1,1,3 방식). 2명짜리 1:1 대결에선
+  // 항상 1위 또는 2위(무승부면 둘 다 1위)로, win/loss와 같은 정보라
+  // 굳이 따로 안 보여줘도 되지만 3명 이상 참여하는 대결에서는 의미가
+  // 있어 항상 계산해서 저장해둔다.
+  rank?: number;
+  participantCount?: number;
   achieved?: boolean;
   // 챌린지 배지를 종류별로 다르게 그리기 위한 표시(예: monthly_draft는
   // "초단 완고 Ο/✕" 전용 스타일을 쓴다).
@@ -70,7 +76,10 @@ async function computeDuelResult(
   supabase: Awaited<ReturnType<typeof createClient>>,
   challengeId: string,
   userId: string
-): Promise<{ title: string; result: "win" | "loss" | "draw" } | { error: string }> {
+): Promise<
+  | { title: string; result: "win" | "loss" | "draw"; rank: number; participantCount: number }
+  | { error: string }
+> {
   const { data: challenge } = await supabase
     .from("challenges")
     .select("id,title,metric,start_date,end_date")
@@ -120,7 +129,13 @@ async function computeDuelResult(
   else if (topUsers.length > 1) result = "draw";
   else result = "win";
 
-  return { title: challenge.title, result };
+  // 등수는 "동점자는 같은 등수, 그다음 등수는 인원수만큼 건너뛴다"는
+  // 표준 스포츠 순위 방식(1,1,3)으로 계산한다 — 3명이 1위로 동점이면
+  // 그다음은 2위가 아니라 4위.
+  const sortedValues = [...totals.values()].sort((a, b) => b - a);
+  const rank = sortedValues.filter((v) => v > myValue).length + 1;
+
+  return { title: challenge.title, result, rank, participantCount: totals.size };
 }
 
 async function computeChallengeAchievement(
@@ -227,7 +242,12 @@ export async function createFeedPost(
   } else if (input.postType === "duel") {
     const result = await computeDuelResult(supabase, input.challengeId, user.id);
     if ("error" in result) return result;
-    meta = { challengeTitle: result.title, result: result.result };
+    meta = {
+      challengeTitle: result.title,
+      result: result.result,
+      rank: result.rank,
+      participantCount: result.participantCount,
+    };
   } else if (input.postType === "challenge") {
     const result = await computeChallengeAchievement(supabase, input.challengeId, user.id);
     if ("error" in result) return result;
