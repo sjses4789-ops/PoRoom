@@ -1,5 +1,13 @@
 {
-  "title": "Set your nickname",
-  "description": "This is the nickname you'll use on PoRoom. Other members in a room will see you by this name.",
+  "title": "Set up your nickname and profile",
+  "description": "Before you start using PoRoom, set your nickname, character, and job. Other members in a room will see this info.",
+  "nicknameLabel": "Nickname",
+  "characterLabel": "Character (profile picture)",
+  "positionLabel": "Job",
+  "positionHint": "Your job changes the status list in a [Room] and the work unit (characters/panels). You can change this anytime from the [Me] page.",
+  "position": {
+    "novelist": "Web novelist",
+    "webtoon": "Webtoon artist"
+  },
   "start": "Get started"
 }

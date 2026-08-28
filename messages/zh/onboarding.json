@@ -1,5 +1,13 @@
 {
-  "title": "请设置昵称",
-  "description": "这是您在 PoRoom 上使用的昵称。房间内的其他成员会看到这个名字。",
+  "title": "请设置昵称和资料",
+  "description": "开始使用 PoRoom 之前，请设置昵称、角色和职业。房间内的其他成员会看到这些信息。",
+  "nicknameLabel": "昵称",
+  "characterLabel": "角色(头像)",
+  "positionLabel": "职业",
+  "positionHint": "职业不同，[房间]的状态列表和作业单位(字数/格数)也会不同。之后可以随时在[个人]页面修改。",
+  "position": {
+    "novelist": "网络小说作者",
+    "webtoon": "webtoon作者"
+  },
   "start": "开始使用"
 }

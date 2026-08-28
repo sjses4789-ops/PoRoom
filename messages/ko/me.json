@@ -39,6 +39,15 @@
   "characterSection": {
     "changeCharacter": "캐릭터 변경"
   },
+  "positionButton": {
+    "trigger": "직업 설정",
+    "title": "직업 설정",
+    "hint": "직업에 따라 [방]의 상태 설정 목록과 작업 단위(글자수/컷수)가 달라져요.",
+    "position": {
+      "novelist": "웹소설 작가",
+      "webtoon": "웹툰 작가"
+    }
+  },
   "characterPicker": {
     "hint": "선택한 캐릭터는 방 안 참여자 카드에 표시돼요."
   },

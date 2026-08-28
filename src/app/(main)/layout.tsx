@@ -27,9 +27,14 @@ export default async function MainLayout({
 
   const { data: profile } = await supabase
     .from("users")
-    .select("name,is_banned,is_premium")
+    .select("name,is_banned,is_premium,position")
     .eq("id", user.id)
-    .maybeSingle<{ name: string | null; is_banned: boolean; is_premium: boolean }>();
+    .maybeSingle<{
+      name: string | null;
+      is_banned: boolean;
+      is_premium: boolean;
+      position: string | null;
+    }>();
 
   // 서비스 키 없이 관리자 플래그(users.is_banned)만으로 계정을 막는
   // 방식이라, 매 요청마다 여기서 확인해서 걸리면 세션을 끊는다 —
@@ -39,7 +44,10 @@ export default async function MainLayout({
     redirect("/login?banned=1");
   }
 
-  if (!profile?.name) {
+  // 기존 사용자는 마이그레이션에서 position이 이미 채워져 있으니
+  // 여기 걸리지 않는다 — 닉네임과 직업을 아직 안 고른(=처음 가입한)
+  // 사용자만 온보딩으로 보낸다.
+  if (!profile?.name || !profile?.position) {
     redirect("/onboarding");
   }
 

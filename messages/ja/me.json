@@ -39,6 +39,15 @@
   "characterSection": {
     "changeCharacter": "キャラクター変更"
   },
+  "positionButton": {
+    "trigger": "職業設定",
+    "title": "職業設定",
+    "hint": "職業によって[ルーム]のステータス一覧と作業単位(文字数/カット数)が変わります。",
+    "position": {
+      "novelist": "Web小説作家",
+      "webtoon": "ウェブトゥーン作家"
+    }
+  },
   "characterPicker": {
     "hint": "選んだキャラクターはルーム内の参加者カードに表示されます。"
   },

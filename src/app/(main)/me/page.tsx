@@ -8,6 +8,7 @@ import { NicknameForm } from "@/components/nickname-form";
 import { PageAdRail } from "@/components/page-ad-rail";
 import { GoalPanel, type PeriodGoal, type PeriodProgress } from "./goal-panel";
 import { CharacterSection } from "./character-section";
+import { PositionButton } from "./position-button";
 import { DeleteAccountButton } from "./delete-account-button";
 import { AttendanceCalendar } from "./attendance-calendar";
 import { ChallengeRecordPanel } from "./challenge-record-panel";
@@ -71,9 +72,14 @@ export default async function MePage() {
     await Promise.all([
       supabase
         .from("users")
-        .select("name,character_id,timezone")
+        .select("name,character_id,timezone,position")
         .eq("id", user.id)
-        .maybeSingle<{ name: string | null; character_id: string | null; timezone: string | null }>(),
+        .maybeSingle<{
+          name: string | null;
+          character_id: string | null;
+          timezone: string | null;
+          position: string | null;
+        }>(),
       supabase
         .from("room_members")
         .select("room_id,rooms(name,is_system)")
@@ -442,6 +448,13 @@ export default async function MePage() {
               redirectTo="/me"
               submitLabel={t("changeNicknameSubmit")}
             />
+            <div className="mt-2">
+              <PositionButton
+                initialPosition={
+                  myProfile?.position === "webtoon" ? "webtoon" : "novelist"
+                }
+              />
+            </div>
           </div>
         </div>
       </section>

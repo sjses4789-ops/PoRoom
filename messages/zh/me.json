@@ -39,6 +39,15 @@
   "characterSection": {
     "changeCharacter": "更换角色"
   },
+  "positionButton": {
+    "trigger": "职业设置",
+    "title": "职业设置",
+    "hint": "职业不同，[房间]的状态列表和作业单位(字数/格数)也会不同。",
+    "position": {
+      "novelist": "网络小说作者",
+      "webtoon": "webtoon作者"
+    }
+  },
   "characterPicker": {
     "hint": "所选角色将显示在房间内的参与者卡片上。"
   },

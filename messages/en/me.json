@@ -39,6 +39,15 @@
   "characterSection": {
     "changeCharacter": "Change Character"
   },
+  "positionButton": {
+    "trigger": "Job",
+    "title": "Job",
+    "hint": "Your job changes the status list in a [Room] and the work unit (characters/panels).",
+    "position": {
+      "novelist": "Web novelist",
+      "webtoon": "Webtoon artist"
+    }
+  },
   "characterPicker": {
     "hint": "The character you pick will show on your member card in rooms."
   },
