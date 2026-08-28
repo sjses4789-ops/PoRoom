@@ -6,9 +6,11 @@ import { useTranslations } from "next-intl";
 import type { DailyRecord } from "@/lib/records";
 import { characterSrc } from "@/lib/characters";
 import { setDailyChars } from "@/lib/rooms";
+import { getWorkRecords, setWorkRecordChars } from "@/lib/works";
 import { todayKst } from "@/lib/time";
 import { useTodayCharsSync } from "./today-chars-sync";
 import type { Member } from "./room-view";
+import type { WorkItem } from "./char-input";
 
 // 글자수는 결국 방의 데이터가 아니라 개인 당사자의 데이터라서, 이
 // 패널이 받는 dailyRecords는 이 방뿐 아니라 그 이용자가 기록을 남긴
@@ -31,11 +33,18 @@ export function RoomRecordsPanel({
   selfId,
   members,
   dailyRecords: initialDailyRecords,
+  selfPosition = "novelist",
+  works = [],
 }: {
   roomId: string;
   selfId: string;
   members: Member[];
   dailyRecords: PersonalDailyRecord[];
+  // 웹소설 작가는 기록 수정창에서 어느 작품의 글자수를 고치는지 먼저
+  // 고른다 — 웹툰 작가(컷수)는 작품 개념이 없어 기존처럼 방 합계를
+  // 바로 고친다.
+  selfPosition?: "novelist" | "webtoon";
+  works?: WorkItem[];
 }) {
   const t = useTranslations("room.roomRecordsPanel");
   const tCommon = useTranslations("room.common");
@@ -60,6 +69,14 @@ export function RoomRecordsPanel({
   const [editMonth, setEditMonth] = useState(now.getMonth()); // 0-indexed
   const [editValues, setEditValues] = useState<Record<string, string>>({});
   const [editBusyDate, setEditBusyDate] = useState<string | null>(null);
+  // 웹소설 작가는 어느 작품을 고치는지 먼저 골라야 한다 — 예전에
+  // 작품별 글자수가 하루 총 글자수와 따로 관리되며 어긋났던 문제를
+  // 되풀이하지 않으려고, 여기서 고치는 값도 항상 "그 작품의" 글자수고
+  // (work_records), 이 방 하루 합계(daily_records)는 그 변화량만큼만
+  // 같이 조정한다.
+  const usesWorks = selfPosition === "novelist" && works.length > 0;
+  const [activeWorkId, setActiveWorkId] = useState<string | null>(works[0]?.id ?? null);
+  const [workRecordsMap, setWorkRecordsMap] = useState<Record<string, number>>({});
 
   const goPrev = () => {
     if (mode === "year") {
@@ -89,42 +106,111 @@ export function RoomRecordsPanel({
 
   const editDaysInMonth = new Date(editYear, editMonth + 1, 0).getDate();
 
-  const openEdit = () => {
-    const selfRecords = dailyRecords.filter((r) => r.userId === selfId);
+  // usesWorks(웹소설 작가+작품 있음)일 땐 입력칸이 "그 작품의" 그 날짜
+  // 글자수를(work_records 기준), 아니면 예전처럼 "이 방 그 날짜 합계"를
+  // (여러 방을 합친 daily_records 기준) 보여준다.
+  const buildEditValues = (
+    y: number,
+    m: number,
+    workId: string | null,
+    wMap: Record<string, number>
+  ) => {
+    const days = new Date(y, m + 1, 0).getDate();
     const values: Record<string, string> = {};
-    for (let d = 1; d <= editDaysInMonth; d++) {
-      const dateKey = `${editYear}-${pad2(editMonth + 1)}-${pad2(d)}`;
-      // 같은 날짜라도 여러 방에서 나눠 기록했을 수 있어(개인 데이터라
-      // 방을 합쳐 보여주므로), 그 날의 합계를 보여준다.
-      const total = selfRecords
-        .filter((r) => r.date === dateKey)
-        .reduce((sum, r) => sum + r.chars, 0);
-      values[dateKey] = total > 0 ? String(total) : "";
+    for (let d = 1; d <= days; d++) {
+      const dateKey = `${y}-${pad2(m + 1)}-${pad2(d)}`;
+      if (usesWorks && workId) {
+        const val = wMap[dateKey] ?? 0;
+        values[dateKey] = val > 0 ? String(val) : "";
+      } else {
+        const total = dailyRecords
+          .filter((r) => r.userId === selfId && r.date === dateKey)
+          .reduce((sum, r) => sum + r.chars, 0);
+        values[dateKey] = total > 0 ? String(total) : "";
+      }
     }
-    setEditValues(values);
+    return values;
+  };
+
+  const openEdit = async () => {
+    let wMap = workRecordsMap;
+    if (usesWorks && activeWorkId) {
+      wMap = await getWorkRecords(activeWorkId);
+      setWorkRecordsMap(wMap);
+    }
+    setEditValues(buildEditValues(editYear, editMonth, activeWorkId, wMap));
     setEditOpen(true);
   };
 
+  const selectEditWork = async (workId: string) => {
+    setActiveWorkId(workId);
+    const wMap = await getWorkRecords(workId);
+    setWorkRecordsMap(wMap);
+    setEditValues(buildEditValues(editYear, editMonth, workId, wMap));
+  };
+
   const editGoPrev = () => {
-    if (editMonth === 0) {
-      setEditMonth(11);
-      setEditYear((y) => y - 1);
-    } else {
-      setEditMonth((m) => m - 1);
-    }
+    const newMonth = editMonth === 0 ? 11 : editMonth - 1;
+    const newYear = editMonth === 0 ? editYear - 1 : editYear;
+    setEditMonth(newMonth);
+    setEditYear(newYear);
+    setEditValues(buildEditValues(newYear, newMonth, activeWorkId, workRecordsMap));
   };
 
   const editGoNext = () => {
-    if (editMonth === 11) {
-      setEditMonth(0);
-      setEditYear((y) => y + 1);
-    } else {
-      setEditMonth((m) => m + 1);
-    }
+    const newMonth = editMonth === 11 ? 0 : editMonth + 1;
+    const newYear = editMonth === 11 ? editYear + 1 : editYear;
+    setEditMonth(newMonth);
+    setEditYear(newYear);
+    setEditValues(buildEditValues(newYear, newMonth, activeWorkId, workRecordsMap));
   };
 
   const saveEditRow = async (dateKey: string) => {
     const chars = Math.max(0, Math.floor(Number(editValues[dateKey])) || 0);
+    setEditBusyDate(dateKey);
+
+    if (usesWorks && activeWorkId) {
+      // work_records(그 작품의 절대값)를 먼저 고치고, 그 변화량만큼만
+      // 이 방의 하루 합계(daily_records)에 반영한다 — 같은 날 다른
+      // 작품 몫이나 다른 방에서 기록한 몫은 건드리지 않는다.
+      const oldWorkChars = workRecordsMap[dateKey] ?? 0;
+      const delta = chars - oldWorkChars;
+      await setWorkRecordChars(activeWorkId, dateKey, chars);
+      setWorkRecordsMap((prev) => ({ ...prev, [dateKey]: chars }));
+
+      if (delta !== 0) {
+        const existing = dailyRecords.find(
+          (r) => r.userId === selfId && r.date === dateKey && r.roomId === roomId
+        );
+        const previousOwnChars = existing?.chars ?? 0;
+        const newRoomChars = Math.max(0, previousOwnChars + delta);
+        const result = await setDailyChars(roomId, dateKey, newRoomChars);
+        if (!result || !("error" in result)) {
+          setDailyRecordsState((prev) => {
+            const rest = prev.filter(
+              (r) => !(r.userId === selfId && r.date === dateKey && r.roomId === roomId)
+            );
+            if (newRoomChars <= 0) return rest;
+            return [
+              ...rest,
+              {
+                userId: selfId,
+                date: dateKey,
+                chars: newRoomChars,
+                focusMinutes: existing?.focusMinutes ?? 0,
+                roomId,
+              },
+            ];
+          });
+          if (dateKey === todayKst()) {
+            todayCharsSync?.notifyTodayDelta(delta);
+          }
+        }
+      }
+      setEditBusyDate(null);
+      return;
+    }
+
     // setDailyChars는 "이 방"에서의 그 날짜 기록만 덮어쓴다 — 표시는
     // 여러 방을 합친 값이라도, 수정은 항상 지금 있는 이 방의 몫만
     // 바뀐다(다른 방에서 같은 날 기록한 몫은 그대로 둔다).
@@ -132,7 +218,6 @@ export function RoomRecordsPanel({
       (r) => r.userId === selfId && r.date === dateKey && r.roomId === roomId
     );
     const previousOwnChars = existing?.chars ?? 0;
-    setEditBusyDate(dateKey);
     const result = await setDailyChars(roomId, dateKey, chars);
     setEditBusyDate(null);
     if (result && "error" in result) return;
@@ -468,6 +553,22 @@ export function RoomRecordsPanel({
                 ✕
               </button>
             </div>
+            {usesWorks && (
+              <label className="flex flex-col gap-1 text-[11px] text-neutral-500 dark:text-neutral-400">
+                {t("editWorkLabel")}
+                <select
+                  value={activeWorkId ?? ""}
+                  onChange={(e) => selectEditWork(e.target.value)}
+                  className="rounded-md border border-neutral-200 px-2 py-1.5 text-xs text-neutral-900 outline-none focus:border-neutral-400 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
+                >
+                  {works.map((w) => (
+                    <option key={w.id} value={w.id}>
+                      {w.title}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
             <div className="flex items-center justify-center gap-2 text-sm text-neutral-600 dark:text-neutral-300">
               <button
                 onClick={editGoPrev}
@@ -506,7 +607,9 @@ export function RoomRecordsPanel({
                       placeholder="0"
                       className="min-w-0 flex-1 rounded-md border border-neutral-200 px-2 py-1 text-xs text-neutral-900 outline-none focus:border-neutral-400 disabled:opacity-50 dark:text-white"
                     />
-                    <span className="shrink-0 text-[11px] text-neutral-400">{tCommon("charUnit")}</span>
+                    <span className="shrink-0 text-[11px] text-neutral-400">
+                      {selfPosition === "webtoon" ? tCommon("cutUnit") : tCommon("charUnit")}
+                    </span>
                   </li>
                 );
               })}

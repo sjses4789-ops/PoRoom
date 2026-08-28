@@ -56,6 +56,36 @@
     "notJoined": "未参与",
     "successCount": "成功 {count}次"
   },
+  "workChart": {
+    "title": "各作品字数",
+    "noWorks": "还没有登记的作品。请在右侧作品列表中添加。",
+    "periodEntry": "按录入",
+    "periodDay": "按日",
+    "periodMonth": "按月",
+    "entryChangeFor": "{title}的录入变化",
+    "noEntries": "暂无录入记录。",
+    "monthLabel": "{month}月",
+    "yearLabel": "{year}年",
+    "prevMonth": "上个月",
+    "nextMonth": "下个月",
+    "prevYear": "上一年",
+    "nextYear": "下一年",
+    "editTitle": "以表格修改",
+    "backToChart": "返回图表",
+    "charsPlaceholder": "字数",
+    "add": "添加",
+    "deleteEntryTitle": "删除记录"
+  },
+  "workList": {
+    "title": "作品列表",
+    "addTitle": "添加作品",
+    "namePlaceholder": "作品名称",
+    "add": "添加",
+    "noWorks": "还没有登记的作品。",
+    "deleteConfirm": "确定删除《{title}》吗？图表中的数据也会一并删除。",
+    "deleteTitle": "删除作品",
+    "renameTitle": "修改作品名称"
+  },
   "goalPanel": {
     "periodDay": "今天",
     "periodMonth": "本月",

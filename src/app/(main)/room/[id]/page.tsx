@@ -25,6 +25,7 @@ import { LeaveRoomButton } from "./leave-room-button";
 import { SystemRoomLeaveGuard } from "./system-room-leave-guard";
 import { paletteDot } from "@/lib/palette";
 import { isCurrentUserAdmin } from "@/lib/admin";
+import { getMyWorks } from "@/lib/works";
 
 type RecordVisibility = "shared" | "private" | "free";
 type JoinType = "invite" | "open";
@@ -217,6 +218,7 @@ export default async function RoomPage({
     { data: selfMonthGlobalRows },
     { data: personalRecordRows },
     bannedMembers,
+    initialWorks,
   ] = await Promise.all([
     supabase
       .from("chat_messages")
@@ -287,6 +289,7 @@ export default async function RoomPage({
           .returns<PersonalDailyRecordRow[]>()
       : Promise.resolve({ data: [] as PersonalDailyRecordRow[] }),
     isOwner ? getBannedMembers(id) : Promise.resolve([]),
+    getMyWorks(),
   ]);
 
   const pollIds = (pollRows ?? []).map((p) => p.id);
@@ -537,6 +540,7 @@ export default async function RoomPage({
             selfMonthGoalChars={selfMonthGoalChars}
             selfMonthChars={selfMonthChars}
             selfPosition={selfPosition}
+            initialWorks={initialWorks}
           />
         }
         records={
@@ -545,6 +549,8 @@ export default async function RoomPage({
             selfId={user!.id}
             members={members}
             dailyRecords={personalDailyRecords}
+            selfPosition={selfPosition}
+            works={initialWorks}
           />
         }
         calendar={

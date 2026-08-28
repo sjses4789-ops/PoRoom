@@ -56,6 +56,36 @@
     "notJoined": "Not joined",
     "successCount": "{count} successes"
   },
+  "workChart": {
+    "title": "Characters by Work",
+    "noWorks": "No works registered yet. Add one from the work list on the right.",
+    "periodEntry": "By Entry",
+    "periodDay": "By Day",
+    "periodMonth": "By Month",
+    "entryChangeFor": "Entry changes for {title}",
+    "noEntries": "No entries yet.",
+    "monthLabel": "{month, select, 1 {Jan} 2 {Feb} 3 {Mar} 4 {Apr} 5 {May} 6 {Jun} 7 {Jul} 8 {Aug} 9 {Sep} 10 {Oct} 11 {Nov} 12 {Dec} other {–}}",
+    "yearLabel": "{year}",
+    "prevMonth": "Previous month",
+    "nextMonth": "Next month",
+    "prevYear": "Previous year",
+    "nextYear": "Next year",
+    "editTitle": "Edit as table",
+    "backToChart": "Back to chart",
+    "charsPlaceholder": "Characters",
+    "add": "Add",
+    "deleteEntryTitle": "Delete entry"
+  },
+  "workList": {
+    "title": "Work List",
+    "addTitle": "Add work",
+    "namePlaceholder": "Work title",
+    "add": "Add",
+    "noWorks": "No works registered yet.",
+    "deleteConfirm": "Delete \"{title}\"? It will also disappear from the chart.",
+    "deleteTitle": "Delete work",
+    "renameTitle": "Rename work"
+  },
   "goalPanel": {
     "periodDay": "Today",
     "periodMonth": "This Month",
