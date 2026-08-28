@@ -378,7 +378,7 @@ export function RoomRecordsPanel({
               return (
                 <tr key={member.id}>
                   <td
-                    className={`sticky left-0 z-10 whitespace-nowrap border-r border-neutral-100 bg-white px-2 py-2 font-medium text-neutral-900 dark:border-neutral-700 dark:bg-neutral-900 ${rowBorder}`}
+                    className={`sticky left-0 z-10 whitespace-nowrap border-r border-neutral-100 bg-white px-2 py-2 font-medium text-neutral-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white ${rowBorder}`}
                   >
                     <span className="flex items-center gap-1">
                       {member.name}

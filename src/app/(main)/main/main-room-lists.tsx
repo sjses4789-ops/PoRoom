@@ -267,7 +267,7 @@ export function MainRoomLists({ initialRooms }: { initialRooms: RoomListItem[] }
                 setJoinTypeFilter(null);
                 closeSearch();
               }}
-              className="rounded-full border border-neutral-300 px-2 py-0.5 text-[12px] text-neutral-500 transition hover:bg-neutral-50 dark:border-neutral-600 dark:text-neutral-400 dark:hover:bg-neutral-800"
+              className="rounded-full border border-neutral-300 bg-neutral-200 px-2 py-0.5 text-[12px] text-neutral-600 transition hover:bg-neutral-300 dark:border-neutral-600 dark:bg-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-600"
             >
               {t("reset")}
             </button>

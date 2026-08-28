@@ -92,8 +92,14 @@ export default async function Home() {
   return (
     <main className="flex min-h-screen flex-col select-none bg-white">
       <section className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-10 px-4 pt-8 pb-16 sm:px-6 sm:pt-10 sm:pb-24 lg:grid-cols-[1fr_1fr]">
-        <div className="flex justify-center lg:col-span-2">
+        <div className="flex items-center justify-center gap-2 lg:col-span-2">
           <Image src="/poroom-logo.png" alt="PoRoom" width={1254} height={485} priority className="h-16 w-auto sm:h-20" />
+          <span
+            title={t("landing.betaNotice")}
+            className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-bold tracking-wide text-amber-700"
+          >
+            BETA
+          </span>
         </div>
 
         <div className="flex flex-col items-start gap-6 text-left">

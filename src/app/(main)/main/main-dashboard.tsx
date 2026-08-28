@@ -35,7 +35,6 @@ export async function MainDashboard({
       <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("title")}</h2>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="flex flex-col gap-1.5">
-          <span className="text-[12px] text-neutral-500 dark:text-neutral-400">{t("todo")}</span>
           <TodoList initialTodos={initialTodos} />
         </div>
         <AttendanceCalendar
