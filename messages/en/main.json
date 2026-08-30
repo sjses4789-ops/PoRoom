@@ -3,13 +3,18 @@
     "title": "My Status",
     "todo": "To-do",
     "todayChars": "Today's character count",
+    "todayWork": "Today's work",
     "monthGoal": "This month's character goal",
+    "monthGoalWork": "This month's work goal",
     "setGoalHint": "Set this month's goal on the [Me] page.",
     "monthlyRank": "Personal ranking (this month)",
+    "monthlyRankWebtoon": "Webtoon artist ranking (this month)",
     "rankLine": "#{rank} out of {total}",
     "percentile": "(top {percent}%)",
     "goalLabel": "Characters",
-    "goalUnit": " chars"
+    "goalLabelWork": "Work",
+    "goalUnit": " chars",
+    "goalUnitCut": " panels"
   },
   "systemRooms": {
     "deadline": "Deadline Room",

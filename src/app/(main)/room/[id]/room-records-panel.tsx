@@ -48,6 +48,10 @@ export function RoomRecordsPanel({
 }) {
   const t = useTranslations("room.roomRecordsPanel");
   const tCommon = useTranslations("room.common");
+  // 표에 찍히는 글자수 칸의 단위는 그 줄 참여자 본인의 직업을 따른다 —
+  // 웹툰 작가는 "자" 대신 "컷".
+  const unitFor = (position: "novelist" | "webtoon") =>
+    position === "webtoon" ? tCommon("cutUnit") : tCommon("charUnit");
   const todayCharsSync = useTodayCharsSync();
   const now = new Date();
   const [mode, setMode] = useState<Mode>("month");
@@ -426,7 +430,7 @@ export function RoomRecordsPanel({
                 >
                   {member.name}
                 </span>
-                <span className="text-[11px] text-neutral-400">{chars.toLocaleString()}{tCommon("charUnit")}</span>
+                <span className="text-[11px] text-neutral-400">{chars.toLocaleString()}{unitFor(member.position)}</span>
               </div>
             );
           })}
@@ -483,7 +487,7 @@ export function RoomRecordsPanel({
                     {member.recordsVisible ? (
                       <div className="flex flex-col leading-tight">
                         <span className="text-neutral-900 dark:text-white">
-                          {total.chars.toLocaleString()}{tCommon("charUnit")}
+                          {total.chars.toLocaleString()}{unitFor(member.position)}
                         </span>
                         <span className="text-neutral-500 dark:text-neutral-400">{total.minutes}{tCommon("minuteUnit")}</span>
                       </div>
@@ -514,7 +518,7 @@ export function RoomRecordsPanel({
                           {hasData ? (
                             <div className="flex flex-col leading-tight">
                               <span className={isPreJoin ? "text-neutral-400 dark:text-neutral-500" : "text-neutral-800 dark:text-neutral-100"}>
-                                {cell.chars.toLocaleString()}{tCommon("charUnit")}
+                                {cell.chars.toLocaleString()}{unitFor(member.position)}
                               </span>
                               <span className="text-neutral-400 dark:text-neutral-500">{cell.minutes}{tCommon("minuteUnit")}</span>
                             </div>

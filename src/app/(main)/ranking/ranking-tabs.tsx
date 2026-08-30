@@ -33,6 +33,7 @@ export default function RankingTabs({
   roomNames,
   userNames,
   userPositions,
+  roomTargetPositions,
   defaultPosition,
   today,
   selfId,
@@ -44,6 +45,9 @@ export default function RankingTabs({
   // 있어서(같은 daily_records.chars 컬럼을 재사용) 서로 단위가 다르다
   // — 그래서 이 랭킹은 한 번에 한 직업만 보여주고, 토글로 바꿔 본다.
   userPositions: Record<string, "novelist" | "webtoon">;
+  // 방 기준 랭킹에서 어떤 방이 보일지는 그 방 자체의 '입장 가능 직업'
+  // 설정(또는 null='누구나')을 따른다 — 참여자 개개인의 직업이 아니라.
+  roomTargetPositions: Record<string, "novelist" | "webtoon" | null>;
   defaultPosition: "novelist" | "webtoon";
   today: string;
   selfId: string;
@@ -56,15 +60,20 @@ export default function RankingTabs({
   const isWebtoon = position === "webtoon";
 
   // 방이 삭제된(room_id가 비워진) 기록은 개인 기준 랭킹엔 그대로 반영되고
-  // 방 기준 랭킹에서만 제외된다 — 더는 존재하지 않는 방이라서. 직업이
-  // 다른 사용자의 기록은 여기서 아예 걸러낸다(방 기준일 때도 마찬가지 —
-  // 방에 웹소설·웹툰 작가가 섞여 있어도 선택한 직업의 기록만 합산).
-  const filtered = records.filter(
-    (r) =>
-      inPeriod(r.date, period, today) &&
-      (scope !== "room" || r.roomId) &&
-      (userPositions[r.userId] ?? "novelist") === position
-  );
+  // 방 기준 랭킹에서만 제외된다 — 더는 존재하지 않는 방이라서.
+  // 방 기준 랭킹은 "그 방이 어떤 직업 대상으로 설정돼 있는지"(또는
+  // '누구나'=null)로 어느 방이 보일지 정하고, 개인 기준 랭킹은 각자
+  // 본인의 직업으로 거른다 — 같은 chars 컬럼이 직업마다 다른 단위(글자수/
+  // 컷수)를 담고 있어서, 서로 섞이지 않게 항상 한쪽 직업만 보여준다.
+  const filtered = records.filter((r) => {
+    if (!inPeriod(r.date, period, today)) return false;
+    if (scope === "room") {
+      if (!r.roomId) return false;
+      const roomTarget = roomTargetPositions[r.roomId] ?? null;
+      return roomTarget === null || roomTarget === position;
+    }
+    return (userPositions[r.userId] ?? "novelist") === position;
+  });
   const totals = new Map<string, { chars: number; minutes: number }>();
   for (const r of filtered) {
     const key = (scope === "room" ? r.roomId : r.userId)!;

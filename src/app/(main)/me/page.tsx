@@ -162,10 +162,14 @@ export default async function MePage() {
       : Promise.resolve({ data: [] as ChallengeParticipantRow[] }),
     // 대결 랭킹/챌린지 랭킹은 전체 유저를 대상으로 내 순위를 매겨야 해서,
     // "type=user" 대결과 마일스톤 로그는 나로 한정하지 않고 전체를 가져온다.
+    // kind가 있는 건 참여자가 수십 명씩 몰리는 시스템 챌린지라(1:1
+    // 대결이 아님) 반드시 제외해야 승패 집계가 오염되지 않는다 —
+    // /ranking의 같은 조회와 이유가 같다.
     supabase
       .from("challenges")
       .select("id,metric,start_date,end_date")
       .eq("type", "user")
+      .is("kind", null)
       .returns<GlobalUserChallengeRow[]>(),
     supabase
       .from("activity_logs")
@@ -296,7 +300,9 @@ export default async function MePage() {
   let losses = 0;
   let draws = 0;
   for (const c of myChallenges ?? []) {
-    if (c.type !== "user" || c.end_date >= today) continue;
+    // kind가 있으면(매일 5천자 등) 참여자가 수십 명씩 몰리는 시스템
+    // 챌린지라 1:1 대결 승패 집계에서 반드시 제외한다.
+    if (c.type !== "user" || c.kind || c.end_date >= today) continue;
     const rows = (myChallengeParticipants ?? []).filter(
       (p) => p.challenge_id === c.id && p.user_id
     );

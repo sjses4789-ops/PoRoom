@@ -14,6 +14,7 @@ export async function MainDashboard({
   initialTodos,
   overallRank,
   totalUsers,
+  selfPosition = "novelist",
 }: {
   todayChars: number;
   year: number;
@@ -25,8 +26,10 @@ export async function MainDashboard({
   initialTodos: Todo[];
   overallRank: number;
   totalUsers: number;
+  selfPosition?: "novelist" | "webtoon";
 }) {
   const t = await getTranslations("main.dashboard");
+  const isWebtoon = selfPosition === "webtoon";
   const percentile =
     totalUsers > 0 ? Math.max(1, Math.round((overallRank / totalUsers) * 100)) : null;
 
@@ -49,19 +52,19 @@ export async function MainDashboard({
               {todayChars.toLocaleString()}
             </span>
             <span className="text-[12px] text-neutral-500 dark:text-neutral-400">
-              {t("todayChars")}
+              {isWebtoon ? t("todayWork") : t("todayChars")}
             </span>
           </div>
           <div className="flex flex-col gap-2">
             <span className="text-[12px] text-neutral-500 dark:text-neutral-400">
-              {t("monthGoal")}
+              {isWebtoon ? t("monthGoalWork") : t("monthGoal")}
             </span>
             {monthGoalChars > 0 ? (
               <GoalBar
-                label={t("goalLabel")}
+                label={isWebtoon ? t("goalLabelWork") : t("goalLabel")}
                 current={monthProgressChars}
                 target={monthGoalChars}
-                unit={t("goalUnit")}
+                unit={isWebtoon ? t("goalUnitCut") : t("goalUnit")}
               />
             ) : (
               <p className="text-[12px] text-neutral-400">{t("setGoalHint")}</p>
@@ -70,7 +73,7 @@ export async function MainDashboard({
 
           <div className="flex flex-col items-center justify-center gap-1 rounded-xl bg-neutral-50 px-3 py-2.5 text-center dark:bg-neutral-800">
             <span className="text-[12px] text-neutral-500 dark:text-neutral-400">
-              {t("monthlyRank")}
+              {isWebtoon ? t("monthlyRankWebtoon") : t("monthlyRank")}
             </span>
             <span className="text-sm font-semibold text-neutral-900 dark:text-white">
               {t("rankLine", { rank: overallRank, total: totalUsers })}

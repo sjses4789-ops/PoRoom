@@ -19,7 +19,7 @@ type DailyRecordRow = {
   chars: number;
   focus_minutes: number;
 };
-type RoomRow = { id: string; name: string };
+type RoomRow = { id: string; name: string; target_position: string | null };
 type UserRow = { id: string; name: string | null; email: string; position: string | null };
 
 type ParticipantRow = { challenge_id: string; user_id: string | null };
@@ -44,15 +44,20 @@ export default async function RankingPage() {
       .from("daily_records")
       .select("room_id,user_id,record_date,chars,focus_minutes")
       .returns<DailyRecordRow[]>(),
-    supabase.from("rooms").select("id,name").returns<RoomRow[]>(),
+    supabase.from("rooms").select("id,name,target_position").returns<RoomRow[]>(),
     supabase.from("users").select("id,name,email,position").returns<UserRow[]>(),
     // 대결 승패 랭킹: 종료된 개인 간(1:1 이상) 대결에서 기간 내 값이 가장
     // 높은 참가자가 승, 나를 포함해 공동 1위면 무, 그 외엔 패 — 이걸 볼 수
     // 있는 모든 대결(RLS상 공개방이거나 내가 참여한 대결)에 대해 집계한다.
+    // kind가 있는 건 매일 5천자 등 참여자가 수십 명씩 몰리는 시스템
+    // 챌린지라 type='user'를 같이 쓰더라도(1:1 대결과 구분이 안 되면)
+    // 주/월 경계가 막 지나 갱신되기 직전 그 다인원 챌린지가 통째로 "대결"
+    // 취급되어 승패 집계가 오염된다 — 반드시 제외해야 한다.
     supabase
       .from("challenges")
       .select("id,metric,start_date,end_date")
       .eq("type", "user")
+      .is("kind", null)
       .returns<UserChallengeRow[]>(),
     // 챌린지 랭킹: 매일 5천자·매일 1만자·초단 완고 성공(milestone_5k/
     // milestone_10k/draft_done) 횟수를 종류 구분 없이 동일하게 합산해서
@@ -88,7 +93,14 @@ export default async function RankingPage() {
     : { data: [] as { user_id: string | null }[] };
 
   const roomNames: Record<string, string> = {};
-  for (const r of rooms ?? []) roomNames[r.id] = r.name;
+  // 방 기준 랭킹을 웹소설/웹툰으로 전환할 때, 방 자체가 어느 직업
+  // 대상으로 설정돼 있는지(또는 '누구나')로 어느 방이 보일지 정한다.
+  const roomTargetPositions: Record<string, "novelist" | "webtoon" | null> = {};
+  for (const r of rooms ?? []) {
+    roomNames[r.id] = r.name;
+    roomTargetPositions[r.id] =
+      r.target_position === "novelist" || r.target_position === "webtoon" ? r.target_position : null;
+  }
   const userNames: Record<string, string> = {};
   const userPositions: Record<string, "novelist" | "webtoon"> = {};
   for (const u of users ?? []) {
@@ -170,6 +182,7 @@ export default async function RankingPage() {
             roomNames={roomNames}
             userNames={userNames}
             userPositions={userPositions}
+            roomTargetPositions={roomTargetPositions}
             defaultPosition={selfPosition}
             today={today}
             selfId={user!.id}

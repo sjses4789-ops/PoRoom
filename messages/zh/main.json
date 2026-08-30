@@ -3,13 +3,18 @@
     "title": "我的状态",
     "todo": "待办事项",
     "todayChars": "今日字数",
+    "todayWork": "今日作业量",
     "monthGoal": "本月目标字数",
+    "monthGoalWork": "本月目标作业量",
     "setGoalHint": "请在[我的]页面设置本月目标。",
     "monthlyRank": "个人排名(本月)",
+    "monthlyRankWebtoon": "webtoon作者排名(本月)",
     "rankLine": "第{rank}名 / 共{total}人",
     "percentile": "(前{percent}%)",
     "goalLabel": "字数",
-    "goalUnit": "字"
+    "goalLabelWork": "作业量",
+    "goalUnit": "字",
+    "goalUnitCut": "格"
   },
   "systemRooms": {
     "deadline": "截稿房",

@@ -3,13 +3,18 @@
     "title": "내 현황",
     "todo": "할 일",
     "todayChars": "오늘의 글자수",
+    "todayWork": "오늘의 작업량",
     "monthGoal": "이번 달 목표 글자수",
+    "monthGoalWork": "이번 달 목표 작업량",
     "setGoalHint": "[개인] 페이지에서 이번 달 목표를 설정해보세요.",
     "monthlyRank": "개인 랭킹 (이번 달)",
+    "monthlyRankWebtoon": "웹툰 작가 랭킹 (이번 달)",
     "rankLine": "전체 {rank}위 / {total}명",
     "percentile": "(상위 {percent}%)",
     "goalLabel": "글자수",
-    "goalUnit": "자"
+    "goalLabelWork": "작업량",
+    "goalUnit": "자",
+    "goalUnitCut": "컷"
   },
   "systemRooms": {
     "deadline": "마감방",

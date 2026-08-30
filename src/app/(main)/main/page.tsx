@@ -54,7 +54,7 @@ export default async function MainPage() {
     { data: myMemberships },
     { data: globalRecords },
     { data: myGoalRows },
-    { count: totalUsers },
+    { data: allUserPositions },
     { data: myProfile },
     { data: myAttendanceLogs },
   ] = await Promise.all([
@@ -84,12 +84,15 @@ export default async function MainPage() {
       .eq("user_id", user!.id)
       .eq("period", "month")
       .maybeSingle<{ target_chars: number }>(),
-    supabase.from("users").select("*", { count: "exact", head: true }),
+    // "이번 달 랭킹"을 웹소설 작가는 웹소설 작가끼리, 웹툰 작가는 웹툰
+    // 작가끼리로 좁혀야 해서(글자수/컷수는 단위가 다름) 전체 사용자의
+    // 직업을 한 번에 가져온다.
+    supabase.from("users").select("id,position").returns<{ id: string; position: string | null }[]>(),
     supabase
       .from("users")
-      .select("timezone")
+      .select("timezone,position")
       .eq("id", user!.id)
-      .maybeSingle<{ timezone: string | null }>(),
+      .maybeSingle<{ timezone: string | null; position: string | null }>(),
     // 출석일은 나라별 자정 기준으로 계산해야 해서, KST로 이미 고정된
     // daily_records 대신 실제 시각이 남는 activity_logs를 쓴다.
     supabase
@@ -135,9 +138,19 @@ export default async function MainPage() {
       monthCharsByUser.set(r.user_id, (monthCharsByUser.get(r.user_id) ?? 0) + r.chars);
     }
   }
+  const selfPosition: "novelist" | "webtoon" = myProfile?.position === "webtoon" ? "webtoon" : "novelist";
+  const positionById = new Map((allUserPositions ?? []).map((u) => [u.id, u.position]));
+  const isSamePosition = (userId: string) =>
+    (positionById.get(userId) === "webtoon" ? "webtoon" : "novelist") === selfPosition;
+
   const myMonthChars = monthCharsByUser.get(user!.id) ?? 0;
+  // 글자수(웹소설)와 컷수(웹툰)는 단위가 달라 같은 직업끼리만 비교한다.
+  const monthCharsBySamePosition = Array.from(monthCharsByUser.entries()).filter(([uid]) =>
+    isSamePosition(uid)
+  );
   const overallRank =
-    1 + Array.from(monthCharsByUser.values()).filter((c) => c > myMonthChars).length;
+    1 + monthCharsBySamePosition.filter(([, c]) => c > myMonthChars).length;
+  const totalUsers = (allUserPositions ?? []).filter((u) => isSamePosition(u.id)).length;
 
   // 대시보드는 "이번 달 목표 대비 진행률"도 보여줘야 해서, 방과 무관하게
   // 내 기록만 다시 한 번 걸러낸다 (오늘의 글자수 / 이번 달 진행 글자수 /
@@ -244,6 +257,7 @@ export default async function MainPage() {
           initialTodos={visibleTodos}
           overallRank={overallRank}
           totalUsers={totalUsers ?? 0}
+          selfPosition={selfPosition}
         />
         {systemRoomSection}
       </div>

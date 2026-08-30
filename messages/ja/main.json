@@ -3,13 +3,18 @@
     "title": "マイ状況",
     "todo": "やること",
     "todayChars": "今日の文字数",
+    "todayWork": "今日の作業量",
     "monthGoal": "今月の目標文字数",
+    "monthGoalWork": "今月の目標作業量",
     "setGoalHint": "[マイページ]で今月の目標を設定してみましょう。",
     "monthlyRank": "個人ランキング(今月)",
+    "monthlyRankWebtoon": "ウェブトゥーン作家ランキング(今月)",
     "rankLine": "全体{rank}位 / {total}人",
     "percentile": "(上位{percent}%)",
     "goalLabel": "文字数",
-    "goalUnit": "字"
+    "goalLabelWork": "作業量",
+    "goalUnit": "字",
+    "goalUnitCut": "カット"
   },
   "systemRooms": {
     "deadline": "締切ルーム",
