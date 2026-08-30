@@ -9,6 +9,7 @@ const RICH_CONTENT_CLASS =
   "[&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 " +
   "[&_mark]:rounded-sm [&_mark]:bg-amber-200 dark:[&_mark]:bg-amber-500/40 " +
   "[&_h1]:text-base [&_h1]:font-bold [&_h2]:text-sm [&_h2]:font-bold [&_h3]:text-sm [&_h3]:font-semibold " +
+  "[&_img]:my-1 [&_img]:max-w-full [&_img]:rounded-md " +
   "[&_p]:mb-1 last:[&_p]:mb-0";
 
 // 서식 에디터 도입 전에 작성된 글은 순수 텍스트라 줄바꿈만 살려서 보여주고,

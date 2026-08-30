@@ -13,6 +13,9 @@ import { JoinChallengeButton } from "./join-challenge-button";
 import { DraftCheckButton } from "../draft-check-button";
 import { ChallengeChatPanel, type ChallengeChatMessage } from "./challenge-chat-panel";
 import { ChallengeParticipantCard } from "./challenge-participant-card";
+import { PosterViewButton } from "./poster-view-button";
+import { LeaveChallengeButton } from "./leave-challenge-button";
+import { AchieversList, type Achiever } from "./achievers-list";
 import {
   SYSTEM_CHALLENGE_META,
   ensureSystemChallenge,
@@ -37,6 +40,7 @@ type ChallengeRow = {
   is_admin_event: boolean;
   start_mode: "manual" | "full";
   target_position: string | null;
+  poster_image_url: string | null;
 };
 
 type UserRow = {
@@ -83,7 +87,7 @@ export default async function ChallengeDetailPage({
   const { data: challenge } = await supabase
     .from("challenges")
     .select(
-      "id,title,metric,visibility,invite_code,start_date,end_date,kind,created_by,color,capacity,duration_days,started_at,is_admin_event,start_mode,target_position"
+      "id,title,metric,visibility,invite_code,start_date,end_date,kind,created_by,color,capacity,duration_days,started_at,is_admin_event,start_mode,target_position,poster_image_url"
     )
     .eq("id", id)
     .maybeSingle<ChallengeRow>();
@@ -98,17 +102,27 @@ export default async function ChallengeDetailPage({
 
   const { data: participantRows } = await supabase
     .from("challenge_participants")
-    .select("user_id,achieved")
+    .select("user_id,achieved,achieved_at")
     .eq("challenge_id", id)
-    .returns<{ user_id: string | null; achieved: boolean }[]>();
+    .returns<{ user_id: string | null; achieved: boolean; achieved_at: string | null }[]>();
 
   const participantIds = (participantRows ?? [])
     .map((p) => p.user_id)
     .filter((v): v is string => Boolean(v));
   const achievedByUser = new Map(
     (participantRows ?? [])
-      .filter((p): p is { user_id: string; achieved: boolean } => Boolean(p.user_id))
+      .filter((p): p is { user_id: string; achieved: boolean; achieved_at: string | null } =>
+        Boolean(p.user_id)
+      )
       .map((p) => [p.user_id, p.achieved])
+  );
+  const achievedAtByUser = new Map(
+    (participantRows ?? [])
+      .filter(
+        (p): p is { user_id: string; achieved: boolean; achieved_at: string } =>
+          Boolean(p.user_id) && p.achieved && Boolean(p.achieved_at)
+      )
+      .map((p) => [p.user_id, p.achieved_at])
   );
   const iAmParticipant = participantIds.includes(user!.id);
   const isCreator = challenge.created_by === user!.id;
@@ -160,6 +174,13 @@ export default async function ChallengeDetailPage({
 
   const userNameMap = new Map((users ?? []).map((u) => [u.id, u.name || u.email]));
   const userCharacterMap = new Map((users ?? []).map((u) => [u.id, u.character_id]));
+  const achievers: Achiever[] = Array.from(achievedAtByUser.entries())
+    .sort((a, b) => a[1].localeCompare(b[1]))
+    .map(([uid, achievedAt]) => ({
+      id: uid,
+      name: userNameMap.get(uid) ?? t("unknownUser"),
+      achievedAt,
+    }));
 
   const today = todayKst();
   const isDailyKind = challenge.kind === "daily5k" || challenge.kind === "daily10k";
@@ -233,20 +254,24 @@ export default async function ChallengeDetailPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <Link href="/compete" className="text-xs text-neutral-400 hover:underline">
           {t("backLink")}
         </Link>
-        {!isSystemKind && isCreator && (
-          <ChallengeSettingsButton
-            challengeId={challenge.id}
-            currentTitle={challenge.title}
-            currentColor={challenge.color}
-            currentCapacity={challenge.capacity}
-            currentDurationDays={challenge.duration_days}
-            started={Boolean(challenge.started_at)}
-          />
-        )}
+        <div className="flex items-center gap-1.5">
+          {challenge.poster_image_url && <PosterViewButton imageUrl={challenge.poster_image_url} />}
+          {!isSystemKind && isCreator && (
+            <ChallengeSettingsButton
+              challengeId={challenge.id}
+              currentTitle={challenge.title}
+              currentColor={challenge.color}
+              currentCapacity={challenge.capacity}
+              currentDurationDays={challenge.duration_days}
+              started={Boolean(challenge.started_at)}
+            />
+          )}
+          {iAmParticipant && <LeaveChallengeButton challengeId={challenge.id} />}
+        </div>
       </div>
 
       {isSystemKind ? (
@@ -385,6 +410,15 @@ export default async function ChallengeDetailPage({
               />
             ))}
           </div>
+        </section>
+      )}
+
+      {isAchievementMetric && (
+        <section className="flex flex-col gap-3">
+          <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
+            {t("achieversHeading")}
+          </h2>
+          <AchieversList achievers={achievers} />
         </section>
       )}
     </div>

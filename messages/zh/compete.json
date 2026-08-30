@@ -28,7 +28,8 @@
     "settings": "设置",
     "unknownUser": "未知用户",
     "waitingForFull": "人数满员后将自动开始。",
-    "expiryBanner": "本次对决的周期已经结束。此房间将在3天后自动删除。删除后，每位参与者各自的记录仍会作为个人数据完整保留。"
+    "expiryBanner": "本次对决的周期已经结束。此房间将在3天后自动删除。删除后，每位参与者各自的记录仍会作为个人数据完整保留。",
+    "achieversHeading": "达成的人"
   },
   "joinByCodeButton": {
     "trigger": "用邀请码加入",
@@ -44,6 +45,18 @@
   "joinChallengeButton": {
     "joining": "加入中...",
     "join": "加入这个对决"
+  },
+  "leaveChallengeButton": {
+    "giveUp": "放弃",
+    "leaving": "正在放弃...",
+    "confirm": "确定要放弃吗？将从参与者名单中移除，之后想回来需要重新加入。"
+  },
+  "posterViewButton": {
+    "trigger": "查看征文详情",
+    "title": "征文详情"
+  },
+  "achieversList": {
+    "empty": "还没有人达成。"
   },
   "startChallengeButton": {
     "start": "开始对决",

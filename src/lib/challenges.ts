@@ -371,6 +371,29 @@ export async function startChallenge(challengeId: string): Promise<JoinChallenge
   return { ok: true };
 }
 
+// 참여자가 대결/챌린지를 중도 포기(탈퇴)한다. 방장이었어도 그냥 참여자
+// 목록에서 빠질 뿐 — 대결/챌린지 자체는 다른 참여자를 위해 그대로 남는다.
+// 참여 중 쌓인 daily_records 등 개인 기록은 challenge_id를 참조하지
+// 않으므로 전혀 영향받지 않는다.
+export async function leaveChallenge(challengeId: string): Promise<JoinChallengeResult> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "로그인이 필요합니다." };
+
+  const { error } = await supabase
+    .from("challenge_participants")
+    .delete()
+    .eq("challenge_id", challengeId)
+    .eq("user_id", user.id);
+  if (error) return { error: error.message };
+
+  revalidatePath(`/compete/${challengeId}`);
+  revalidatePath("/compete");
+  return { ok: true };
+}
+
 export type ChallengeSettingsUpdate = {
   title?: string;
   color?: string | null;

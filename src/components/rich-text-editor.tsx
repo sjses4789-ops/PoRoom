@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -12,6 +12,8 @@ import Color from "@tiptap/extension-color";
 import TextAlign from "@tiptap/extension-text-align";
 import CharacterCount from "@tiptap/extension-character-count";
 import Placeholder from "@tiptap/extension-placeholder";
+import Image from "@tiptap/extension-image";
+import { uploadPostImage } from "@/lib/uploads";
 
 const MAX_CHARS = 5000;
 
@@ -22,6 +24,7 @@ const CONTENT_CLASS =
   "[&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 " +
   "[&_mark]:rounded-sm [&_mark]:bg-amber-200 dark:[&_mark]:bg-amber-500/40 " +
   "[&_h1]:text-lg [&_h1]:font-bold [&_h2]:text-base [&_h2]:font-bold [&_h3]:text-sm [&_h3]:font-bold " +
+  "[&_img]:my-1 [&_img]:max-w-full [&_img]:rounded-md " +
   "[&_p]:mb-1 last:[&_p]:mb-0";
 
 export function RichTextEditor({
@@ -49,6 +52,7 @@ export function RichTextEditor({
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       CharacterCount.configure({ limit: MAX_CHARS }),
       Placeholder.configure({ placeholder: placeholder ?? "" }),
+      Image.configure({ HTMLAttributes: { class: "max-w-full rounded-md" } }),
     ],
     content: value,
     onUpdate: ({ editor }) => {
@@ -65,7 +69,23 @@ export function RichTextEditor({
     if (!same) editor.commands.setContent(value, { emitUpdate: false });
   }, [value, editor]);
 
+  const [uploading, setUploading] = useState(false);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+
   if (!editor) return null;
+
+  const insertImage = async (file: File) => {
+    setUploading(true);
+    const formData = new FormData();
+    formData.set("file", file);
+    const result = await uploadPostImage(formData);
+    setUploading(false);
+    if ("error" in result) {
+      window.alert(result.error);
+      return;
+    }
+    editor.chain().focus().setImage({ src: result.url }).run();
+  };
 
   const setLink = () => {
     const prev = editor.getAttributes("link").href as string | undefined;
@@ -173,6 +193,20 @@ export function RichTextEditor({
         <ToolbarButton active={editor.isActive("bulletList")} onClick={() => editor.chain().focus().toggleBulletList().run()} label="목록">
           <ListIcon />
         </ToolbarButton>
+        <ToolbarButton active={false} onClick={() => imageInputRef.current?.click()} label={uploading ? "이미지 업로드 중..." : "그림 추가"}>
+          {uploading ? <span className="text-[10px]">⏳</span> : <ImageIcon />}
+        </ToolbarButton>
+        <input
+          ref={imageInputRef}
+          type="file"
+          accept="image/png,image/jpeg,image/webp,image/gif"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            e.target.value = "";
+            if (file) insertImage(file);
+          }}
+        />
 
         <span className="ml-auto shrink-0 pr-1 text-[11px] tabular-nums text-neutral-400">
           {chars}/{MAX_CHARS}
@@ -322,6 +356,15 @@ function LinkIcon() {
         d="M8.5 11.5l3-3M7 13l-1.5 1.5a2.5 2.5 0 01-3.5-3.5L4.5 9M13 7l1.5-1.5a2.5 2.5 0 013.5 3.5L16.5 11"
         strokeLinecap="round"
       />
+    </svg>
+  );
+}
+function ImageIcon() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" className="h-3.5 w-3.5" stroke="currentColor" strokeWidth="1.6">
+      <rect x="3" y="4" width="14" height="12" rx="1.5" />
+      <circle cx="7" cy="8" r="1.2" fill="currentColor" stroke="none" />
+      <path d="M4 14l4-4 3 3 2-2 3 3" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }

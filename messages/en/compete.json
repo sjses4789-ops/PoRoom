@@ -28,7 +28,8 @@
     "settings": "Settings",
     "unknownUser": "Unknown",
     "waitingForFull": "This will start automatically once capacity is reached.",
-    "expiryBanner": "This duel's period has ended. The room will be automatically deleted 3 days from now. Each participant's own records stay intact as personal data even after the room is gone."
+    "expiryBanner": "This duel's period has ended. The room will be automatically deleted 3 days from now. Each participant's own records stay intact as personal data even after the room is gone.",
+    "achieversHeading": "Who's completed it"
   },
   "joinByCodeButton": {
     "trigger": "Join with invite code",
@@ -44,6 +45,18 @@
   "joinChallengeButton": {
     "joining": "Joining...",
     "join": "Join this challenge"
+  },
+  "leaveChallengeButton": {
+    "giveUp": "Give up",
+    "leaving": "Giving up...",
+    "confirm": "Give up for real? You'll be removed from the participant list, and you'd have to join again to come back."
+  },
+  "posterViewButton": {
+    "trigger": "View contest details",
+    "title": "Contest details"
+  },
+  "achieversList": {
+    "empty": "No one has completed this yet."
   },
   "startChallengeButton": {
     "start": "Start the challenge",

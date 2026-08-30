@@ -4,8 +4,9 @@ import { createClient } from "@/lib/supabase/server";
 import { isCurrentUserAdmin } from "@/lib/admin";
 import { AdminEventForm } from "./admin-event-form";
 import { AdminEventDeleteButton } from "./admin-event-delete-button";
+import { AdminEventEditButton } from "./admin-event-edit-button";
 import { AdminRoomDeleteButton } from "./admin-room-delete-button";
-import { AdminMemberBanButton } from "./admin-member-ban-button";
+import { AdminMemberList, type AdminUserRow } from "./admin-member-list";
 
 type RoomRow = { id: string; name: string; is_system: boolean; created_at: string };
 type MemberRow = { room_id: string };
@@ -21,6 +22,7 @@ type UserRow = {
   email: string;
   created_at: string;
   is_banned: boolean;
+  position: "novelist" | "webtoon" | null;
 };
 
 // 관리자 페이지는 별도 네비게이션 링크 없이 URL로만 접근한다 — 계정이
@@ -52,7 +54,7 @@ export default async function AdminPage() {
         .returns<EventRow[]>(),
       supabase
         .from("users")
-        .select("id,name,email,created_at,is_banned")
+        .select("id,name,email,created_at,is_banned,position")
         .order("created_at", { ascending: false })
         .returns<UserRow[]>(),
     ]);
@@ -90,7 +92,15 @@ export default async function AdminPage() {
                     {e.start_date} ~ {e.end_date}
                   </span>
                 </div>
-                <AdminEventDeleteButton challengeId={e.id} />
+                <div className="flex shrink-0 gap-1.5">
+                  <AdminEventEditButton
+                    challengeId={e.id}
+                    currentTitle={e.title}
+                    currentStartDate={e.start_date}
+                    currentEndDate={e.end_date}
+                  />
+                  <AdminEventDeleteButton challengeId={e.id} />
+                </div>
               </li>
             ))}
           </ul>
@@ -128,29 +138,18 @@ export default async function AdminPage() {
             {t("membersHeading")}
           </h2>
           <p className="text-xs text-neutral-400">{t("membersHint")}</p>
-          <ul className="flex max-h-[32rem] flex-col gap-2 overflow-y-auto">
-            {(users ?? []).map((u) => (
-              <li
-                key={u.id}
-                className="flex items-center justify-between gap-3 rounded-md border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700"
-              >
-                <div className="flex min-w-0 flex-col gap-0.5">
-                  <span className="min-w-0 truncate font-medium text-neutral-900 dark:text-white">
-                    {u.name ?? u.email}
-                    {u.is_banned && (
-                      <span className="ml-1.5 rounded-full bg-red-100 px-1.5 py-0.5 text-[10px] font-medium text-red-600 dark:bg-red-950 dark:text-red-400">
-                        {t("bannedTag")}
-                      </span>
-                    )}
-                  </span>
-                  <span className="min-w-0 truncate text-[11px] text-neutral-400">{u.email}</span>
-                </div>
-                {u.id !== self!.id && (
-                  <AdminMemberBanButton userId={u.id} userName={u.name ?? u.email} banned={u.is_banned} />
-                )}
-              </li>
-            ))}
-          </ul>
+          <AdminMemberList
+            selfId={self!.id}
+            users={(users ?? []).map(
+              (u): AdminUserRow => ({
+                id: u.id,
+                name: u.name,
+                email: u.email,
+                isBanned: u.is_banned,
+                position: u.position,
+              })
+            )}
+          />
         </section>
       </div>
     </div>

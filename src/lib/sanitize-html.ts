@@ -17,6 +17,7 @@ const ALLOWED_TAGS = [
   "h1",
   "h2",
   "h3",
+  "img",
 ];
 
 // style은 에디터가 글자색/배경색/정렬에 쓰는 인라인 스타일만 허용한다.
@@ -37,7 +38,7 @@ function sanitizeStyleAttr(value: string) {
 export function sanitizeHtml(dirty: string) {
   const clean = DOMPurify.sanitize(dirty, {
     ALLOWED_TAGS,
-    ALLOWED_ATTR: ["href", "target", "rel", "class", "style"],
+    ALLOWED_ATTR: ["href", "target", "rel", "class", "style", "src", "alt"],
   });
 
   // 위 화이트리스트로 한 번 더 걸러낸 안전한 style만 남긴다.

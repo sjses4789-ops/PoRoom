@@ -28,7 +28,8 @@
     "settings": "設定",
     "unknownUser": "不明",
     "waitingForFull": "人数が揃うと自動的に始まります。",
-    "expiryBanner": "対決期間が終了しました。この部屋は3日後に自動的に削除されます。削除後も参加者それぞれの記録は個人データとしてそのまま残ります。"
+    "expiryBanner": "対決期間が終了しました。この部屋は3日後に自動的に削除されます。削除後も参加者それぞれの記録は個人データとしてそのまま残ります。",
+    "achieversHeading": "達成した人たち"
   },
   "joinByCodeButton": {
     "trigger": "招待コードで参加",
@@ -44,6 +45,18 @@
   "joinChallengeButton": {
     "joining": "参加中...",
     "join": "この対決に参加する"
+  },
+  "leaveChallengeButton": {
+    "giveUp": "諦める",
+    "leaving": "処理中...",
+    "confirm": "本当に諦めますか？参加者リストから外れ、再度参加するには改めて参加する必要があります。"
+  },
+  "posterViewButton": {
+    "trigger": "公募詳細を確認する",
+    "title": "公募詳細"
+  },
+  "achieversList": {
+    "empty": "まだ達成した人がいません。"
   },
   "startChallengeButton": {
     "start": "対決を開始する",

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionResult } from "@/lib/rooms";
+import { uploadPostImage } from "@/lib/uploads";
 
 // 관리자 여부는 항상 서버에서(클라이언트 번들에 노출되지 않는 곳에서)
 // DB의 users.is_admin 플래그로 판단한다 — 이메일을 코드에 하드코딩해
@@ -51,6 +52,18 @@ export async function createAdminChallengeEvent(
     return { error: "잘못된 기준입니다." };
   }
 
+  // 공모전 세부 내용(공고 이미지)은 선택 사항 — 안 올려도 이벤트를
+  // 만들 수 있다.
+  let posterImageUrl: string | null = null;
+  const posterImage = formData.get("posterImage");
+  if (posterImage instanceof File && posterImage.size > 0) {
+    const imgForm = new FormData();
+    imgForm.set("file", posterImage);
+    const uploadResult = await uploadPostImage(imgForm);
+    if ("error" in uploadResult) return { error: uploadResult.error };
+    posterImageUrl = uploadResult.url;
+  }
+
   const { error } = await supabase.from("challenges").insert({
     title,
     type: "user",
@@ -62,11 +75,55 @@ export async function createAdminChallengeEvent(
     duration_days: 1,
     is_admin_event: true,
     created_by: user.id,
+    poster_image_url: posterImageUrl,
   });
   if (error) return { error: error.message };
 
   revalidatePath("/admin");
   revalidatePath("/compete");
+  return null;
+}
+
+// 관리자가 만든 이벤트(공모전 등)의 이름/기간/공고 이미지를 나중에 고칠
+// 수 있게 한다 — 이전엔 생성 후 수정 방법이 없어 오탈자 하나에도 삭제 후
+// 재생성해야 했다.
+export async function adminUpdateChallengeEvent(
+  _prevState: ActionResult,
+  formData: FormData
+): Promise<ActionResult> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "로그인이 필요합니다." };
+
+  const challengeId = String(formData.get("challengeId") ?? "");
+  const title = String(formData.get("title") ?? "").trim();
+  const startDate = String(formData.get("startDate") ?? "");
+  const endDate = String(formData.get("endDate") ?? "");
+
+  if (!challengeId) return { error: "잘못된 요청입니다." };
+  if (!title) return { error: "이벤트 이름을 입력해주세요." };
+  if (!startDate || !endDate) return { error: "기간을 선택해주세요." };
+  if (endDate < startDate) return { error: "종료일이 시작일보다 빠릅니다." };
+
+  const patch: Record<string, unknown> = { title, start_date: startDate, end_date: endDate };
+
+  const posterImage = formData.get("posterImage");
+  if (posterImage instanceof File && posterImage.size > 0) {
+    const imgForm = new FormData();
+    imgForm.set("file", posterImage);
+    const uploadResult = await uploadPostImage(imgForm);
+    if ("error" in uploadResult) return { error: uploadResult.error };
+    patch.poster_image_url = uploadResult.url;
+  }
+
+  const { error } = await supabase.from("challenges").update(patch).eq("id", challengeId);
+  if (error) return { error: error.message };
+
+  revalidatePath("/admin");
+  revalidatePath("/compete");
+  revalidatePath(`/compete/${challengeId}`);
   return null;
 }
 
@@ -103,9 +160,11 @@ export async function setChallengeAchieved(challengeId: string, achieved: boolea
   } = await supabase.auth.getUser();
   if (!user) return;
 
+  // achieved_at은 "달성한 순서대로" 정렬해야 하는 챌린지 성공자 목록의
+  // 기준이 된다 — 체크를 해제하면 다시 null로 되돌려 순서 기준에서 빠진다.
   await supabase
     .from("challenge_participants")
-    .update({ achieved })
+    .update({ achieved, achieved_at: achieved ? new Date().toISOString() : null })
     .eq("challenge_id", challengeId)
     .eq("user_id", user.id);
 

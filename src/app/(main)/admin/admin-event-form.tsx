@@ -48,6 +48,15 @@ export function AdminEventForm() {
           className="w-1/2 rounded-md border border-neutral-200 px-2.5 py-1.5 text-xs text-neutral-700 outline-none focus:border-neutral-400"
         />
       </div>
+      <label className="flex flex-col gap-1 text-[12px] text-neutral-500 dark:text-neutral-400">
+        {t("posterImageLabel")}
+        <input
+          name="posterImage"
+          type="file"
+          accept="image/png,image/jpeg,image/webp,image/gif"
+          className="text-xs text-neutral-600 dark:text-neutral-300"
+        />
+      </label>
       {state?.error && <p className="text-xs text-red-500">{state.error}</p>}
       <button
         type="submit"
