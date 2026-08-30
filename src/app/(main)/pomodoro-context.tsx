@@ -153,36 +153,91 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
     breakMinutesRef.current = breakMinutes;
   }, [breakMinutes]);
 
+  // 브라우저는 백그라운드(다른 탭/다른 프로그램이 포커스된) 탭의
+  // setInterval을 강하게 스로틀링한다(심하면 1분에 한 번 정도로만
+  // 실행) — 예전엔 "틱이 한 번 울릴 때마다 무조건 1초 지난 것"으로
+  // 계산해서, 백그라운드에 있는 동안 실제 시간보다 훨씬 느리게(또는
+  // 거의 안) 흘러가는 버그가 있었다. 이제는 매 틱마다 "진짜 시계
+  // (Date.now())로 실제 몇 초가 지났는지"를 계산해서 그만큼을 한 번에
+  // 따라잡는다 — 초 단위로 반복하지 않고, 지난 시간 동안 몇 번의
+  // 집중/휴식 전환이 있었는지만 계산하므로 아무리 오래 백그라운드에
+  // 있었어도 가볍다.
+  // 0으로 시작해도 무방하다 — 실제 값은 아래 인터벌 시작 effect에서
+  // running이 true가 될 때마다(렌더 중이 아니라 effect 안에서) 채운다.
+  const lastTickAtRef = useRef(0);
+
+  const catchUp = useCallback(() => {
+    const now = Date.now();
+    const elapsedMs = now - lastTickAtRef.current;
+    // 1초 미만의 나머지는 버리지 않고 다음 번 계산을 위해 남겨둔다.
+    lastTickAtRef.current = now - (elapsedMs % 1000);
+    let elapsedSec = Math.floor(elapsedMs / 1000);
+    if (elapsedSec <= 0) return;
+
+    let localPhase = phaseRef.current;
+    let localRemaining = remainingRef.current;
+    let focusDelta = 0;
+    let breakDelta = 0;
+    let sessionDelta = 0;
+    let transitioned = false;
+
+    while (elapsedSec > 0) {
+      if (elapsedSec < localRemaining) {
+        if (localPhase === "focus") focusDelta += elapsedSec;
+        else breakDelta += elapsedSec;
+        localRemaining -= elapsedSec;
+        elapsedSec = 0;
+      } else {
+        if (localPhase === "focus") focusDelta += localRemaining;
+        else breakDelta += localRemaining;
+        elapsedSec -= localRemaining;
+        const nextPhase: Phase = localPhase === "focus" ? "break" : "focus";
+        localPhase = nextPhase;
+        localRemaining =
+          (nextPhase === "focus" ? focusMinutesRef.current : breakMinutesRef.current) * 60;
+        transitioned = true;
+        if (nextPhase === "focus") sessionDelta += 1;
+      }
+    }
+
+    remainingRef.current = localRemaining;
+    phaseRef.current = localPhase;
+    setTickingSeconds(localRemaining);
+    if (focusDelta > 0) setAccumulatedFocusSeconds((s) => s + focusDelta);
+    if (breakDelta > 0) setAccumulatedBreakSeconds((s) => s + breakDelta);
+    if (sessionDelta > 0) setFocusSessionCount((c) => c + sessionDelta);
+    if (transitioned) {
+      setPhase(localPhase);
+      // 다른 프로그램을 보고 있어도 전환을 알아챌 수 있도록 알림음을
+      // 준다 — 백그라운드에 있던 동안 여러 번 전환됐어도(따라잡기라서)
+      // 지금 도달한 마지막 전환에 대해서만 한 번 울린다.
+      if (localPhase === "focus") playFocusStartChime();
+      else playBreakStartChime();
+    }
+  }, []);
+
   useEffect(() => {
     if (!running) return;
-    const id = setInterval(() => {
-      const next = remainingRef.current - 1;
-      if (next > 0) {
-        remainingRef.current = next;
-        setTickingSeconds(next);
-        if (phaseRef.current === "focus") setAccumulatedFocusSeconds((s) => s + 1);
-        else setAccumulatedBreakSeconds((s) => s + 1);
-        return;
-      }
-      const nextPhase: Phase = phaseRef.current === "focus" ? "break" : "focus";
-      const nextDuration =
-        (nextPhase === "focus" ? focusMinutesRef.current : breakMinutesRef.current) * 60;
-      remainingRef.current = nextDuration;
-      phaseRef.current = nextPhase;
-      setPhase(nextPhase);
-      setTickingSeconds(nextDuration);
-      // 다른 프로그램을 보고 있어도 전환을 알아챌 수 있도록 알림음을 준다.
-      if (nextPhase === "focus") {
-        playFocusStartChime();
-      } else {
-        playBreakStartChime();
-      }
-      // 휴식이 끝나고 자동으로 다음 집중으로 넘어가는 순간도 "새 집중
-      // 시작"이라 센다.
-      if (nextPhase === "focus") setFocusSessionCount((c) => c + 1);
-    }, 1000);
+    lastTickAtRef.current = Date.now();
+    const id = setInterval(catchUp, 1000);
     return () => clearInterval(id);
-  }, [running]);
+  }, [running, catchUp]);
+
+  // 탭이 다시 보이거나 창이 다시 포커스를 받는 순간 곧바로 따라잡는다 —
+  // 안 그러면 브라우저가 여전히 스로틀링을 유지하는 짧은 시간 동안
+  // 화면이 실제 시간을 못 따라온 채로 남아있을 수 있다.
+  useEffect(() => {
+    if (!running) return;
+    const onVisible = () => {
+      if (document.visibilityState === "visible") catchUp();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", onVisible);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", onVisible);
+    };
+  }, [running, catchUp]);
 
   // 새로고침해도 진행 상황이 이어지도록, 관련 상태가 바뀔 때마다
   // localStorage에 그대로 스냅샷을 남긴다 — 위 hydrate effect가 아직
