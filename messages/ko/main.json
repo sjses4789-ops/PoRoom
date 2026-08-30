@@ -46,6 +46,8 @@
     "joinTypeOpen": "공개방",
     "targetNovelist": "웹소설 작가만",
     "targetWebtoon": "웹툰 작가만",
+    "novelistOnlyAlert": "웹소설 작가 전용입니다.",
+    "webtoonOnlyAlert": "웹툰 작가 전용입니다.",
     "allTimeChars": "누적 {count}자",
     "monthChars": "이번 달 {count}자",
     "join": "입장하기",

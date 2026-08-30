@@ -27,7 +27,8 @@
     "participantsHeading": "Participants",
     "settings": "Settings",
     "unknownUser": "Unknown",
-    "waitingForFull": "This will start automatically once capacity is reached."
+    "waitingForFull": "This will start automatically once capacity is reached.",
+    "expiryBanner": "This duel's period has ended. The room will be automatically deleted 3 days from now. Each participant's own records stay intact as personal data even after the room is gone."
   },
   "joinByCodeButton": {
     "trigger": "Join with invite code",
@@ -149,6 +150,7 @@
     "startModeFull": "Auto-start when full",
     "startModeFullDisabledHint": "Set a capacity to enable this option.",
     "hint": "The challenge doesn't start the moment you create it. With manual start, you (the host) start it once enough people have joined; with auto-start when full, it starts automatically the moment capacity is reached. Anyone can join an open challenge from the list, while a private challenge can only be joined with an invite code.",
+    "expiryHint": "Once the duel period ends, this room is automatically deleted 3 days later. Each participant's own records stay intact as personal data even after that.",
     "creating": "Creating...",
     "create": "Create"
   },

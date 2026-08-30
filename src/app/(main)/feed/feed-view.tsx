@@ -153,7 +153,9 @@ function PostBadges({ post, t }: { post: FeedPost; t: ReturnType<typeof useTrans
           : t("contestNotCompleteLabel")
         : mode === "round"
           ? `${(post.meta.contestRound ?? 0).toLocaleString()}${t("contestRoundUnit")}`
-          : `${(post.meta.contestChars ?? 0).toLocaleString()}${t("charUnit")}`;
+          : mode === "cuts"
+            ? `${(post.meta.contestChars ?? 0).toLocaleString()}${t("cutUnit")}`
+            : `${(post.meta.contestChars ?? 0).toLocaleString()}${t("charUnit")}`;
     return (
       <div className="mt-2 flex flex-wrap gap-1.5">
         <span className={`rounded-full bg-amber-50 px-2.5 py-1 ${BADGE_TEXT} font-medium text-amber-700 dark:bg-amber-950 dark:text-amber-300`}>
@@ -253,7 +255,11 @@ export function FeedView({
   const [publisherCount, setPublisherCount] = useState("");
   const [genre, setGenre] = useState("");
   const [contestName, setContestName] = useState("");
-  const [contestMode, setContestMode] = useState<"chars" | "complete" | "round">("chars");
+  // 웹소설 작가는 '공모전 글자수', 웹툰 작가는 '공모전 컷 수'가 기본
+  // 선택되도록 한다.
+  const [contestMode, setContestMode] = useState<"chars" | "cuts" | "complete" | "round">(
+    selfPosition === "webtoon" ? "cuts" : "chars"
+  );
   const [contestChars, setContestChars] = useState("");
   const [contestComplete, setContestComplete] = useState(false);
   const [contestRound, setContestRound] = useState("");
@@ -335,7 +341,10 @@ export function FeedView({
                 mood,
                 contestName,
                 contestMode,
-                contestChars: contestMode === "chars" ? Number(contestChars) || 0 : undefined,
+                contestChars:
+                  contestMode === "chars" || contestMode === "cuts"
+                    ? Number(contestChars) || 0
+                    : undefined,
                 contestComplete: contestMode === "complete" ? contestComplete : undefined,
                 contestRound: contestMode === "round" ? Number(contestRound) || 0 : undefined,
               }
@@ -568,17 +577,20 @@ export function FeedView({
                   {t("contestFieldLabel")}
                   <select
                     value={contestMode}
-                    onChange={(e) => setContestMode(e.target.value as "chars" | "complete" | "round")}
+                    onChange={(e) =>
+                      setContestMode(e.target.value as "chars" | "cuts" | "complete" | "round")
+                    }
                     className="rounded-md border border-neutral-200 bg-white px-2 py-1 text-xs text-neutral-900 outline-none focus:border-neutral-400 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
                   >
+                    <option value="cuts">{t("contestFieldCuts")}</option>
                     <option value="chars">{t("contestFieldChars")}</option>
                     <option value="complete">{t("contestFieldComplete")}</option>
                     <option value="round">{t("contestFieldRound")}</option>
                   </select>
                 </label>
-                {contestMode === "chars" && (
+                {(contestMode === "chars" || contestMode === "cuts") && (
                   <label className="flex items-center gap-1.5">
-                    {t("contestCharsLabel")}
+                    {contestMode === "cuts" ? t("contestCutsLabel") : t("contestCharsLabel")}
                     <input
                       type="number"
                       min={0}
@@ -586,7 +598,7 @@ export function FeedView({
                       onChange={(e) => setContestChars(e.target.value)}
                       className="w-24 rounded-md border border-neutral-200 bg-white px-2 py-1 text-xs text-neutral-900 outline-none focus:border-neutral-400 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
                     />
-                    {t("charUnit")}
+                    {contestMode === "cuts" ? t("cutUnit") : t("charUnit")}
                   </label>
                 )}
                 {contestMode === "complete" && (

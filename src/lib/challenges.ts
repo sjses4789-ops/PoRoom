@@ -118,6 +118,18 @@ export async function createChallenge(
   redirect("/compete");
 }
 
+// 대결 기간이 끝난 지 3일이 지난 1:1 대결방을 정리한다. RLS 정책
+// (0057_duel_expiry_cleanup)이 삭제 대상을 kind/is_admin_event/end_date
+// 조건으로 이미 걸러주므로 여기서는 조건 없이 delete만 호출하면 된다 —
+// 시스템 챌린지 주/월 리셋(ensureSystemChallenge)과 같은 lazy-cleanup
+// 패턴. daily_records는 challenge_id를 참조하지 않아 참여자 개인 기록은
+// 영향받지 않는다.
+export async function cleanupExpiredDuels(
+  supabase: Awaited<ReturnType<typeof createClient>>
+) {
+  await supabase.from("challenges").delete().not("id", "is", null);
+}
+
 export type JoinChallengeResult = { error: string } | { ok: true };
 
 // 방장이 "인원이 다 찼을 때" 모드를 골랐다면, 정원이 채워지는 순간

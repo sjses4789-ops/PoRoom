@@ -46,6 +46,8 @@
     "joinTypeOpen": "公開ルーム",
     "targetNovelist": "Web小説作家のみ",
     "targetWebtoon": "ウェブトゥーン作家のみ",
+    "novelistOnlyAlert": "Web小説作家専用のルームです。",
+    "webtoonOnlyAlert": "ウェブトゥーン作家専用のルームです。",
     "allTimeChars": "累計{count}字",
     "monthChars": "今月{count}字",
     "join": "入室する",

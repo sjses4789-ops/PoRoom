@@ -27,7 +27,8 @@
     "participantsHeading": "参与者列表",
     "settings": "设置",
     "unknownUser": "未知用户",
-    "waitingForFull": "人数满员后将自动开始。"
+    "waitingForFull": "人数满员后将自动开始。",
+    "expiryBanner": "本次对决的周期已经结束。此房间将在3天后自动删除。删除后，每位参与者各自的记录仍会作为个人数据完整保留。"
   },
   "joinByCodeButton": {
     "trigger": "用邀请码加入",
@@ -149,6 +150,7 @@
     "startModeFull": "人数满员时自动开始",
     "startModeFullDisabledHint": "需要设置人数上限才能选择。",
     "hint": "创建对决后不会立即开始。选择手动开始时，参与者聚齐后由房主开始，从那一刻起计算周期；选择满员自动开始时，人数一满就会自动开始。公开房任何人都可以从对决列表加入，私密房只能通过邀请码加入。",
+    "expiryHint": "对决周期结束后，此房间会在3天后自动删除。删除后，每位参与者各自的记录仍会作为个人数据完整保留。",
     "creating": "创建中...",
     "create": "创建"
   },

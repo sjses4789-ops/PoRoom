@@ -46,6 +46,8 @@
     "joinTypeOpen": "公开房间",
     "targetNovelist": "仅网络小说作者",
     "targetWebtoon": "仅webtoon作者",
+    "novelistOnlyAlert": "此房间仅限网络小说作者。",
+    "webtoonOnlyAlert": "此房间仅限webtoon作者。",
     "allTimeChars": "累计{count}字",
     "monthChars": "本月{count}字",
     "join": "加入",

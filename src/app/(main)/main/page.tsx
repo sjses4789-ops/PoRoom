@@ -262,7 +262,7 @@ export default async function MainPage() {
         {systemRoomSection}
       </div>
 
-      <MainRoomLists initialRooms={roomItems} />
+      <MainRoomLists initialRooms={roomItems} selfPosition={selfPosition} />
     </div>
     </PageAdRail>
   );

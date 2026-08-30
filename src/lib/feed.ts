@@ -8,7 +8,7 @@ import { SYSTEM_CHALLENGE_META, type SystemChallengeKind } from "@/lib/system-ch
 export type ReactionType = "heart" | "clap" | "fire";
 export type PostType = "write" | "duel" | "challenge" | "submission" | "contest";
 
-export type ContestMode = "chars" | "complete" | "round";
+export type ContestMode = "chars" | "cuts" | "complete" | "round";
 
 export type FeedPostMeta = {
   challengeTitle?: string;
@@ -236,8 +236,11 @@ export async function createFeedPost(
       const contestRound = Math.max(0, Math.floor(input.contestRound ?? 0) || 0);
       meta = { contestName, contestMode: "round", contestRound };
     } else {
+      // "cuts"(웹툰 컷수)도 같은 숫자 필드(contestChars)에 담는다 —
+      // 표시할 때만 모드에 따라 글자수/컷수 라벨을 바꾼다.
       const contestChars = Math.max(0, Math.floor(input.contestChars ?? 0) || 0);
-      meta = { contestName, contestMode: "chars", contestChars };
+      const mode = input.contestMode === "cuts" ? "cuts" : "chars";
+      meta = { contestName, contestMode: mode, contestChars };
     }
   } else if (input.postType === "duel") {
     const result = await computeDuelResult(supabase, input.challengeId, user.id);

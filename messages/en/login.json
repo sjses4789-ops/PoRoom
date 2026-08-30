@@ -5,13 +5,14 @@
   "backHome": "Back to homepage",
   "landing": {
     "betaNotice": "PoRoom is still in beta and under active development. Some features may change or the site may be down for maintenance without notice.",
-    "eyebrow": "An Online Workspace for Web-Novel Writers",
+    "eyebrow": "An Online Workspace for Web-Novel and Webtoon Writers",
     "heroTitle": "Leave the room where you stared at a wall.\nJoin one where you grow together.",
-    "heroBody": "PoRoom is an online Pomodoro workspace built for web-novel writers. It helps you focus, cheers you on, and sometimes pushes you to compete — so you can grow. Stay with PoRoom all the way to the finish.",
+    "heroBody": "PoRoom is an online Pomodoro workspace built for web-novel writers and webtoon artists. It helps you focus, cheers you on, and sometimes pushes you to compete — so you can grow. Stay with PoRoom all the way to the finish.",
     "heroImageAlt": "A PoRoom room in use, showing the Pomodoro timer and participant cards together",
     "audienceTitle": "PoRoom is for you if you're...",
     "audience": [
       "A web-novel writer serializing or drafting a work",
+      "A webtoon artist serializing or working on a piece",
       "Always racing the clock on your next chapter deadline",
       "Someone who can't focus alone and keeps pushing updates back",
       "Someone who feels lonely alone, but finds group meetups too much pressure"
@@ -27,9 +28,9 @@
     ],
     "featuresTitle": "PoRoom Features",
     "features": [
-      { "icon": "🚪", "title": "An online writing room", "desc": "No camera, no video call — just walk into a room and feel other web-novel writers sitting alongside you." },
+      { "icon": "🚪", "title": "An online writing room", "desc": "No camera, no video call — just walk into a room and feel other web-novel and webtoon writers working alongside you." },
       { "icon": "🍅", "title": "A synced Pomodoro timer", "desc": "See everyone's focus and break status in real time, so it's easier to stay locked in than writing alone." },
-      { "icon": "✍️", "title": "Character counts by work", "desc": "Track each serialized work separately with its own character-count chart and progress." },
+      { "icon": "✍️", "title": "Character counts by work", "desc": "Track each serialized work separately with its own chart of character counts (or panel counts for webtoon artists) and progress." },
       { "icon": "💬", "title": "Chat & whispers", "desc": "Chat freely in the room, or send a private whisper to just one participant when you need to." },
       { "icon": "🏆", "title": "Rankings, duels & challenges", "desc": "See how you rank by character count and focus time, challenge another writer to a duel, or join a group challenge." },
       { "icon": "🗓️", "title": "Calendar, polls & boards", "desc": "Share your update deadlines on a calendar, gather opinions with polls, and browse the Free / Info / Recruiting boards." }
@@ -38,7 +39,7 @@
     "whyPomodoroTitle": "Why the Pomodoro Technique fits serialization so well",
     "whyPomodoroBody": "The Pomodoro Technique was developed in the late 1980s by Francesco Cirillo, an Italian developer who used a tomato-shaped kitchen timer (pomodoro is Italian for tomato). The method alternates 25 minutes of focused work with a 5-minute break, and today it's used far beyond its origins — by writers, students, developers, and office workers all over the world.\n\nSerializing a web novel isn't a one-day sprint; it's a race that runs for months or years. How you handle today decides how the whole run goes. A goal like \"5,000 characters today\" can feel overwhelming, but broken into 25-minute blocks, all you have to do is press the timer once. The built-in breaks keep long sitting sessions from turning into burnout, and repeating the same rhythm day after day builds the habit of focusing the moment you sit down — a habit that outlasts any single day's willpower.",
     "whyRoomTitle": "Why it feels like \"together\" without a single video call",
-    "whyRoomBody": "Most of us have had the experience of somehow focusing better at a library or a study café. That effect has a name — \"body doubling\": just having someone else working alongside you raises your own focus and follow-through, which is also why online study communities have grown so popular.\n\nThe catch is that most web-novel writers work alone as freelancers, so that sense of \"someone else is here too\" rarely happens on its own. PoRoom recreates it without a camera or microphone — just the real-time focus and break status of everyone else in your room is enough to make you feel like you're not doing this alone.",
+    "whyRoomBody": "Most of us have had the experience of somehow focusing better at a library or a study café. That effect has a name — \"body doubling\": just having someone else working alongside you raises your own focus and follow-through, which is also why online study communities have grown so popular.\n\nThe catch is that most web-novel and webtoon writers work alone as freelancers, so that sense of \"someone else is here too\" rarely happens on its own. PoRoom recreates it without a camera or microphone — just the real-time focus and break status of everyone else in your room is enough to make you feel like you're not doing this alone.",
     "benefitsTitle": "What changes when you keep coming back",
     "benefits": [
       "Logging in at a set time becomes a routine, making it easier to keep your update schedule.",

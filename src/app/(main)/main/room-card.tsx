@@ -23,7 +23,15 @@ export type RoomListItem = {
   monthChars: number;
 };
 
-function RoomCardBody({ room }: { room: RoomListItem }) {
+function RoomCardBody({
+  room,
+  joinSlot,
+}: {
+  room: RoomListItem;
+  // "입장하기" 버튼 — 카드 박스 바깥이 아니라 안쪽 하단 오른쪽 구석에
+  // 넣기 위해 슬롯으로 받는다.
+  joinSlot?: React.ReactNode;
+}) {
   const t = useTranslations("main.roomCard");
   const tTags = useTranslations("tags");
   const joinTypeLabel = room.joinType === "invite" ? t("joinTypeInvite") : t("joinTypeOpen");
@@ -67,14 +75,22 @@ function RoomCardBody({ room }: { room: RoomListItem }) {
           ))}
         </div>
       )}
+      {joinSlot && <div className="flex justify-end">{joinSlot}</div>}
       </div>
     </div>
   );
 }
 
-export default function RoomCard({ room }: { room: RoomListItem }) {
+export default function RoomCard({
+  room,
+  selfPosition,
+}: {
+  room: RoomListItem;
+  selfPosition: "novelist" | "webtoon";
+}) {
   const t = useTranslations("main.roomCard");
   const [joining, setJoining] = useState(false);
+  const mismatched = room.targetPosition !== null && room.targetPosition !== selfPosition;
 
   if (room.isMember) {
     return (
@@ -85,22 +101,36 @@ export default function RoomCard({ room }: { room: RoomListItem }) {
   }
 
   if (room.joinType === "open") {
-    return (
-      <div className="flex flex-col gap-2">
-        <RoomCardBody room={room} />
-        <button
-          disabled={joining}
-          onClick={async () => {
-            setJoining(true);
-            await joinOpenRoom(room.id);
-            setJoining(false);
-          }}
-          className="self-start rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-neutral-700 disabled:opacity-50"
-        >
-          {joining ? t("joining") : t("join")}
-        </button>
-      </div>
+    const joinButton = (
+      <button
+        type="button"
+        disabled={joining}
+        onClick={async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (mismatched) {
+            window.alert(
+              room.targetPosition === "webtoon" ? t("webtoonOnlyAlert") : t("novelistOnlyAlert")
+            );
+            return;
+          }
+          setJoining(true);
+          await joinOpenRoom(room.id);
+          setJoining(false);
+        }}
+        // 직업이 안 맞는 방은 버튼을 아예 못 누르게 막기보다(왜 안 되는지
+        // 모르고 답답해할 수 있어서), 흐리게 "비활성화된 것처럼" 보이게만
+        // 하고 눌렀을 때 이유를 알림창으로 알려준다.
+        className={`shrink-0 rounded-md px-3 py-1.5 text-xs font-medium transition disabled:opacity-50 ${
+          mismatched
+            ? "cursor-not-allowed bg-neutral-200 text-neutral-400 dark:bg-neutral-800 dark:text-neutral-500"
+            : "bg-neutral-900 text-white hover:bg-neutral-700"
+        }`}
+      >
+        {joining ? t("joining") : t("join")}
+      </button>
     );
+    return <RoomCardBody room={room} joinSlot={joinButton} />;
   }
 
   return <RoomCardBody room={room} />;

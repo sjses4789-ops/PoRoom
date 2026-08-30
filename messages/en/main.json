@@ -46,6 +46,8 @@
     "joinTypeOpen": "Open room",
     "targetNovelist": "Novelists only",
     "targetWebtoon": "Webtoon artists only",
+    "novelistOnlyAlert": "This room is for web novelists only.",
+    "webtoonOnlyAlert": "This room is for webtoon artists only.",
     "allTimeChars": "{count} total chars",
     "monthChars": "{count} chars this month",
     "join": "Join",

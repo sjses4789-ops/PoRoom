@@ -20,25 +20,25 @@ export const HOME_META: Record<
   ko: {
     title: "포룸 | 함께 집중하는 온라인 뽀모도로 작업실",
     description:
-      "웹소설 작가를 위한 온라인 뽀모도로 작업실 포룸. 화상회의 없이 함께 집중하고, 글자수 랭킹과 집필 챌린지로 꾸준히 쓰는 습관을 만드세요.",
+      "웹소설 작가와 웹툰 작가를 위한 온라인 뽀모도로 작업실 포룸. 화상회의 없이 함께 집중하고, 글자수·컷수 랭킹과 집필 챌린지로 꾸준히 쓰는 습관을 만드세요.",
     ogLocale: "ko_KR",
   },
   en: {
     title: "PoRoom | Focus Together in an Online Pomodoro Studio",
     description:
-      "PoRoom is an online Pomodoro study room for web novelists. Focus together without video calls, and build a steady writing habit with word-count rankings and writing challenges.",
+      "PoRoom is an online Pomodoro study room for web novelists and webtoon artists. Focus together without video calls, and build a steady work habit with rankings and challenges.",
     ogLocale: "en_US",
   },
   ja: {
     title: "ポルーム | みんなで集中するオンライン・ポモドーロ作業室",
     description:
-      "ウェブ小説作家のためのオンライン・ポモドーロ作業室、ポルーム。ビデオ通話なしで一緒に集中し、文字数ランキングと執筆チャレンジでコツコツ書く習慣を作りましょう。",
+      "Web小説作家とウェブトゥーン作家のためのオンライン・ポモドーロ作業室、ポルーム。ビデオ通話なしで一緒に集中し、文字数・カット数ランキングと制作チャレンジでコツコツ続ける習慣を作りましょう。",
     ogLocale: "ja_JP",
   },
   zh: {
     title: "PoRoom | 一起专注的在线番茄钟自习室",
     description:
-      "PoRoom 是为网络小说作者打造的在线番茄钟自习室。无需视频通话即可一起专注写作,借助字数排行榜和写作挑战养成持续创作的习惯。",
+      "PoRoom 是为网络小说作者和webtoon作者打造的在线番茄钟自习室。无需视频通话即可一起专注创作,借助字数·格数排行榜和创作挑战养成持续创作的习惯。",
     ogLocale: "zh_CN",
   },
 };

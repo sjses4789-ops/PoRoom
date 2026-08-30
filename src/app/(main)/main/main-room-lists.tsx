@@ -88,7 +88,13 @@ function MyRoomCard({
   );
 }
 
-export function MainRoomLists({ initialRooms }: { initialRooms: RoomListItem[] }) {
+export function MainRoomLists({
+  initialRooms,
+  selfPosition,
+}: {
+  initialRooms: RoomListItem[];
+  selfPosition: "novelist" | "webtoon";
+}) {
   const t = useTranslations("main.roomLists");
   const tTags = useTranslations("tags");
   const tRoomCard = useTranslations("main.roomCard");
@@ -400,7 +406,7 @@ export function MainRoomLists({ initialRooms }: { initialRooms: RoomListItem[] }
           <div className="columns-1 gap-3 sm:columns-2 lg:columns-3">
             {allRooms.map((room) => (
               <div key={room.id} className="mb-3 break-inside-avoid">
-                <RoomCard room={room} />
+                <RoomCard room={room} selfPosition={selfPosition} />
               </div>
             ))}
           </div>

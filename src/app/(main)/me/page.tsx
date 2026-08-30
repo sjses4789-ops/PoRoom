@@ -14,6 +14,7 @@ import { AttendanceCalendar } from "./attendance-calendar";
 import { ChallengeRecordPanel } from "./challenge-record-panel";
 import { SystemChallengeRecordPanel } from "./system-challenge-record-panel";
 import { WorksPanel } from "./works-panel";
+import { WorkAmountChart } from "./work-amount-chart";
 import { RankingStatusPanel } from "./ranking-status-panel";
 import { PomodoroStatsPanel } from "./pomodoro-stats-panel";
 import { TodoList, type Todo } from "@/components/todo-list";
@@ -120,7 +121,6 @@ export default async function MePage() {
     { data: dailyGoalRows },
     { data: workRows },
     { data: workRecordRows },
-    { data: workEntryRows },
   ] = await Promise.all([
     myRoomIds.length
       ? supabase
@@ -219,11 +219,6 @@ export default async function MePage() {
       .select("work_id,record_date,chars")
       .eq("user_id", user.id)
       .returns<{ work_id: string; record_date: string; chars: number }[]>(),
-    supabase
-      .from("work_record_entries")
-      .select("work_id,delta,created_at")
-      .eq("user_id", user.id)
-      .returns<{ work_id: string; delta: number; created_at: string }[]>(),
   ]);
 
   // 관리자가 만든 "달성 여부" 임시 이벤트는 마일스톤 로그 대신
@@ -250,12 +245,6 @@ export default async function MePage() {
     date: r.record_date,
     chars: r.chars,
   }));
-  const workEntries = (workEntryRows ?? []).map((r) => ({
-    workId: r.work_id,
-    delta: r.delta,
-    createdAt: r.created_at,
-  }));
-
   const memberCountByRoom = new Map<string, number>();
   for (const m of membersOfMyRooms ?? []) {
     memberCountByRoom.set(m.room_id, (memberCountByRoom.get(m.room_id) ?? 0) + 1);
@@ -561,7 +550,13 @@ export default async function MePage() {
       </section>
 
       <section className="flex flex-col gap-3">
-        <WorksPanel works={works} records={workRecords} entries={workEntries} />
+        {myProfile?.position === "webtoon" ? (
+          <div className="rounded-md border border-neutral-400 p-4 dark:border-neutral-600">
+            <WorkAmountChart records={dailyRecordPoints.map((p) => ({ date: p.date, chars: p.chars }))} />
+          </div>
+        ) : (
+          <WorksPanel works={works} records={workRecords} />
+        )}
       </section>
 
       <section className="flex flex-col gap-3">

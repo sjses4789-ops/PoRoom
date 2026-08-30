@@ -7,36 +7,29 @@ import { setWorkRecordChars } from "@/lib/works";
 
 export type WorkMeta = { id: string; title: string };
 export type WorkRecordPoint = { workId: string; date: string; chars: number };
-export type WorkEntryPoint = { workId: string; delta: number; createdAt: string };
 
 function pad2(n: number) {
   return String(n).padStart(2, "0");
 }
 
-function formatEntryDate(iso: string) {
-  const d = new Date(iso);
-  return `${d.getMonth() + 1}/${d.getDate()}`;
-}
-
 const STEP_X = 44;
-const CHART_HEIGHT = 140;
+const CHART_HEIGHT = 150;
 
 export function WorkChart({
   works,
   records,
-  entries,
-  selectedId,
   onRecordsChange,
 }: {
   works: WorkMeta[];
   records: WorkRecordPoint[];
-  entries: WorkEntryPoint[];
-  selectedId: string | null;
   onRecordsChange: (updater: (prev: WorkRecordPoint[]) => WorkRecordPoint[]) => void;
 }) {
   const t = useTranslations("me.workChart");
-  const [period, setPeriod] = useState<"entry" | "day" | "month">("day");
+  const [period, setPeriod] = useState<"day" | "month">("day");
   const [editing, setEditing] = useState(false);
+  // null = 전체보기(모든 작품 합계) — 작품 목록 패널을 없애면서, 특정
+  // 작품만 보고 싶을 땐 이 드롭다운으로 고른다.
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const now = new Date();
   const [refYear, setRefYear] = useState(now.getFullYear());
@@ -77,36 +70,51 @@ export function WorkChart({
     );
   }
 
-  const activeIndex = Math.max(0, works.findIndex((w) => w.id === (selectedId ?? works[0]?.id)));
-  const activeWork = works[activeIndex] ?? works[0];
-  const activeColor = LINE_COLORS[activeIndex % LINE_COLORS.length];
+  const activeIndex = selectedId ? works.findIndex((w) => w.id === selectedId) : -1;
+  const activeWork = activeIndex >= 0 ? works[activeIndex] : null;
+  const activeColor = activeWork ? LINE_COLORS[activeIndex % LINE_COLORS.length] : "currentColor";
+
+  const workSelect = (
+    <select
+      value={selectedId ?? ""}
+      onChange={(e) => {
+        setSelectedId(e.target.value || null);
+        setEditing(false);
+      }}
+      className="min-w-0 rounded-md border border-neutral-200 bg-white px-2 py-1 text-[12px] text-neutral-700 outline-none focus:border-neutral-400 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
+    >
+      <option value="">{t("allWorks")}</option>
+      {works.map((w) => (
+        <option key={w.id} value={w.id}>
+          {w.title}
+        </option>
+      ))}
+    </select>
+  );
 
   const header = (
-    <div className="flex items-center justify-between">
-      <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("title")}</h2>
-      <button
-        type="button"
-        onClick={() => setEditing((v) => !v)}
-        title={editing ? t("backToChart") : t("editTitle")}
-        className="shrink-0 rounded-md px-1.5 py-1 text-neutral-400 transition hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-neutral-800 dark:hover:text-neutral-200"
-      >
-        {editing ? "📈" : "✎"}
-      </button>
+    <div className="flex flex-wrap items-center justify-between gap-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("title")}</h2>
+        {workSelect}
+      </div>
+      {activeWork && (
+        <button
+          type="button"
+          onClick={() => setEditing((v) => !v)}
+          title={editing ? t("backToChart") : t("editTitle")}
+          className="shrink-0 rounded-md px-1.5 py-1 text-neutral-400 transition hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-neutral-800 dark:hover:text-neutral-200"
+        >
+          {editing ? "📈" : "✎"}
+        </button>
+      )}
     </div>
   );
 
-  const activeWorkLabelEl = (
-    <span className="flex items-center gap-1.5 text-[12px] font-medium text-neutral-700 dark:text-neutral-200">
-      <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: activeColor }} />
-      {activeWork?.title}
-    </span>
-  );
-
-  if (editing) {
+  if (editing && activeWork) {
     return (
       <div className="flex flex-col gap-3">
         {header}
-        {activeWorkLabelEl}
         <WorkRecordsEditTable
           workId={activeWork.id}
           records={records}
@@ -120,7 +128,6 @@ export function WorkChart({
     <div className="flex items-center gap-1">
       {(
         [
-          { key: "entry" as const, label: t("periodEntry") },
           { key: "day" as const, label: t("periodDay") },
           { key: "month" as const, label: t("periodMonth") },
         ]
@@ -140,84 +147,7 @@ export function WorkChart({
     </div>
   );
 
-  if (period === "entry") {
-    const workEntries = entries
-      .filter((e) => e.workId === activeWork?.id)
-      .slice()
-      .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
-
-    const maxAbs = Math.max(1, ...workEntries.map((e) => Math.abs(e.delta)));
-    const chartWidth = Math.max(STEP_X, STEP_X * workEntries.length);
-    const zeroY = CHART_HEIGHT / 2;
-    const halfHeight = CHART_HEIGHT / 2 - 8;
-    const xFor = (i: number) => i * STEP_X + STEP_X / 2;
-    const yFor = (delta: number) => zeroY - (delta / maxAbs) * halfHeight;
-
-    return (
-      <div className="flex flex-col gap-3">
-        {header}
-        <div className="flex flex-wrap items-center gap-2">
-          {activeWorkLabelEl}
-          {periodSelector}
-        </div>
-
-        {workEntries.length === 0 ? (
-          <p className="text-xs text-neutral-400">{t("noEntries")}</p>
-        ) : (
-          <div className="overflow-x-auto pb-1">
-            <svg
-              viewBox={`0 0 ${chartWidth} ${CHART_HEIGHT}`}
-              width={chartWidth}
-              height={CHART_HEIGHT}
-              className="block"
-            >
-              <line
-                x1={0}
-                y1={zeroY}
-                x2={chartWidth}
-                y2={zeroY}
-                stroke="currentColor"
-                strokeWidth={1}
-                className="text-neutral-200 dark:text-neutral-700"
-              />
-              <polyline
-                points={workEntries.map((e, i) => `${xFor(i)},${yFor(e.delta)}`).join(" ")}
-                fill="none"
-                stroke={activeColor}
-                strokeWidth={2}
-                strokeLinejoin="round"
-                strokeLinecap="round"
-              />
-              {workEntries.map((e, i) => (
-                <circle
-                  key={i}
-                  cx={xFor(i)}
-                  cy={yFor(e.delta)}
-                  r={3}
-                  fill={e.delta >= 0 ? activeColor : "#ef4444"}
-                />
-              ))}
-            </svg>
-            <div className="flex" style={{ width: chartWidth }}>
-              {workEntries.map((e, i) => (
-                <span
-                  key={i}
-                  className="shrink-0 text-center text-[10px] text-neutral-400"
-                  style={{ width: STEP_X }}
-                >
-                  {formatEntryDate(e.createdAt)}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  // 선택한 달(일별) 또는 선택한 연도(월별) 전체를 보여준다 — 이전엔
-  // 항상 "오늘까지 최근 N개"만 보여줘서 다른 시기를 돌아볼 방법이
-  // 없었음.
+  // 선택한 달(일별) 또는 선택한 연도(월별) 전체를 보여준다.
   const buckets: { key: string; label: string }[] = [];
   if (period === "day") {
     const daysInMonth = new Date(refYear, refMonth + 1, 0).getDate();
@@ -240,7 +170,7 @@ export function WorkChart({
     const value = records
       .filter(
         (r) =>
-          r.workId === activeWork?.id &&
+          (selectedId ? r.workId === selectedId : true) &&
           (period === "day" ? r.date === b.key : r.date.startsWith(b.key))
       )
       .reduce((sum, r) => sum + r.chars, 0);
@@ -249,14 +179,13 @@ export function WorkChart({
 
   const maxVal = Math.max(1, ...dataByBucket.map((d) => d.value));
   const chartWidth = STEP_X * buckets.length;
-  const yFor = (v: number) => CHART_HEIGHT - (v / maxVal) * (CHART_HEIGHT - 8) - 4;
+  const yFor = (v: number) => CHART_HEIGHT - 20 - (v / maxVal) * (CHART_HEIGHT - 40);
   const xFor = (i: number) => i * STEP_X + STEP_X / 2;
 
   return (
     <div className="flex flex-col gap-3">
       {header}
       <div className="flex flex-wrap items-center gap-2">
-        {activeWorkLabelEl}
         {periodSelector}
         <div className="ml-auto flex items-center gap-1 text-[12px] text-neutral-500 dark:text-neutral-400">
           <button
@@ -307,7 +236,20 @@ export function WorkChart({
             strokeLinecap="round"
           />
           {dataByBucket.map((d, i) => (
-            <circle key={d.key} cx={xFor(i)} cy={yFor(d.value)} r={2.5} fill={activeColor} />
+            <g key={d.key}>
+              <circle cx={xFor(i)} cy={yFor(d.value)} r={2.5} fill={activeColor} />
+              {d.value > 0 && (
+                <text
+                  x={xFor(i)}
+                  y={yFor(d.value) - 6}
+                  textAnchor="middle"
+                  className="fill-neutral-500 dark:fill-neutral-400"
+                  fontSize={9}
+                >
+                  {d.value.toLocaleString()}
+                </text>
+              )}
+            </g>
           ))}
         </svg>
         <div className="flex" style={{ width: chartWidth }}>
