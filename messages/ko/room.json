@@ -216,7 +216,11 @@
       "idle": "대기 중"
     },
     "lastSeen": "마지막 접속 {label}",
-    "neverSeen": "미접속"
+    "neverSeen": "미접속",
+    "shareStart": "화면 공유 켜기",
+    "shareStop": "화면 공유 끄기",
+    "shareOn": "화면 공유 중",
+    "shareUnsupported": "이 브라우저나 기기에서는 화면 공유를 지원하지 않아요. PC의 크롬·엣지·파이어폭스에서 시도해보세요."
   },
   "pomodoroPanel": {
     "status": {

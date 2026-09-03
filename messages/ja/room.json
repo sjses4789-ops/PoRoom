@@ -216,7 +216,11 @@
       "idle": "待機中"
     },
     "lastSeen": "最終接続 {label}",
-    "neverSeen": "未接続"
+    "neverSeen": "未接続",
+    "shareStart": "画面共有をオンにする",
+    "shareStop": "画面共有をオフにする",
+    "shareOn": "画面共有中",
+    "shareUnsupported": "このブラウザ・端末では画面共有に対応していません。PCのChrome・Edge・Firefoxでお試しください。"
   },
   "pomodoroPanel": {
     "status": {

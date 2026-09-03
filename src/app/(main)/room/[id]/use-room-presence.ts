@@ -55,6 +55,12 @@ type PresencePayload = {
 
 export type PresenceStatus = "offline" | "typing" | "idle";
 
+// 화면 공유 프레임은 브로드캐스트로 오가는데, "공유 중지" 신호를 놓치는
+// 경우(탭이 갑자기 닫히는 등)에 대비해 이 시간 동안 새 프레임이 안 오면
+// 자동으로 공유가 끊긴 것으로 보고 지운다.
+const SCREEN_FRAME_STALE_MS = 8000;
+const SCREEN_FRAME_STALE_CHECK_MS = 3000;
+
 export function useRoomPresence(
   roomId: string,
   selfId: string,
@@ -63,6 +69,8 @@ export function useRoomPresence(
   const [presenceMap, setPresenceMap] = useState<
     Record<string, PresencePayload>
   >({});
+  const [screenFrames, setScreenFrames] = useState<Record<string, string>>({});
+  const screenFrameSeenAtRef = useRef<Map<string, number>>(new Map());
   const channelRef = useRef<RealtimeChannel | null>(null);
   // SUBSCRIBED 상태일 때만 track()을 보낼 수 있다 — 구독이 끊기거나
   // 재연결 중일 때 track()을 부르면 조용히 무시되거나 에러가 나서,
@@ -144,6 +152,23 @@ export function useRoomPresence(
         .on("presence", { event: "sync" }, syncFromState)
         .on("presence", { event: "join" }, syncFromState)
         .on("presence", { event: "leave" }, syncFromState)
+        .on("broadcast", { event: "screen-frame" }, ({ payload }) => {
+          const { userId, dataUrl } = payload as { userId: string; dataUrl: string };
+          if (!userId || !dataUrl) return;
+          screenFrameSeenAtRef.current.set(userId, Date.now());
+          setScreenFrames((prev) => ({ ...prev, [userId]: dataUrl }));
+        })
+        .on("broadcast", { event: "screen-share-stop" }, ({ payload }) => {
+          const { userId } = payload as { userId: string };
+          if (!userId) return;
+          screenFrameSeenAtRef.current.delete(userId);
+          setScreenFrames((prev) => {
+            if (!(userId in prev)) return prev;
+            const next = { ...prev };
+            delete next[userId];
+            return next;
+          });
+        })
         .subscribe(async (status) => {
           if (cancelled) return;
           if (status === "SUBSCRIBED") {
@@ -206,6 +231,25 @@ export function useRoomPresence(
       hardReconnect();
     }, FORCE_RECONNECT_INTERVAL_MS);
 
+    // "공유 중지" 브로드캐스트를 놓친 화면 공유 프레임은 일정 시간
+    // 갱신이 없으면 스스로 정리한다.
+    const screenStaleId = setInterval(() => {
+      const now = Date.now();
+      let changed = false;
+      setScreenFrames((prev) => {
+        const next = { ...prev };
+        for (const userId of Object.keys(next)) {
+          const seenAt = screenFrameSeenAtRef.current.get(userId) ?? 0;
+          if (now - seenAt > SCREEN_FRAME_STALE_MS) {
+            delete next[userId];
+            screenFrameSeenAtRef.current.delete(userId);
+            changed = true;
+          }
+        }
+        return changed ? next : prev;
+      });
+    }, SCREEN_FRAME_STALE_CHECK_MS);
+
     // 탭이 백그라운드에 있는 동안은 위 setInterval들 자체가 쓰로틀링돼서
     // 늦게(또는 거의 안) 실행된다. 잠깐 숨겨졌다 돌아온 정도면 재track만
     // 해도 충분하지만, 오래 숨겨져 있었다면(하트비트까지 쓰로틀링돼
@@ -241,6 +285,7 @@ export function useRoomPresence(
       clearInterval(retrackId);
       clearInterval(staleCheckId);
       clearInterval(forceReconnectId);
+      clearInterval(screenStaleId);
       document.removeEventListener("visibilitychange", onVisibilityChange);
       window.removeEventListener("focus", onActive);
       window.removeEventListener("blur", onInactive);
@@ -331,10 +376,42 @@ export function useRoomPresence(
     [effectivePresence]
   );
 
+  // 화면 공유 프레임(저해상도 스크린샷)을 이 방 채널로 그대로 흘려보낸다
+  // — presence의 track()과 달리 상태로 남지 않고 그 순간 구독 중인
+  // 사람에게만 전달되는 1회성 신호라, 서버에 아무것도 저장되지 않는다.
+  const broadcastScreenFrame = useCallback(
+    (dataUrl: string) => {
+      if (!subscribedRef.current || !channelRef.current) return;
+      channelRef.current.send({
+        type: "broadcast",
+        event: "screen-frame",
+        payload: { userId: selfId, dataUrl },
+      });
+    },
+    [selfId]
+  );
+
+  const stopScreenShareBroadcast = useCallback(() => {
+    if (!subscribedRef.current || !channelRef.current) return;
+    channelRef.current.send({
+      type: "broadcast",
+      event: "screen-share-stop",
+      payload: { userId: selfId },
+    });
+  }, [selfId]);
+
+  const getScreenFrame = useCallback(
+    (userId: string): string | null => screenFrames[userId] ?? null,
+    [screenFrames]
+  );
+
   return {
     reportTyping,
     getStatus,
     setPomodoroState,
     getPomodoroState,
+    broadcastScreenFrame,
+    stopScreenShareBroadcast,
+    getScreenFrame,
   };
 }

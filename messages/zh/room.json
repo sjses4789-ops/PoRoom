@@ -216,7 +216,11 @@
       "idle": "待机中"
     },
     "lastSeen": "最后上线 {label}",
-    "neverSeen": "未上线"
+    "neverSeen": "未上线",
+    "shareStart": "开启屏幕共享",
+    "shareStop": "关闭屏幕共享",
+    "shareOn": "正在共享屏幕",
+    "shareUnsupported": "此浏览器或设备不支持屏幕共享。请在电脑端的 Chrome、Edge 或 Firefox 中尝试。"
   },
   "pomodoroPanel": {
     "status": {

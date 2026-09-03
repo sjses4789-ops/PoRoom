@@ -216,7 +216,11 @@
       "idle": "Idle"
     },
     "lastSeen": "Last seen {label}",
-    "neverSeen": "Never online"
+    "neverSeen": "Never online",
+    "shareStart": "Turn on screen sharing",
+    "shareStop": "Turn off screen sharing",
+    "shareOn": "Sharing screen",
+    "shareUnsupported": "This browser or device doesn't support screen sharing. Try Chrome, Edge, or Firefox on a PC."
   },
   "pomodoroPanel": {
     "status": {

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { usePomodoroContext } from "../../pomodoro-context";
 import { useRoomPresence } from "./use-room-presence";
+import { useScreenShare } from "./use-screen-share";
 import { useLiveMembers } from "./use-live-members";
 import { ParticipantCard, type ParticipantData } from "./participant-card";
 import { ChatPanel, type ChatMessage, type LatestNotice } from "./chat-panel";
@@ -108,11 +109,16 @@ export function RoomView({
   const isActiveRoom = pomodoro.activeRoomId === roomId;
 
   const [todayChars, setTodayChars] = useState(selfTodayGlobalChars);
-  const { reportTyping, getStatus, setPomodoroState, getPomodoroState } = useRoomPresence(
-    roomId,
-    selfId,
-    selfName
-  );
+  const {
+    reportTyping,
+    getStatus,
+    setPomodoroState,
+    getPomodoroState,
+    broadcastScreenFrame,
+    stopScreenShareBroadcast,
+    getScreenFrame,
+  } = useRoomPresence(roomId, selfId, selfName);
+  const screenShare = useScreenShare(broadcastScreenFrame, stopScreenShareBroadcast);
 
   // "상태설정"은 presence(그 방 세션 동안만 사는 실시간 상태)가 아니라
   // users.work_status에 영구 저장한다 — 방을 나갔다 들어와도, 다른
@@ -467,6 +473,18 @@ export function RoomView({
                 data={p}
                 onChangeWorkStatus={p.isSelf ? handleChangeWorkStatus : undefined}
                 selfPosition={selfPosition}
+                screenShare={
+                  p.isSelf
+                    ? {
+                        isSharing: screenShare.isSharing,
+                        frameUrl: screenShare.previewUrl,
+                        onToggle: screenShare.toggle,
+                      }
+                    : {
+                        isSharing: getScreenFrame(p.id) !== null,
+                        frameUrl: getScreenFrame(p.id),
+                      }
+                }
               />
             ))}
           </div>
