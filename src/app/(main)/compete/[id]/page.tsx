@@ -246,11 +246,6 @@ export default async function ChallengeDetailPage({
   }));
 
   const dailyTarget = challenge.kind ? SYSTEM_CHALLENGE_META[challenge.kind].dailyTarget : undefined;
-  // 1:1 대결(시스템 챌린지·관리자 이벤트 제외)이 기간이 끝났으면, 3일
-  // 뒤 자동으로 방이 사라진다는 안내를 보여준다(참여자 개인 기록은
-  // 남아있으니 걱정하지 말라는 문구 포함).
-  const isEndedDuel =
-    !isSystemKind && !challenge.is_admin_event && challenge.end_date !== null && today > challenge.end_date;
 
   return (
     <div className="flex flex-col gap-6">
@@ -316,12 +311,6 @@ export default async function ChallengeDetailPage({
             ) : undefined
           }
         />
-      )}
-
-      {isEndedDuel && (
-        <p className="rounded-md border border-amber-300 bg-amber-50 p-3 text-[12px] text-amber-700 dark:border-amber-700/60 dark:bg-amber-900/20 dark:text-amber-400">
-          {t("expiryBanner")}
-        </p>
       )}
 
       {!iAmParticipant && challenge.visibility === "open" && (

@@ -249,9 +249,6 @@ export default function CreateChallengeButton() {
             <p className="text-[12px] text-neutral-400">
               {t("hint")}
             </p>
-            <p className="text-[12px] text-neutral-400">
-              {t("expiryHint")}
-            </p>
 
             {state?.error && (
               <p className="text-xs text-red-500">{state.error}</p>

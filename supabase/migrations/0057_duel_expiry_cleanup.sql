@@ -1,20 +1,14 @@
--- PoRoom: 대결 기간이 끝난 지 3일이 지난 1:1 대결방은 자동으로 정리한다.
--- (챌린지 목록/상세 페이지를 불러올 때마다 lazy하게 정리 — pg_cron 등
--- 예약 실행 권한이 없는 환경이라 시스템 챌린지 주/월 리셋과 같은 패턴을
--- 쓴다. daily_records/activity_logs는 challenge_id를 참조하지 않으므로
--- 대결방이 삭제돼도 참여자 개인 기록은 전혀 영향받지 않는다.)
+-- PoRoom: (제거된 기능) 대결 기간 종료 3일 뒤 자동 삭제.
 --
--- 시스템 챌린지(kind IS NOT NULL)와 관리자 지정 이벤트(is_admin_event)는
--- 대상에서 제외 — 반복/영구 운영되는 챌린지라 end_date가 지나도 삭제
--- 대상이 아니다.
-
-drop policy if exists "anyone can delete expired duels" on public.challenges;
-create policy "anyone can delete expired duels"
-  on public.challenges for delete
-  to authenticated
-  using (
-    kind is null
-    and is_admin_event = false
-    and end_date is not null
-    and end_date < (current_date - interval '3 days')::date
-  );
+-- 이 마이그레이션은 실행하지 마세요 — 적용하지 않은 상태에서 이미 사고가
+-- 있었습니다. 이 정책이 없어도, 애플리케이션 코드가 조건 없이
+-- `challenges` 테이블에 delete()를 호출하면서 온전히 RLS에만 의존했는데,
+-- 이미 존재하던 "admins can delete any challenge"(0033) 정책이 관리자
+-- 세션에 대해 무조건(기간·종류 무관) 삭제를 허용하고 있어서, 관리자가
+-- [도전] 페이지를 열 때마다 challenges 테이블 전체가 삭제되는 사고로
+-- 이어졌습니다. 그 결과 관리자가 만든 이벤트 챌린지와, 종료된 1:1 대결
+-- 기록(→ 랭킹의 대결 승패 집계 근거)이 함께 사라졌습니다.
+--
+-- 그래서 "3일 뒤 자동 삭제" 기능 자체를 제거했습니다 — 종료된 대결은
+-- 이제 삭제되지 않고, [도전] 목록 화면에서 맨 아래로 정렬만 됩니다
+-- (애플리케이션 코드에서 처리, 별도 DB 변경 불필요).

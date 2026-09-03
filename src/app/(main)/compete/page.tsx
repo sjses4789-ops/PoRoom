@@ -4,7 +4,6 @@ import { inRange } from "@/lib/records";
 import { PageAdRail } from "@/components/page-ad-rail";
 import CreateChallengeButton from "./create-challenge-button";
 import JoinByCodeButton from "./join-by-code-button";
-import { cleanupExpiredDuels } from "@/lib/challenges";
 import { ChallengeCard, type ChallengeParticipant } from "./challenge-card";
 import { OpenChallengeCard } from "./open-challenge-card";
 import { OpenSystemChallengeCard } from "./open-system-challenge-card";
@@ -65,12 +64,10 @@ export default async function CompetePage() {
   } = await supabase.auth.getUser();
 
   // 반복형 시스템 챌린지(5천자/1만자/초단 완고)가 아직 없으면 만들고,
-  // 주/월 경계를 넘었으면 기간을 새로 갱신한다. 대결 기간이 끝난 지 3일
-  // 지난 1:1 대결방도 같은 타이밍에 lazy하게 정리한다.
-  await Promise.all([
-    ...SYSTEM_CHALLENGE_KINDS.map((kind) => ensureSystemChallenge(supabase, kind, user!.id)),
-    cleanupExpiredDuels(supabase),
-  ]);
+  // 주/월 경계를 넘었으면 기간을 새로 갱신한다.
+  await Promise.all(
+    SYSTEM_CHALLENGE_KINDS.map((kind) => ensureSystemChallenge(supabase, kind, user!.id))
+  );
 
   // RLS already limits this to challenges that are open, or that I created,
   // or that I'm already a participant of. 시스템 챌린지(관리자 임시
@@ -165,9 +162,16 @@ export default async function CompetePage() {
     }
   }
 
-  const joinedChallenges = joined.filter((c) => !c.kind && !c.is_admin_event);
+  // 대결방을 삭제하는 대신(예전엔 3일 뒤 자동 삭제였다가, 그 삭제 로직이
+  // 관리자 세션에서 전체 challenges 테이블을 지워버리는 사고로 이어져
+  // 제거했다) 기간이 끝난 대결은 그냥 목록 맨 아래로 밀어낸다.
+  const isEnded = (c: ChallengeRow) => Boolean(c.end_date && today > c.end_date);
+  const sortEndedLast = <T extends ChallengeRow>(list: T[]) =>
+    [...list].sort((a, b) => Number(isEnded(a)) - Number(isEnded(b)));
+
+  const joinedChallenges = sortEndedLast(joined.filter((c) => !c.kind && !c.is_admin_event));
   const joinedSystemChallenges = joined.filter((c) => c.kind !== null || c.is_admin_event);
-  const openChallenges = openToJoin.filter((c) => !c.kind && !c.is_admin_event);
+  const openChallenges = sortEndedLast(openToJoin.filter((c) => !c.kind && !c.is_admin_event));
   const openSystemChallenges = openToJoin.filter((c) => c.kind !== null || c.is_admin_event);
 
   const myTodayChars = (records ?? [])
