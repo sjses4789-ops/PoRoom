@@ -1,5 +1,8 @@
 {
   "title": "管理员",
+  "fullBackupHeading": "全部数据备份",
+  "fullBackupHint": "本服务是免费方案，没有自动备份。点击按钮即可下载此刻的全部数据(会员、房间、记录、挑战、帖子等)的JSON文件。建议偶尔点一次保存。",
+  "fullBackupButton": "立即下载全部备份",
   "createEventHeading": "创建临时挑战活动",
   "createEventHint": "可以创建只在特定期间开放的挑战，例如出版社的不定期征稿或投稿开放期。创建后立即生效，会以浅红色卡片显示在[对决]页面的挑战列表中。",
   "eventNamePlaceholder": "活动名称",

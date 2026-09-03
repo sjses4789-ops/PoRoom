@@ -71,6 +71,19 @@ export default async function AdminPage() {
         {t("title")}
       </h1>
 
+      <section className="flex flex-col gap-3 rounded-md border border-neutral-200 p-4 dark:border-neutral-700">
+        <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
+          {t("fullBackupHeading")}
+        </h2>
+        <p className="text-xs text-neutral-400">{t("fullBackupHint")}</p>
+        <a
+          href="/api/admin/full-backup"
+          className="self-start rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+        >
+          {t("fullBackupButton")}
+        </a>
+      </section>
+
       <section className="flex flex-col gap-4">
         <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
           {t("createEventHeading")}

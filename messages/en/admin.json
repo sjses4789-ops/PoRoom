@@ -1,5 +1,8 @@
 {
   "title": "Admin",
+  "fullBackupHeading": "Full data backup",
+  "fullBackupHint": "This service is on the free plan, so there's no automatic backup. Click the button to download a JSON snapshot of all data (users, rooms, records, challenges, posts, etc.) as of right now. Worth doing every so often.",
+  "fullBackupButton": "Download full backup now",
   "createEventHeading": "Create a temporary challenge event",
   "createEventHint": "Create a challenge that only runs for a specific window — e.g. a publisher's one-off contest or submission period. It goes live immediately and appears in the [Compete] challenge list as a light red card.",
   "eventNamePlaceholder": "Event name",
