@@ -3,15 +3,18 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
-// 참여자 카드에 "작업 중인 화면"을 아주 흐릿하게만 보여주기 위한
-// 캡처 크기/화질 — 텍스트나 세부 내용은 알아볼 수 없고, 색상과 움직임
-// 정도만 전달되도록 일부러 낮게 잡았다. 실제 픽셀 수를 작게 캡처한 뒤
-// 카드에서는 크게 늘려 그리므로(참여자 카드 쪽 CSS의 image-rendering:
-// pixelated), 화면이 깨진 것처럼 보이는 효과가 자연스럽게 난다.
-const CAPTURE_WIDTH = 160;
-const CAPTURE_HEIGHT = 90;
+// 참여자 카드에 "작업 중인 화면"을 픽셀이 깨진 모자이크처럼 보여주기
+// 위한 캡처 크기/화질. 처음엔 160×90에 화질(quality)만 낮췄더니 카드
+// 크기(약 240~300px 폭)로 늘렸을 때 배율이 1.5~2배 정도밖에 안 돼서
+// JPEG 압축으로 인한 "흐릿함"에 가까웠다 — 진짜 "블록이 보이는" 느낌을
+// 내려면 원본 해상도 자체를 아주 작게 잡아서(카드 폭 기준 한 칸이
+// 6~8px는 되도록) 늘렸을 때 낱개 픽셀이 또렷한 색 블록으로 보이게 해야
+// 한다. 해상도 자체가 이미 세부 내용을 다 지워버리므로, 화질(quality)은
+// 오히려 높여서 블록 색이 추가로 뭉개지지 않고 선명하게 나오도록 한다.
+const CAPTURE_WIDTH = 40;
+const CAPTURE_HEIGHT = 22;
 const CAPTURE_INTERVAL_MS = 2000;
-const JPEG_QUALITY = 0.35;
+const JPEG_QUALITY = 0.6;
 
 // 화면/창 공유를 시작·중지하고, 주기적으로 저해상도 프레임을 캡처해
 // onFrame으로 넘겨준다(실제 브로드캐스트는 호출부 책임 — 이 훅은 캡처만
