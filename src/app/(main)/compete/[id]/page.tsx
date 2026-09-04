@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { inRange } from "@/lib/records";
@@ -82,6 +82,13 @@ export default async function ChallengeDetailPage({
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  // 애드센스 심사 기간 동안 목록 페이지([도전])는 로그인 없이도 열어뒀지만,
+  // 대결/챌린지 상세는 참여 여부·개인 기록을 다루므로 여기는 그대로
+  // 로그인을 요구한다.
+  if (!user) {
+    redirect("/login");
+  }
 
   // RLS already hides private challenges I'm not a participant/creator of.
   const { data: challenge } = await supabase

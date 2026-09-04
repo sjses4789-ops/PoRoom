@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { isCurrentUserAdmin } from "@/lib/admin";
 import { FeedbackBoard, type FeedbackPost, type FeedbackComment } from "./feedback-board";
@@ -18,6 +19,13 @@ export default async function FeedbackPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  // 애드센스 심사 기간 동안 목록 페이지([포룸]·[피드]·[랭킹]·[휴식]·[도전])는
+  // 로그인 없이도 열어뒀지만, 이 페이지는 그 범위에 없어 그대로 로그인을
+  // 요구한다.
+  if (!user) {
+    redirect("/login");
+  }
 
   const [{ data: myProfile }, { data: postRows }, { data: users }, { data: commentRows }, isAdmin] =
     await Promise.all([

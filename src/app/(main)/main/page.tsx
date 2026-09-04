@@ -40,13 +40,17 @@ export default async function MainPage() {
 
   const today = todayKst();
   const monthPrefix = today.slice(0, 7);
+  // 애드센스 심사 기간 동안 비로그인 방문자도 이 페이지를 볼 수 있게
+  // 열어뒀다 — 아래 "내 것" 관련 조회는 selfId가 없으면 모두 건너뛰고
+  // 빈 값/0으로 채워서 "게스트용 요약(전부 0)+실제 방 목록"을 보여준다.
+  const selfId = user?.id ?? null;
 
   // 참여 중인 챌린지가 있으면 "매일 5천자 쓰기" 같은 항목을 할 일
   // 목록에 오늘치로 채워둔다 (없을 때만 추가되므로 매일 방문할 때마다
   // 자연스럽게 새로 나타난다). 아래 배치와 동시에 진행시키고, todos를
   // 읽기 직전에만 완료를 기다린다 — todos 조회는 이 작업 결과에
   // 실제로 의존하므로 그것만은 순서를 지켜야 한다.
-  const ensureTodosPromise = ensureChallengeTodos(supabase, user!.id);
+  const ensureTodosPromise = selfId ? ensureChallengeTodos(supabase, selfId) : Promise.resolve();
 
   const [
     { data: rooms },
@@ -66,11 +70,13 @@ export default async function MainPage() {
     supabase.from("room_members").select("room_id").returns<
       { room_id: string }[]
     >(),
-    supabase
-      .from("room_members")
-      .select("room_id,is_favorite")
-      .eq("user_id", user!.id)
-      .returns<{ room_id: string; is_favorite: boolean }[]>(),
+    selfId
+      ? supabase
+          .from("room_members")
+          .select("room_id,is_favorite")
+          .eq("user_id", selfId)
+          .returns<{ room_id: string; is_favorite: boolean }[]>()
+      : Promise.resolve({ data: [] as { room_id: string; is_favorite: boolean }[] }),
     // daily_records is globally readable (RLS opened up for ranking) — used
     // here to total each room's all-time/this-month char counts, and each
     // user's this-month total for the personal ranking summary.
@@ -78,39 +84,47 @@ export default async function MainPage() {
       .from("daily_records")
       .select("room_id,user_id,record_date,chars")
       .returns<GlobalRecordRow[]>(),
-    supabase
-      .from("goals")
-      .select("target_chars")
-      .eq("user_id", user!.id)
-      .eq("period", "month")
-      .maybeSingle<{ target_chars: number }>(),
+    selfId
+      ? supabase
+          .from("goals")
+          .select("target_chars")
+          .eq("user_id", selfId)
+          .eq("period", "month")
+          .maybeSingle<{ target_chars: number }>()
+      : Promise.resolve({ data: null }),
     // "이번 달 랭킹"을 웹소설 작가는 웹소설 작가끼리, 웹툰 작가는 웹툰
     // 작가끼리로 좁혀야 해서(글자수/컷수는 단위가 다름) 전체 사용자의
     // 직업을 한 번에 가져온다.
     supabase.from("users").select("id,position").returns<{ id: string; position: string | null }[]>(),
-    supabase
-      .from("users")
-      .select("timezone,position")
-      .eq("id", user!.id)
-      .maybeSingle<{ timezone: string | null; position: string | null }>(),
+    selfId
+      ? supabase
+          .from("users")
+          .select("timezone,position")
+          .eq("id", selfId)
+          .maybeSingle<{ timezone: string | null; position: string | null }>()
+      : Promise.resolve({ data: null }),
     // 출석일은 나라별 자정 기준으로 계산해야 해서, KST로 이미 고정된
     // daily_records 대신 실제 시각이 남는 activity_logs를 쓴다.
-    supabase
-      .from("activity_logs")
-      .select("type,created_at")
-      .eq("user_id", user!.id)
-      .in("type", ["chars_added", "focus_recorded"])
-      .returns<{ type: string; created_at: string }[]>(),
+    selfId
+      ? supabase
+          .from("activity_logs")
+          .select("type,created_at")
+          .eq("user_id", selfId)
+          .in("type", ["chars_added", "focus_recorded"])
+          .returns<{ type: string; created_at: string }[]>()
+      : Promise.resolve({ data: [] as { type: string; created_at: string }[] }),
   ]);
 
   await ensureTodosPromise;
-  const { data: todoRows } = await supabase
-    .from("todos")
-    .select("id,content,for_date")
-    .eq("user_id", user!.id)
-    .is("completed_at", null)
-    .order("created_at", { ascending: true })
-    .returns<TodoRow[]>();
+  const { data: todoRows } = selfId
+    ? await supabase
+        .from("todos")
+        .select("id,content,for_date")
+        .eq("user_id", selfId)
+        .is("completed_at", null)
+        .order("created_at", { ascending: true })
+        .returns<TodoRow[]>()
+    : { data: [] as TodoRow[] };
   const visibleTodos = (todoRows ?? [])
     .filter((r) => isTodoRowActive(r, today))
     .map((r) => ({ id: r.id, content: r.content }));
@@ -143,7 +157,7 @@ export default async function MainPage() {
   const isSamePosition = (userId: string) =>
     (positionById.get(userId) === "webtoon" ? "webtoon" : "novelist") === selfPosition;
 
-  const myMonthChars = monthCharsByUser.get(user!.id) ?? 0;
+  const myMonthChars = selfId ? (monthCharsByUser.get(selfId) ?? 0) : 0;
   // 글자수(웹소설)와 컷수(웹툰)는 단위가 달라 같은 직업끼리만 비교한다.
   const monthCharsBySamePosition = Array.from(monthCharsByUser.entries()).filter(([uid]) =>
     isSamePosition(uid)
@@ -155,11 +169,13 @@ export default async function MainPage() {
   // 대시보드는 "이번 달 목표 대비 진행률"도 보여줘야 해서, 방과 무관하게
   // 내 기록만 다시 한 번 걸러낸다 (오늘의 글자수 / 이번 달 진행 글자수 /
   // 출석일).
-  const { data: myRecords } = await supabase
-    .from("daily_records")
-    .select("record_date,chars,focus_minutes")
-    .eq("user_id", user!.id)
-    .returns<{ record_date: string; chars: number; focus_minutes: number }[]>();
+  const { data: myRecords } = selfId
+    ? await supabase
+        .from("daily_records")
+        .select("record_date,chars,focus_minutes")
+        .eq("user_id", selfId)
+        .returns<{ record_date: string; chars: number; focus_minutes: number }[]>()
+    : { data: [] as { record_date: string; chars: number; focus_minutes: number }[] };
 
   let monthProgressChars = 0;
   for (const r of myRecords ?? []) {

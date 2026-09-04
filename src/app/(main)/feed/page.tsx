@@ -34,6 +34,10 @@ export default async function FeedPage() {
   } = await supabase.auth.getUser();
 
   const today = todayKst();
+  // 애드센스 심사 기간 동안 비로그인 방문자도 이 페이지를 볼 수 있게
+  // 열어뒀다 — "내 것" 조회는 selfId가 없으면 건너뛰고, 글쓰기/반응 같은
+  // 쓰기 동작은 FeedView 쪽에서 selfId가 없을 때 비활성화한다.
+  const selfId = user?.id ?? null;
 
   const [{ data: postRows }, { data: users }, { data: reactionRows }, { data: todayRows }, options] =
     await Promise.all([
@@ -48,12 +52,14 @@ export default async function FeedPage() {
         .from("feed_reactions")
         .select("id,post_id,user_id,reaction_type")
         .returns<ReactionRow[]>(),
-      supabase
-        .from("daily_records")
-        .select("chars,focus_minutes")
-        .eq("user_id", user!.id)
-        .eq("record_date", today)
-        .returns<{ chars: number; focus_minutes: number }[]>(),
+      selfId
+        ? supabase
+            .from("daily_records")
+            .select("chars,focus_minutes")
+            .eq("user_id", selfId)
+            .eq("record_date", today)
+            .returns<{ chars: number; focus_minutes: number }[]>()
+        : Promise.resolve({ data: [] as { chars: number; focus_minutes: number }[] }),
       getMyChallengeOptions(),
     ]);
 
@@ -80,7 +86,10 @@ export default async function FeedPage() {
         const forType = postReactions.filter((r) => r.reaction_type === type);
         return [
           type,
-          { count: forType.length, selfActive: forType.some((r) => r.user_id === user!.id) },
+          {
+            count: forType.length,
+            selfActive: selfId ? forType.some((r) => r.user_id === selfId) : false,
+          },
         ];
       })
     ) as FeedPost["reactions"];
@@ -115,10 +124,10 @@ export default async function FeedPage() {
           <p className="mt-1 text-sm text-neutral-500">{t("subtitle")}</p>
         </div>
         <FeedView
-          selfId={user!.id}
-          selfName={userNames[user!.id] ?? t("unknownUser")}
-          selfCharacterId={userCharacters[user!.id] ?? null}
-          selfPosition={userPositions[user!.id] ?? "novelist"}
+          selfId={selfId}
+          selfName={selfId ? (userNames[selfId] ?? t("unknownUser")) : t("unknownUser")}
+          selfCharacterId={selfId ? (userCharacters[selfId] ?? null) : null}
+          selfPosition={selfId ? (userPositions[selfId] ?? "novelist") : "novelist"}
           todayFocusMinutes={todayFocusMinutes}
           todayChars={todayChars}
           duelOptions={options.duels}

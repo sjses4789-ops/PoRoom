@@ -63,11 +63,17 @@ export default async function CompetePage() {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // 애드센스 심사 기간 동안 비로그인 방문자도 이 목록을 볼 수 있게
+  // 열어뒀다 — "내 것" 관련 조회/자동 참여는 selfId가 없으면 건너뛴다.
+  const selfId = user?.id ?? null;
+
   // 반복형 시스템 챌린지(5천자/1만자/초단 완고)가 아직 없으면 만들고,
   // 주/월 경계를 넘었으면 기간을 새로 갱신한다.
-  await Promise.all(
-    SYSTEM_CHALLENGE_KINDS.map((kind) => ensureSystemChallenge(supabase, kind, user!.id))
-  );
+  if (selfId) {
+    await Promise.all(
+      SYSTEM_CHALLENGE_KINDS.map((kind) => ensureSystemChallenge(supabase, kind, selfId))
+    );
+  }
 
   // RLS already limits this to challenges that are open, or that I created,
   // or that I'm already a participant of. 시스템 챌린지(관리자 임시
@@ -109,13 +115,15 @@ export default async function CompetePage() {
         .from("daily_records")
         .select("user_id,record_date,chars,focus_minutes")
         .returns<RecordRow[]>(),
-      supabase
-        .from("activity_logs")
-        .select("id")
-        .eq("user_id", user!.id)
-        .eq("type", "draft_done")
-        .gte("created_at", kstDayRangeUtc(monthStart).startUtc)
-        .limit(1),
+      selfId
+        ? supabase
+            .from("activity_logs")
+            .select("id")
+            .eq("user_id", selfId)
+            .eq("type", "draft_done")
+            .gte("created_at", kstDayRangeUtc(monthStart).startUtc)
+            .limit(1)
+        : Promise.resolve({ data: [] as { id: string }[] }),
     ]);
 
   const userNameMap = new Map((users ?? []).map((u) => [u.id, u.name || u.email]));
@@ -132,7 +140,7 @@ export default async function CompetePage() {
 
   for (const c of challenges) {
     const rows = participantsByChallenge.get(c.id) ?? [];
-    const iAmIn = rows.some((r) => r.user_id === user!.id);
+    const iAmIn = selfId ? rows.some((r) => r.user_id === selfId) : false;
 
     if (iAmIn) {
       const participantList: ChallengeParticipant[] = rows
@@ -174,9 +182,11 @@ export default async function CompetePage() {
   const openChallenges = sortEndedLast(openToJoin.filter((c) => !c.kind && !c.is_admin_event));
   const openSystemChallenges = openToJoin.filter((c) => c.kind !== null || c.is_admin_event);
 
-  const myTodayChars = (records ?? [])
-    .filter((r) => r.user_id === user!.id && r.record_date === today)
-    .reduce((sum, r) => sum + r.chars, 0);
+  const myTodayChars = selfId
+    ? (records ?? [])
+        .filter((r) => r.user_id === selfId && r.record_date === today)
+        .reduce((sum, r) => sum + r.chars, 0)
+    : 0;
 
   const draftDoneThisMonth = (draftLogs ?? []).length > 0;
 

@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { ADSENSE_REVIEW_MODE } from "@/lib/adsense-review-mode";
 import NavTabs from "./nav-tabs";
 import LogoutButton from "./logout-button";
 import { SiteFooter } from "./site-footer";
@@ -21,34 +22,41 @@ export default async function MainLayout({
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
+  // ADSENSE_REVIEW_MODE 동안은 비로그인 방문자도 이 레이아웃을 그대로
+  // 통과시킨다(아래에서 profile이 없는 게스트로 렌더링됨) — 심사가
+  // 끝나면 이 값을 false로 돌려서 원래대로(로그인 필수) 복구한다.
+  if (!user && !ADSENSE_REVIEW_MODE) {
     redirect("/login");
   }
 
-  const { data: profile } = await supabase
-    .from("users")
-    .select("name,is_banned,is_premium,position")
-    .eq("id", user.id)
-    .maybeSingle<{
-      name: string | null;
-      is_banned: boolean;
-      is_premium: boolean;
-      position: string | null;
-    }>();
+  const { data: profile } = user
+    ? await supabase
+        .from("users")
+        .select("name,is_banned,is_premium,position")
+        .eq("id", user.id)
+        .maybeSingle<{
+          name: string | null;
+          is_banned: boolean;
+          is_premium: boolean;
+          position: string | null;
+        }>()
+    : { data: null };
 
-  // 서비스 키 없이 관리자 플래그(users.is_banned)만으로 계정을 막는
-  // 방식이라, 매 요청마다 여기서 확인해서 걸리면 세션을 끊는다 —
-  // 그래야 다시 로그인해도 곧바로 다시 튕겨나간다.
-  if (profile?.is_banned) {
-    await supabase.auth.signOut();
-    redirect("/login?banned=1");
-  }
+  if (user) {
+    // 서비스 키 없이 관리자 플래그(users.is_banned)만으로 계정을 막는
+    // 방식이라, 매 요청마다 여기서 확인해서 걸리면 세션을 끊는다 —
+    // 그래야 다시 로그인해도 곧바로 다시 튕겨나간다.
+    if (profile?.is_banned) {
+      await supabase.auth.signOut();
+      redirect("/login?banned=1");
+    }
 
-  // 기존 사용자는 마이그레이션에서 position이 이미 채워져 있으니
-  // 여기 걸리지 않는다 — 닉네임과 직업을 아직 안 고른(=처음 가입한)
-  // 사용자만 온보딩으로 보낸다.
-  if (!profile?.name || !profile?.position) {
-    redirect("/onboarding");
+    // 기존 사용자는 마이그레이션에서 position이 이미 채워져 있으니
+    // 여기 걸리지 않는다 — 닉네임과 직업을 아직 안 고른(=처음 가입한)
+    // 사용자만 온보딩으로 보낸다.
+    if (!profile?.name || !profile?.position) {
+      redirect("/onboarding");
+    }
   }
 
   return (
@@ -63,28 +71,50 @@ export default async function MainLayout({
             </span>
           </Link>
           <div className="flex items-center gap-3 text-sm text-neutral-500 dark:text-neutral-400 md:hidden">
-            <TierBadgeButton isPremium={profile.is_premium} />
-            <Link
-              href="/me"
-              className="max-w-[100px] truncate font-bold text-neutral-900 hover:underline dark:text-white"
-            >
-              {profile.name}
-            </Link>
-            <LogoutButton />
+            {profile ? (
+              <>
+                <TierBadgeButton isPremium={profile.is_premium} />
+                <Link
+                  href="/me"
+                  className="max-w-[100px] truncate font-bold text-neutral-900 hover:underline dark:text-white"
+                >
+                  {profile.name}
+                </Link>
+                <LogoutButton />
+              </>
+            ) : (
+              <Link
+                href="/login"
+                className="font-bold text-neutral-900 hover:underline dark:text-white"
+              >
+                로그인
+              </Link>
+            )}
           </div>
         </div>
         <div className="-mx-4 overflow-x-auto px-4 sm:-mx-6 sm:px-6 md:mx-0 md:flex-1 md:px-0">
           <NavTabs />
         </div>
         <div className="hidden items-center gap-3 text-sm text-neutral-500 dark:text-neutral-400 md:flex">
-          <TierBadgeButton isPremium={profile.is_premium} />
-          <Link
-            href="/me"
-            className="max-w-[160px] truncate font-bold text-neutral-900 hover:underline dark:text-white"
-          >
-            {profile.name}
-          </Link>
-          <LogoutButton />
+          {profile ? (
+            <>
+              <TierBadgeButton isPremium={profile.is_premium} />
+              <Link
+                href="/me"
+                className="max-w-[160px] truncate font-bold text-neutral-900 hover:underline dark:text-white"
+              >
+                {profile.name}
+              </Link>
+              <LogoutButton />
+            </>
+          ) : (
+            <Link
+              href="/login"
+              className="font-bold text-neutral-900 hover:underline dark:text-white"
+            >
+              로그인
+            </Link>
+          )}
         </div>
       </header>
       <main className="flex-1 px-4 py-6 sm:px-6 md:px-8 md:py-8">{children}</main>

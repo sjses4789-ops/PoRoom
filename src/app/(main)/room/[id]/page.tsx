@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { RoomView, type Member } from "./room-view";
@@ -155,6 +155,12 @@ export default async function RoomPage({
       .returns<MemberRow[]>(),
     isCurrentUserAdmin(),
   ]);
+
+  // 애드센스 심사 기간 동안 목록 페이지([포룸])는 로그인 없이도 열어뒀지만,
+  // 방 내부는 실시간 세션·개인 기록을 다루므로 그대로 로그인을 요구한다.
+  if (!user) {
+    redirect("/login");
+  }
 
   if (!room) notFound();
 

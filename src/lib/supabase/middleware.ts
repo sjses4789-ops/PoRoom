@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { ADSENSE_REVIEW_MODE } from "@/lib/adsense-review-mode";
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -59,7 +60,12 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname === "/robots.txt" ||
     isGoogleVerificationFile;
 
-  if (!user && !isPublicRoute) {
+  // ADSENSE_REVIEW_MODE 동안은 "/"와 같은 논리로, 로그인 리다이렉트를
+  // 미들웨어 단에서 걸지 않고 각 페이지 컴포넌트가 스스로 판단하게
+  // 맡긴다 — [포룸]·[피드]·[랭킹]·[휴식]·[도전] 목록은 로그인 없이도
+  // 렌더링되도록 고쳐뒀고, [개인]·방 내부·도전 상세·피드백·관리자
+  // 페이지는 각자 자기 안에서 여전히 로그인을 요구한다.
+  if (!user && !isPublicRoute && !ADSENSE_REVIEW_MODE) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);

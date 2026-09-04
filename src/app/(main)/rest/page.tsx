@@ -28,6 +28,10 @@ export default async function RestPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // 애드센스 심사 기간 동안 비로그인 방문자도 이 게시판을 볼 수 있게
+  // 열어뒀다 — "내 것" 조회는 selfId가 없으면 건너뛴다.
+  const selfId = user?.id ?? null;
+
   const [
     { data: myProfile },
     { data: postRows },
@@ -37,11 +41,9 @@ export default async function RestPage() {
     isAdmin,
     myRooms,
   ] = await Promise.all([
-    supabase
-      .from("users")
-      .select("name")
-      .eq("id", user!.id)
-      .maybeSingle<{ name: string | null }>(),
+    selfId
+      ? supabase.from("users").select("name").eq("id", selfId).maybeSingle<{ name: string | null }>()
+      : Promise.resolve({ data: null }),
     supabase
       .from("rest_posts")
       .select("id,user_id,title,content,created_at,category,room_id,info_category,pinned")
@@ -49,13 +51,15 @@ export default async function RestPage() {
       .returns<PostRow[]>(),
     supabase.from("users").select("id,name,email").returns<UserRow[]>(),
     supabase.from("rooms").select("id,name").returns<RoomRow[]>(),
-    supabase
-      .from("typing_scores")
-      .select("cpm")
-      .eq("user_id", user!.id)
-      .order("cpm", { ascending: false })
-      .limit(1)
-      .returns<{ cpm: number }[]>(),
+    selfId
+      ? supabase
+          .from("typing_scores")
+          .select("cpm")
+          .eq("user_id", selfId)
+          .order("cpm", { ascending: false })
+          .limit(1)
+          .returns<{ cpm: number }[]>()
+      : Promise.resolve({ data: [] as { cpm: number }[] }),
     isCurrentUserAdmin(),
     getMyJoinedRooms(),
   ]);
@@ -90,8 +94,8 @@ export default async function RestPage() {
         <p className="mt-1 text-sm text-neutral-500">{t("subtitle")}</p>
       </div>
       <RestNav
-        selfId={user!.id}
-        selfName={myProfile?.name ?? user!.email ?? "나"}
+        selfId={selfId ?? ""}
+        selfName={myProfile?.name ?? user?.email ?? "나"}
         isAdmin={isAdmin}
         myBestCpm={myScores && myScores.length > 0 ? myScores[0].cpm : null}
         initialPosts={posts}

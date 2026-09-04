@@ -107,7 +107,10 @@ export default async function RankingPage() {
     userNames[u.id] = u.name || u.email;
     userPositions[u.id] = u.position === "webtoon" ? "webtoon" : "novelist";
   }
-  const selfPosition = userPositions[user!.id] ?? "novelist";
+  // 애드센스 심사 기간 동안 비로그인 방문자도 랭킹을 볼 수 있게 열어뒀다
+  // — 게스트는 "내 위치" 강조 없이 그냥 전체 랭킹만 보게 된다.
+  const selfId = user?.id ?? null;
+  const selfPosition = selfId ? (userPositions[selfId] ?? "novelist") : "novelist";
 
   const records: RankingRecord[] = (dailyRecords ?? []).map((r) => ({
     roomId: r.room_id,
@@ -185,7 +188,7 @@ export default async function RankingPage() {
             roomTargetPositions={roomTargetPositions}
             defaultPosition={selfPosition}
             today={today}
-            selfId={user!.id}
+            selfId={selfId ?? ""}
           />
         </div>
         <div className="overflow-hidden rounded-sm border border-neutral-400 p-4 dark:border-neutral-600">

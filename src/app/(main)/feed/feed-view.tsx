@@ -237,7 +237,12 @@ export function FeedView({
   challengeOptions,
   initialPosts,
 }: {
-  selfId: string;
+  // 애드센스 심사 기간 동안 비로그인 방문자도 이 페이지를 볼 수 있게
+  // 열어뒀다 — selfId가 없으면 글쓰기/반응 등 쓰기 동작은 서버 액션이
+  // "로그인이 필요합니다" 에러를 그대로 돌려주고(이미 처리돼 있음), 이
+  // 컴포넌트는 "내 글"/"내 반응" 비교가 전부 false가 되는 것으로 자연히
+  // 게스트 모드가 된다.
+  selfId: string | null;
   selfName: string;
   selfCharacterId: string | null;
   selfPosition: "novelist" | "webtoon";
@@ -318,6 +323,7 @@ export function FeedView({
   const visiblePosts = category === "all" ? posts : posts.filter((p) => p.postType === category);
 
   const canSubmit =
+    selfId !== null &&
     category !== "all" &&
     mood.trim().length > 0 &&
     (category !== "duel" || duelId) &&
@@ -372,7 +378,9 @@ export function FeedView({
     const newPost: FeedPost = {
       id: result.id,
       postType: result.postType,
-      authorId: selfId,
+      // 글 작성이 성공했다는 건 서버 액션이 로그인 확인을 이미 통과했다는
+      // 뜻이라, 이 시점의 selfId는 항상 실제 로그인 사용자다.
+      authorId: selfId!,
       authorName: selfName,
       characterId: selfCharacterId,
       authorPosition: selfPosition,
@@ -400,6 +408,9 @@ export function FeedView({
   };
 
   const react = async (postId: string, type: ReactionType) => {
+    // 게스트는 반응을 남길 수 없다 — 낙관적 업데이트만 하고 서버에는
+    // 저장되지 않는 상태가 되는 걸 막는다.
+    if (!selfId) return;
     setPosts((prev) =>
       prev.map((p) => {
         if (p.id !== postId) return p;
