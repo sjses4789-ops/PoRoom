@@ -7,6 +7,27 @@ import { createClient } from "@/lib/supabase/server";
 import { GoogleSignInButton } from "@/components/google-sign-in-button";
 import { UsageGuideSection } from "./usage-guide-section";
 import { SITE_URL, SITE_NAME, HOME_LOCALE_PATH, HOME_META } from "@/lib/site";
+import { ADSENSE_REVIEW_MODE } from "@/lib/adsense-review-mode";
+
+const CTA_CLASS =
+  "flex items-center gap-3 rounded-md bg-[#f1dcdc] px-6 py-3 text-sm font-medium text-[#7a4a4a] transition hover:bg-[#e9cccc]";
+
+// 애드센스 심사 기간 동안은 구글 로그인 버튼 대신 로그인 없이도 볼 수
+// 있게 열어둔 [포룸] 페이지로 바로 들어가는 일반 링크를 보여준다 —
+// 크롤러/심사 봇은 구글 로그인 절차를 통과할 수 없어서, 버튼이
+// signInWithOAuth를 트리거하는 한 홈페이지 다음 페이지를 전혀 확인하지
+// 못했다. ADSENSE_REVIEW_MODE를 false로 되돌리면 원래의 구글 로그인
+// 버튼으로 자동 복귀한다.
+function HomeCta({ label }: { label: string }) {
+  if (ADSENSE_REVIEW_MODE) {
+    return (
+      <Link href="/main" className={CTA_CLASS}>
+        {label}
+      </Link>
+    );
+  }
+  return <GoogleSignInButton label={label} className={CTA_CLASS} />;
+}
 
 type Feature = { icon: string; title: string; desc: string };
 type UsageItem = { icon: string; title: string; desc: string };
@@ -113,10 +134,7 @@ export default async function Home() {
             {t("landing.heroBody")}
           </p>
           <div className="flex flex-col items-start gap-2">
-            <GoogleSignInButton
-              label={t("google")}
-              className="flex items-center gap-3 rounded-md bg-[#f1dcdc] px-6 py-3 text-sm font-medium text-[#7a4a4a] transition hover:bg-[#e9cccc]"
-            />
+            <HomeCta label={ADSENSE_REVIEW_MODE ? t("landing.enterCta") : t("google")} />
           </div>
         </div>
 
@@ -275,10 +293,7 @@ export default async function Home() {
             {t("landing.footerCtaTitle")}
           </h2>
           <p className="text-sm text-neutral-500">{t("landing.footerCtaBody")}</p>
-          <GoogleSignInButton
-            label={t("google")}
-            className="flex items-center gap-3 rounded-md bg-[#f1dcdc] px-6 py-3 text-sm font-medium text-[#7a4a4a] transition hover:bg-[#e9cccc]"
-          />
+          <HomeCta label={ADSENSE_REVIEW_MODE ? t("landing.enterCta") : t("google")} />
         </div>
       </section>
 
