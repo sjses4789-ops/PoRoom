@@ -18,7 +18,6 @@ type PostRow = {
 type UserRow = {
   id: string;
   name: string | null;
-  email: string;
   character_id: string | null;
   position: string | null;
 };
@@ -47,7 +46,12 @@ export default async function FeedPage() {
         .order("created_at", { ascending: false })
         .limit(100)
         .returns<PostRow[]>(),
-      supabase.from("users").select("id,name,email,character_id,position").returns<UserRow[]>(),
+      // email은 여기서 같이 안 가져온다 — anon(비로그인) 롤은 users
+      // 테이블에서 email 컬럼 권한이 없어서(회원 이메일이 익명 API
+      // 요청으로 새어나가지 않도록 하는 조치), 같이 요청하면 쿼리
+      // 전체가 실패한다. 어차피 닉네임이 없을 때의 대체 표시용으로만
+      // 쓰였던 필드라 unknownUser로 대체한다.
+      supabase.from("users").select("id,name,character_id,position").returns<UserRow[]>(),
       supabase
         .from("feed_reactions")
         .select("id,post_id,user_id,reaction_type")
@@ -67,7 +71,7 @@ export default async function FeedPage() {
   const userCharacters: Record<string, string | null> = {};
   const userPositions: Record<string, "novelist" | "webtoon"> = {};
   for (const u of users ?? []) {
-    userNames[u.id] = u.name || u.email;
+    userNames[u.id] = u.name || t("unknownUser");
     userCharacters[u.id] = u.character_id;
     userPositions[u.id] = u.position === "webtoon" ? "webtoon" : "novelist";
   }

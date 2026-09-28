@@ -1,7 +1,8 @@
 {
   "page": {
     "title": "休息",
-    "subtitle": "稍作休息，练习打字或与其他作者交流。"
+    "subtitle": "稍作休息，练习打字或与其他作者交流。",
+    "unknownUser": "未知"
   },
   "nav": {
     "typing": "打字练习",

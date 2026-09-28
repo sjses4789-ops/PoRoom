@@ -12,7 +12,6 @@ import { type RoomListItem } from "./room-card";
 type RoomRow = {
   id: string;
   name: string;
-  invite_code: string;
   color: string;
   tags: string[];
   join_type: "invite" | "open";
@@ -62,9 +61,14 @@ export default async function MainPage() {
     { data: myProfile },
     { data: myAttendanceLogs },
   ] = await Promise.all([
+    // invite_code는 여기서 같이 안 가져온다 — 이 컬럼은 anon(비로그인)
+    // 롤에는 아예 권한이 없어서(다른 사람 방의 비공개 초대코드가 익명
+    // API 요청으로도 새어나가지 않도록 하는 조치), 같이 요청하면 전체
+    // 쿼리가 실패한다. 로그인한 사용자의 "내 방" 초대코드는 아래에서
+    // 별도 쿼리로 따로 가져온다.
     supabase
       .from("rooms")
-      .select("id,name,invite_code,color,tags,join_type,target_position,is_system,created_at")
+      .select("id,name,color,tags,join_type,target_position,is_system,created_at")
       .order("created_at", { ascending: false })
       .returns<RoomRow[]>(),
     supabase.from("room_members").select("room_id").returns<
@@ -135,6 +139,19 @@ export default async function MainPage() {
   }
   const myRoomIdSet = new Set((myMemberships ?? []).map((m) => m.room_id));
   const favoriteMap = new Map((myMemberships ?? []).map((m) => [m.room_id, m.is_favorite]));
+
+  // 초대코드는 로그인한 사람의 "내가 속한 방"만 별도로 조회한다(anon
+  // 롤은 이 컬럼을 아예 못 읽으므로 비로그인 방문자는 자동으로 빈
+  // 결과를 받는다 — 별도 분기 없이도 안전하게 스킵됨).
+  const myRoomIds = Array.from(myRoomIdSet);
+  const { data: myInviteCodeRows } = selfId && myRoomIds.length
+    ? await supabase
+        .from("rooms")
+        .select("id,invite_code")
+        .in("id", myRoomIds)
+        .returns<{ id: string; invite_code: string }[]>()
+    : { data: [] as { id: string; invite_code: string }[] };
+  const inviteCodeByRoomId = new Map((myInviteCodeRows ?? []).map((r) => [r.id, r.invite_code]));
 
   const allTimeCharsByRoom = new Map<string, number>();
   const monthCharsByRoom = new Map<string, number>();
@@ -214,7 +231,7 @@ export default async function MainPage() {
         : null,
       isMember: myRoomIdSet.has(r.id),
       isFavorite: favoriteMap.get(r.id) ?? false,
-      inviteCode: myRoomIdSet.has(r.id) ? r.invite_code : undefined,
+      inviteCode: inviteCodeByRoomId.get(r.id),
       createdAt: r.created_at,
       allTimeChars: allTimeCharsByRoom.get(r.id) ?? 0,
       monthChars: monthCharsByRoom.get(r.id) ?? 0,

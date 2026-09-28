@@ -1,7 +1,8 @@
 {
   "page": {
     "title": "Break",
-    "subtitle": "Take a short break — practice typing or chat with other writers."
+    "subtitle": "Take a short break — practice typing or chat with other writers.",
+    "unknownUser": "Unknown"
   },
   "nav": {
     "typing": "Typing Practice",

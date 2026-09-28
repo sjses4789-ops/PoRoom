@@ -18,7 +18,7 @@ type PostRow = {
   info_category: RestInfoCategory | null;
   pinned: boolean;
 };
-type UserRow = { id: string; name: string | null; email: string };
+type UserRow = { id: string; name: string | null };
 type RoomRow = { id: string; name: string };
 
 export default async function RestPage() {
@@ -49,7 +49,9 @@ export default async function RestPage() {
       .select("id,user_id,title,content,created_at,category,room_id,info_category,pinned")
       .order("created_at", { ascending: false })
       .returns<PostRow[]>(),
-    supabase.from("users").select("id,name,email").returns<UserRow[]>(),
+    // email은 여기서 같이 안 가져온다 — anon(비로그인) 롤은 email 컬럼
+    // 권한이 없어서 같이 요청하면 쿼리 전체가 실패한다.
+    supabase.from("users").select("id,name").returns<UserRow[]>(),
     supabase.from("rooms").select("id,name").returns<RoomRow[]>(),
     selfId
       ? supabase
@@ -65,7 +67,7 @@ export default async function RestPage() {
   ]);
 
   const userNames: Record<string, string> = {};
-  for (const u of users ?? []) userNames[u.id] = u.name || u.email;
+  for (const u of users ?? []) userNames[u.id] = u.name || t("unknownUser");
 
   const roomNames: Record<string, string> = {};
   for (const r of rooms ?? []) roomNames[r.id] = r.name;

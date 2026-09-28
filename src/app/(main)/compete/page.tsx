@@ -25,7 +25,6 @@ type ChallengeRow = {
   title: string;
   metric: "chars" | "minutes" | "achievement";
   visibility: "open" | "private";
-  invite_code: string | null;
   start_date: string | null;
   end_date: string | null;
   kind: SystemChallengeKind | null;
@@ -44,7 +43,7 @@ type ParticipantRow = {
   room_id: string | null;
 };
 
-type UserRow = { id: string; name: string | null; email: string };
+type UserRow = { id: string; name: string | null };
 type RecordRow = {
   user_id: string;
   record_date: string;
@@ -52,8 +51,13 @@ type RecordRow = {
   focus_minutes: number;
 };
 
+// invite_code는 여기서 같이 안 가져온다 — anon(비로그인) 롤은 이 컬럼을
+// 아예 못 읽어서(다른 사람의 비공개 대결 초대코드가 익명 API 요청으로
+// 새어나가지 않도록 하는 조치), 같이 요청하면 쿼리 전체가 실패한다.
+// 로그인한 사용자가 실제 참여 중인 비공개 대결의 초대코드는 아래에서
+// 별도 쿼리로 가져온다.
 const CHALLENGE_SELECT =
-  "id,title,metric,visibility,invite_code,start_date,end_date,kind,created_by,color,capacity,duration_days,started_at,is_admin_event,target_position";
+  "id,title,metric,visibility,start_date,end_date,kind,created_by,color,capacity,duration_days,started_at,is_admin_event,target_position";
 
 export default async function CompetePage() {
   const t = await getTranslations("compete.page");
@@ -110,7 +114,9 @@ export default async function CompetePage() {
             .in("challenge_id", challengeIds)
             .returns<ParticipantRow[]>()
         : Promise.resolve({ data: [] as ParticipantRow[] }),
-      supabase.from("users").select("id,name,email").returns<UserRow[]>(),
+      // email은 여기서 같이 안 가져온다 — anon(비로그인) 롤은 email
+      // 컬럼 권한이 없어서 같이 요청하면 쿼리 전체가 실패한다.
+      supabase.from("users").select("id,name").returns<UserRow[]>(),
       supabase
         .from("daily_records")
         .select("user_id,record_date,chars,focus_minutes")
@@ -126,7 +132,7 @@ export default async function CompetePage() {
         : Promise.resolve({ data: [] as { id: string }[] }),
     ]);
 
-  const userNameMap = new Map((users ?? []).map((u) => [u.id, u.name || u.email]));
+  const userNameMap = new Map((users ?? []).map((u) => [u.id, u.name || t("unknownUser")]));
 
   const participantsByChallenge = new Map<string, ParticipantRow[]>();
   for (const p of participants ?? []) {
@@ -169,6 +175,19 @@ export default async function CompetePage() {
       openToJoin.push({ ...c, participantCount: rows.length });
     }
   }
+
+  // 초대코드는 내가 실제로 참여 중인 비공개 대결만 별도로 조회한다(anon
+  // 롤은 이 컬럼을 아예 못 읽으므로 비로그인 방문자는 joined 자체가
+  // 항상 비어 있어 자동으로 스킵됨).
+  const joinedPrivateIds = joined.filter((c) => c.visibility === "private").map((c) => c.id);
+  const { data: inviteCodeRows } = joinedPrivateIds.length
+    ? await supabase
+        .from("challenges")
+        .select("id,invite_code")
+        .in("id", joinedPrivateIds)
+        .returns<{ id: string; invite_code: string | null }[]>()
+    : { data: [] as { id: string; invite_code: string | null }[] };
+  const inviteCodeByChallengeId = new Map((inviteCodeRows ?? []).map((r) => [r.id, r.invite_code]));
 
   // 대결방을 삭제하는 대신(예전엔 3일 뒤 자동 삭제였다가, 그 삭제 로직이
   // 관리자 세션에서 전체 challenges 테이블을 지워버리는 사고로 이어져
@@ -219,7 +238,7 @@ export default async function CompetePage() {
                       title={c.title}
                       metric={c.metric}
                       visibility={c.visibility}
-                      inviteCode={c.invite_code}
+                      inviteCode={inviteCodeByChallengeId.get(c.id) ?? null}
                       startDate={c.start_date}
                       endDate={c.end_date}
                       durationDays={c.duration_days}

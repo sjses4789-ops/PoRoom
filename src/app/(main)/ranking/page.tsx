@@ -20,7 +20,7 @@ type DailyRecordRow = {
   focus_minutes: number;
 };
 type RoomRow = { id: string; name: string; target_position: string | null };
-type UserRow = { id: string; name: string | null; email: string; position: string | null };
+type UserRow = { id: string; name: string | null; position: string | null };
 
 type ParticipantRow = { challenge_id: string; user_id: string | null };
 
@@ -45,7 +45,9 @@ export default async function RankingPage() {
       .select("room_id,user_id,record_date,chars,focus_minutes")
       .returns<DailyRecordRow[]>(),
     supabase.from("rooms").select("id,name,target_position").returns<RoomRow[]>(),
-    supabase.from("users").select("id,name,email,position").returns<UserRow[]>(),
+    // email은 여기서 같이 안 가져온다 — anon(비로그인) 롤은 email 컬럼
+    // 권한이 없어서 같이 요청하면 쿼리 전체가 실패한다.
+    supabase.from("users").select("id,name,position").returns<UserRow[]>(),
     // 대결 승패 랭킹: 종료된 개인 간(1:1 이상) 대결에서 기간 내 값이 가장
     // 높은 참가자가 승, 나를 포함해 공동 1위면 무, 그 외엔 패 — 이걸 볼 수
     // 있는 모든 대결(RLS상 공개방이거나 내가 참여한 대결)에 대해 집계한다.
@@ -104,7 +106,7 @@ export default async function RankingPage() {
   const userNames: Record<string, string> = {};
   const userPositions: Record<string, "novelist" | "webtoon"> = {};
   for (const u of users ?? []) {
-    userNames[u.id] = u.name || u.email;
+    userNames[u.id] = u.name || t("unknownUser");
     userPositions[u.id] = u.position === "webtoon" ? "webtoon" : "novelist";
   }
   // 애드센스 심사 기간 동안 비로그인 방문자도 랭킹을 볼 수 있게 열어뒀다
