@@ -4,6 +4,7 @@ import { isCurrentUserAdmin } from "@/lib/admin";
 import { getMyJoinedRooms } from "@/lib/rest";
 import type { RestInfoCategory } from "@/lib/rest-types";
 import { PageAdRail } from "@/components/page-ad-rail";
+import { getDemoData, getDemoRestPosts, shouldShowDemoData } from "@/lib/demo-data";
 import { RestNav } from "./rest-nav";
 import type { RestPost } from "./rest-board";
 
@@ -34,9 +35,9 @@ export default async function RestPage() {
 
   const [
     { data: myProfile },
-    { data: postRows },
-    { data: users },
-    { data: rooms },
+    { data: realPostRows },
+    { data: realUsers },
+    { data: realRooms },
     { data: myScores },
     isAdmin,
     myRooms,
@@ -66,13 +67,22 @@ export default async function RestPage() {
     getMyJoinedRooms(),
   ]);
 
+  // 심사 기간 비로그인 방문자에게는 실제 글 뒤에 예시 글([정보]/[인원 모집])과
+  // 작성자/방을 덧붙인다 — DB에는 아무것도 쓰지 않는다(src/lib/demo-data.ts 참고).
+  const demo = shouldShowDemoData(user) ? getDemoData() : null;
+  const postRows: PostRow[] = [...(realPostRows ?? []), ...(demo ? getDemoRestPosts() : [])].sort(
+    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  );
+  const users: UserRow[] = [...(realUsers ?? []), ...(demo?.users ?? [])];
+  const rooms: RoomRow[] = [...(realRooms ?? []), ...(demo?.rooms ?? [])];
+
   const userNames: Record<string, string> = {};
-  for (const u of users ?? []) userNames[u.id] = u.name || t("unknownUser");
+  for (const u of users) userNames[u.id] = u.name || t("unknownUser");
 
   const roomNames: Record<string, string> = {};
-  for (const r of rooms ?? []) roomNames[r.id] = r.name;
+  for (const r of rooms) roomNames[r.id] = r.name;
 
-  const posts: RestPost[] = (postRows ?? []).map((p) => ({
+  const posts: RestPost[] = postRows.map((p) => ({
     id: p.id,
     title: p.title,
     content: p.content,
