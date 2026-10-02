@@ -312,5 +312,16 @@
     "deleting": "削除中...",
     "permanentDelete": "完全削除",
     "cancel": "キャンセル"
+  },
+  "demo": {
+    "banner": "サンプルのルームです。ログインすると実際のルームに入って一緒に集中できます。",
+    "login": "ログイン",
+    "back": "← ポルームへ",
+    "sample": "サンプル",
+    "chatHeading": "チャット",
+    "chatDisabled": "ログインすると会話に参加できます",
+    "boardHeading": "ルーム掲示板",
+    "pinned": "固定",
+    "pomodoroHint": "ログインすると自分のポモドーロタイマーを使えます。"
   }
 }

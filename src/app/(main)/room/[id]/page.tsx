@@ -3,6 +3,9 @@ import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { RoomView, type Member } from "./room-view";
+import { DemoRoomView } from "./demo-room-view";
+import { isDemoId } from "@/lib/demo-id";
+import { getDemoRoomDetail, shouldShowDemoData } from "@/lib/demo-data";
 import type { ChatMessage } from "./chat-panel";
 import type { DailyRecord } from "@/lib/records";
 import { formatRelativeTime, todayKst } from "@/lib/time";
@@ -124,6 +127,17 @@ export default async function RoomPage({
     free: t("recordVisibility.free"),
   };
   const supabase = await createClient();
+
+  // 애드센스 심사 기간 예시 방(demo- 접두어 id) — 비로그인 방문자에게만
+  // 읽기 전용 화면을 보여준다. 실제 DB는 전혀 건드리지 않는다.
+  if (isDemoId(id)) {
+    const {
+      data: { user: demoViewer },
+    } = await supabase.auth.getUser();
+    const detail = shouldShowDemoData(demoViewer) ? getDemoRoomDetail(id) : null;
+    if (!detail) notFound();
+    return <DemoRoomView detail={detail} />;
+  }
 
   // 방 입장 지연의 상당 부분은, 서로 의존하지 않는 조회 네 개(내 인증
   // 정보, 방 정보, 멤버 목록, 사이트 관리자 여부)를 하나씩 순서대로

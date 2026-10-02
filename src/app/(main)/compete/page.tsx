@@ -17,6 +17,7 @@ import {
 
 const ADMIN_EVENT_CARD_BG = "bg-[#faf0f0] dark:bg-[#2a1c1c]";
 import { todayKst, kstDayRangeUtc } from "@/lib/time";
+import { getDemoData, shouldShowDemoData, withoutDemoIds } from "@/lib/demo-data";
 
 const SYSTEM_CHALLENGE_KINDS: SystemChallengeKind[] = ["daily5k", "daily10k", "monthly_draft"];
 
@@ -98,20 +99,35 @@ export default async function CompetePage() {
       .not("kind", "is", null)
       .returns<ChallengeRow[]>(),
   ]);
-  const challenges = [...(userChallenges ?? []), ...(systemChallenges ?? [])];
+  // 심사 기간 비로그인 방문자에게는 실제 대결 뒤에 예시 대결(과 참가자/
+  // 기록)을 덧붙인다 — DB에는 아무것도 쓰지 않는다(src/lib/demo-data.ts 참고).
+  const demo = shouldShowDemoData(user) ? getDemoData() : null;
+  const challenges: ChallengeRow[] = [
+    ...(userChallenges ?? []),
+    ...(systemChallenges ?? []),
+    ...(demo?.challenges ?? []),
+  ];
 
   const challengeIds = (challenges ?? []).map((c) => c.id);
 
   const today = todayKst();
   const monthStart = `${today.slice(0, 7)}-01`;
 
-  const [{ data: participants }, { data: users }, { data: records }, { data: draftLogs }] =
+  // 예시 대결 id는 uuid가 아니라서 DB 조회에는 실제 id만 보낸다.
+  const realChallengeIds = withoutDemoIds(challengeIds);
+
+  const [
+    { data: realParticipants },
+    { data: realUsers },
+    { data: realRecords },
+    { data: draftLogs },
+  ] =
     await Promise.all([
-      challengeIds.length
+      realChallengeIds.length
         ? supabase
             .from("challenge_participants")
             .select("challenge_id,user_id,room_id")
-            .in("challenge_id", challengeIds)
+            .in("challenge_id", realChallengeIds)
             .returns<ParticipantRow[]>()
         : Promise.resolve({ data: [] as ParticipantRow[] }),
       // email은 여기서 같이 안 가져온다 — anon(비로그인) 롤은 email
@@ -132,10 +148,17 @@ export default async function CompetePage() {
         : Promise.resolve({ data: [] as { id: string }[] }),
     ]);
 
-  const userNameMap = new Map((users ?? []).map((u) => [u.id, u.name || t("unknownUser")]));
+  const participants: ParticipantRow[] = [
+    ...(realParticipants ?? []),
+    ...(demo?.challengeParticipants ?? []),
+  ];
+  const users: UserRow[] = [...(realUsers ?? []), ...(demo?.users ?? [])];
+  const records: RecordRow[] = [...(realRecords ?? []), ...(demo?.records ?? [])];
+
+  const userNameMap = new Map(users.map((u) => [u.id, u.name || t("unknownUser")]));
 
   const participantsByChallenge = new Map<string, ParticipantRow[]>();
-  for (const p of participants ?? []) {
+  for (const p of participants) {
     const list = participantsByChallenge.get(p.challenge_id) ?? [];
     list.push(p);
     participantsByChallenge.set(p.challenge_id, list);
@@ -154,7 +177,7 @@ export default async function CompetePage() {
         .map((r) => {
           const matching =
             c.start_date && c.end_date
-              ? (records ?? []).filter(
+              ? records.filter(
                   (rec) =>
                     rec.user_id === r.user_id &&
                     inRange(rec.record_date, c.start_date!, c.end_date!)
@@ -202,7 +225,7 @@ export default async function CompetePage() {
   const openSystemChallenges = openToJoin.filter((c) => c.kind !== null || c.is_admin_event);
 
   const myTodayChars = selfId
-    ? (records ?? [])
+    ? records
         .filter((r) => r.user_id === selfId && r.record_date === today)
         .reduce((sum, r) => sum + r.chars, 0)
     : 0;

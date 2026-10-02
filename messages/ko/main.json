@@ -52,7 +52,8 @@
     "monthChars": "이번 달 {count}자",
     "join": "입장하기",
     "joining": "입장 중...",
-    "deletedRoomAlert": "이미 삭제된 방입니다."
+    "deletedRoomAlert": "이미 삭제된 방입니다.",
+    "preview": "둘러보기"
   },
   "createRoom": {
     "trigger": "새 방 만들기",

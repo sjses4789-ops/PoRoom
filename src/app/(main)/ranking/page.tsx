@@ -5,6 +5,7 @@ import { WinLossRanking, type WinLossRow } from "./win-loss-ranking";
 import { ChallengeRanking, type ChallengeRankingRow } from "./challenge-ranking";
 import { TypingRanking, type TypingRankingRow } from "./typing-ranking";
 import { todayKst } from "@/lib/time";
+import { getDemoData, shouldShowDemoData, withoutDemoIds } from "@/lib/demo-data";
 import { PageAdRail } from "@/components/page-ad-rail";
 import {
   computeWinLossByUser,
@@ -32,13 +33,13 @@ export default async function RankingPage() {
   } = await supabase.auth.getUser();
 
   const [
-    { data: dailyRecords },
-    { data: rooms },
-    { data: users },
-    { data: userChallenges },
-    { data: milestoneLogs },
+    { data: realDailyRecords },
+    { data: realRooms },
+    { data: realUsers },
+    { data: realUserChallenges },
+    { data: realMilestoneLogs },
     { data: adminAchievementChallenges },
-    { data: typingScoreRows },
+    { data: realTypingScoreRows },
   ] = await Promise.all([
     supabase
       .from("daily_records")
@@ -84,6 +85,23 @@ export default async function RankingPage() {
       .returns<{ user_id: string; cpm: number }[]>(),
   ]);
 
+  // 심사 기간 비로그인 방문자에게는 실제 집계 뒤에 예시 사용자/기록/대결을
+  // 덧붙여서 랭킹 판이 채워져 보이게 한다(DB에는 아무것도 쓰지 않는다 —
+  // src/lib/demo-data.ts 참고). 집계 로직은 실제 데이터와 동일하게 돈다.
+  const demo = shouldShowDemoData(user) ? getDemoData() : null;
+  const dailyRecords: DailyRecordRow[] = [...(realDailyRecords ?? []), ...(demo?.records ?? [])];
+  const rooms: RoomRow[] = [...(realRooms ?? []), ...(demo?.rooms ?? [])];
+  const users: UserRow[] = [...(realUsers ?? []), ...(demo?.users ?? [])];
+  const userChallenges: UserChallengeRow[] = [
+    ...(realUserChallenges ?? []),
+    ...(demo?.challenges ?? []).filter(
+      (c): c is typeof c & { start_date: string; end_date: string } =>
+        c.start_date !== null && c.end_date !== null
+    ),
+  ];
+  const milestoneLogs = [...(realMilestoneLogs ?? []), ...(demo?.milestoneLogs ?? [])];
+  const typingScoreRows = [...(realTypingScoreRows ?? []), ...(demo?.typingScores ?? [])];
+
   const adminAchievementIds = (adminAchievementChallenges ?? []).map((c) => c.id);
   const { data: adminAchievedRows } = adminAchievementIds.length
     ? await supabase
@@ -98,14 +116,14 @@ export default async function RankingPage() {
   // 방 기준 랭킹을 웹소설/웹툰으로 전환할 때, 방 자체가 어느 직업
   // 대상으로 설정돼 있는지(또는 '누구나')로 어느 방이 보일지 정한다.
   const roomTargetPositions: Record<string, "novelist" | "webtoon" | null> = {};
-  for (const r of rooms ?? []) {
+  for (const r of rooms) {
     roomNames[r.id] = r.name;
     roomTargetPositions[r.id] =
       r.target_position === "novelist" || r.target_position === "webtoon" ? r.target_position : null;
   }
   const userNames: Record<string, string> = {};
   const userPositions: Record<string, "novelist" | "webtoon"> = {};
-  for (const u of users ?? []) {
+  for (const u of users) {
     userNames[u.id] = u.name || t("unknownUser");
     userPositions[u.id] = u.position === "webtoon" ? "webtoon" : "novelist";
   }
@@ -114,7 +132,7 @@ export default async function RankingPage() {
   const selfId = user?.id ?? null;
   const selfPosition = selfId ? (userPositions[selfId] ?? "novelist") : "novelist";
 
-  const records: RankingRecord[] = (dailyRecords ?? []).map((r) => ({
+  const records: RankingRecord[] = dailyRecords.map((r) => ({
     roomId: r.room_id,
     userId: r.user_id,
     date: r.record_date,
@@ -124,21 +142,27 @@ export default async function RankingPage() {
 
   const today = todayKst();
 
-  const completedChallenges = (userChallenges ?? []).filter((c) => c.end_date < today);
+  const completedChallenges = userChallenges.filter((c) => c.end_date < today);
   const completedIds = completedChallenges.map((c) => c.id);
+  // 예시 대결 id는 uuid가 아니라서 DB 조회에서 빼고, 예시 참가자는 따로 붙인다.
+  const realCompletedIds = withoutDemoIds(completedIds);
 
-  const { data: challengeParticipants } = completedIds.length
+  const { data: realChallengeParticipants } = realCompletedIds.length
     ? await supabase
         .from("challenge_participants")
         .select("challenge_id,user_id")
-        .in("challenge_id", completedIds)
+        .in("challenge_id", realCompletedIds)
         .returns<ParticipantRow[]>()
     : { data: [] as ParticipantRow[] };
+  const challengeParticipants: ParticipantRow[] = [
+    ...(realChallengeParticipants ?? []),
+    ...(demo?.challengeParticipants ?? []).filter((p) => completedIds.includes(p.challenge_id)),
+  ];
 
   const winLossByUser = computeWinLossByUser(
     completedChallenges,
-    challengeParticipants ?? [],
-    dailyRecords ?? []
+    challengeParticipants,
+    dailyRecords
   );
 
   const winLossRows: WinLossRow[] = Array.from(winLossByUser.entries())
@@ -148,7 +172,7 @@ export default async function RankingPage() {
     .map((r, i) => ({ rank: i + 1, ...r }));
 
   const challengeScoreByUser = computeChallengeScoreByUser(
-    milestoneLogs ?? [],
+    milestoneLogs,
     adminAchievedRows ?? []
   );
 
@@ -165,7 +189,7 @@ export default async function RankingPage() {
     .map((r, i) => ({ rank: i + 1, ...r }));
 
   const bestCpmByUser = new Map<string, number>();
-  for (const r of typingScoreRows ?? []) {
+  for (const r of typingScoreRows) {
     bestCpmByUser.set(r.user_id, Math.max(bestCpmByUser.get(r.user_id) ?? 0, r.cpm));
   }
   const typingRankingRows: TypingRankingRow[] = Array.from(bestCpmByUser.entries())

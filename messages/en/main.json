@@ -52,7 +52,8 @@
     "monthChars": "{count} chars this month",
     "join": "Join",
     "joining": "Joining...",
-    "deletedRoomAlert": "This room has already been deleted."
+    "deletedRoomAlert": "This room has already been deleted.",
+    "preview": "Take a look"
   },
   "createRoom": {
     "trigger": "Create a room",

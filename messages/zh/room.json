@@ -312,5 +312,16 @@
     "deleting": "删除中...",
     "permanentDelete": "永久删除",
     "cancel": "取消"
+  },
+  "demo": {
+    "banner": "这是示例房间。登录后即可加入真实房间，一起专注。",
+    "login": "登录",
+    "back": "← 返回 PoRoom",
+    "sample": "示例",
+    "chatHeading": "聊天",
+    "chatDisabled": "登录后即可参与聊天",
+    "boardHeading": "房间公告板",
+    "pinned": "置顶",
+    "pomodoroHint": "登录后即可使用自己的番茄钟。"
   }
 }

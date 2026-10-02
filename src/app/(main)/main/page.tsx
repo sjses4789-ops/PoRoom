@@ -4,6 +4,7 @@ import { PageAdRail } from "@/components/page-ad-rail";
 import { computeStreakDays, attendedDatesFromLogs } from "@/lib/attendance";
 import { todayKst, dateInTimezone } from "@/lib/time";
 import { ensureChallengeTodos, isTodoRowActive } from "@/lib/system-challenges";
+import { getDemoData, shouldShowDemoData, withoutDemoIds } from "@/lib/demo-data";
 import { SystemRoomButton } from "./system-room-buttons";
 import { MainRoomLists } from "./main-room-lists";
 import { MainDashboard } from "./main-dashboard";
@@ -51,13 +52,17 @@ export default async function MainPage() {
   // 실제로 의존하므로 그것만은 순서를 지켜야 한다.
   const ensureTodosPromise = selfId ? ensureChallengeTodos(supabase, selfId) : Promise.resolve();
 
+  // 심사 기간 비로그인 방문자에게는 실제 DB 결과 뒤에 예시 데이터를 덧붙인다
+  // (DB에는 아무것도 쓰지 않는다 — src/lib/demo-data.ts 참고).
+  const demo = shouldShowDemoData(user) ? getDemoData() : null;
+
   const [
-    { data: rooms },
-    { data: allMemberships },
+    { data: realRooms },
+    { data: realMemberships },
     { data: myMemberships },
-    { data: globalRecords },
+    { data: realRecords },
     { data: myGoalRows },
-    { data: allUserPositions },
+    { data: realUserPositions },
     { data: myProfile },
     { data: myAttendanceLogs },
   ] = await Promise.all([
@@ -119,6 +124,11 @@ export default async function MainPage() {
       : Promise.resolve({ data: [] as { type: string; created_at: string }[] }),
   ]);
 
+  const rooms: RoomRow[] = [...(realRooms ?? []), ...(demo?.rooms ?? [])];
+  const allMemberships = [...(realMemberships ?? []), ...(demo?.memberships ?? [])];
+  const globalRecords: GlobalRecordRow[] = [...(realRecords ?? []), ...(demo?.records ?? [])];
+  const allUserPositions = [...(realUserPositions ?? []), ...(demo?.users ?? [])];
+
   await ensureTodosPromise;
   const { data: todoRows } = selfId
     ? await supabase
@@ -143,7 +153,7 @@ export default async function MainPage() {
   // 초대코드는 로그인한 사람의 "내가 속한 방"만 별도로 조회한다(anon
   // 롤은 이 컬럼을 아예 못 읽으므로 비로그인 방문자는 자동으로 빈
   // 결과를 받는다 — 별도 분기 없이도 안전하게 스킵됨).
-  const myRoomIds = Array.from(myRoomIdSet);
+  const myRoomIds = withoutDemoIds(Array.from(myRoomIdSet));
   const { data: myInviteCodeRows } = selfId && myRoomIds.length
     ? await supabase
         .from("rooms")

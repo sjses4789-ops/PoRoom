@@ -312,5 +312,16 @@
     "deleting": "Deleting...",
     "permanentDelete": "Delete permanently",
     "cancel": "Cancel"
+  },
+  "demo": {
+    "banner": "This is a sample room. Log in to join a real room and focus together.",
+    "login": "Log in",
+    "back": "← Back to PoRoom",
+    "sample": "Sample",
+    "chatHeading": "Chat",
+    "chatDisabled": "Log in to join the conversation",
+    "boardHeading": "Room board",
+    "pinned": "Pinned",
+    "pomodoroHint": "Log in to use your own Pomodoro timer."
   }
 }

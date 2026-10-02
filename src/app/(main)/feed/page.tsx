@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { todayKst, formatRelativeTime } from "@/lib/time";
 import { PageAdRail } from "@/components/page-ad-rail";
 import { getMyChallengeOptions } from "@/lib/feed";
+import { getDemoData, shouldShowDemoData } from "@/lib/demo-data";
 import { FeedView, type FeedPost, type ReactionType, type PostType, type FeedPostMeta } from "./feed-view";
 
 type PostRow = {
@@ -38,7 +39,13 @@ export default async function FeedPage() {
   // 쓰기 동작은 FeedView 쪽에서 selfId가 없을 때 비활성화한다.
   const selfId = user?.id ?? null;
 
-  const [{ data: postRows }, { data: users }, { data: reactionRows }, { data: todayRows }, options] =
+  const [
+    { data: realPostRows },
+    { data: realUsers },
+    { data: realReactionRows },
+    { data: todayRows },
+    options,
+  ] =
     await Promise.all([
       supabase
         .from("feed_posts")
@@ -67,23 +74,32 @@ export default async function FeedPage() {
       getMyChallengeOptions(),
     ]);
 
+  // 심사 기간 비로그인 방문자에게는 실제 글 뒤에 예시 글(과 작성자/반응)을
+  // 덧붙인다 — DB에는 아무것도 쓰지 않는다(src/lib/demo-data.ts 참고).
+  const demo = shouldShowDemoData(user) ? getDemoData() : null;
+  const postRows: PostRow[] = [...(realPostRows ?? []), ...(demo?.feedPosts ?? [])].sort(
+    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  );
+  const users: UserRow[] = [...(realUsers ?? []), ...(demo?.users ?? [])];
+  const reactionRows: ReactionRow[] = [...(realReactionRows ?? []), ...(demo?.feedReactions ?? [])];
+
   const userNames: Record<string, string> = {};
   const userCharacters: Record<string, string | null> = {};
   const userPositions: Record<string, "novelist" | "webtoon"> = {};
-  for (const u of users ?? []) {
+  for (const u of users) {
     userNames[u.id] = u.name || t("unknownUser");
     userCharacters[u.id] = u.character_id;
     userPositions[u.id] = u.position === "webtoon" ? "webtoon" : "novelist";
   }
 
   const reactionsByPost = new Map<string, ReactionRow[]>();
-  for (const r of reactionRows ?? []) {
+  for (const r of reactionRows) {
     const list = reactionsByPost.get(r.post_id) ?? [];
     list.push(r);
     reactionsByPost.set(r.post_id, list);
   }
 
-  const posts: FeedPost[] = (postRows ?? []).map((p) => {
+  const posts: FeedPost[] = postRows.map((p) => {
     const postReactions = reactionsByPost.get(p.id) ?? [];
     const reactions = Object.fromEntries(
       REACTION_TYPES.map((type) => {

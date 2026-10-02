@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { joinOpenRoom } from "@/lib/rooms";
+import { isDemoId } from "@/lib/demo-id";
 import { paletteDot, paletteCard } from "@/lib/palette";
 import { translateRoomTag } from "@/lib/room-tags";
 
@@ -91,6 +92,23 @@ export default function RoomCard({
   const t = useTranslations("main.roomCard");
   const [joining, setJoining] = useState(false);
   const mismatched = room.targetPosition !== null && room.targetPosition !== selfPosition;
+
+  // 애드센스 심사용 예시 방은 누구나(비로그인 포함) 방 화면을 구경할 수
+  // 있게 카드 전체를 링크로 만든다 — 실제로 입장(참여)하는 건 아니다.
+  if (isDemoId(room.id)) {
+    return (
+      <Link href={`/room/${room.id}`}>
+        <RoomCardBody
+          room={room}
+          joinSlot={
+            <span className="shrink-0 rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white">
+              {t("preview")}
+            </span>
+          }
+        />
+      </Link>
+    );
+  }
 
   if (room.isMember) {
     return (

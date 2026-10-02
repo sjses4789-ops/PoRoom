@@ -52,7 +52,8 @@
     "monthChars": "本月{count}字",
     "join": "加入",
     "joining": "加入中...",
-    "deletedRoomAlert": "该房间已被删除。"
+    "deletedRoomAlert": "该房间已被删除。",
+    "preview": "随便看看"
   },
   "createRoom": {
     "trigger": "创建新房间",

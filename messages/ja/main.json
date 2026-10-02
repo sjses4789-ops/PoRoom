@@ -52,7 +52,8 @@
     "monthChars": "今月{count}字",
     "join": "入室する",
     "joining": "入室中...",
-    "deletedRoomAlert": "すでに削除されたルームです。"
+    "deletedRoomAlert": "すでに削除されたルームです。",
+    "preview": "見てみる"
   },
   "createRoom": {
     "trigger": "新しいルームを作る",
