@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { GoogleAnalytics } from "@/components/google-analytics";
 import { DisableRightClickAndDrag } from "@/components/disable-right-click-drag";
+import { PwaRegister } from "@/components/pwa-register";
 import { SITE_URL, SITE_NAME } from "@/lib/site";
 import "./globals.css";
 
@@ -34,7 +35,13 @@ export const metadata: Metadata = {
   ],
   icons: {
     icon: "/icon.png",
-    apple: "/icon.png",
+    // iOS 홈 화면 아이콘은 투명 배경이 검게 채워지므로 불투명 배경 버전을 쓴다.
+    apple: "/icons/play-store-icon-512.png",
+  },
+  appleWebApp: {
+    capable: true,
+    title: "PoRoom",
+    statusBarStyle: "default",
   },
   openGraph: {
     type: "website",
@@ -89,6 +96,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
+  themeColor: "#ffffff",
 };
 
 const ADSENSE_CLIENT_ID = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
@@ -148,6 +156,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body className="min-h-full flex flex-col">
         <DisableRightClickAndDrag />
+        <PwaRegister />
         <GoogleAnalytics />
         <NextIntlClientProvider locale={locale} messages={messages}>
           {children}

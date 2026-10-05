@@ -58,6 +58,12 @@ export async function updateSession(request: NextRequest) {
     // 파일들도 로그인 리다이렉트 대상에서 제외해야 한다.
     request.nextUrl.pathname === "/sitemap.xml" ||
     request.nextUrl.pathname === "/robots.txt" ||
+    // 앱(PWA/구글 플레이 TWA) 설치에 필요한 파일들 — 설치 심사 봇과
+    // 브라우저가 로그인 없이 받아야 한다.
+    request.nextUrl.pathname === "/manifest.webmanifest" ||
+    request.nextUrl.pathname === "/sw.js" ||
+    request.nextUrl.pathname === "/offline" ||
+    request.nextUrl.pathname.startsWith("/.well-known/") ||
     isGoogleVerificationFile;
 
   // ADSENSE_REVIEW_MODE 동안은 "/"와 같은 논리로, 로그인 리다이렉트를
