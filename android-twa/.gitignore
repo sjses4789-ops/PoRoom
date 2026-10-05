@@ -1,0 +1,5 @@
+# 서명 키/비밀번호와 빌드 산출물은 절대 커밋하지 않는다(twa-manifest.json만 추적).
+*
+!.gitignore
+!twa-manifest.json
+!README.md

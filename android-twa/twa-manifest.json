@@ -1,0 +1,39 @@
+{
+  "packageId": "kr.poroom.app",
+  "host": "poroom.kr",
+  "name": "PoRoom 포룸",
+  "launcherName": "PoRoom",
+  "display": "standalone",
+  "orientation": "default",
+  "themeColor": "#ffffff",
+  "themeColorDark": "#ffffff",
+  "navigationColor": "#ffffff",
+  "navigationColorDark": "#ffffff",
+  "navigationDividerColor": "#ffffff",
+  "navigationDividerColorDark": "#ffffff",
+  "backgroundColor": "#ffffff",
+  "enableNotifications": false,
+  "startUrl": "/",
+  "iconUrl": "https://poroom.kr/icons/icon-512.png",
+  "maskableIconUrl": "https://poroom.kr/icons/icon-maskable-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./android.keystore",
+    "alias": "poroom"
+  },
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://poroom.kr/manifest.webmanifest",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://poroom.kr/",
+  "minSdkVersion": 21
+}
