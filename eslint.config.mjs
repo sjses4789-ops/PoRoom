@@ -17,6 +17,9 @@ const eslintConfig = defineConfig([
     // pattern here, ESLint happily walks into them and lints their
     // generated files too.
     "**/.claude/**",
+    // 별도 앱 프로젝트들(Expo 앱 / TWA 래퍼)은 웹 린트 대상이 아니다.
+    "mobile/**",
+    "android-twa/**",
   ]),
 ]);
 

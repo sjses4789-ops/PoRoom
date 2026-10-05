@@ -5,6 +5,7 @@ import { getLocale, getMessages } from "next-intl/server";
 import { GoogleAnalytics } from "@/components/google-analytics";
 import { DisableRightClickAndDrag } from "@/components/disable-right-click-drag";
 import { PwaRegister } from "@/components/pwa-register";
+import { isAppRequest } from "@/lib/app-mode";
 import { SITE_URL, SITE_NAME } from "@/lib/site";
 import "./globals.css";
 
@@ -104,6 +105,8 @@ const ADSENSE_CLIENT_ID = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const locale = await getLocale();
   const messages = await getMessages();
+  // 앱(WebView)에서는 애드센스를 쓸 수 없으므로 광고 스크립트를 싣지 않는다.
+  const inApp = await isAppRequest();
 
   return (
     <html
@@ -146,7 +149,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
             afterInteractive 전략은 그 태그를 하이드레이션 이후에야 DOM에
             꽂아 넣어서 원본 HTML에는 preload 힌트만 남고 실제 <script>는
             없었다. 그래서 여기 <head>에 순수 HTML 태그로 직접 박아 넣는다. */}
-        {ADSENSE_CLIENT_ID && (
+        {ADSENSE_CLIENT_ID && !inApp && (
           <script
             async
             src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT_ID}`}

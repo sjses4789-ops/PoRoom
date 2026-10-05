@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ADSENSE_REVIEW_MODE } from "@/lib/adsense-review-mode";
+import { isAppRequest } from "@/lib/app-mode";
 import NavTabs from "./nav-tabs";
 import LogoutButton from "./logout-button";
 import { SiteFooter } from "./site-footer";
@@ -28,6 +29,10 @@ export default async function MainLayout({
   if (!user && !ADSENSE_REVIEW_MODE) {
     redirect("/login");
   }
+
+  // 모바일 앱(WebView)에서는 하단 탭 바가 네비게이션을 대신하므로 웹의 상단
+  // 헤더와 푸터를 숨긴다.
+  const inApp = await isAppRequest();
 
   const { data: profile } = user
     ? await supabase
@@ -62,6 +67,7 @@ export default async function MainLayout({
   return (
     <PomodoroProvider>
     <div className="flex min-h-screen flex-col bg-white dark:bg-neutral-950">
+      {!inApp && (
       <header className="flex flex-col gap-3 border-b border-neutral-100 px-4 py-3 sm:px-6 md:flex-row md:items-center md:justify-between md:px-8 md:py-4 dark:border-neutral-800">
         <div className="flex items-center justify-between gap-4 md:justify-start md:gap-8">
           <Link href="/main" className="flex shrink-0 items-center gap-2">
@@ -117,8 +123,9 @@ export default async function MainLayout({
           )}
         </div>
       </header>
+      )}
       <main className="flex-1 px-4 py-6 sm:px-6 md:px-8 md:py-8">{children}</main>
-      <SiteFooter />
+      {!inApp && <SiteFooter />}
       <PomodoroMiniWidget />
       <SiteTimeTracker />
       <TimezoneSync />

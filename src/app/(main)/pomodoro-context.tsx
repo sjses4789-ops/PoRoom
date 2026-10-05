@@ -5,6 +5,7 @@ import { recordFocusMinutes, recordBreakMinutes } from "@/lib/rooms";
 import { logActivity } from "@/lib/activity";
 import { effectiveRecordDate } from "@/lib/time";
 import { playFocusStartChime, playBreakStartChime } from "@/lib/pomodoro-sound";
+import { postToNative } from "@/lib/native-bridge";
 import type { Phase } from "./room/[id]/use-pomodoro";
 
 type ActiveRoom = { id: string; name: string; isSystemRoom: boolean } | null;
@@ -432,6 +433,23 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
     setFocusSessionCount(0);
     window.localStorage.removeItem(STORAGE_KEY);
   }, [activeRoom, started, focusMinutes]);
+
+  // 모바일 앱(WebView) 안에서는 타이머 상태가 바뀔 때마다 앱에 알려서, 앱이
+  // "집중 끝/휴식 끝" 알림을 직접 예약하게 한다 — 웹페이지는 앱이 백그라운드로
+  // 가면 멈추기 때문에 알림을 웹이 아니라 앱이 울려야 한다. 일반 브라우저에서는
+  // 아무 일도 하지 않는다. (남은 시간은 ref에 있는 최신 값을 쓴다.)
+  useEffect(() => {
+    if (!hydrated) return;
+    postToNative({
+      type: "pomodoro",
+      running,
+      phase,
+      remainingSeconds: remainingRef.current,
+      focusMinutes,
+      breakMinutes,
+      roomName: activeRoom?.name ?? null,
+    });
+  }, [hydrated, running, started, phase, focusMinutes, breakMinutes, activeRoom]);
 
   const phaseDuration = (phase === "focus" ? focusMinutes : breakMinutes) * 60;
   const remainingSeconds = started ? tickingSeconds : phaseDuration;
