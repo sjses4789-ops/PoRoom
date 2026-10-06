@@ -1,5 +1,5 @@
 import { AppWebView } from "../../components/AppWebView";
 
 export default function Screen() {
-  return <AppWebView path="/main" consumeHandoff />;
+  return <AppWebView path="/main" />;
 }

@@ -1,21 +1,25 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import * as Linking from "expo-linking";
-import * as SecureStore from "expo-secure-store";
 import * as WebBrowser from "expo-web-browser";
+import type { Session } from "@supabase/supabase-js";
 import { supabase } from "./supabase";
 import { WEB_URL } from "./config";
-
-const LOGGED_IN_KEY = "poroom.loggedIn";
 
 type AuthStatus = "loading" | "in" | "out";
 
 type AuthContextValue = {
   status: AuthStatus;
-  /** 로그인 직후 첫 WebView가 열어야 하는 세션 전달 주소(한 번 쓰면 비워진다). */
-  takeHandoffUrl: () => string | null;
+  session: Session | null;
+  userId: string | null;
   signInWithGoogle: () => Promise<string | null>;
-  /** 웹이 로그인 화면으로 돌아왔을 때(로그아웃/세션 만료) 앱도 로그아웃 상태로 맞춘다. */
-  markLoggedOut: () => void;
+  signOut: () => Promise<void>;
+  /**
+   * 웹 화면(WebView)에 로그인 상태를 빌려주는 주소를 만든다. 액세스 토큰만 넘기고(#fragment라
+   * 서버 로그에 남지 않음), refresh token 자리에는 더미 값을 넣는다 — 진짜 refresh token을
+   * 웹이 같이 쓰면 한쪽이 갱신할 때 다른 쪽이 무효화되기 때문이다. 웹 쪽 토큰이 만료되면
+   * 웹이 로그인 화면으로 돌아가고, 앱이 이를 감지해 이 주소로 다시 빌려준다.
+   */
+  webSessionUrl: (nextPath: string) => string | null;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -24,14 +28,19 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 WebBrowser.maybeCompleteAuthSession();
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [session, setSession] = useState<Session | null>(null);
   const [status, setStatus] = useState<AuthStatus>("loading");
-  // 렌더와 무관한 일회용 값이라 state가 아니라 ref에 둔다(읽으면서 비울 수 있어야 한다).
-  const handoffRef = useRef<string | null>(null);
 
   useEffect(() => {
-    SecureStore.getItemAsync(LOGGED_IN_KEY)
-      .then((v) => setStatus(v === "1" ? "in" : "out"))
-      .catch(() => setStatus("out"));
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+      setStatus(data.session ? "in" : "out");
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, next) => {
+      setSession(next);
+      setStatus(next ? "in" : "out");
+    });
+    return () => sub.subscription.unsubscribe();
   }, []);
 
   const signInWithGoogle = useCallback(async (): Promise<string | null> => {
@@ -52,41 +61,41 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const code = new URL(result.url).searchParams.get("code");
       if (!code) return "로그인 응답을 확인하지 못했어요. 다시 시도해 주세요.";
 
-      const { data: sessionData, error: exchangeError } =
-        await supabase.auth.exchangeCodeForSession(code);
-      if (exchangeError || !sessionData.session) {
-        return exchangeError?.message ?? "로그인에 실패했어요. 다시 시도해 주세요.";
-      }
-
-      // 세션은 웹 쿠키로 넘기고(#fragment라 서버 로그에 남지 않음), 앱 쪽 세션은 버린다.
-      // scope: "local"이라 서버의 세션은 취소되지 않는다.
-      const { access_token, refresh_token } = sessionData.session;
-      const hash = new URLSearchParams({ access_token, refresh_token, next: "/main" }).toString();
-      handoffRef.current = `${WEB_URL}/auth/app-session#${hash}`;
-      await supabase.auth.signOut({ scope: "local" });
-
-      await SecureStore.setItemAsync(LOGGED_IN_KEY, "1");
-      setStatus("in");
-      return null;
+      const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+      if (exchangeError) return exchangeError.message;
+      return null; // 세션은 onAuthStateChange가 반영한다.
     } catch (e) {
       return e instanceof Error ? e.message : "로그인 중 문제가 생겼어요.";
     }
   }, []);
 
-  const takeHandoffUrl = useCallback(() => {
-    const url = handoffRef.current;
-    handoffRef.current = null;
-    return url;
+  const signOut = useCallback(async () => {
+    await supabase.auth.signOut();
   }, []);
 
-  const markLoggedOut = useCallback(() => {
-    SecureStore.deleteItemAsync(LOGGED_IN_KEY).catch(() => {});
-    setStatus("out");
-  }, []);
+  const webSessionUrl = useCallback(
+    (nextPath: string) => {
+      if (!session) return null;
+      const hash = new URLSearchParams({
+        access_token: session.access_token,
+        refresh_token: "app-managed",
+        next: nextPath,
+      }).toString();
+      return `${WEB_URL}/auth/app-session#${hash}`;
+    },
+    [session]
+  );
 
   const value = useMemo(
-    () => ({ status, takeHandoffUrl, signInWithGoogle, markLoggedOut }),
-    [status, takeHandoffUrl, signInWithGoogle, markLoggedOut]
+    () => ({
+      status,
+      session,
+      userId: session?.user.id ?? null,
+      signInWithGoogle,
+      signOut,
+      webSessionUrl,
+    }),
+    [status, session, signInWithGoogle, signOut, webSessionUrl]
   );
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

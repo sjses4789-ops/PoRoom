@@ -51,6 +51,8 @@ const config: ExpoConfig = {
     webUrl: env.POROOM_WEB_URL ?? "https://poroom.kr",
     supabaseUrl: env.NEXT_PUBLIC_SUPABASE_URL,
     supabaseAnonKey: env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    // POROOM_PREVIEW=1 로 빌드하면 로그인 없이 방 화면 레이아웃만 보는 /preview 화면이 열린다.
+    preview: env.POROOM_PREVIEW === "1",
   },
 };
 
