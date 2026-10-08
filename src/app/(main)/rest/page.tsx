@@ -6,6 +6,7 @@ import { getMyJoinedRooms } from "@/lib/rest";
 import type { RestInfoCategory } from "@/lib/rest-types";
 import { PageAdRail } from "@/components/page-ad-rail";
 import { getDemoData, getDemoRestPosts, shouldShowDemoData } from "@/lib/demo-data";
+import { isDemoId } from "@/lib/demo-id";
 import { RestNav } from "./rest-nav";
 import type { RestPost } from "./rest-board";
 
@@ -110,6 +111,7 @@ export default async function RestPage({
     pinned: p.pinned,
     roomId: p.room_id,
     roomName: p.room_id ? roomNames[p.room_id] ?? null : null,
+    trusted: isDemoId(p.id),
   }));
 
   return (

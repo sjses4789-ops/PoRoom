@@ -14,14 +14,25 @@ const RICH_CONTENT_CLASS =
 
 // 서식 에디터 도입 전에 작성된 글은 순수 텍스트라 줄바꿈만 살려서 보여주고,
 // 그 이후 글은 에디터가 저장한 HTML을 정화(sanitize)해서 그대로 렌더링한다.
-export function RichContent({ content, className }: { content: string; className?: string }) {
+// trusted=true는 우리 코드가 직접 만든(사용자 입력이 아닌) HTML에만 쓴다 — 서버에서 렌더링할 때
+// sanitizeHtml(isomorphic-dompurify→jsdom)이 서버리스 운영 환경에서 오류를 내서 그 영역 전체가
+// 클라이언트 렌더링으로 밀려나는 문제가 있어, 안전이 보장된 내용은 정화 단계를 건너뛴다.
+export function RichContent({
+  content,
+  className,
+  trusted = false,
+}: {
+  content: string;
+  className?: string;
+  trusted?: boolean;
+}) {
   if (!LOOKS_LIKE_HTML.test(content)) {
     return <p className={`whitespace-pre-wrap ${className ?? RICH_CONTENT_CLASS}`}>{content}</p>;
   }
   return (
     <div
       className={className ?? RICH_CONTENT_CLASS}
-      dangerouslySetInnerHTML={{ __html: sanitizeHtml(content) }}
+      dangerouslySetInnerHTML={{ __html: trusted ? content : sanitizeHtml(content) }}
     />
   );
 }

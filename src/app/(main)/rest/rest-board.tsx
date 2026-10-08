@@ -26,6 +26,8 @@ export type RestPost = {
   pinned: boolean;
   roomId: string | null;
   roomName: string | null;
+  // 사용자 입력이 아니라 코드가 만든 예시 글(심사용)이면 true — 본문 HTML을 정화 없이 서버에서 그린다.
+  trusted?: boolean;
 };
 
 // 카테고리마다 다른 색으로 구분한다 — 옅은 배경 + 진한 글자(라이트),
@@ -323,7 +325,7 @@ export function RestBoard({
                   </button>
                   {isOpen && !isEditing && (
                     <div className="flex flex-col gap-2 border-t border-neutral-100 bg-neutral-50/50 px-4 py-3 dark:border-neutral-800 dark:bg-neutral-900/40">
-                      <RichContent content={p.content} />
+                      <RichContent content={p.content} trusted={p.trusted} />
                       {p.roomId && (
                         <Link
                           href={`/room/${p.roomId}`}
