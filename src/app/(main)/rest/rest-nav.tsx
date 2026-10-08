@@ -32,6 +32,8 @@ export function RestNav({
   myBestCpm,
   initialPosts,
   myRooms,
+  initialView,
+  expandAll = false,
 }: {
   selfId: string;
   selfName: string;
@@ -39,11 +41,13 @@ export function RestNav({
   myBestCpm: number | null;
   initialPosts: RestPost[];
   myRooms: JoinedRoom[];
+  initialView?: RestPostCategory;
+  expandAll?: boolean;
 }) {
   const t = useTranslations("rest.nav");
   const tBoard = useTranslations("rest.board");
   const locale = useLocale();
-  const [view, setView] = useState<View>("typing");
+  const [view, setView] = useState<View>(initialView ?? "typing");
 
   return (
     <div className="grid grid-cols-1 gap-4 overflow-hidden rounded-sm border border-neutral-400 p-4 lg:grid-cols-[140px_1fr] dark:border-neutral-600">
@@ -91,6 +95,7 @@ export function RestNav({
             isAdmin={isAdmin}
             initialPosts={initialPosts}
             myRooms={myRooms}
+            expandAll={expandAll}
           />
         )}
       </div>

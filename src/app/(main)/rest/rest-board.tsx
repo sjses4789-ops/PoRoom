@@ -53,6 +53,7 @@ export function RestBoard({
   isAdmin,
   initialPosts,
   myRooms,
+  expandAll = false,
 }: {
   category: RestPostCategory;
   selfId: string;
@@ -60,6 +61,8 @@ export function RestBoard({
   isAdmin: boolean;
   initialPosts: RestPost[];
   myRooms: JoinedRoom[];
+  // 애드센스 심사 기간의 비로그인 화면: 글 본문을 접지 않고 전부 펼쳐 보여준다.
+  expandAll?: boolean;
 }) {
   const t = useTranslations("rest.board");
   const [posts, setPosts] = useState<RestPost[]>(initialPosts);
@@ -274,13 +277,15 @@ export function RestBoard({
           </div>
           <ul className="flex flex-col divide-y divide-neutral-400 dark:divide-neutral-600">
             {visiblePosts.map((p, i) => {
-              const isOpen = openId === p.id;
+              const isOpen = expandAll || openId === p.id;
               const isEditing = editingId === p.id;
               const num = visiblePosts.length - i;
               return (
                 <li key={p.id} className="flex flex-col">
                   <button
-                    onClick={() => setOpenId(isOpen ? null : p.id)}
+                    onClick={() => {
+                      if (!expandAll) setOpenId(isOpen ? null : p.id);
+                    }}
                     className={`grid grid-cols-[auto_1fr] items-center gap-2 px-4 py-3 text-left text-sm transition hover:bg-neutral-50 sm:grid-cols-[56px_1fr_100px_92px] dark:hover:bg-neutral-800 ${
                       isOpen ? "bg-neutral-50 dark:bg-neutral-800" : ""
                     }`}

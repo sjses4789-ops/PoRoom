@@ -16,3 +16,11 @@
 // 동작하도록 고쳐둔 부분은 되돌릴 필요 없이 그대로 둬도 된다 — 로그인한
 // 사용자에게는 원래와 동일하게 동작한다.)
 export const ADSENSE_REVIEW_MODE = true;
+
+// 심사 기간 동안 비로그인 방문자가 poroom.kr("/")에 들어오면 지금의 소개
+// 홈페이지 대신 [휴식]-정보 게시판을 바로 보여준다(주소는 "/" 그대로, 화면만
+// 정보 게시판으로 바꿔치기 — src/lib/supabase/middleware.ts의 rewrite).
+// 글 본문이 접혀 있지 않고 전부 펼쳐져 보여서 크롤러가 읽을 콘텐츠가 많다.
+// 로그인한 회원은 영향 없이 원래대로 동작한다. 승인 후에는 이 값을 false로
+// 바꾸면 소개 홈페이지가 그대로 돌아온다(ADSENSE_REVIEW_MODE와 별개로 끌 수 있다).
+export const ADSENSE_HOME_IS_INFO_BOARD = true;

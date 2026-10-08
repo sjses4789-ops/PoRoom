@@ -1,6 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { ADSENSE_REVIEW_MODE } from "@/lib/adsense-review-mode";
+import { ADSENSE_HOME_IS_INFO_BOARD, ADSENSE_REVIEW_MODE } from "@/lib/adsense-review-mode";
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -83,6 +83,23 @@ export async function updateSession(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = "/main";
     return NextResponse.redirect(url);
+  }
+
+  // 심사 기간: 비로그인 방문자가 "/"에 오면 정보 게시판을 보여준다(주소는 그대로).
+  if (
+    ADSENSE_REVIEW_MODE &&
+    ADSENSE_HOME_IS_INFO_BOARD &&
+    !user &&
+    request.nextUrl.pathname === "/"
+  ) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/rest";
+    url.search = "?tab=info";
+    const rewritten = NextResponse.rewrite(url);
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
+      rewritten.cookies.set(cookie);
+    });
+    return rewritten;
   }
 
   if (homeLocaleMatch) {

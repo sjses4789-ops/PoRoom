@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { isCurrentUserAdmin } from "@/lib/admin";
@@ -22,7 +23,18 @@ type PostRow = {
 type UserRow = { id: string; name: string | null };
 type RoomRow = { id: string; name: string };
 
-export default async function RestPage() {
+export const metadata: Metadata = {
+  title: "작가 정보 게시판",
+  description:
+    "웹소설·웹툰 작가를 위한 집필 팁, 공모전·투고 정보, 질문과 답변, 함께 쓸 사람을 구하는 모집 글을 모아둔 포룸 게시판입니다.",
+};
+
+export default async function RestPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tab?: string }>;
+}) {
+  const { tab } = await searchParams;
   const t = await getTranslations("rest.page");
   const supabase = await createClient();
   const {
@@ -76,6 +88,10 @@ export default async function RestPage() {
   const users: UserRow[] = [...(realUsers ?? []), ...(demo?.users ?? [])];
   const rooms: RoomRow[] = [...(realRooms ?? []), ...(demo?.rooms ?? [])];
 
+  // 애드센스 심사 기간에 "/"로 들어온 비로그인 방문자에게 보이는 화면(미들웨어 rewrite) —
+  // 소개 홈페이지를 대신하므로 이 사이트가 무엇인지 한 줄로 알려준다.
+  const isReviewHome = demo !== null && tab === "info";
+
   const userNames: Record<string, string> = {};
   for (const u of users) userNames[u.id] = u.name || t("unknownUser");
 
@@ -101,9 +117,13 @@ export default async function RestPage() {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-lg font-semibold tracking-tight text-neutral-900 dark:text-white">
-          {t("title")}
+          {isReviewHome ? "PoRoom 작가 정보 게시판" : t("title")}
         </h1>
-        <p className="mt-1 text-sm text-neutral-500">{t("subtitle")}</p>
+        <p className="mt-1 text-sm text-neutral-500">
+          {isReviewHome
+            ? "포룸은 웹소설·웹툰 작가가 화상회의 없이 함께 집중하는 온라인 작업실입니다. 이 게시판에는 집필 팁, 공모전·투고 정보, 질문과 답변이 올라옵니다."
+            : t("subtitle")}
+        </p>
       </div>
       <RestNav
         selfId={selfId ?? ""}
@@ -112,6 +132,8 @@ export default async function RestPage() {
         myBestCpm={myScores && myScores.length > 0 ? myScores[0].cpm : null}
         initialPosts={posts}
         myRooms={myRooms}
+        initialView={tab === "info" ? "정보" : tab === "recruit" ? "인원 모집" : undefined}
+        expandAll={demo !== null}
       />
     </div>
     </PageAdRail>
