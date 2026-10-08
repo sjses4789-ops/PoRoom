@@ -6,7 +6,10 @@
     "feedback": "기능 제안 & 버그 신고",
     "privacy": "개인정보처리방침",
     "copyright": "© {year} GGOZIL. All rights reserved.",
-    "writingAppHint": "집필 프로그램이 필요하다면↠"
+    "writingAppHint": "집필 프로그램이 필요하다면↠",
+    "guide": "작가 가이드",
+    "about": "서비스 소개",
+    "faq": "자주 묻는 질문"
   },
   "tier": {
     "basic": "BASIC",

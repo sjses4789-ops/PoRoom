@@ -6,7 +6,10 @@
     "feedback": "功能建议与错误反馈",
     "privacy": "隐私政策",
     "copyright": "© {year} GGOZIL. All rights reserved.",
-    "writingAppHint": "需要写作程序吗↠"
+    "writingAppHint": "需要写作程序吗↠",
+    "guide": "创作指南",
+    "about": "服务介绍",
+    "faq": "常见问题"
   },
   "tier": {
     "basic": "BASIC",

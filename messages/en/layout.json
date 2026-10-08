@@ -6,7 +6,10 @@
     "feedback": "Suggest a feature & report bugs",
     "privacy": "Privacy Policy",
     "copyright": "© {year} GGOZIL. All rights reserved.",
-    "writingAppHint": "Need a writing app?↠"
+    "writingAppHint": "Need a writing app?↠",
+    "guide": "Writer guides",
+    "about": "About",
+    "faq": "FAQ"
   },
   "tier": {
     "basic": "BASIC",

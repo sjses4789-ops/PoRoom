@@ -6,7 +6,10 @@
     "feedback": "機能提案・バグ報告",
     "privacy": "プライバシーポリシー",
     "copyright": "© {year} GGOZIL. All rights reserved.",
-    "writingAppHint": "執筆プログラムが必要なら↠"
+    "writingAppHint": "執筆プログラムが必要なら↠",
+    "guide": "作家ガイド",
+    "about": "サービス紹介",
+    "faq": "よくある質問"
   },
   "tier": {
     "basic": "BASIC",

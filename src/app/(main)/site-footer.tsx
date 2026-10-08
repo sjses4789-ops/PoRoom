@@ -35,6 +35,27 @@ export async function SiteFooter() {
           </a>
           <span aria-hidden>·</span>
           <Link
+            href="/guide"
+            className="hover:text-neutral-600 hover:underline dark:hover:text-neutral-300"
+          >
+            {t("guide")}
+          </Link>
+          <span aria-hidden>·</span>
+          <Link
+            href="/about"
+            className="hover:text-neutral-600 hover:underline dark:hover:text-neutral-300"
+          >
+            {t("about")}
+          </Link>
+          <span aria-hidden>·</span>
+          <Link
+            href="/faq"
+            className="hover:text-neutral-600 hover:underline dark:hover:text-neutral-300"
+          >
+            {t("faq")}
+          </Link>
+          <span aria-hidden>·</span>
+          <Link
             href="/feedback"
             className="hover:text-neutral-600 hover:underline dark:hover:text-neutral-300"
           >
