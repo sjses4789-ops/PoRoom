@@ -7,6 +7,8 @@ import { AdminEventDeleteButton } from "./admin-event-delete-button";
 import { AdminEventEditButton } from "./admin-event-edit-button";
 import { AdminRoomDeleteButton } from "./admin-room-delete-button";
 import { AdminMemberList, type AdminUserRow } from "./admin-member-list";
+import { PublishInfoPostsButton } from "./publish-info-posts-button";
+import { ADMIN_INFO_POSTS } from "@/lib/admin-info-posts";
 
 type RoomRow = { id: string; name: string; is_system: boolean; created_at: string };
 type MemberRow = { room_id: string };
@@ -82,6 +84,15 @@ export default async function AdminPage() {
         >
           {t("fullBackupButton")}
         </a>
+      </section>
+
+      <section className="flex flex-col gap-3 rounded-md border border-neutral-200 p-4 dark:border-neutral-700">
+        <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">정보 게시판 운영자 글 게시</h2>
+        <p className="text-xs text-neutral-400">
+          준비된 운영자 글 {ADMIN_INFO_POSTS.length}편(팁&노하우·공모전·질문·기타)을 지금 로그인한 관리자 계정으로 [휴식]-정보
+          게시판에 올립니다. 같은 제목의 글이 이미 있으면 건너뛰므로 여러 번 눌러도 중복되지 않습니다.
+        </p>
+        <PublishInfoPostsButton total={ADMIN_INFO_POSTS.length} />
       </section>
 
       <section className="flex flex-col gap-4">
