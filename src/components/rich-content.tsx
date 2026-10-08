@@ -1,4 +1,4 @@
-import { sanitizeHtml } from "@/lib/sanitize-html";
+import { SanitizedHtml } from "./sanitized-html";
 
 const LOOKS_LIKE_HTML = /<[a-z][\s\S]*>/i;
 
@@ -14,9 +14,11 @@ const RICH_CONTENT_CLASS =
 
 // 서식 에디터 도입 전에 작성된 글은 순수 텍스트라 줄바꿈만 살려서 보여주고,
 // 그 이후 글은 에디터가 저장한 HTML을 정화(sanitize)해서 그대로 렌더링한다.
-// trusted=true는 우리 코드가 직접 만든(사용자 입력이 아닌) HTML에만 쓴다 — 서버에서 렌더링할 때
-// sanitizeHtml(isomorphic-dompurify→jsdom)이 서버리스 운영 환경에서 오류를 내서 그 영역 전체가
-// 클라이언트 렌더링으로 밀려나는 문제가 있어, 안전이 보장된 내용은 정화 단계를 건너뛴다.
+// 사용자가 쓴 HTML의 정화는 브라우저에서만 한다(SanitizedHtml) — 서버에서 정화 라이브러리
+// (isomorphic-dompurify→jsdom)를 불러오면 서버리스 운영 환경에서 오류가 나 이 컴포넌트를 쓰는
+// 영역 전체의 서버 렌더링이 실패했기 때문이다. 서버에는 태그를 뺀 텍스트가 먼저 렌더링된다.
+// trusted=true는 우리 코드가 직접 만든(사용자 입력이 아닌) HTML에만 쓴다 — 정화 없이 서버에서
+// 그대로 렌더링해서 크롤러가 이미지·서식까지 그대로 읽는다.
 export function RichContent({
   content,
   className,
@@ -29,10 +31,10 @@ export function RichContent({
   if (!LOOKS_LIKE_HTML.test(content)) {
     return <p className={`whitespace-pre-wrap ${className ?? RICH_CONTENT_CLASS}`}>{content}</p>;
   }
-  return (
-    <div
-      className={className ?? RICH_CONTENT_CLASS}
-      dangerouslySetInnerHTML={{ __html: trusted ? content : sanitizeHtml(content) }}
-    />
-  );
+  if (trusted) {
+    return (
+      <div className={className ?? RICH_CONTENT_CLASS} dangerouslySetInnerHTML={{ __html: content }} />
+    );
+  }
+  return <SanitizedHtml content={content} className={className ?? RICH_CONTENT_CLASS} />;
 }
