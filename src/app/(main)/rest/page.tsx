@@ -7,6 +7,8 @@ import type { RestInfoCategory } from "@/lib/rest-types";
 import { PageAdRail } from "@/components/page-ad-rail";
 import { getDemoData, getDemoRestPosts, shouldShowDemoData } from "@/lib/demo-data";
 import { isDemoId } from "@/lib/demo-id";
+import Link from "next/link";
+import { GUIDES } from "@/content/guides";
 import { RestNav } from "./rest-nav";
 import type { RestPost } from "./rest-board";
 
@@ -135,8 +137,32 @@ export default async function RestPage({
         initialPosts={posts}
         myRooms={myRooms}
         initialView={tab === "info" ? "정보" : tab === "recruit" ? "인원 모집" : undefined}
-        expandAll={demo !== null}
       />
+      {isReviewHome && (
+        <section className="flex flex-col gap-3">
+          <div className="flex items-baseline justify-between gap-3">
+            <h2 className="text-base font-semibold text-neutral-900 dark:text-white">작가 가이드</h2>
+            <Link href="/guide" className="text-xs text-neutral-500 underline">
+              전체 {GUIDES.length}편 보기
+            </Link>
+          </div>
+          <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {GUIDES.slice(0, 8).map((g) => (
+              <li key={g.slug}>
+                <Link
+                  href={`/guide/${g.slug}`}
+                  className="block rounded-lg border border-neutral-200 p-3 transition hover:border-neutral-400 dark:border-neutral-700"
+                >
+                  <span className="text-[11px] text-neutral-400">{g.category}</span>
+                  <span className="mt-0.5 block text-sm font-medium leading-snug text-neutral-900 dark:text-white">
+                    {g.title}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
     </div>
     </PageAdRail>
   );
