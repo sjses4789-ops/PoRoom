@@ -72,7 +72,7 @@ export default async function MainLayout({
       {!inApp && (
       <header className="flex flex-col gap-3 border-b border-neutral-100 px-4 py-3 sm:px-6 md:flex-row md:items-center md:justify-between md:px-8 md:py-4 dark:border-neutral-800">
         <div className="flex items-center justify-between gap-4 md:justify-start md:gap-8">
-          <div className="flex shrink-0 flex-col items-start gap-0.5">
+          <div className="flex shrink-0 flex-col items-center gap-0.5">
             <Link href="/main" className="flex items-center gap-2">
               <Image src="/poroom-icon.png" alt="" width={24} height={24} />
               <span className="text-sm font-semibold tracking-tight text-neutral-900 dark:text-white">

@@ -32,7 +32,7 @@ export function DeleteAccountButton() {
           router.push("/login");
           router.refresh();
         }}
-        className="text-[11px] text-neutral-300 underline decoration-dotted transition hover:text-red-500 disabled:opacity-50 dark:text-neutral-600"
+        className="text-[11px] text-neutral-400 underline decoration-dotted transition hover:text-red-500 disabled:opacity-50 dark:text-neutral-500"
       >
         {pending ? t("deleting") : t("trigger")}
       </button>
