@@ -17,11 +17,11 @@ import { useTranslations } from "next-intl";
 // 그래서 긴 변 기준 칸 수(TARGET_CELLS)만 고정하고, 공유 시작 시
 // 트랙의 실제 가로세로 비율을 읽어 짧은 변 칸 수를 그 비율에 맞게
 // 계산한다(computeCaptureSize).
-// 22칸에서 40칸으로 올렸다: 글 내용은 읽을 수 없는 블록 크기(1920px 화면 기준 칸당 약 34px)를 유지하면서,
+// 22칸에서 40칸으로 올렸다: 글 내용은 읽을 수 없는 블록 크기(1920px 화면 기준 칸당 약 27px)를 유지하면서,
 // 타이핑으로 글이 늘어날 때 그 부분의 색 농도가 바뀌는 것이 보일 만큼만 더 잘게 나눈다.
-const TARGET_CELLS_LONG_SIDE = 56;
+const TARGET_CELLS_LONG_SIDE = 72;
 const CAPTURE_INTERVAL_MS = 2000;
-const JPEG_QUALITY = 0.7;
+const JPEG_QUALITY = 0.75;
 
 // 공유 중에는 방 탭이 보통 백그라운드(집필 프로그램이 앞)에 있는데, 브라우저는 숨겨진 탭의
 // setInterval을 1초 단위로, 5분쯤 지나면 분 단위로까지 늦춘다 — 그러면 프레임이 몇 초~1분에
