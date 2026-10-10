@@ -33,11 +33,13 @@ type MemberRow = {
   share_records: boolean;
   last_seen_at: string | null;
   is_vice: boolean;
+  // 방별 닉네임 / 방별 상태설정(room_members에 저장).
+  nickname: string | null;
+  work_status: string | null;
   users: {
     name: string | null;
     character_id: string | null;
     chat_color: string | null;
-    work_status: string | null;
     position: string | null;
   } | null;
 };
@@ -61,7 +63,7 @@ export function useRoomData(roomId: string, selfId: string) {
         .maybeSingle<RoomInfo>(),
       supabase
         .from("room_members")
-        .select("user_id,share_records,last_seen_at,is_vice,users(name,character_id,chat_color,work_status,position)")
+        .select("user_id,share_records,last_seen_at,is_vice,nickname,work_status,users(name,character_id,chat_color,position)")
         .eq("room_id", roomId)
         .returns<MemberRow[]>(),
     ]);
@@ -98,10 +100,10 @@ export function useRoomData(roomId: string, selfId: string) {
     setMembers(
       (memberRows ?? []).map((m) => ({
         id: m.user_id,
-        name: m.users?.name || "알 수 없음",
+        name: m.nickname || m.users?.name || "알 수 없음",
         characterId: m.users?.character_id ?? null,
         chatColor: m.users?.chat_color ?? null,
-        workStatus: m.users?.work_status ?? null,
+        workStatus: m.work_status ?? null,
         position: m.users?.position === "webtoon" ? "webtoon" : "novelist",
         isOwner: !roomRow.is_system && m.user_id === roomRow.owner_id,
         isVice: m.is_vice,

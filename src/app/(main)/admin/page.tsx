@@ -40,7 +40,7 @@ export default async function AdminPage() {
     data: { user: self },
   } = await supabase.auth.getUser();
 
-  const [{ data: rooms }, { data: memberships }, { data: events }, { data: users }] =
+  const [{ data: rooms }, { data: memberships }, { data: events }, { data: users }, { data: nicknameRows }] =
     await Promise.all([
       supabase
         .from("rooms")
@@ -59,7 +59,18 @@ export default async function AdminPage() {
         .select("id,name,email,created_at,is_banned,position")
         .order("created_at", { ascending: false })
         .returns<UserRow[]>(),
+      // 사용자가 방별로 쓰려고 만든 추가 닉네임 전체(관리자만 모두 볼 수 있다 — 0062 정책).
+      supabase
+        .from("user_nicknames")
+        .select("user_id,nickname")
+        .order("created_at", { ascending: true })
+        .returns<{ user_id: string; nickname: string }[]>(),
     ]);
+
+  const nicknamesByUser = new Map<string, string[]>();
+  for (const n of nicknameRows ?? []) {
+    nicknamesByUser.set(n.user_id, [...(nicknamesByUser.get(n.user_id) ?? []), n.nickname]);
+  }
 
   const memberCountByRoom = new Map<string, number>();
   for (const m of memberships ?? []) {
@@ -171,6 +182,7 @@ export default async function AdminPage() {
                 email: u.email,
                 isBanned: u.is_banned,
                 position: u.position,
+                nicknames: nicknamesByUser.get(u.id) ?? [],
               })
             )}
           />

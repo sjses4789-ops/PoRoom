@@ -266,6 +266,24 @@
     "saving": "Saving...",
     "deleteEventConfirm": "Delete this event?"
   },
+  "nicknameDialog": {
+    "buttonLabel": "Nickname: {name}",
+    "buttonTitle": "Change your nickname in this room",
+    "titleFirst": "Nickname for this room",
+    "titleChange": "Change nickname for this room",
+    "askDefault": "Use your default nickname \"{name}\" in this room?",
+    "scopeHint": "The nickname you pick applies to this room only and doesn't affect other rooms.",
+    "useDefault": "Use default nickname",
+    "useOther": "Use another nickname",
+    "otherHint": "Pick or create another nickname just for this room. You can have up to {max} nicknames including your default one.",
+    "createPlaceholder": "New nickname",
+    "createAndUse": "Create & use",
+    "saving": "Saving...",
+    "limitReached": "You already have {max} nicknames (including the default). Pick one of them.",
+    "back": "← Back",
+    "inUse": "In use",
+    "close": "Close"
+  },
   "leaveRoomButton": {
     "lastMemberWarning": "If you leave, this room will be blown up (deleted).",
     "confirmLeave": "Leave this room?",

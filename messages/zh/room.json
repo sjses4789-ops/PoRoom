@@ -266,6 +266,24 @@
     "saving": "保存中...",
     "deleteEventConfirm": "确定删除这个日程吗？"
   },
+  "nicknameDialog": {
+    "buttonLabel": "昵称:{name}",
+    "buttonTitle": "修改在本房间使用的昵称",
+    "titleFirst": "本房间使用的昵称",
+    "titleChange": "修改本房间的昵称",
+    "askDefault": "在本房间使用默认昵称“{name}”吗?",
+    "scopeHint": "这里选择的昵称仅在本房间使用,不会影响其他房间。",
+    "useDefault": "使用默认昵称",
+    "useOther": "使用其他昵称",
+    "otherHint": "为本房间选择或新建其他昵称。包含默认昵称在内,最多可以拥有{max}个昵称。",
+    "createPlaceholder": "新昵称",
+    "createAndUse": "创建并使用",
+    "saving": "保存中...",
+    "limitReached": "你已经创建了{max}个昵称(含默认昵称),请从已有的昵称中选择。",
+    "back": "← 返回",
+    "inUse": "使用中",
+    "close": "关闭"
+  },
   "leaveRoomButton": {
     "lastMemberWarning": "离开后,这个房间将被炸毁(删除)。",
     "confirmLeave": "要退出这个房间吗?",

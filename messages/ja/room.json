@@ -266,6 +266,24 @@
     "saving": "保存中...",
     "deleteEventConfirm": "この予定を削除しますか？"
   },
+  "nicknameDialog": {
+    "buttonLabel": "ニックネーム: {name}",
+    "buttonTitle": "このルームのニックネームを変更",
+    "titleFirst": "このルームで使うニックネーム",
+    "titleChange": "このルームのニックネームを変更",
+    "askDefault": "このルームで基本ニックネーム「{name}」を使いますか?",
+    "scopeHint": "ここで選んだニックネームはこのルームだけで使われ、他のルームには影響しません。",
+    "useDefault": "基本ニックネームを使う",
+    "useOther": "別のニックネームを使う",
+    "otherHint": "このルームだけで使う別のニックネームを選ぶか、新しく作成してください。基本ニックネームを含めて最大{max}個まで作れます。",
+    "createPlaceholder": "新しいニックネーム",
+    "createAndUse": "作成して使う",
+    "saving": "保存中...",
+    "limitReached": "すでにニックネームを{max}個(基本を含む)作成しています。作成済みのものから選んでください。",
+    "back": "← 戻る",
+    "inUse": "使用中",
+    "close": "閉じる"
+  },
   "leaveRoomButton": {
     "lastMemberWarning": "退出するとルームが爆破(削除)されます。",
     "confirmLeave": "このルームを退出しますか?",

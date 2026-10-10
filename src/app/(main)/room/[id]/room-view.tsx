@@ -25,6 +25,8 @@ export type Member = {
   recordsVisible: boolean;
   lastSeenLabel: string | null;
   workStatus: string | null;
+  // 이 방에서만 쓰는 닉네임(없으면 기본 닉네임) — name은 이미 이걸 반영한 표시 이름이다.
+  nickname: string | null;
   // 참여자 카드에 누적 글자수/작업량을 보여줄 때 "자"/"컷" 중 어떤
   // 단위로 표시할지는 그 참여자 본인의 직업을 따른다.
   position: "novelist" | "webtoon";
@@ -118,14 +120,13 @@ export function RoomView({
   } = useRoomPresence(roomId, selfId, selfName);
   const screenShare = useScreenShare(broadcastScreenFrame, stopScreenShareBroadcast);
 
-  // "상태설정"은 presence(그 방 세션 동안만 사는 실시간 상태)가 아니라
-  // users.work_status에 영구 저장한다 — 방을 나갔다 들어와도, 다른
-  // 페이지에 가 있어도 유지되어야 하기 때문. 낙관적으로 먼저 로컬
-  // 상태를 바꾸고, 서버에도 반영한다(다른 참여자에게는
-  // useLiveMembers의 users 테이블 실시간 구독을 통해 전파된다).
+  // "상태설정"은 presence(그 방 세션 동안만 사는 실시간 상태)가 아니라 이 방의
+  // room_members.work_status에 저장한다 — 방을 나갔다 들어와도 그 방의 상태는 유지되고, 다른
+  // 방에는 보이지 않는다. 낙관적으로 먼저 로컬 상태를 바꾸고, 서버에도 반영한다(다른 참여자
+  // 에게는 useLiveMembers의 room_members 실시간 구독/폴링으로 전파된다).
   const handleChangeWorkStatus = (status: string | null) => {
     updateSelfWorkStatus(status);
-    setWorkStatus(status);
+    setWorkStatus(roomId, status);
   };
 
   // any keystroke anywhere on the room page counts as activity, not just

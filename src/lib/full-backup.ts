@@ -28,6 +28,7 @@ const BACKUP_TABLES = [
   "challenge_participants",
   "challenge_messages",
   "chat_messages",
+  "user_nicknames",
   "activity_logs",
   "feed_posts",
   "feed_reactions",

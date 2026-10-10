@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { RecordVisibility } from "@/lib/rooms";
 import type { Member } from "./room-view";
@@ -8,12 +8,14 @@ import type { Member } from "./room-view";
 type MemberRoomRow = {
   share_records: boolean;
   is_vice: boolean;
+  // 방별 닉네임 / 방별 상태설정(room_members에 저장 — 0062 마이그레이션).
+  nickname: string | null;
+  work_status: string | null;
   users: {
     name: string | null;
     email: string;
     character_id: string | null;
     chat_color: string | null;
-    work_status: string | null;
     position: string | null;
   } | null;
 };
@@ -39,6 +41,11 @@ export function useLiveMembers(
   isSystemRoom: boolean
 ) {
   const [members, setMembers] = useState<Member[]>(initialMembers);
+  // 실시간 이벤트 핸들러가 최신 목록을 읽을 수 있게 ref에도 담아 둔다.
+  const membersRef = useRef(members);
+  useEffect(() => {
+    membersRef.current = members;
+  }, [members]);
 
   // if the server-rendered member list changes (e.g. after a settings
   // update triggers a revalidation), pick that up too — adjust state
@@ -68,7 +75,7 @@ export function useLiveMembers(
     const addMember = async (userId: string) => {
       const { data: row } = await supabase
         .from("room_members")
-        .select("share_records,is_vice,users(name,email,character_id,chat_color,work_status,position)")
+        .select("share_records,is_vice,nickname,work_status,users(name,email,character_id,chat_color,position)")
         .eq("room_id", roomId)
         .eq("user_id", userId)
         .maybeSingle<MemberRoomRow>();
@@ -85,12 +92,13 @@ export function useLiveMembers(
           ...prev,
           {
             id: userId,
-            name: row.users?.name || row.users?.email || "알 수 없음",
+            name: row.nickname || row.users?.name || row.users?.email || "알 수 없음",
+            nickname: row.nickname,
             characterId: row.users?.character_id ?? null,
             chatColor: row.users?.chat_color ?? null,
             recordsVisible,
             lastSeenLabel: null,
-            workStatus: row.users?.work_status ?? null,
+            workStatus: row.work_status ?? null,
             position: row.users?.position === "webtoon" ? "webtoon" : "novelist",
             isOwner: !isSystemRoom && userId === ownerId,
             isVice: row.is_vice,
@@ -109,7 +117,7 @@ export function useLiveMembers(
     const refetchAll = async () => {
       const { data: rows } = await supabase
         .from("room_members")
-        .select("user_id,share_records,is_vice,users(name,email,character_id,chat_color,work_status,position)")
+        .select("user_id,share_records,is_vice,nickname,work_status,users(name,email,character_id,chat_color,position)")
         .eq("room_id", roomId)
         .returns<(MemberRoomRow & { user_id: string })[]>();
       if (!rows || cancelled) return;
@@ -119,7 +127,8 @@ export function useLiveMembers(
           const existing = prevById.get(row.user_id);
           return {
             id: row.user_id,
-            name: row.users?.name || row.users?.email || existing?.name || "알 수 없음",
+            name: row.nickname || row.users?.name || row.users?.email || existing?.name || "알 수 없음",
+            nickname: row.nickname,
             characterId: row.users?.character_id ?? null,
             chatColor: row.users?.chat_color ?? null,
             recordsVisible:
@@ -127,7 +136,7 @@ export function useLiveMembers(
               row.user_id === selfId ||
               (recordVisibility === "free" && row.share_records === true),
             lastSeenLabel: existing?.lastSeenLabel ?? null,
-            workStatus: row.users?.work_status ?? null,
+            workStatus: row.work_status ?? null,
             position: row.users?.position === "webtoon" ? "webtoon" : "novelist",
             isOwner: !isSystemRoom && row.user_id === ownerId,
             isVice: row.is_vice,
@@ -186,6 +195,26 @@ export function useLiveMembers(
           const { userId, isVice } = payload as { userId: string; isVice: boolean };
           setMembers((prev) => prev.map((m) => (m.id === userId ? { ...m, isVice } : m)));
         })
+        // 이 방 참여자의 닉네임·상태설정 변경(방별로 저장되므로 users가 아니라 room_members를 본다).
+        .on(
+          "postgres_changes",
+          {
+            event: "UPDATE",
+            schema: "public",
+            table: "room_members",
+            filter: `room_id=eq.${roomId}`,
+          },
+          (payload) => {
+            // last_seen_at 하트비트도 같은 테이블의 UPDATE라서, 매번 목록을 다시 읽지 않고 바뀐 값만
+            // 반영한다. 닉네임이 바뀐 경우에만(기본 닉네임으로 되돌리는 경우 기본 이름이 필요해서) 다시 읽는다.
+            const row = payload.new as { user_id: string; nickname: string | null; work_status: string | null };
+            const existing = membersRef.current.find((m) => m.id === row.user_id);
+            setMembers((prev) =>
+              prev.map((m) => (m.id === row.user_id ? { ...m, workStatus: row.work_status ?? null } : m))
+            );
+            if (existing && (row.nickname ?? null) !== existing.nickname) refetchAll();
+          }
+        )
         .on(
           "postgres_changes",
           { event: "UPDATE", schema: "public", table: "users" },
@@ -196,7 +225,6 @@ export function useLiveMembers(
               email: string;
               character_id: string | null;
               chat_color: string | null;
-              work_status: string | null;
               position: string | null;
             };
             setMembers((prev) =>
@@ -204,10 +232,10 @@ export function useLiveMembers(
                 m.id === row.id
                   ? {
                       ...m,
-                      name: row.name || row.email || m.name,
+                      // 이 방에서 닉네임을 쓰는 사람은 계정 이름이 바뀌어도 닉네임을 유지한다.
+                      name: m.nickname || row.name || row.email || m.name,
                       characterId: row.character_id ?? null,
                       chatColor: row.chat_color ?? null,
-                      workStatus: row.work_status ?? null,
                       position: row.position === "webtoon" ? "webtoon" : "novelist",
                     }
                   : m

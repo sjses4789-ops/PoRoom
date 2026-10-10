@@ -266,6 +266,24 @@
     "saving": "저장 중...",
     "deleteEventConfirm": "이 일정을 삭제할까요?"
   },
+  "nicknameDialog": {
+    "buttonLabel": "닉네임: {name}",
+    "buttonTitle": "이 방에서 쓰는 닉네임 바꾸기",
+    "titleFirst": "이 방에서 쓸 닉네임",
+    "titleChange": "이 방의 닉네임 바꾸기",
+    "askDefault": "이 방에서 기본 닉네임 \"{name}\"을(를) 사용할까요?",
+    "scopeHint": "여기서 고른 닉네임은 이 방에서만 쓰이고, 다른 방에는 영향이 없어요.",
+    "useDefault": "기본 닉네임 사용",
+    "useOther": "다른 닉네임 사용",
+    "otherHint": "이 방에서만 쓸 다른 닉네임을 고르거나 새로 만드세요. 닉네임은 기본 닉네임을 포함해 총 {max}개까지 만들 수 있어요.",
+    "createPlaceholder": "새 닉네임",
+    "createAndUse": "만들고 사용",
+    "saving": "저장 중...",
+    "limitReached": "닉네임을 이미 {max}개(기본 포함) 만들었어요. 만들어 둔 닉네임 중에서 골라주세요.",
+    "back": "← 돌아가기",
+    "inUse": "사용 중",
+    "close": "닫기"
+  },
   "leaveRoomButton": {
     "lastMemberWarning": "방을 나가시면 방이 폭파됩니다.",
     "confirmLeave": "이 방에서 나가시겠어요?",
