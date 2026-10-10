@@ -12,12 +12,26 @@
     "openSystemHeading": "Challenge list",
     "resetHint": "Challenge rooms reset based on Korea Standard Time.",
     "adminEventLabel": "Admin-run event",
-    "unknownUser": "Unknown"
+    "unknownUser": "Unknown",
+    "endedHeading": "Ended challenges",
+    "endedEmpty": "No challenges have ended yet.",
+    "endedBadge": "Ended",
+    "endedJoinedBadge": "You joined",
+    "endedParticipants": "{count} joined"
   },
   "systemChallengeMeta": {
-    "daily5k": { "title": "Daily 5,000 Characters Challenge", "resetLabel": "Resets every Monday" },
-    "daily10k": { "title": "Daily 10,000 Characters Challenge", "resetLabel": "Resets every Monday" },
-    "monthly_draft": { "title": "Monthly First-Draft Challenge", "resetLabel": "Resets on the 1st of each month" }
+    "daily5k": {
+      "title": "Daily 5,000 Characters Challenge",
+      "resetLabel": "Resets every Monday"
+    },
+    "daily10k": {
+      "title": "Daily 10,000 Characters Challenge",
+      "resetLabel": "Resets every Monday"
+    },
+    "monthly_draft": {
+      "title": "Monthly First-Draft Challenge",
+      "resetLabel": "Resets on the 1st of each month"
+    }
   },
   "challengeDetailPage": {
     "backLink": "← Back to challenges",

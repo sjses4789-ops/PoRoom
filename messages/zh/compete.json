@@ -12,12 +12,26 @@
     "openSystemHeading": "挑战列表",
     "resetHint": "挑战房按韩国时间重置。",
     "adminEventLabel": "官方活动",
-    "unknownUser": "未知用户"
+    "unknownUser": "未知用户",
+    "endedHeading": "已结束的挑战",
+    "endedEmpty": "还没有已结束的挑战。",
+    "endedBadge": "已结束",
+    "endedJoinedBadge": "你参加过",
+    "endedParticipants": "{count}人参加"
   },
   "systemChallengeMeta": {
-    "daily5k": { "title": "每日5000字写作挑战", "resetLabel": "每周一重置" },
-    "daily10k": { "title": "每日1万字写作挑战", "resetLabel": "每周一重置" },
-    "monthly_draft": { "title": "每月初稿完成挑战", "resetLabel": "每月1日重置" }
+    "daily5k": {
+      "title": "每日5000字写作挑战",
+      "resetLabel": "每周一重置"
+    },
+    "daily10k": {
+      "title": "每日1万字写作挑战",
+      "resetLabel": "每周一重置"
+    },
+    "monthly_draft": {
+      "title": "每月初稿完成挑战",
+      "resetLabel": "每月1日重置"
+    }
   },
   "challengeDetailPage": {
     "backLink": "← 返回对决列表",

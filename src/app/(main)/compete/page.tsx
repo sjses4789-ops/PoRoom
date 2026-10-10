@@ -8,6 +8,7 @@ import { ChallengeCard, type ChallengeParticipant } from "./challenge-card";
 import { OpenChallengeCard } from "./open-challenge-card";
 import { OpenSystemChallengeCard } from "./open-system-challenge-card";
 import { JoinedSystemChallengeCard } from "./joined-system-challenge-card";
+import { EndedChallengeCard } from "./ended-challenge-card";
 import {
   ensureSystemChallenge,
   SYSTEM_CHALLENGE_META,
@@ -220,9 +221,29 @@ export default async function CompetePage() {
     [...list].sort((a, b) => Number(isEnded(a)) - Number(isEnded(b)));
 
   const joinedChallenges = sortEndedLast(joined.filter((c) => !c.kind && !c.is_admin_event));
-  const joinedSystemChallenges = joined.filter((c) => c.kind !== null || c.is_admin_event);
+  // 기간이 지난 관리자 챌린지(이벤트)는 진행 중 목록에서 빼고 맨 아래 "종료된 챌린지 목록"에 모은다.
+  // 반복형 시스템 챌린지(kind)는 주/월마다 기간이 갱신되므로 여기에 해당하지 않는다.
+  const isEndedAdminEvent = (c: ChallengeRow) =>
+    c.is_admin_event && Boolean(c.end_date && today > c.end_date);
+
+  const joinedSystemChallenges = joined.filter(
+    (c) => (c.kind !== null || c.is_admin_event) && !isEndedAdminEvent(c)
+  );
   const openChallenges = sortEndedLast(openToJoin.filter((c) => !c.kind && !c.is_admin_event));
-  const openSystemChallenges = openToJoin.filter((c) => c.kind !== null || c.is_admin_event);
+  const openSystemChallenges = openToJoin.filter(
+    (c) => (c.kind !== null || c.is_admin_event) && !isEndedAdminEvent(c)
+  );
+  const endedAdminChallenges = challenges
+    .filter(isEndedAdminEvent)
+    .map((c) => {
+      const rows = participantsByChallenge.get(c.id) ?? [];
+      return {
+        ...c,
+        participantCount: rows.length,
+        iJoined: selfId ? rows.some((r) => r.user_id === selfId) : false,
+      };
+    })
+    .sort((a, b) => (b.end_date ?? "").localeCompare(a.end_date ?? ""));
 
   const myTodayChars = selfId
     ? records
@@ -380,6 +401,31 @@ export default async function CompetePage() {
                   );
                 })}
               </div>
+            </section>
+
+            <section className="flex flex-col gap-4">
+              <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">
+                {t("endedHeading")}
+              </h3>
+              {endedAdminChallenges.length === 0 ? (
+                <p className="text-xs text-neutral-400">{t("endedEmpty")}</p>
+              ) : (
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  {endedAdminChallenges.map((c) => (
+                    <EndedChallengeCard
+                      key={c.id}
+                      title={c.title}
+                      subLabel={t("adminEventLabel")}
+                      startDate={c.start_date ?? ""}
+                      endDate={c.end_date ?? ""}
+                      participantsLabel={t("endedParticipants", { count: c.participantCount })}
+                      endedBadge={t("endedBadge")}
+                      joinedBadge={c.iJoined ? t("endedJoinedBadge") : null}
+                      bgClass={ADMIN_EVENT_CARD_BG}
+                    />
+                  ))}
+                </div>
+              )}
             </section>
         </div>
       </div>
