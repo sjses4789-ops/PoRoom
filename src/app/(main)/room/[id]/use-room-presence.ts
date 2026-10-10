@@ -58,7 +58,7 @@ export type PresenceStatus = "offline" | "typing" | "idle";
 // 화면 공유 프레임은 브로드캐스트로 오가는데, "공유 중지" 신호를 놓치는
 // 경우(탭이 갑자기 닫히는 등)에 대비해 이 시간 동안 새 프레임이 안 오면
 // 자동으로 공유가 끊긴 것으로 보고 지운다.
-const SCREEN_FRAME_STALE_MS = 8000;
+const SCREEN_FRAME_STALE_MS = 30000;
 const SCREEN_FRAME_STALE_CHECK_MS = 3000;
 
 export function useRoomPresence(
@@ -171,6 +171,10 @@ export function useRoomPresence(
         })
         .subscribe(async (status) => {
           if (cancelled) return;
+          // hardReconnect()가 버린 옛 채널은 뒤늦게 CLOSED를 알려 오는데, 이걸 그대로 처리하면
+          // 새 채널이 이미 구독된 뒤에도 subscribedRef가 false로 덮여서 화면 공유 프레임·상태
+          // 전송이 멈추고, 불필요한 재구독까지 이어진다 — 지금 채널이 아닌 신호는 무시한다.
+          if (channel !== currentChannel) return;
           if (status === "SUBSCRIBED") {
             subscribedRef.current = true;
             await channel.track(selfPayloadRef.current).catch(() => {});

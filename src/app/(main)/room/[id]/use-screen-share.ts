@@ -23,6 +23,27 @@ const TARGET_CELLS_LONG_SIDE = 56;
 const CAPTURE_INTERVAL_MS = 2000;
 const JPEG_QUALITY = 0.7;
 
+// 공유 중에는 방 탭이 보통 백그라운드(집필 프로그램이 앞)에 있는데, 브라우저는 숨겨진 탭의
+// setInterval을 1초 단위로, 5분쯤 지나면 분 단위로까지 늦춘다 — 그러면 프레임이 몇 초~1분에
+// 한 번만 나가서 보는 쪽이 "공유가 끊겼다"고 보고 화면을 지워 버린다. 웹 워커의 타이머는 이
+// 제한을 받지 않으므로, 박자는 워커가 세고 캡처는 그 신호를 받아 메인 스레드에서 한다.
+function startTicker(ms: number, onTick: () => void): () => void {
+  try {
+    const url = URL.createObjectURL(
+      new Blob([`setInterval(function(){postMessage(0)},${ms})`], { type: "text/javascript" })
+    );
+    const worker = new Worker(url);
+    worker.onmessage = onTick;
+    return () => {
+      worker.terminate();
+      URL.revokeObjectURL(url);
+    };
+  } catch {
+    const id = setInterval(onTick, ms);
+    return () => clearInterval(id);
+  }
+}
+
 function computeCaptureSize(srcWidth: number, srcHeight: number): { width: number; height: number } {
   const aspect = (srcWidth || 16) / (srcHeight || 9);
   return aspect >= 1
@@ -41,7 +62,7 @@ export function useScreenShare(onFrame: (dataUrl: string) => void, onStop: () =>
   const streamRef = useRef<MediaStream | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const stopTickerRef = useRef<(() => void) | null>(null);
   const onFrameRef = useRef(onFrame);
   const onStopRef = useRef(onStop);
   useEffect(() => {
@@ -50,10 +71,8 @@ export function useScreenShare(onFrame: (dataUrl: string) => void, onStop: () =>
   }, [onFrame, onStop]);
 
   const stop = useCallback(() => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
+    stopTickerRef.current?.();
+    stopTickerRef.current = null;
     streamRef.current?.getTracks().forEach((track) => track.stop());
     streamRef.current = null;
     videoRef.current = null;
@@ -129,7 +148,7 @@ export function useScreenShare(onFrame: (dataUrl: string) => void, onStop: () =>
 
     setIsSharing(true);
     captureFrame();
-    intervalRef.current = setInterval(captureFrame, CAPTURE_INTERVAL_MS);
+    stopTickerRef.current = startTicker(CAPTURE_INTERVAL_MS, captureFrame);
   }, [stop, t]);
 
   const toggle = useCallback(() => {
