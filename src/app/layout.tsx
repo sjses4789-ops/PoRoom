@@ -30,6 +30,10 @@ export const metadata: Metadata = {
   },
   description: DEFAULT_DESCRIPTION,
   keywords: SITE_KEYWORDS.ko,
+  // 네이버 서치어드바이저 사이트 소유 확인(<meta name="naver-site-verification">).
+  verification: {
+    other: { "naver-site-verification": "43b2dae17ca365381469579a94876b1f425b6a45" },
+  },
   icons: {
     icon: "/icon.png",
     // iOS 홈 화면 아이콘은 투명 배경이 검게 채워지므로 불투명 배경 버전을 쓴다.
