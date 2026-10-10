@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { resolveJoinNickname } from "@/lib/nickname-join";
 
 const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
@@ -23,7 +24,8 @@ const SYSTEM_ROOM_NAME: Record<SystemRoomKind, string> = {
 export type JoinSystemRoomResult = { error: string } | { roomId: string };
 
 export async function joinSystemRoom(
-  kind: SystemRoomKind
+  kind: SystemRoomKind,
+  nicknameId?: string | null
 ): Promise<JoinSystemRoomResult> {
   const supabase = await createClient();
   const {
@@ -95,9 +97,14 @@ export async function joinSystemRoom(
     return { error: `${name} 정원(${SYSTEM_ROOM_CAPACITY}명)이 가득 찼습니다.` };
   }
 
-  const { error: joinError } = await supabase
-    .from("room_members")
-    .insert({ room_id: roomId, user_id: user.id });
+  const chosen = await resolveJoinNickname(supabase, user.id, nicknameId);
+  if (!chosen.ok) return { error: "존재하지 않는 닉네임이에요." };
+
+  const { error: joinError } = await supabase.from("room_members").insert(
+    nicknameId !== undefined
+      ? { room_id: roomId, user_id: user.id, nickname: chosen.nickname, nickname_set: true }
+      : { room_id: roomId, user_id: user.id }
+  );
 
   if (joinError && joinError.code !== "23505") {
     return { error: joinError.message };

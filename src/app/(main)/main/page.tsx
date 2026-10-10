@@ -248,8 +248,12 @@ export default async function MainPage() {
     }));
 
   const systemRoomCounts: Record<string, number> = {};
+  const systemRoomMember: Record<string, boolean> = {};
   for (const r of rooms ?? []) {
-    if (r.is_system) systemRoomCounts[r.name] = memberCountMap.get(r.id) ?? 0;
+    if (r.is_system) {
+      systemRoomCounts[r.name] = memberCountMap.get(r.id) ?? 0;
+      systemRoomMember[r.name] = myRoomIdSet.has(r.id);
+    }
   }
 
   const systemRoomSection = (
@@ -265,6 +269,7 @@ export default async function MainPage() {
           kind="deadline"
           count={systemRoomCounts["마감방"] ?? 0}
           capacity={SYSTEM_ROOM_CAPACITY}
+          isMember={systemRoomMember["마감방"] ?? false}
         />
       </section>
       <section className="flex h-full flex-col items-stretch justify-between gap-3 rounded-lg border border-neutral-200/60 bg-[#f2f3f9] px-3 py-4 text-center dark:border-neutral-800 dark:bg-[#1a1c26]">
@@ -278,6 +283,7 @@ export default async function MainPage() {
           kind="dawn"
           count={systemRoomCounts["새벽방"] ?? 0}
           capacity={SYSTEM_ROOM_CAPACITY}
+          isMember={systemRoomMember["새벽방"] ?? false}
         />
       </section>
     </div>

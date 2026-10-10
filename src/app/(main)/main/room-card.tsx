@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { joinOpenRoom } from "@/lib/rooms";
+import { useNicknameChooser } from "@/components/use-nickname-chooser";
 import { isDemoId } from "@/lib/demo-id";
 import { paletteDot, paletteCard } from "@/lib/palette";
 import { translateRoomTag } from "@/lib/room-tags";
@@ -91,6 +92,7 @@ export default function RoomCard({
 }) {
   const t = useTranslations("main.roomCard");
   const [joining, setJoining] = useState(false);
+  const chooser = useNicknameChooser();
   const mismatched = room.targetPosition !== null && room.targetPosition !== selfPosition;
 
   // 애드센스 심사용 예시 방은 누구나(비로그인 포함) 방 화면을 구경할 수
@@ -132,8 +134,11 @@ export default function RoomCard({
             );
             return;
           }
+          // 입장하기 전에 이 방에서 쓸 닉네임부터 고른다.
+          const choice = await chooser.ask();
+          if (!choice) return;
           setJoining(true);
-          await joinOpenRoom(room.id);
+          await joinOpenRoom(room.id, choice.nicknameId);
           setJoining(false);
         }}
         // 직업이 안 맞는 방은 버튼을 아예 못 누르게 막기보다(왜 안 되는지
@@ -148,7 +153,12 @@ export default function RoomCard({
         {joining ? t("joining") : t("join")}
       </button>
     );
-    return <RoomCardBody room={room} joinSlot={joinButton} />;
+    return (
+      <>
+        <RoomCardBody room={room} joinSlot={joinButton} />
+        {chooser.element}
+      </>
+    );
   }
 
   return <RoomCardBody room={room} />;

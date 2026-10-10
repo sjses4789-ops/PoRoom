@@ -1,8 +1,9 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { joinRoomByCode, type ActionResult } from "@/lib/rooms";
+import { useNicknameChooser } from "@/components/use-nickname-chooser";
 
 export default function InviteCodeButton({
   open,
@@ -16,6 +17,9 @@ export default function InviteCodeButton({
     joinRoomByCode,
     null
   );
+  const chooser = useNicknameChooser();
+  const confirmedRef = useRef(false);
+  const nicknameInputRef = useRef<HTMLInputElement>(null);
 
   return (
     <>
@@ -32,7 +36,25 @@ export default function InviteCodeButton({
             onClick={(e) => e.stopPropagation()}
             className="fixed left-1/2 top-1/2 z-20 flex w-[min(16rem,calc(100vw-2.5rem))] -translate-x-1/2 -translate-y-1/2 flex-col gap-2 rounded-md border border-neutral-300 bg-white p-3 shadow-lg dark:border-neutral-700 dark:bg-neutral-900"
           >
-            <form action={formAction} className="flex flex-col gap-2">
+            <form
+              action={formAction}
+              onSubmit={async (e) => {
+                // 입장하기 전에 이 방에서 쓸 닉네임부터 고른다 — 고른 뒤 같은 폼을 다시 제출한다.
+                if (confirmedRef.current) {
+                  confirmedRef.current = false;
+                  return;
+                }
+                e.preventDefault();
+                const form = e.currentTarget;
+                const choice = await chooser.ask();
+                if (!choice) return;
+                if (nicknameInputRef.current) nicknameInputRef.current.value = choice.nicknameId ?? "";
+                confirmedRef.current = true;
+                form.requestSubmit();
+              }}
+              className="flex flex-col gap-2"
+            >
+              <input ref={nicknameInputRef} type="hidden" name="nicknameId" defaultValue="" />
               <input
                 name="code"
                 placeholder={t("placeholder")}
@@ -53,6 +75,7 @@ export default function InviteCodeButton({
           </div>
         </>
       )}
+      {chooser.element}
     </>
   );
 }

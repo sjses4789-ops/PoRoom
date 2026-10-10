@@ -23,6 +23,21 @@ export async function getMyNicknames(): Promise<NicknameItem[]> {
   return data ?? [];
 }
 
+// 방에 입장하기 전에 닉네임을 고르는 안내창에 필요한 정보(기본 닉네임 + 만들어 둔 추가 닉네임).
+export async function getNicknameContext(): Promise<{ defaultName: string; nicknames: NicknameItem[] }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { defaultName: "", nicknames: [] };
+
+  const [{ data: profile }, nicknames] = await Promise.all([
+    supabase.from("users").select("name,email").eq("id", user.id).maybeSingle<{ name: string | null; email: string }>(),
+    getMyNicknames(),
+  ]);
+  return { defaultName: profile?.name || profile?.email || "", nicknames };
+}
+
 export async function createNickname(
   raw: string
 ): Promise<{ error: string } | { id: string; nickname: string }> {

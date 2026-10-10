@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { joinSystemRoom, type SystemRoomKind } from "@/lib/system-rooms";
+import { useNicknameChooser } from "@/components/use-nickname-chooser";
 
 const ROOM_META: Record<SystemRoomKind, { emoji: string; className: string }> = {
   deadline: {
@@ -20,23 +21,34 @@ export function SystemRoomButton({
   kind,
   count,
   capacity,
+  isMember,
 }: {
   kind: SystemRoomKind;
   count: number;
   capacity: number;
+  // 이미 들어가 있는 방이면 닉네임을 다시 묻지 않고 바로 이동한다.
+  isMember: boolean;
 }) {
   const t = useTranslations("main.systemRooms");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const chooser = useNicknameChooser();
   const meta = ROOM_META[kind];
   const label = kind === "deadline" ? t("deadline") : t("dawn");
   const full = count >= capacity;
 
   const join = async () => {
-    setPending(true);
     setError(null);
-    const result = await joinSystemRoom(kind);
+    // 처음 입장하는 방이면 입장하기 전에 이 방에서 쓸 닉네임부터 고른다.
+    let nicknameId: string | null | undefined;
+    if (!isMember) {
+      const choice = await chooser.ask();
+      if (!choice) return;
+      nicknameId = choice.nicknameId;
+    }
+    setPending(true);
+    const result = await joinSystemRoom(kind, nicknameId);
     setPending(false);
     if ("error" in result) {
       setError(result.error);
@@ -62,6 +74,7 @@ export function SystemRoomButton({
         </span>
       </button>
       {error && <p className="text-xs text-red-500">{error}</p>}
+      {chooser.element}
     </div>
   );
 }

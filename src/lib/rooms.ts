@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { logActivity } from "@/lib/activity";
 import { isRoomTag } from "@/lib/room-tags";
 import { checkDailyMilestones } from "@/lib/system-challenges";
+import { resolveJoinNickname } from "@/lib/nickname-join";
 import { todayKst } from "@/lib/time";
 
 const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -45,6 +46,11 @@ export async function createRoom(
   const targetPositionRaw = String(formData.get("targetPosition") ?? "");
   const targetPosition: TargetPosition =
     targetPositionRaw === "novelist" || targetPositionRaw === "webtoon" ? targetPositionRaw : null;
+
+  // 입장 전에 고른 이 방의 닉네임(비어 있으면 기본 닉네임).
+  const nicknameId = String(formData.get("nicknameId") ?? "") || null;
+  const chosen = await resolveJoinNickname(supabase, user.id, nicknameId);
+  if (!chosen.ok) return { error: "존재하지 않는 닉네임이에요." };
 
   if (!name) return { error: "방 이름을 입력해주세요." };
   if (!["shared", "private", "free"].includes(recordVisibility)) {
@@ -87,7 +93,7 @@ export async function createRoom(
 
   await supabase
     .from("room_members")
-    .insert({ room_id: roomId, user_id: user.id });
+    .insert({ room_id: roomId, user_id: user.id, nickname: chosen.nickname, nickname_set: true });
 
   await supabase.from("room_event_categories").insert([
     { room_id: roomId, name: "공모전", color: "amber", created_by: user.id },
@@ -108,6 +114,10 @@ export async function joinRoomByCode(
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "로그인이 필요합니다." };
+
+  const nicknameId = String(formData.get("nicknameId") ?? "") || null;
+  const chosen = await resolveJoinNickname(supabase, user.id, nicknameId);
+  if (!chosen.ok) return { error: "존재하지 않는 닉네임이에요." };
 
   const code = String(formData.get("code") ?? "")
     .trim()
@@ -149,7 +159,7 @@ export async function joinRoomByCode(
 
   const { error: joinError } = await supabase
     .from("room_members")
-    .insert({ room_id: room.id, user_id: user.id });
+    .insert({ room_id: room.id, user_id: user.id, nickname: chosen.nickname, nickname_set: true });
 
   if (joinError && joinError.code !== "23505") {
     return { error: joinError.message };
@@ -158,7 +168,7 @@ export async function joinRoomByCode(
   redirect(`/room/${room.id}`);
 }
 
-export async function joinOpenRoom(roomId: string) {
+export async function joinOpenRoom(roomId: string, nicknameId?: string | null) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -190,9 +200,14 @@ export async function joinOpenRoom(roomId: string) {
     if (profile?.position !== room.target_position) return;
   }
 
-  await supabase
-    .from("room_members")
-    .insert({ room_id: roomId, user_id: user.id });
+  // 닉네임을 고르지 않은 입장(예: 모바일 앱)은 nickname_set이 false로 남아, 웹 방 페이지에서 고르게 한다.
+  const chosen = await resolveJoinNickname(supabase, user.id, nicknameId);
+  if (!chosen.ok) return;
+  await supabase.from("room_members").insert(
+    nicknameId !== undefined
+      ? { room_id: roomId, user_id: user.id, nickname: chosen.nickname, nickname_set: true }
+      : { room_id: roomId, user_id: user.id }
+  );
 
   redirect(`/room/${roomId}`);
 }
