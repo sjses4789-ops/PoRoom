@@ -44,6 +44,84 @@ function startTicker(ms: number, onTick: () => void): () => void {
   }
 }
 
+// 가장 최근 화면 프레임을 돌려주는 읽기 도구. <video>에 그려진 화면은 탭이 백그라운드로 가면
+// 브라우저가 화면 갱신(렌더링)을 멈춰서 drawImage가 "마지막으로 그려진 한 장"만 계속 돌려준다
+// — 공유한 화면의 첫 장만 보이고 이후 프레임이 안 바뀌던 원인이다. 그래서 가능하면 트랙에서
+// 프레임을 직접 읽는 방법(MediaStreamTrackProcessor → ImageCapture)을 먼저 쓰고, 둘 다 없는
+// 브라우저에서만 <video>로 대신한다.
+type FrameSource = {
+  /** 최신 프레임을 돌려준다(아직 없으면 null). 쓴 뒤 close가 있으면 불러야 한다. */
+  grab: () => Promise<{ image: CanvasImageSource; width: number; height: number; close?: () => void } | null>;
+  dispose: () => void;
+};
+
+type TrackProcessorCtor = new (init: { track: MediaStreamTrack }) => {
+  readable: ReadableStream<VideoFrame>;
+};
+
+function createFrameSource(track: MediaStreamTrack | undefined, video: HTMLVideoElement): FrameSource {
+  const fromVideo: FrameSource["grab"] = async () => {
+    if (video.readyState < 2 || video.videoWidth <= 0) return null;
+    return { image: video, width: video.videoWidth, height: video.videoHeight };
+  };
+
+  const Processor = (globalThis as unknown as { MediaStreamTrackProcessor?: TrackProcessorCtor })
+    .MediaStreamTrackProcessor;
+  if (track && Processor) {
+    try {
+      const reader = new Processor({ track }).readable.getReader();
+      let latest: VideoFrame | null = null;
+      let disposed = false;
+      (async () => {
+        try {
+          while (!disposed) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            latest?.close();
+            latest = value;
+          }
+        } catch {
+          // 트랙이 끝나면 읽기가 실패한다 — 정상 종료 경로.
+        }
+      })();
+      return {
+        grab: async () => {
+          if (!latest) return fromVideo();
+          return { image: latest, width: latest.displayWidth, height: latest.displayHeight };
+        },
+        dispose: () => {
+          disposed = true;
+          reader.cancel().catch(() => {});
+          latest?.close();
+          latest = null;
+        },
+      };
+    } catch {
+      // 지원하지 않는 환경 — 아래 방법으로 넘어간다.
+    }
+  }
+
+  const Capture = (globalThis as unknown as {
+    ImageCapture?: new (t: MediaStreamTrack) => { grabFrame: () => Promise<ImageBitmap> };
+  }).ImageCapture;
+  if (track && Capture) {
+    const capture = new Capture(track);
+    return {
+      grab: async () => {
+        try {
+          const bitmap = await capture.grabFrame();
+          return { image: bitmap, width: bitmap.width, height: bitmap.height, close: () => bitmap.close() };
+        } catch {
+          return fromVideo();
+        }
+      },
+      dispose: () => {},
+    };
+  }
+
+  return { grab: fromVideo, dispose: () => {} };
+}
+
 function computeCaptureSize(srcWidth: number, srcHeight: number): { width: number; height: number } {
   const aspect = (srcWidth || 16) / (srcHeight || 9);
   return aspect >= 1
@@ -63,6 +141,7 @@ export function useScreenShare(onFrame: (dataUrl: string) => void, onStop: () =>
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const stopTickerRef = useRef<(() => void) | null>(null);
+  const sourceRef = useRef<FrameSource | null>(null);
   const onFrameRef = useRef(onFrame);
   const onStopRef = useRef(onStop);
   useEffect(() => {
@@ -73,6 +152,8 @@ export function useScreenShare(onFrame: (dataUrl: string) => void, onStop: () =>
   const stop = useCallback(() => {
     stopTickerRef.current?.();
     stopTickerRef.current = null;
+    sourceRef.current?.dispose();
+    sourceRef.current = null;
     streamRef.current?.getTracks().forEach((track) => track.stop());
     streamRef.current = null;
     videoRef.current = null;
@@ -123,23 +204,32 @@ export function useScreenShare(onFrame: (dataUrl: string) => void, onStop: () =>
     // (기본값은 일부 픽셀만 건너뛰어 뽑아 글이 늘어나도 변화가 안 보일 수 있다).
     if (ctx) ctx.imageSmoothingQuality = "high";
 
-    const captureFrame = () => {
-      if (!ctx || !videoRef.current || videoRef.current.readyState < 2) return;
-      // 공유 중 창 크기를 바꾸면 비율이 달라지므로, 매 프레임 실제 영상 크기를 읽어 캔버스 비율을
-      // 맞춘다 — 고정 크기에 그리면 화면이 눌리거나 늘어난다.
-      const { videoWidth, videoHeight } = videoRef.current;
-      if (videoWidth > 0 && videoHeight > 0) {
-        const size = computeCaptureSize(videoWidth, videoHeight);
+    const source = createFrameSource(videoTrack, video);
+    sourceRef.current = source;
+
+    let capturing = false;
+    const captureFrame = async () => {
+      if (!ctx || capturing) return;
+      capturing = true;
+      try {
+        const frame = await source.grab();
+        if (!frame || frame.width <= 0 || frame.height <= 0) return;
+        // 공유 중 창 크기를 바꾸면 비율이 달라지므로, 매 프레임 실제 영상 크기를 읽어 캔버스 비율을
+        // 맞춘다 — 고정 크기에 그리면 화면이 눌리거나 늘어난다.
+        const size = computeCaptureSize(frame.width, frame.height);
         if (canvas.width !== size.width || canvas.height !== size.height) {
           canvas.width = size.width;
           canvas.height = size.height;
           ctx.imageSmoothingQuality = "high";
         }
+        ctx.drawImage(frame.image, 0, 0, canvas.width, canvas.height);
+        frame.close?.();
+        const dataUrl = canvas.toDataURL("image/jpeg", JPEG_QUALITY);
+        setPreviewUrl(dataUrl);
+        onFrameRef.current(dataUrl);
+      } finally {
+        capturing = false;
       }
-      ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-      const dataUrl = canvas.toDataURL("image/jpeg", JPEG_QUALITY);
-      setPreviewUrl(dataUrl);
-      onFrameRef.current(dataUrl);
     };
 
     // 참여자가 브라우저 자체의 "공유 중지" 버튼을 눌러도 여기서 감지해
@@ -147,8 +237,8 @@ export function useScreenShare(onFrame: (dataUrl: string) => void, onStop: () =>
     videoTrack?.addEventListener("ended", stop);
 
     setIsSharing(true);
-    captureFrame();
-    stopTickerRef.current = startTicker(CAPTURE_INTERVAL_MS, captureFrame);
+    void captureFrame();
+    stopTickerRef.current = startTicker(CAPTURE_INTERVAL_MS, () => void captureFrame());
   }, [stop, t]);
 
   const toggle = useCallback(() => {
