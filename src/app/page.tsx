@@ -6,7 +6,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { GoogleSignInButton } from "@/components/google-sign-in-button";
 import { UsageGuideSection } from "./usage-guide-section";
-import { SITE_URL, SITE_NAME, HOME_LOCALE_PATH, HOME_META } from "@/lib/site";
+import { SITE_URL, SITE_NAME, HOME_LOCALE_PATH, HOME_META, SITE_KEYWORDS } from "@/lib/site";
 import { ADSENSE_REVIEW_MODE } from "@/lib/adsense-review-mode";
 
 const CTA_CLASS =
@@ -45,6 +45,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: meta.title,
     description: meta.description,
+    keywords: SITE_KEYWORDS[locale] ?? SITE_KEYWORDS.ko,
     alternates: {
       canonical: url,
       languages: {

@@ -7,7 +7,7 @@ import { DisableRightClickAndDrag } from "@/components/disable-right-click-drag"
 import { PwaRegister } from "@/components/pwa-register";
 import { isAppRequest } from "@/lib/app-mode";
 import { ADS_VISIBLE, ADSENSE_REVIEW_MODE } from "@/lib/adsense-review-mode";
-import { SITE_URL, SITE_NAME } from "@/lib/site";
+import { SITE_URL, SITE_NAME, SITE_KEYWORDS } from "@/lib/site";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -29,12 +29,7 @@ export const metadata: Metadata = {
     template: `%s | ${SITE_NAME}`,
   },
   description: DEFAULT_DESCRIPTION,
-  keywords: [
-    "포룸", "PoRoom", "웹소설", "웹소설 작가", "웹툰", "웹툰 작가", "뽀모도로", "뽀모도로 타이머",
-    "온라인 작업실", "온라인 스터디룸", "글쓰기 챌린지", "집필 챌린지",
-    "글자수 기록", "글자수 랭킹", "컷수 기록", "함께 집중", "바디 더블링", "웹소설 연재",
-    "글쓰기 모임", "집필 모임", "온라인 집필실", "타이핑 연습",
-  ],
+  keywords: SITE_KEYWORDS.ko,
   icons: {
     icon: "/icon.png",
     // iOS 홈 화면 아이콘은 투명 배경이 검게 채워지므로 불투명 배경 버전을 쓴다.
