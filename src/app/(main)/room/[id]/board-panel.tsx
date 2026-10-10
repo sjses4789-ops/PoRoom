@@ -3,7 +3,16 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { createPost, updatePost, deletePost, type PostCategory } from "@/lib/room-posts";
-import { RichTextEditor } from "@/components/rich-text-editor";
+import dynamic from "next/dynamic";
+
+// 글쓰기 에디터(tiptap)는 용량이 커서 글을 쓰려고 열 때만 내려받는다 — 목록만 보는 방문에서는 받지 않는다.
+const RichTextEditor = dynamic(
+  () => import("@/components/rich-text-editor").then((m) => m.RichTextEditor),
+  {
+    ssr: false,
+    loading: () => <div className="h-[170px] animate-pulse rounded-md bg-neutral-100 dark:bg-neutral-800" />,
+  }
+);
 import { RichContent } from "@/components/rich-content";
 
 export type RoomPost = {

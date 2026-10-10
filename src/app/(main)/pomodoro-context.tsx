@@ -287,7 +287,8 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
     if (currentMinutes > lastFlushedMinutesRef.current) {
       const delta = currentMinutes - lastFlushedMinutesRef.current;
       lastFlushedMinutesRef.current = currentMinutes;
-      recordFocusMinutes(activeRoom.id, delta, effectiveRecordDate(sessionStartRef.current));
+      // 매분 하는 기록이라 화면 재조회(revalidate)는 하지 않는다(마지막 인자 false).
+      recordFocusMinutes(activeRoom.id, delta, effectiveRecordDate(sessionStartRef.current), false);
     }
   }, [accumulatedFocusSeconds, activeRoom]);
 

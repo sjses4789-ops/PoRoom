@@ -26,9 +26,11 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // getClaims()는 액세스 토큰을 로컬에서 검증한다(만료됐으면 갱신). getUser()처럼 매 요청마다
+  // 인증 서버 왕복을 기다리지 않아 모든 페이지 이동이 빨라진다. 로그인 여부 판단에만 쓰고,
+  // 계정 정지 확인 같은 엄격한 확인은 레이아웃의 getUser()가 그대로 한다.
+  const { data: claimsData } = await supabase.auth.getClaims();
+  const user = claimsData?.claims?.sub ? { id: claimsData.claims.sub } : null;
 
   // "/"는 로그인 여부와 무관하게 항상 리다이렉트 없이 그대로 통과시킨다
   // (비로그인 방문자·구글 애드센스 크롤러도 리다이렉트 없이 콘텐츠와
@@ -70,7 +72,6 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/.well-known/") ||
     // 모바일 앱 전용 API — 로그인 리다이렉트(HTML) 대신 각 라우트가 직접 401을 돌려준다.
     request.nextUrl.pathname.startsWith("/api/app/") ||
-    request.nextUrl.pathname === "/api/perf-tmp" || // TEMP
     isGoogleVerificationFile;
 
   // ADSENSE_REVIEW_MODE 동안은 "/"와 같은 논리로, 로그인 리다이렉트를

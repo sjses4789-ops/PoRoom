@@ -406,7 +406,10 @@ export async function setDailyChars(roomId: string, date: string, chars: number)
 export async function recordFocusMinutes(
   roomId: string,
   delta: number,
-  dateOverride?: string
+  dateOverride?: string,
+  // 뽀모도로가 돌아가는 동안 매분 호출되는 기록은 false로 보낸다 — true면 호출한 페이지(방 화면)의
+  // 서버 데이터를 통째로 다시 불러오기 때문에, 1분마다 방 화면이 무거운 재조회를 하게 된다.
+  revalidate = true
 ) {
   if (delta <= 0) return;
   const supabase = await createClient();
@@ -444,8 +447,10 @@ export async function recordFocusMinutes(
 
   await logActivity(roomId, "focus_recorded", delta);
 
-  revalidatePath(`/room/${roomId}`);
-  revalidatePath("/main");
+  if (revalidate) {
+    revalidatePath(`/room/${roomId}`);
+    revalidatePath("/main");
+  }
 }
 
 // recordFocusMinutes와 동일한 방식으로 휴식 분을 하루 단위로 누적한다 —

@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { recordSiteTime } from "@/lib/site-time";
 
-const FLUSH_INTERVAL_SECONDS = 30;
+const FLUSH_INTERVAL_SECONDS = 60;
 
 // (main) 레이아웃에 조용히 떠서 poroom 체류 시간을 30초 단위로 서버에
 // 누적하는 보이지 않는 컴포넌트 — 탭이 백그라운드일 땐 세지 않는다.

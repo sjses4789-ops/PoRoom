@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createServerClient } from "@supabase/ssr";
 import { createClient as createSupabaseClient, type SupabaseClient } from "@supabase/supabase-js";
 import { cookies, headers } from "next/headers";
@@ -16,7 +17,7 @@ async function bearerToken(): Promise<string | null> {
   }
 }
 
-export async function createClient(): Promise<SupabaseClient> {
+async function buildClient(): Promise<SupabaseClient> {
   const token = await bearerToken();
 
   if (token) {
@@ -37,7 +38,7 @@ export async function createClient(): Promise<SupabaseClient> {
 
   const cookieStore = await cookies();
 
-  return createServerClient(
+  const client = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -58,4 +59,27 @@ export async function createClient(): Promise<SupabaseClient> {
       },
     }
   );
+
+  // auth.getUser()는 매번 Supabase 인증 서버로 가는 네트워크 요청이다. 한 페이지를 그리는 동안
+  // 레이아웃·페이지·헬퍼가 각각 부르면 같은 확인을 여러 번 기다리게 되므로, 같은 요청 안에서는
+  // 첫 결과를 재사용한다. 로그인 상태를 바꾸는 호출(로그아웃·세션 교환 등) 뒤에는 비운다.
+  let userPromise: ReturnType<typeof client.auth.getUser> | null = null;
+  const getUser = client.auth.getUser.bind(client.auth);
+  client.auth.getUser = (jwt?: string) => {
+    if (jwt) return getUser(jwt);
+    return (userPromise ??= getUser());
+  };
+  for (const name of ["signOut", "exchangeCodeForSession", "setSession", "verifyOtp"] as const) {
+    const original = (client.auth[name] as (...args: unknown[]) => Promise<unknown>).bind(client.auth);
+    (client.auth as unknown as Record<string, unknown>)[name] = async (...args: unknown[]) => {
+      userPromise = null;
+      return original(...args);
+    };
+  }
+
+  return client;
 }
+
+// React의 cache()로 같은 요청(렌더링) 안에서는 클라이언트 하나를 공유한다. 서버 액션·라우트
+// 핸들러처럼 렌더링 밖에서는 cache가 아무 일도 하지 않아 호출마다 새로 만든다(예전과 동일).
+export const createClient = cache(buildClient);

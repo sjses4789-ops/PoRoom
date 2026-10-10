@@ -17,6 +17,7 @@ export function AuthLanding({ banned = false }: { banned?: boolean }) {
           width={1254}
           height={485}
           priority
+          sizes="256px"
           className="h-auto w-64"
         />
         <p className="text-sm text-neutral-500">{t("tagline")}</p>

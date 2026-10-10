@@ -114,7 +114,7 @@ export default async function Home() {
     <main className="flex min-h-screen flex-col select-none bg-white">
       <section className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-10 px-4 pt-8 pb-16 sm:px-6 sm:pt-10 sm:pb-24 lg:grid-cols-[1fr_1fr]">
         <div className="flex items-center justify-center gap-2 lg:col-span-2">
-          <Image src="/poroom-logo.png" alt="PoRoom" width={1254} height={485} priority className="h-16 w-auto sm:h-20" />
+          <Image src="/poroom-logo.png" alt="PoRoom" width={1254} height={485} priority sizes="220px" className="h-16 w-auto sm:h-20" />
           <span
             title={t("landing.betaNotice")}
             className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-bold tracking-wide text-amber-700"
@@ -146,6 +146,8 @@ export default async function Home() {
             alt={t("landing.heroImageAlt")}
             width={1600}
             height={1000}
+            priority
+            sizes="(min-width: 1024px) 672px, 100vw"
             className="w-full max-w-2xl rounded-xl border border-neutral-200 shadow-sm"
           />
         </div>
@@ -288,7 +290,7 @@ export default async function Home() {
 
       <section className="border-t border-neutral-100">
         <div className="mx-auto flex w-full max-w-2xl flex-col items-center gap-4 px-4 py-16 text-center sm:px-6">
-          <Image src="/poroom-logo.png" alt="PoRoom" width={1254} height={485} className="h-10 w-auto" />
+          <Image src="/poroom-logo.png" alt="PoRoom" width={1254} height={485} sizes="140px" className="h-10 w-auto" />
           <h2 className="text-xl font-semibold tracking-tight text-neutral-900">
             {t("landing.footerCtaTitle")}
           </h2>
