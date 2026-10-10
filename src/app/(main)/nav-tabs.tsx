@@ -21,7 +21,6 @@ const TAB_KEYS: Record<
 export default function NavTabs() {
   const pathname = usePathname();
   const t = useTranslations("nav");
-  const tLogin = useTranslations("login");
 
   return (
     <nav className="flex items-center gap-1 whitespace-nowrap">
@@ -43,13 +42,6 @@ export default function NavTabs() {
       })}
       <ThemeToggle />
       <LanguageSwitcher />
-      {/* 베타 서비스 표시 — 마우스를 올리면 안내 문구가 보인다(홈페이지의 BETA 배지와 같은 모양). */}
-      <span
-        title={tLogin("landing.betaNotice")}
-        className="shrink-0 cursor-default rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-bold tracking-wide text-amber-700 dark:bg-amber-950 dark:text-amber-300"
-      >
-        BETA
-      </span>
     </nav>
   );
 }

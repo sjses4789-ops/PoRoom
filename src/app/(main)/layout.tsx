@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { ADSENSE_REVIEW_MODE, TIER_BADGE_VISIBLE } from "@/lib/adsense-review-mode";
 import { isAppRequest } from "@/lib/app-mode";
@@ -19,6 +20,7 @@ export default async function MainLayout({
   children: React.ReactNode;
 }) {
   const supabase = await createClient();
+  const tLogin = await getTranslations("login");
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -70,12 +72,21 @@ export default async function MainLayout({
       {!inApp && (
       <header className="flex flex-col gap-3 border-b border-neutral-100 px-4 py-3 sm:px-6 md:flex-row md:items-center md:justify-between md:px-8 md:py-4 dark:border-neutral-800">
         <div className="flex items-center justify-between gap-4 md:justify-start md:gap-8">
-          <Link href="/main" className="flex shrink-0 items-center gap-2">
-            <Image src="/poroom-icon.png" alt="" width={24} height={24} />
-            <span className="text-sm font-semibold tracking-tight text-neutral-900 dark:text-white">
-              PoRoom
+          <div className="flex shrink-0 flex-col items-start gap-0.5">
+            <Link href="/main" className="flex items-center gap-2">
+              <Image src="/poroom-icon.png" alt="" width={24} height={24} />
+              <span className="text-sm font-semibold tracking-tight text-neutral-900 dark:text-white">
+                PoRoom
+              </span>
+            </Link>
+            {/* 베타 서비스 표시 — 마우스를 올리면 안내 문구가 보인다(홈페이지의 BETA 배지와 같은 모양). */}
+            <span
+              title={tLogin("landing.betaNotice")}
+              className="cursor-default rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold leading-none tracking-wide text-amber-700 dark:bg-amber-950 dark:text-amber-300"
+            >
+              BETA
             </span>
-          </Link>
+          </div>
           <div className="flex items-center gap-3 text-sm text-neutral-500 dark:text-neutral-400 md:hidden">
             {profile ? (
               <>
