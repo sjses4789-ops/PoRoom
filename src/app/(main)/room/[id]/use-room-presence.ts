@@ -143,7 +143,8 @@ export function useRoomPresence(
       if (cancelled) return;
       subscribedRef.current = false;
       const channel = supabase.channel(`room-presence:${roomId}`, {
-        config: { presence: { key: selfId } },
+        // private: 방 참여자만 접속 상태·화면 공유 프레임을 듣고 보낼 수 있다(0061 마이그레이션).
+        config: { presence: { key: selfId }, private: true },
       });
       currentChannel = channel;
       channelRef.current = channel;

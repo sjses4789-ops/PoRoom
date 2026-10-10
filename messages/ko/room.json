@@ -108,6 +108,10 @@
     }
   },
   "chatPanel": {
+    "clearButton": "초기화",
+    "clearTitle": "채팅 전체 삭제(방장)",
+    "clearConfirm": "이 방의 채팅 메시지를 모두 삭제할까요? 되돌릴 수 없어요.",
+    "clearFailed": "채팅을 초기화하지 못했어요. 잠시 후 다시 시도해 주세요.",
     "title": "채팅",
     "bubbleColorLabel": "말풍선 색상",
     "fontSizeDown": "글자 작게",

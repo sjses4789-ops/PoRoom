@@ -42,7 +42,7 @@ export function ChallengeChatPanel({
   useEffect(() => {
     const supabase = createClient();
     const channel = supabase
-      .channel(`challenge-chat:${challengeId}`)
+      .channel(`challenge-chat:${challengeId}`, { config: { private: true } })
       .on("broadcast", { event: "message" }, ({ payload }) => {
         const msg = payload as ChallengeChatMessage;
         setMessages((prev) => (prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]));

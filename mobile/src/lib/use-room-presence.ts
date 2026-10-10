@@ -80,7 +80,7 @@ export function useRoomPresence(roomId: string, selfId: string, selfName: string
       if (cancelled) return;
       subscribedRef.current = false;
       const channel = supabase.channel(`room-presence:${roomId}`, {
-        config: { presence: { key: selfId } },
+        config: { presence: { key: selfId }, private: true },
       });
       currentChannel = channel;
       channelRef.current = channel;

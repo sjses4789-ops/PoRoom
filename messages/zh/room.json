@@ -108,6 +108,10 @@
     }
   },
   "chatPanel": {
+    "clearButton": "清空",
+    "clearTitle": "删除全部聊天消息(房主)",
+    "clearConfirm": "确定删除本房间的所有聊天消息吗?此操作无法撤销。",
+    "clearFailed": "无法清空聊天,请稍后再试。",
     "title": "聊天",
     "bubbleColorLabel": "气泡颜色",
     "fontSizeDown": "缩小文字",
