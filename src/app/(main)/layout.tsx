@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { ADSENSE_REVIEW_MODE } from "@/lib/adsense-review-mode";
+import { ADSENSE_REVIEW_MODE, TIER_BADGE_VISIBLE } from "@/lib/adsense-review-mode";
 import { isAppRequest } from "@/lib/app-mode";
 import NavTabs from "./nav-tabs";
 import LogoutButton from "./logout-button";
@@ -79,7 +79,7 @@ export default async function MainLayout({
           <div className="flex items-center gap-3 text-sm text-neutral-500 dark:text-neutral-400 md:hidden">
             {profile ? (
               <>
-                <TierBadgeButton isPremium={profile.is_premium} />
+                {TIER_BADGE_VISIBLE && <TierBadgeButton isPremium={profile.is_premium} />}
                 <Link
                   href="/me"
                   className="max-w-[100px] truncate font-bold text-neutral-900 hover:underline dark:text-white"
@@ -104,7 +104,7 @@ export default async function MainLayout({
         <div className="hidden items-center gap-3 text-sm text-neutral-500 dark:text-neutral-400 md:flex">
           {profile ? (
             <>
-              <TierBadgeButton isPremium={profile.is_premium} />
+              {TIER_BADGE_VISIBLE && <TierBadgeButton isPremium={profile.is_premium} />}
               <Link
                 href="/me"
                 className="max-w-[160px] truncate font-bold text-neutral-900 hover:underline dark:text-white"

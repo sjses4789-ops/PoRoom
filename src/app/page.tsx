@@ -329,6 +329,18 @@ export default async function Home() {
               {tFooter("writingApp")}
             </a>
             <span aria-hidden>·</span>
+            <Link href="/guide" className="hover:text-neutral-600 hover:underline">
+              {tFooter("guide")}
+            </Link>
+            <span aria-hidden>·</span>
+            <Link href="/about" className="hover:text-neutral-600 hover:underline">
+              {tFooter("about")}
+            </Link>
+            <span aria-hidden>·</span>
+            <Link href="/faq" className="hover:text-neutral-600 hover:underline">
+              {tFooter("faq")}
+            </Link>
+            <span aria-hidden>·</span>
             <Link href="/feedback" className="hover:text-neutral-600 hover:underline">
               {tFooter("feedback")}
             </Link>

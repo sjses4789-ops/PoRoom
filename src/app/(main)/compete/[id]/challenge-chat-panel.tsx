@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { chatBubbleClass } from "@/lib/palette";
 import { AdSlot } from "@/components/ad-slot";
+import { ADS_VISIBLE } from "@/lib/adsense-review-mode";
 
 export type ChallengeChatMessage = {
   id: string;
@@ -137,9 +138,11 @@ export function ChallengeChatPanel({
           {t("send")}
         </button>
       </div>
-      <div className="h-14 overflow-hidden rounded-md border border-neutral-200 dark:border-neutral-700">
-        <AdSlot className="h-14" />
-      </div>
+      {ADS_VISIBLE && (
+        <div className="h-14 overflow-hidden rounded-md border border-neutral-200 dark:border-neutral-700">
+          <AdSlot className="h-14" />
+        </div>
+      )}
     </div>
   );
 }

@@ -10,7 +10,7 @@
 //
 // 결과는 하루 단위로 고정된다(같은 날에는 새로고침해도 똑같이 보임).
 
-import { ADSENSE_REVIEW_MODE } from "@/lib/adsense-review-mode";
+import { ADSENSE_DEMO_DATA, ADSENSE_REVIEW_MODE } from "@/lib/adsense-review-mode";
 import { CHARACTER_IDS } from "@/lib/characters";
 import { todayKst } from "@/lib/time";
 import { DEMO_ID_PREFIX, isDemoId } from "@/lib/demo-id";
@@ -27,7 +27,7 @@ export function withoutDemoIds(ids: string[]): string[] {
 // 심사 모드이면서 비로그인일 때만 예시 데이터를 보여준다 — 로그인한
 // 사용자(실제 회원)에게는 절대 섞이지 않는다.
 export function shouldShowDemoData(user: unknown): boolean {
-  return ADSENSE_REVIEW_MODE && !user;
+  return ADSENSE_REVIEW_MODE && ADSENSE_DEMO_DATA && !user;
 }
 
 export type DemoUser = {

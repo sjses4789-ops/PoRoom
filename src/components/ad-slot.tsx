@@ -8,6 +8,8 @@ declare global {
   }
 }
 
+import { ADS_VISIBLE } from "@/lib/adsense-review-mode";
+
 const CLIENT_ID = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
 const SLOT_ID_BY_VARIANT = {
   horizontal: process.env.NEXT_PUBLIC_ADSENSE_SLOT_ID,
@@ -26,7 +28,7 @@ export function AdSlot({
   const slotId = SLOT_ID_BY_VARIANT[variant];
 
   useEffect(() => {
-    if (!CLIENT_ID || !slotId || pushed.current) return;
+    if (!ADS_VISIBLE || !CLIENT_ID || !slotId || pushed.current) return;
     pushed.current = true;
     try {
       (window.adsbygoogle = window.adsbygoogle || []).push({});
@@ -35,6 +37,9 @@ export function AdSlot({
       // blocker) — nothing to do, the slot just stays empty.
     }
   }, [slotId]);
+
+  // 승인 전에는 광고 칸(빈 "광고 영역" 표시 포함)을 아예 그리지 않는다.
+  if (!ADS_VISIBLE) return null;
 
   if (!CLIENT_ID || !slotId) {
     return (
