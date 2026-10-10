@@ -13,7 +13,6 @@ import { DeleteAccountButton } from "./delete-account-button";
 import { AttendanceCalendar } from "./attendance-calendar";
 import { ChallengeRecordPanel } from "./challenge-record-panel";
 import { SystemChallengeRecordPanel } from "./system-challenge-record-panel";
-import { WorksPanel } from "./works-panel";
 import { WorkAmountChart } from "./work-amount-chart";
 import { RankingStatusPanel } from "./ranking-status-panel";
 import { PomodoroStatsPanel } from "./pomodoro-stats-panel";
@@ -119,8 +118,6 @@ export default async function MePage() {
     { data: siteTimeRows },
     { data: myAttendanceLogs },
     { data: dailyGoalRows },
-    { data: workRows },
-    { data: workRecordRows },
   ] = await Promise.all([
     myRoomIds.length
       ? supabase
@@ -206,19 +203,6 @@ export default async function MePage() {
       .eq("user_id", user.id)
       .order("effective_date", { ascending: true })
       .returns<{ effective_date: string; target_chars: number; target_minutes: number }[]>(),
-    // 작품별 글자수 그래프([개인] 페이지) — 방과 무관하게 사용자 소유의
-    // 작품 목록에 누적된다.
-    supabase
-      .from("works")
-      .select("id,title")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: true })
-      .returns<{ id: string; title: string }[]>(),
-    supabase
-      .from("work_records")
-      .select("work_id,record_date,chars")
-      .eq("user_id", user.id)
-      .returns<{ work_id: string; record_date: string; chars: number }[]>(),
   ]);
 
   // 관리자가 만든 "달성 여부" 임시 이벤트는 마일스톤 로그 대신
@@ -239,12 +223,6 @@ export default async function MePage() {
         .returns<{ user_id: string | null }[]>()
     : { data: [] as { user_id: string | null }[] };
 
-  const works = workRows ?? [];
-  const workRecords = (workRecordRows ?? []).map((r) => ({
-    workId: r.work_id,
-    date: r.record_date,
-    chars: r.chars,
-  }));
   const memberCountByRoom = new Map<string, number>();
   for (const m of membersOfMyRooms ?? []) {
     memberCountByRoom.set(m.room_id, (memberCountByRoom.get(m.room_id) ?? 0) + 1);
@@ -550,13 +528,12 @@ export default async function MePage() {
       </section>
 
       <section className="flex flex-col gap-3">
-        {myProfile?.position === "webtoon" ? (
-          <div className="rounded-md border border-neutral-400 p-4 dark:border-neutral-600">
-            <WorkAmountChart records={dailyRecordPoints.map((p) => ({ date: p.date, chars: p.chars }))} />
-          </div>
-        ) : (
-          <WorksPanel works={works} records={workRecords} />
-        )}
+        <div className="rounded-md border border-neutral-400 p-4 dark:border-neutral-600">
+          <WorkAmountChart
+            records={dailyRecordPoints.map((p) => ({ date: p.date, chars: p.chars }))}
+            variant={myProfile?.position === "webtoon" ? "webtoon" : "novelist"}
+          />
+        </div>
       </section>
 
       <section className="flex flex-col gap-3">

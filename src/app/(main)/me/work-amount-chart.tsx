@@ -13,11 +13,15 @@ const STEP_X = 44;
 const CHART_HEIGHT = 150;
 const LINE_COLOR = "#f97316";
 
-// 웹툰 작가의 [개인] 페이지 "작업량 통계" — 웹소설처럼 작품별로 컷수를
-// 나누어 기록하지 않고(방에서 컷수를 입력할 때 작품 선택 없이 바로
-// daily_records에 쌓인다), 하루/월/연 단위로 합산한 컷수를 그대로
-// 그래프로 보여준다.
-export function WorkAmountChart({ records }: { records: DailyAmountPoint[] }) {
+// [개인] 페이지의 글자수(웹툰은 컷수) 통계 — 방에서 기록한 값은 작품 구분 없이 바로
+// daily_records에 쌓이고, 이 그래프는 그것을 일/월/연 단위로 합산해 보여준다.
+export function WorkAmountChart({
+  records,
+  variant = "webtoon",
+}: {
+  records: DailyAmountPoint[];
+  variant?: "novelist" | "webtoon";
+}) {
   const t = useTranslations("me.workAmountChart");
   const [period, setPeriod] = useState<"day" | "month" | "year">("day");
 
@@ -110,7 +114,7 @@ export function WorkAmountChart({ records }: { records: DailyAmountPoint[] }) {
 
   return (
     <div className="flex flex-col gap-3">
-      <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{t("title")}</h2>
+      <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">{variant === "novelist" ? t("charTitle") : t("title")}</h2>
       <div className="flex flex-wrap items-center gap-2">
         {periodSelector}
         {period !== "year" && (

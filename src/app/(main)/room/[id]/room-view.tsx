@@ -9,7 +9,7 @@ import { useLiveMembers } from "./use-live-members";
 import { ParticipantCard, type ParticipantData } from "./participant-card";
 import { ChatPanel, type ChatMessage, type LatestNotice } from "./chat-panel";
 import { PomodoroPanel } from "./pomodoro-panel";
-import { CharInput, type WorkItem } from "./char-input";
+import { CharInput } from "./char-input";
 import { sumTotals, type DailyRecord } from "@/lib/records";
 import { recordChars, touchLastSeen, setWorkStatus, type RecordVisibility } from "@/lib/rooms";
 import { effectiveRecordDate, toLocalDateKey } from "@/lib/time";
@@ -59,7 +59,6 @@ export function RoomView({
   selfMonthGoalChars,
   selfMonthChars,
   selfPosition,
-  initialWorks,
 }: {
   roomId: string;
   roomName: string;
@@ -86,7 +85,6 @@ export function RoomView({
   selfPosition: "novelist" | "webtoon";
   // 웹소설 작가의 글자수 입력에 필수인 작품 목록(방과 무관하게 개인
   // 소유) — 웹툰 작가는 컷수 입력이라 안 쓰이지만 항상 넘겨받는다.
-  initialWorks: WorkItem[];
 }) {
   const t = useTranslations("room.roomView");
   const { toast: celebrationToast, celebrate } = useCelebrationToast();
@@ -512,7 +510,6 @@ export function RoomView({
           <CharInput
             todayChars={todayChars}
             todayGoalChars={selfTodayGoalChars}
-            initialWorks={initialWorks}
             onAdd={addChars}
             onActivity={reportTyping}
             position={selfPosition}

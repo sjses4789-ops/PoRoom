@@ -77,6 +77,7 @@
   },
   "workAmountChart": {
     "title": "作業量統計",
+    "charTitle": "文字数統計",
     "periodDay": "日別",
     "periodMonth": "月別",
     "periodYear": "年別",

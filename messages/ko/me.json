@@ -77,6 +77,7 @@
   },
   "workAmountChart": {
     "title": "작업량 통계",
+    "charTitle": "글자수 통계",
     "periodDay": "일자별",
     "periodMonth": "월별",
     "periodYear": "연도별",

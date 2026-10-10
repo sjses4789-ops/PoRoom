@@ -77,6 +77,7 @@
   },
   "workAmountChart": {
     "title": "Work Volume Stats",
+    "charTitle": "Character Count Stats",
     "periodDay": "By Day",
     "periodMonth": "By Month",
     "periodYear": "By Year",
