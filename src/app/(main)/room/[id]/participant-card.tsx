@@ -110,17 +110,18 @@ export function ParticipantCard({
       {/* grayscale은 사진(아바타)에만 걸어야 한다 — 이 박스 전체에
           걸면 방장/부방장 왕관 배지까지 회색으로 바래서, 비접속
           상태에서도 왕관 색이 그대로 보여야 한다는 요구를 못 지킨다. */}
-      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-md bg-neutral-50">
+      <div className={`relative aspect-[4/3] w-full overflow-hidden rounded-md ${shareFrame ? "bg-neutral-800" : "bg-neutral-50"}`}>
         {shareFrame ? (
           // 일부러 작게 캡처한 화면을 그대로 늘려서 그린다 —
           // image-rendering: pixelated로 부드럽게 보간하지 않고 픽셀이
           // 깨져 보이게 해서, 내용은 안 보이지만 뭔가 움직이고 있다는
-          // 느낌만 전달한다.
+          // 느낌만 전달한다. object-contain이라 공유한 화면의 가로세로 비율이 그대로
+          // 유지된다(카드 칸과 비율이 다르면 위아래/좌우에 빈 여백이 생긴다).
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={shareFrame}
             alt=""
-            className="h-full w-full object-cover"
+            className="h-full w-full object-contain"
             style={{ imageRendering: "pixelated" }}
           />
         ) : avatarSrc ? (

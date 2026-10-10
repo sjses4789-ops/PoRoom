@@ -17,17 +17,14 @@ import { useTranslations } from "next-intl";
 // 그래서 긴 변 기준 칸 수(TARGET_CELLS)만 고정하고, 공유 시작 시
 // 트랙의 실제 가로세로 비율을 읽어 짧은 변 칸 수를 그 비율에 맞게
 // 계산한다(computeCaptureSize).
-// 22칸에서 40칸으로 올렸다: 글 내용은 읽을 수 없는 블록 크기(1920px 화면 기준 칸당 약 48px)를 유지하면서,
+// 22칸에서 40칸으로 올렸다: 글 내용은 읽을 수 없는 블록 크기(1920px 화면 기준 칸당 약 34px)를 유지하면서,
 // 타이핑으로 글이 늘어날 때 그 부분의 색 농도가 바뀌는 것이 보일 만큼만 더 잘게 나눈다.
-const TARGET_CELLS_LONG_SIDE = 40;
+const TARGET_CELLS_LONG_SIDE = 56;
 const CAPTURE_INTERVAL_MS = 2000;
 const JPEG_QUALITY = 0.7;
 
-function computeCaptureSize(track: MediaStreamTrack): { width: number; height: number } {
-  const settings = track.getSettings();
-  const srcWidth = settings.width || 16;
-  const srcHeight = settings.height || 9;
-  const aspect = srcWidth / srcHeight;
+function computeCaptureSize(srcWidth: number, srcHeight: number): { width: number; height: number } {
+  const aspect = (srcWidth || 16) / (srcHeight || 9);
   return aspect >= 1
     ? { width: TARGET_CELLS_LONG_SIDE, height: Math.max(1, Math.round(TARGET_CELLS_LONG_SIDE / aspect)) }
     : { width: Math.max(1, Math.round(TARGET_CELLS_LONG_SIDE * aspect)), height: TARGET_CELLS_LONG_SIDE };
@@ -94,17 +91,13 @@ export function useScreenShare(onFrame: (dataUrl: string) => void, onStop: () =>
       // 준비되는 대로 계속 시도하면 되므로 여기서 중단하지 않는다.
     }
 
-    // 공유한 창/화면의 실제 비율에 맞춰 캡처 해상도를 정한다 — 고정
-    // 크기로 늘였다 줄였다 하면 원본 비율과 달라져 이미지가 눌리거나
-    // 늘어나 보인다.
     const videoTrack = stream.getVideoTracks()[0];
-    const { width: captureWidth, height: captureHeight } = videoTrack
-      ? computeCaptureSize(videoTrack)
-      : { width: TARGET_CELLS_LONG_SIDE, height: Math.round(TARGET_CELLS_LONG_SIDE * (9 / 16)) };
+    const initial = videoTrack?.getSettings();
+    const initialSize = computeCaptureSize(initial?.width ?? 16, initial?.height ?? 9);
 
     const canvas = document.createElement("canvas");
-    canvas.width = captureWidth;
-    canvas.height = captureHeight;
+    canvas.width = initialSize.width;
+    canvas.height = initialSize.height;
     canvasRef.current = canvas;
     const ctx = canvas.getContext("2d");
     // 큰 화면을 작은 캔버스로 줄일 때 고품질 보간을 써야 칸 안의 글자 밀도가 평균 색으로 반영된다
@@ -113,7 +106,18 @@ export function useScreenShare(onFrame: (dataUrl: string) => void, onStop: () =>
 
     const captureFrame = () => {
       if (!ctx || !videoRef.current || videoRef.current.readyState < 2) return;
-      ctx.drawImage(videoRef.current, 0, 0, captureWidth, captureHeight);
+      // 공유 중 창 크기를 바꾸면 비율이 달라지므로, 매 프레임 실제 영상 크기를 읽어 캔버스 비율을
+      // 맞춘다 — 고정 크기에 그리면 화면이 눌리거나 늘어난다.
+      const { videoWidth, videoHeight } = videoRef.current;
+      if (videoWidth > 0 && videoHeight > 0) {
+        const size = computeCaptureSize(videoWidth, videoHeight);
+        if (canvas.width !== size.width || canvas.height !== size.height) {
+          canvas.width = size.width;
+          canvas.height = size.height;
+          ctx.imageSmoothingQuality = "high";
+        }
+      }
+      ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
       const dataUrl = canvas.toDataURL("image/jpeg", JPEG_QUALITY);
       setPreviewUrl(dataUrl);
       onFrameRef.current(dataUrl);
