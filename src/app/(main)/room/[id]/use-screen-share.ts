@@ -17,9 +17,11 @@ import { useTranslations } from "next-intl";
 // 그래서 긴 변 기준 칸 수(TARGET_CELLS)만 고정하고, 공유 시작 시
 // 트랙의 실제 가로세로 비율을 읽어 짧은 변 칸 수를 그 비율에 맞게
 // 계산한다(computeCaptureSize).
-const TARGET_CELLS_LONG_SIDE = 22;
+// 22칸에서 40칸으로 올렸다: 글 내용은 읽을 수 없는 블록 크기(1920px 화면 기준 칸당 약 48px)를 유지하면서,
+// 타이핑으로 글이 늘어날 때 그 부분의 색 농도가 바뀌는 것이 보일 만큼만 더 잘게 나눈다.
+const TARGET_CELLS_LONG_SIDE = 40;
 const CAPTURE_INTERVAL_MS = 2000;
-const JPEG_QUALITY = 0.6;
+const JPEG_QUALITY = 0.7;
 
 function computeCaptureSize(track: MediaStreamTrack): { width: number; height: number } {
   const settings = track.getSettings();
@@ -105,6 +107,9 @@ export function useScreenShare(onFrame: (dataUrl: string) => void, onStop: () =>
     canvas.height = captureHeight;
     canvasRef.current = canvas;
     const ctx = canvas.getContext("2d");
+    // 큰 화면을 작은 캔버스로 줄일 때 고품질 보간을 써야 칸 안의 글자 밀도가 평균 색으로 반영된다
+    // (기본값은 일부 픽셀만 건너뛰어 뽑아 글이 늘어나도 변화가 안 보일 수 있다).
+    if (ctx) ctx.imageSmoothingQuality = "high";
 
     const captureFrame = () => {
       if (!ctx || !videoRef.current || videoRef.current.readyState < 2) return;
