@@ -7,7 +7,16 @@ import { leaveRoom } from "@/lib/rooms";
 import { createClient } from "@/lib/supabase/client";
 import { usePomodoroContext } from "../../pomodoro-context";
 
-export function LeaveRoomButton({ roomId, selfId }: { roomId: string; selfId: string }) {
+export function LeaveRoomButton({
+  roomId,
+  selfId,
+  willDeleteRoom,
+}: {
+  roomId: string;
+  selfId: string;
+  // 내가 마지막 참여자라 나가면 방이 삭제되는 경우(상시방 제외).
+  willDeleteRoom: boolean;
+}) {
   const t = useTranslations("room.leaveRoomButton");
   const [pending, setPending] = useState(false);
   const router = useRouter();
@@ -17,7 +26,10 @@ export function LeaveRoomButton({ roomId, selfId }: { roomId: string; selfId: st
     <button
       disabled={pending}
       onClick={async () => {
-        if (!window.confirm(t("confirmLeave"))) return;
+        const message = willDeleteRoom ? `${t("confirmLeave")}
+
+${t("lastMemberWarning")}` : t("confirmLeave");
+        if (!window.confirm(message)) return;
         setPending(true);
 
         // let everyone else's participant card drop me immediately,

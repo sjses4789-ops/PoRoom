@@ -267,6 +267,7 @@
     "deleteEventConfirm": "Delete this event?"
   },
   "leaveRoomButton": {
+    "lastMemberWarning": "If you leave, this room will be blown up (deleted).",
     "confirmLeave": "Leave this room?",
     "leaving": "Leaving...",
     "leave": "Leave room"

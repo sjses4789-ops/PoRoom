@@ -523,7 +523,11 @@ export default async function RoomPage({
               bannedMembers={bannedMembers}
             />
           )}
-          <LeaveRoomButton roomId={room.id} selfId={user!.id} />
+          <LeaveRoomButton
+            roomId={room.id}
+            selfId={user!.id}
+            willDeleteRoom={!room.is_system && members.length <= 1}
+          />
         </div>
       </div>
 

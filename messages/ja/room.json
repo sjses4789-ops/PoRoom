@@ -267,6 +267,7 @@
     "deleteEventConfirm": "この予定を削除しますか？"
   },
   "leaveRoomButton": {
+    "lastMemberWarning": "退出するとルームが爆破(削除)されます。",
     "confirmLeave": "このルームを退出しますか?",
     "leaving": "退出中...",
     "leave": "ルームを退出"

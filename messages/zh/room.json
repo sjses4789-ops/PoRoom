@@ -267,6 +267,7 @@
     "deleteEventConfirm": "确定删除这个日程吗？"
   },
   "leaveRoomButton": {
+    "lastMemberWarning": "离开后,这个房间将被炸毁(删除)。",
     "confirmLeave": "要退出这个房间吗?",
     "leaving": "退出中...",
     "leave": "退出房间"

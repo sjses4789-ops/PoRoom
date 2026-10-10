@@ -152,6 +152,16 @@ export function useRoomPresence(
         .on("presence", { event: "sync" }, syncFromState)
         .on("presence", { event: "join" }, syncFromState)
         .on("presence", { event: "leave" }, syncFromState)
+        .on("broadcast", { event: "presence-left" }, ({ payload }) => {
+          // 상대가 이 방 페이지를 "나갔다"고 직접 알려 온 경우 — 유예 시간(PRESENCE_GRACE_MS) 동안 마지막
+          // 상태를 보여주지 않고 바로 비접속으로 바꾼다. (다른 탭에 아직 접속 중이면 live presence가
+          // 남아 있어서 그대로 접속으로 보인다.)
+          const { userId } = payload as { userId?: string };
+          if (!userId) return;
+          lastSeenAtRef.current.delete(userId);
+          lastKnownPayloadRef.current.delete(userId);
+          setTick((n) => n + 1);
+        })
         .on("broadcast", { event: "screen-frame" }, ({ payload }) => {
           const { userId, dataUrl } = payload as { userId: string; dataUrl: string };
           if (!userId || !dataUrl) return;
@@ -282,7 +292,25 @@ export function useRoomPresence(
     window.addEventListener("focus", onActive);
     window.addEventListener("blur", onInactive);
 
+    // 페이지를 나갈 때(SPA 이동·탭 닫기) 다른 참여자에게 "나갔다"고 직접 알린다. presence가 끊기는
+    // 것만으로는 보는 쪽이 일시적 끊김과 구분하지 못해 유예 시간 동안 접속 중으로 보여 주기 때문이다.
+    const announceLeave = () => {
+      if (!subscribedRef.current || !currentChannel) return;
+      currentChannel
+        .send({ type: "broadcast", event: "presence-left", payload: { userId: selfId } })
+        .catch(() => {});
+    };
+    const onPageHide = () => announceLeave();
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) hardReconnect();
+    };
+    window.addEventListener("pagehide", onPageHide);
+    window.addEventListener("pageshow", onPageShow);
+
     return () => {
+      announceLeave();
+      window.removeEventListener("pagehide", onPageHide);
+      window.removeEventListener("pageshow", onPageShow);
       cancelled = true;
       if (retrySubscribeId) clearTimeout(retrySubscribeId);
       clearInterval(tickId);

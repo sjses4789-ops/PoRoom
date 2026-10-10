@@ -89,6 +89,16 @@ export function useRoomPresence(roomId: string, selfId: string, selfName: string
         .on("presence", { event: "sync" }, syncFromState)
         .on("presence", { event: "join" }, syncFromState)
         .on("presence", { event: "leave" }, syncFromState)
+        .on("broadcast", { event: "presence-left" }, ({ payload }) => {
+          // 상대가 이 방 페이지를 "나갔다"고 직접 알려 온 경우 — 유예 시간(PRESENCE_GRACE_MS) 동안 마지막
+          // 상태를 보여주지 않고 바로 비접속으로 바꾼다. (다른 탭에 아직 접속 중이면 live presence가
+          // 남아 있어서 그대로 접속으로 보인다.)
+          const { userId } = payload as { userId?: string };
+          if (!userId) return;
+          lastSeenAtRef.current.delete(userId);
+          lastKnownPayloadRef.current.delete(userId);
+          setTick((n) => n + 1);
+        })
         .subscribe(async (status) => {
           if (cancelled) return;
           if (status === "SUBSCRIBED") {
@@ -147,6 +157,12 @@ export function useRoomPresence(roomId: string, selfId: string, selfName: string
       clearInterval(staleId);
       clearInterval(forceId);
       appStateSub.remove();
+      // 방을 나갈 때 다른 참여자에게 "나갔다"고 직접 알려 바로 비접속으로 보이게 한다.
+      if (subscribedRef.current && currentChannel) {
+        currentChannel
+          .send({ type: "broadcast", event: "presence-left", payload: { userId: selfId } })
+          .catch(() => {});
+      }
       if (currentChannel) supabase.removeChannel(currentChannel);
       channelRef.current = null;
     };
