@@ -72,6 +72,51 @@ export async function createNickname(
   return data;
 }
 
+// 만들어 둔 추가 닉네임의 이름을 고친다. 이미 그 닉네임을 쓰고 있는 방들(room_members.nickname에
+// 이름이 그대로 복사돼 있다)도 같이 새 이름으로 바꿔서, 방마다 따로 고르지 않아도 반영되게 한다.
+export async function updateNickname(
+  id: string,
+  raw: string
+): Promise<{ error: string } | { id: string; nickname: string }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "로그인이 필요합니다." };
+
+  const nickname = raw.trim();
+  if (!nickname) return { error: "닉네임을 입력해주세요." };
+  if (nickname.length > MAX_NICKNAME_LENGTH) {
+    return { error: `닉네임은 ${MAX_NICKNAME_LENGTH}자 이하로 입력해주세요.` };
+  }
+
+  const existing = await getMyNicknames();
+  const current = existing.find((n) => n.id === id);
+  if (!current) return { error: "존재하지 않는 닉네임이에요." };
+  if (current.nickname === nickname) return { id, nickname };
+  if (existing.some((n) => n.id !== id && n.nickname === nickname)) {
+    return { error: "이미 만들어 둔 닉네임이에요." };
+  }
+
+  // RLS가 막으면(정책 미적용 등) 오류 없이 0행만 바뀌므로, 실제로 바뀐 행이 있는지 확인한다.
+  const { data: updated, error } = await supabase
+    .from("user_nicknames")
+    .update({ nickname })
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .select("id");
+  if (error || !updated || updated.length === 0) return { error: "닉네임을 바꾸지 못했어요." };
+
+  await supabase
+    .from("room_members")
+    .update({ nickname })
+    .eq("user_id", user.id)
+    .eq("nickname", current.nickname);
+
+  revalidatePath("/me");
+  return { id, nickname };
+}
+
 // 이 방에서 쓸 닉네임을 정한다. nicknameId가 null이면 기본 닉네임을 쓴다.
 // (내가 만든 닉네임인지 서버에서 다시 확인한다 — 남의 닉네임 id로는 설정할 수 없다.)
 export async function setRoomNickname(

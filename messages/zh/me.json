@@ -22,6 +22,16 @@
     "challengeRecordSubtitle": "系统挑战参与/成功次数",
     "unknownRoom": "未知房间"
   },
+  "extraNicknames": {
+    "heading": "房间昵称",
+    "hint": "加入房间时可以用来代替默认昵称的昵称。包含默认昵称在内最多可以拥有{max}个。修改名称后,使用该昵称的房间会立即同步。",
+    "defaultBadge": "默认",
+    "emptyPlaceholder": "创建新昵称",
+    "editPlaceholder": "昵称",
+    "create": "创建",
+    "save": "修改",
+    "saving": "保存中..."
+  },
   "deleteAccount": {
     "trigger": "注销账户",
     "confirm1": "确定要注销账户吗？将退出您加入的所有房间，且记录、作品、聊天等所有账户数据都会被永久删除。",

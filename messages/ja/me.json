@@ -22,6 +22,16 @@
     "challengeRecordSubtitle": "システムチャレンジの参加・成功",
     "unknownRoom": "不明な部屋"
   },
+  "extraNicknames": {
+    "heading": "ルーム別ニックネーム",
+    "hint": "ルームに入るとき、基本ニックネームの代わりに選べるニックネームです。基本ニックネームを含めて最大{max}個まで作れます。名前を変えると、そのニックネームを使っているルームにもすぐ反映されます。",
+    "defaultBadge": "基本",
+    "emptyPlaceholder": "新しいニックネームを作成",
+    "editPlaceholder": "ニックネーム",
+    "create": "作成",
+    "save": "変更",
+    "saving": "保存中..."
+  },
   "deleteAccount": {
     "trigger": "退会する",
     "confirm1": "本当に退会しますか？参加中のすべてのルームから退出し、記録・作品・チャットなどのアカウントデータがすべて削除されます。",

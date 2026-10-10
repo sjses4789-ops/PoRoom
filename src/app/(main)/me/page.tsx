@@ -5,6 +5,8 @@ import { inPeriod, inRange } from "@/lib/records";
 import { computeStreakDays, attendedDatesFromLogs } from "@/lib/attendance";
 import { todayKst, dateInTimezone } from "@/lib/time";
 import { NicknameForm } from "@/components/nickname-form";
+import { getMyNicknames } from "@/lib/nicknames";
+import { ExtraNicknames } from "./extra-nicknames";
 import { PageAdRail } from "@/components/page-ad-rail";
 import { GoalPanel, type PeriodGoal, type PeriodProgress } from "./goal-panel";
 import { CharacterSection } from "./character-section";
@@ -118,6 +120,7 @@ export default async function MePage() {
     { data: siteTimeRows },
     { data: myAttendanceLogs },
     { data: dailyGoalRows },
+    myNicknames,
   ] = await Promise.all([
     myRoomIds.length
       ? supabase
@@ -203,6 +206,7 @@ export default async function MePage() {
       .eq("user_id", user.id)
       .order("effective_date", { ascending: true })
       .returns<{ effective_date: string; target_chars: number; target_minutes: number }[]>(),
+    getMyNicknames(),
   ]);
 
   // 관리자가 만든 "달성 여부" 임시 이벤트는 마일스톤 로그 대신
@@ -455,6 +459,7 @@ export default async function MePage() {
               redirectTo="/me"
               submitLabel={t("changeNicknameSubmit")}
             />
+            <ExtraNicknames defaultName={myProfile?.name ?? ""} initialNicknames={myNicknames} />
             <div className="mt-2">
               <PositionButton
                 initialPosition={

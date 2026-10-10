@@ -22,6 +22,16 @@
     "challengeRecordSubtitle": "System challenge participation / success",
     "unknownRoom": "Unknown room"
   },
+  "extraNicknames": {
+    "heading": "Room nicknames",
+    "hint": "Nicknames you can pick instead of your default one when joining a room. You can have up to {max} including the default. Renaming one updates every room that uses it.",
+    "defaultBadge": "Default",
+    "emptyPlaceholder": "Create a nickname",
+    "editPlaceholder": "Nickname",
+    "create": "Create",
+    "save": "Save",
+    "saving": "Saving..."
+  },
   "deleteAccount": {
     "trigger": "Delete account",
     "confirm1": "Are you sure you want to delete your account? You'll be removed from every room you're in, and all your data (records, works, chat, etc.) will be permanently deleted.",
