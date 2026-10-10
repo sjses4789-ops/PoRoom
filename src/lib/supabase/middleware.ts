@@ -70,6 +70,7 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/.well-known/") ||
     // 모바일 앱 전용 API — 로그인 리다이렉트(HTML) 대신 각 라우트가 직접 401을 돌려준다.
     request.nextUrl.pathname.startsWith("/api/app/") ||
+    request.nextUrl.pathname === "/api/perf-tmp" || // TEMP
     isGoogleVerificationFile;
 
   // ADSENSE_REVIEW_MODE 동안은 "/"와 같은 논리로, 로그인 리다이렉트를
