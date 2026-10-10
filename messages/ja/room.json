@@ -108,6 +108,10 @@
     }
   },
   "chatPanel": {
+    "clearButton": "初期化",
+    "clearTitle": "チャットを全削除(ルーム主)",
+    "clearConfirm": "このルームのチャットメッセージをすべて削除しますか?元に戻せません。",
+    "clearFailed": "チャットを初期化できませんでした。しばらくしてからもう一度お試しください。",
     "title": "チャット",
     "bubbleColorLabel": "吹き出しの色",
     "fontSizeDown": "文字を小さく",

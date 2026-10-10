@@ -108,6 +108,10 @@
     }
   },
   "chatPanel": {
+    "clearButton": "Reset",
+    "clearTitle": "Delete all chat messages (owner)",
+    "clearConfirm": "Delete every chat message in this room? This can't be undone.",
+    "clearFailed": "Couldn't reset the chat. Please try again in a moment.",
     "title": "Chat",
     "bubbleColorLabel": "Bubble color",
     "fontSizeDown": "Smaller text",

@@ -37,6 +37,7 @@ export function ChatPanel({
   members,
   initialMessages,
   canModerate,
+  isOwner,
   onActivity,
   collapsed,
   onToggleCollapsed,
@@ -46,6 +47,8 @@ export function ChatPanel({
   members: Member[];
   initialMessages: ChatMessage[];
   canModerate: boolean;
+  // 방장만 "채팅 초기화"(모든 메시지 삭제)를 쓸 수 있다.
+  isOwner: boolean;
   onActivity?: () => void;
   collapsed: boolean;
   onToggleCollapsed: () => void;
@@ -130,7 +133,9 @@ export function ChatPanel({
   useEffect(() => {
     const supabase = createClient();
     const roomChannel = supabase
-      .channel(`room-chat:${roomId}`)
+      // private: 방 참여자만 이 채널을 듣고 보낼 수 있다(realtime.messages RLS — 0061 마이그레이션).
+      // 공개 채널이면 anon 키와 방 id만 알아도 누구나 대화를 엿볼 수 있었다.
+      .channel(`room-chat:${roomId}`, { config: { private: true } })
       .on("broadcast", { event: "message" }, ({ payload }) => {
         const msg = payload as ChatMessage;
         setMessages((prev) => (prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]));
@@ -142,11 +147,17 @@ export function ChatPanel({
         const { id } = payload as { id: string };
         setMessages((prev) => prev.filter((m) => m.id !== id));
       })
+      .on("broadcast", { event: "clear" }, () => {
+        // 방장이 채팅을 초기화하면 전체 공개 메시지가 사라진다(내가 받은 귓속말은 DB에서도
+        // 방장 삭제 대상이라 함께 지워진다 — 새로고침하면 DB 기준으로 다시 맞춰진다).
+        setMessages([]);
+        setUnreadCount(0);
+      })
       .subscribe();
     channelRef.current = roomChannel;
 
     const inboxChannel = supabase
-      .channel(`whisper-inbox:${roomId}:${selfId}`)
+      .channel(`whisper-inbox:${roomId}:${selfId}`, { config: { private: true } })
       .on("broadcast", { event: "whisper" }, ({ payload }) => {
         const msg = payload as ChatMessage;
         setMessages((prev) => (prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]));
@@ -169,7 +180,7 @@ export function ChatPanel({
 
   const sendWhisperBroadcast = (targetUserId: string, message: ChatMessage) => {
     const supabase = createClient();
-    const channel = supabase.channel(`whisper-inbox:${roomId}:${targetUserId}`);
+    const channel = supabase.channel(`whisper-inbox:${roomId}:${targetUserId}`, { config: { private: true } });
     channel.subscribe((status) => {
       if (status === "SUBSCRIBED") {
         channel.send({ type: "broadcast", event: "whisper", payload: message });
@@ -211,6 +222,18 @@ export function ChatPanel({
     const supabase = createClient();
     await supabase.from("chat_messages").delete().eq("id", id);
     channelRef.current?.send({ type: "broadcast", event: "delete", payload: { id } });
+  };
+
+  const clearAll = async () => {
+    if (!window.confirm(t("clearConfirm"))) return;
+    const supabase = createClient();
+    const { error } = await supabase.from("chat_messages").delete().eq("room_id", roomId);
+    if (error) {
+      window.alert(t("clearFailed"));
+      return;
+    }
+    setMessages([]);
+    channelRef.current?.send({ type: "broadcast", event: "clear", payload: {} });
   };
 
   if (collapsed) {
@@ -278,6 +301,16 @@ export function ChatPanel({
           </div>
         </div>
         <div className="flex items-center gap-1.5">
+          {isOwner && (
+            <button
+              type="button"
+              onClick={clearAll}
+              title={t("clearTitle")}
+              className="rounded-md border border-neutral-200 px-2 py-1 text-[11px] text-red-500 transition hover:bg-red-50 dark:border-neutral-700 dark:hover:bg-neutral-800"
+            >
+              {t("clearButton")}
+            </button>
+          )}
           <span className="text-xs text-neutral-400">{t("bubbleColorLabel")}</span>
           <ChatColorPicker current={selfColor} onChange={setSelfColorOverride} />
         </div>

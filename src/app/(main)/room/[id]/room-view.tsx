@@ -384,6 +384,7 @@ export function RoomView({
             members={members}
             initialMessages={initialMessages}
             canModerate={canModerate}
+            isOwner={ownerId === selfId}
             onActivity={reportTyping}
             collapsed={chatCollapsed}
             onToggleCollapsed={() => setChatCollapsed((v) => !v)}

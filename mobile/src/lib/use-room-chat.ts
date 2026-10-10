@@ -60,7 +60,7 @@ export function useRoomChat(roomId: string, selfId: string, onIncoming?: () => v
       setMessages((prev) => (prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]));
 
     const roomChannel = supabase
-      .channel(`room-chat:${roomId}`)
+      .channel(`room-chat:${roomId}`, { config: { private: true } })
       .on("broadcast", { event: "message" }, ({ payload }) => {
         const msg = payload as ChatMessage;
         add(msg);
@@ -70,11 +70,12 @@ export function useRoomChat(roomId: string, selfId: string, onIncoming?: () => v
         const { id } = payload as { id: string };
         setMessages((prev) => prev.filter((m) => m.id !== id));
       })
+      .on("broadcast", { event: "clear" }, () => setMessages([]))
       .subscribe();
     channelRef.current = roomChannel;
 
     const inboxChannel = supabase
-      .channel(`whisper-inbox:${roomId}:${selfId}`)
+      .channel(`whisper-inbox:${roomId}:${selfId}`, { config: { private: true } })
       .on("broadcast", { event: "whisper" }, ({ payload }) => {
         add(payload as ChatMessage);
         onIncomingRef.current?.();
