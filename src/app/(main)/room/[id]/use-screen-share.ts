@@ -17,11 +17,13 @@ import { useTranslations } from "next-intl";
 // 그래서 긴 변 기준 칸 수(TARGET_CELLS)만 고정하고, 공유 시작 시
 // 트랙의 실제 가로세로 비율을 읽어 짧은 변 칸 수를 그 비율에 맞게
 // 계산한다(computeCaptureSize).
-// 22칸에서 40칸으로 올렸다: 글 내용은 읽을 수 없는 블록 크기(1920px 화면 기준 칸당 약 27px)를 유지하면서,
-// 타이핑으로 글이 늘어날 때 그 부분의 색 농도가 바뀌는 것이 보일 만큼만 더 잘게 나눈다.
-const TARGET_CELLS_LONG_SIDE = 72;
+// 칸 수는 "흐릿하게"가 아니라 "픽셀이 깨져 보이게" 하는 값이다. 72칸까지 올렸더니 카드(약 170~300px)
+// 안에서 칸이 3~4px라 부드러운 흐림처럼 보였다 — 칸 하나가 카드에서 6px 안팎의 또렷한 색 블록으로
+// 보이는 44칸으로 둔다. 글 내용은 읽을 수 없고, 타이핑으로 글이 늘면 그 부분 블록의 색 농도가 바뀐다.
+const TARGET_CELLS_LONG_SIDE = 44;
 const CAPTURE_INTERVAL_MS = 2000;
-const JPEG_QUALITY = 0.75;
+// JPEG는 8×8 블록 단위로 압축하며 경계를 번지게 해서 작은 이미지에서 흐려 보인다. 이미지가 수십
+// 픽셀짜리라 PNG도 용량이 수 KB뿐이므로, 블록 경계가 그대로 살아 있는 PNG로 보낸다.
 
 // 공유 중에는 방 탭이 보통 백그라운드(집필 프로그램이 앞)에 있는데, 브라우저는 숨겨진 탭의
 // setInterval을 1초 단위로, 5분쯤 지나면 분 단위로까지 늦춘다 — 그러면 프레임이 몇 초~1분에
@@ -224,7 +226,7 @@ export function useScreenShare(onFrame: (dataUrl: string) => void, onStop: () =>
         }
         ctx.drawImage(frame.image, 0, 0, canvas.width, canvas.height);
         frame.close?.();
-        const dataUrl = canvas.toDataURL("image/jpeg", JPEG_QUALITY);
+        const dataUrl = canvas.toDataURL("image/png");
         setPreviewUrl(dataUrl);
         onFrameRef.current(dataUrl);
       } finally {
