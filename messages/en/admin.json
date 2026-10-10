@@ -1,4 +1,5 @@
 {
+  "nicknamesLabel": "Extra nicknames",
   "title": "Admin",
   "fullBackupHeading": "Full data backup",
   "fullBackupHint": "This service is on the free plan, so there's no automatic backup. Click the button to download a JSON snapshot of all data (users, rooms, records, challenges, posts, etc.) as of right now. Worth doing every so often.",

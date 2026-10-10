@@ -1,4 +1,5 @@
 {
+  "nicknamesLabel": "附加昵称",
   "title": "管理员",
   "fullBackupHeading": "全部数据备份",
   "fullBackupHint": "本服务是免费方案，没有自动备份。点击按钮即可下载此刻的全部数据(会员、房间、记录、挑战、帖子等)的JSON文件。建议偶尔点一次保存。",

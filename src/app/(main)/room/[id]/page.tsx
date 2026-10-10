@@ -25,6 +25,8 @@ import {
 } from "./room-settings-button";
 import { getBannedMembers } from "@/lib/room-admin";
 import { LeaveRoomButton } from "./leave-room-button";
+import { RoomNickname } from "./room-nickname";
+import { getMyNicknames } from "@/lib/nicknames";
 import { SystemRoomLeaveGuard } from "./system-room-leave-guard";
 import { paletteDot } from "@/lib/palette";
 import { isCurrentUserAdmin } from "@/lib/admin";
@@ -50,6 +52,9 @@ type MemberRow = {
   share_records: boolean;
   last_seen_at: string | null;
   is_vice: boolean;
+  nickname: string | null;
+  nickname_set: boolean;
+  work_status: string | null;
   users: {
     name: string | null;
     email: string;
@@ -149,6 +154,7 @@ export default async function RoomPage({
     { data: room },
     { data: memberRows },
     isSiteAdmin,
+    myNicknames,
   ] = await Promise.all([
     supabase.auth.getUser(),
     supabase
@@ -162,11 +168,12 @@ export default async function RoomPage({
     supabase
       .from("room_members")
       .select(
-        "user_id,share_records,last_seen_at,is_vice,users(name,email,character_id,chat_color,work_status,position)"
+        "user_id,share_records,last_seen_at,is_vice,nickname,nickname_set,work_status,users(name,email,character_id,chat_color,position)"
       )
       .eq("room_id", id)
       .returns<MemberRow[]>(),
     isCurrentUserAdmin(),
+    getMyNicknames(),
   ]);
 
   // 애드센스 심사 기간 동안 목록 페이지([포룸])는 로그인 없이도 열어뒀지만,
@@ -184,7 +191,8 @@ export default async function RoomPage({
 
   const members: Member[] = (memberRows ?? []).map((m) => ({
     id: m.user_id,
-    name: m.users?.name || m.users?.email || tCommon("unknown"),
+    name: m.nickname || m.users?.name || m.users?.email || tCommon("unknown"),
+    nickname: m.nickname,
     characterId: m.users?.character_id ?? null,
     chatColor: m.users?.chat_color ?? null,
     recordsVisible:
@@ -192,7 +200,7 @@ export default async function RoomPage({
       m.user_id === user!.id ||
       (room.record_visibility === "free" && shareRecordsMap.get(m.user_id) === true),
     lastSeenLabel: formatRelativeTime(m.last_seen_at),
-    workStatus: m.users?.work_status ?? null,
+    workStatus: m.work_status ?? null,
     position: (m.users?.position === "webtoon" ? "webtoon" : "novelist") as
       | "novelist"
       | "webtoon",
@@ -205,6 +213,7 @@ export default async function RoomPage({
     members.filter((m) => m.recordsVisible).map((m) => m.id)
   );
   const selfMember = members.find((m) => m.id === user!.id);
+  const selfRow = (memberRows ?? []).find((m) => m.user_id === user!.id);
   const selfShareRecords = shareRecordsMap.get(user!.id) ?? true;
   // 웹툰 작가로 설정된 사용자는 상태 설정 목록과 작업 단위(글자수→컷수)
   // 표기가 달라진다 — 이건 방의 설정이 아니라 각자의 [개인] 직업
@@ -523,6 +532,13 @@ export default async function RoomPage({
               bannedMembers={bannedMembers}
             />
           )}
+          <RoomNickname
+            roomId={room.id}
+            defaultName={selfRow?.users?.name || selfRow?.users?.email || tCommon("unknown")}
+            currentNickname={selfRow?.nickname ?? null}
+            nicknameSet={selfRow?.nickname_set ?? true}
+            initialNicknames={myNicknames}
+          />
           <LeaveRoomButton
             roomId={room.id}
             selfId={user!.id}

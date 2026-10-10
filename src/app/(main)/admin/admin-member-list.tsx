@@ -10,6 +10,8 @@ export type AdminUserRow = {
   email: string;
   isBanned: boolean;
   position: "novelist" | "webtoon" | null;
+  // 방별로 쓰려고 만든 추가 닉네임(기본 닉네임은 name).
+  nicknames: string[];
 };
 
 // 이메일의 @ 앞부분(로컬 파트)만 가린다 — 도메인(gmail.com 등)은 그대로
@@ -35,7 +37,10 @@ export function AdminMemberList({ users, selfId }: { users: AdminUserRow[]; self
     const q = query.trim().toLowerCase();
     if (!q) return users;
     return users.filter(
-      (u) => (u.name ?? "").toLowerCase().includes(q) || u.email.toLowerCase().includes(q)
+      (u) =>
+        (u.name ?? "").toLowerCase().includes(q) ||
+        u.email.toLowerCase().includes(q) ||
+        u.nicknames.some((n) => n.toLowerCase().includes(q))
     );
   }, [users, query]);
 
@@ -71,6 +76,11 @@ export function AdminMemberList({ users, selfId }: { users: AdminUserRow[]; self
                   )}
                 </span>
                 <span className="min-w-0 truncate text-[11px] text-neutral-400">{maskEmail(u.email)}</span>
+                {u.nicknames.length > 0 && (
+                  <span className="min-w-0 truncate text-[11px] text-neutral-500 dark:text-neutral-400">
+                    {t("nicknamesLabel")}: {u.nicknames.join(", ")}
+                  </span>
+                )}
               </div>
               {u.id !== selfId && (
                 <AdminMemberBanButton userId={u.id} userName={u.name ?? maskEmail(u.email)} banned={u.isBanned} />
