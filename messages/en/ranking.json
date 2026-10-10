@@ -20,6 +20,11 @@
     "colDraws": "D"
   },
   "rankingTabs": {
+    "navDay": "{month}/{day}",
+    "navMonth": "{year}/{month}",
+    "navYear": "{year}",
+    "navPrev": "Previous",
+    "navNext": "Next",
     "heading": "Overall ranking",
     "scopeRoom": "Room",
     "scopeUser": "User",

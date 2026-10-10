@@ -28,6 +28,28 @@ const PERIODS: { key: Period; labelKey: "periodDay" | "periodMonth" | "periodYea
   { key: "year", labelKey: "periodYear" },
 ];
 
+function pad2(n: number) {
+  return String(n).padStart(2, "0");
+}
+
+// 기준 날짜(YYYY-MM-DD)를 기간 단위(일/월/연)만큼 옮긴다. 월·연 단위로 옮길 때 날짜가 그 달에
+// 없으면(예: 31일) 그 달의 마지막 날로 맞추고, 오늘을 넘어가지는 않는다.
+function shiftDate(date: string, period: Period, dir: 1 | -1, today: string) {
+  const [y, m, d] = date.split("-").map(Number);
+  let next: Date;
+  if (period === "day") {
+    next = new Date(y, m - 1, d + dir);
+  } else if (period === "month") {
+    const dim = new Date(y, m - 1 + dir + 1, 0).getDate();
+    next = new Date(y, m - 1 + dir, Math.min(d, dim));
+  } else {
+    const dim = new Date(y + dir, m, 0).getDate();
+    next = new Date(y + dir, m - 1, Math.min(d, dim));
+  }
+  const iso = `${next.getFullYear()}-${pad2(next.getMonth() + 1)}-${pad2(next.getDate())}`;
+  return iso > today ? today : iso;
+}
+
 export default function RankingTabs({
   records,
   roomNames,
@@ -55,6 +77,17 @@ export default function RankingTabs({
   const t = useTranslations("ranking.rankingTabs");
   const [scope, setScope] = useState<"room" | "user">("room");
   const [period, setPeriod] = useState<Period>("month");
+  // 보고 있는 날짜(일별이면 그 날, 월별이면 그 달, 연별이면 그 해) — 처음엔 오늘.
+  const [refDate, setRefDate] = useState(today);
+  const refLen = period === "day" ? 10 : period === "month" ? 7 : 4;
+  const atLatest = refDate.slice(0, refLen) >= today.slice(0, refLen);
+  const [refY, refM, refD] = refDate.split("-").map(Number);
+  const refLabel =
+    period === "day"
+      ? t("navDay", { month: refM, day: refD })
+      : period === "month"
+        ? t("navMonth", { year: refY, month: refM })
+        : t("navYear", { year: refY });
   const [expanded, setExpanded] = useState(false);
   const [position, setPosition] = useState(defaultPosition);
   const isWebtoon = position === "webtoon";
@@ -66,7 +99,7 @@ export default function RankingTabs({
   // 본인의 직업으로 거른다 — 같은 chars 컬럼이 직업마다 다른 단위(글자수/
   // 컷수)를 담고 있어서, 서로 섞이지 않게 항상 한쪽 직업만 보여준다.
   const filtered = records.filter((r) => {
-    if (!inPeriod(r.date, period, today)) return false;
+    if (!inPeriod(r.date, period, refDate)) return false;
     if (scope === "room") {
       if (!r.roomId) return false;
       const roomTarget = roomTargetPositions[r.roomId] ?? null;
@@ -98,7 +131,7 @@ export default function RankingTabs({
   // 전체 순위에서 나의 위치를 보여준다(단, 직업 토글은 그대로 따른다 —
   // 안 그러면 단위가 다른 값끼리 비교하게 된다).
   const periodFiltered = records.filter(
-    (r) => inPeriod(r.date, period, today) && (userPositions[r.userId] ?? "novelist") === position
+    (r) => inPeriod(r.date, period, refDate) && (userPositions[r.userId] ?? "novelist") === position
   );
   const userTotals = new Map<string, number>();
   for (const r of periodFiltered) {
@@ -147,6 +180,34 @@ export default function RankingTabs({
               {t(s.labelKey)}
             </button>
           ))}
+        </div>
+        <div className="flex items-center gap-1 text-[12px] text-neutral-500 dark:text-neutral-400">
+          <button
+            type="button"
+            onClick={() => {
+              setRefDate((d) => shiftDate(d, period, -1, today));
+              setExpanded(false);
+            }}
+            aria-label={t("navPrev")}
+            className="rounded-md px-1.5 py-1 transition hover:bg-neutral-100 dark:hover:bg-neutral-800"
+          >
+            {"<"}
+          </button>
+          <span className="min-w-[4.5rem] text-center font-medium text-neutral-700 dark:text-neutral-200">
+            {refLabel}
+          </span>
+          <button
+            type="button"
+            onClick={() => {
+              setRefDate((d) => shiftDate(d, period, 1, today));
+              setExpanded(false);
+            }}
+            disabled={atLatest}
+            aria-label={t("navNext")}
+            className="rounded-md px-1.5 py-1 transition hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-30 dark:hover:bg-neutral-800"
+          >
+            {">"}
+          </button>
         </div>
         <div className="flex gap-1">
           {PERIODS.map((p) => (

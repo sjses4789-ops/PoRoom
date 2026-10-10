@@ -20,6 +20,11 @@
     "colDraws": "平"
   },
   "rankingTabs": {
+    "navDay": "{month}月{day}日",
+    "navMonth": "{year}年{month}月",
+    "navYear": "{year}年",
+    "navPrev": "上一个",
+    "navNext": "下一个",
     "heading": "综合排行",
     "scopeRoom": "房间",
     "scopeUser": "个人",

@@ -20,6 +20,11 @@
     "colDraws": "무"
   },
   "rankingTabs": {
+    "navDay": "{month}월 {day}일",
+    "navMonth": "{year}년 {month}월",
+    "navYear": "{year}년",
+    "navPrev": "이전",
+    "navNext": "다음",
     "heading": "전체 랭킹",
     "scopeRoom": "방",
     "scopeUser": "개인",

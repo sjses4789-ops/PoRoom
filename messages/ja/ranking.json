@@ -20,6 +20,11 @@
     "colDraws": "分"
   },
   "rankingTabs": {
+    "navDay": "{month}月{day}日",
+    "navMonth": "{year}年{month}月",
+    "navYear": "{year}年",
+    "navPrev": "前へ",
+    "navNext": "次へ",
     "heading": "全体ランキング",
     "scopeRoom": "部屋",
     "scopeUser": "個人",
