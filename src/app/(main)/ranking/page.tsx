@@ -23,7 +23,30 @@ type DailyRecordRow = {
 type RoomRow = { id: string; name: string; target_position: string | null };
 type UserRow = { id: string; name: string | null; position: string | null };
 
+// 직업(웹소설/웹툰) 전환은 클라이언트가 이 목록을 걸러서 다시 순위를 매긴다. 서버에서 20명만
+// 남기면 한쪽 직업의 기록이 다른 직업 상위권에 밀려 통째로 사라지므로 넉넉히 둔다.
+const RANKING_ROW_CAP = 300;
+
 type ParticipantRow = { challenge_id: string; user_id: string | null };
+
+// PostgREST는 한 번에 최대 1000행까지만 돌려준다. 기록이 쌓이면 오래된 달의 기록이 조용히
+// 잘려 나가 지난 대결의 승패가 바뀌므로, 페이지 단위로 끝까지 읽는다.
+async function fetchAllDailyRecords(supabase: Awaited<ReturnType<typeof createClient>>) {
+  const PAGE = 1000;
+  const all: DailyRecordRow[] = [];
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await supabase
+      .from("daily_records")
+      .select("room_id,user_id,record_date,chars,focus_minutes")
+      .order("id")
+      .range(from, from + PAGE - 1)
+      .returns<DailyRecordRow[]>();
+    if (error || !data) return { data: all.length ? all : null };
+    all.push(...data);
+    if (data.length < PAGE) break;
+  }
+  return { data: all };
+}
 
 export default async function RankingPage() {
   const t = await getTranslations("ranking.page");
@@ -41,10 +64,7 @@ export default async function RankingPage() {
     { data: adminAchievementChallenges },
     { data: realTypingScoreRows },
   ] = await Promise.all([
-    supabase
-      .from("daily_records")
-      .select("room_id,user_id,record_date,chars,focus_minutes")
-      .returns<DailyRecordRow[]>(),
+    fetchAllDailyRecords(supabase),
     supabase.from("rooms").select("id,name,target_position").returns<RoomRow[]>(),
     // email은 여기서 같이 안 가져온다 — anon(비로그인) 롤은 email 컬럼
     // 권한이 없어서 같이 요청하면 쿼리 전체가 실패한다.
@@ -168,7 +188,7 @@ export default async function RankingPage() {
   const winLossRows: WinLossRow[] = Array.from(winLossByUser.entries())
     .map(([userId, rec]) => ({ userId, name: userNames[userId] ?? t("unknownUser"), ...rec }))
     .sort((a, b) => b.wins - a.wins || a.losses - b.losses)
-    .slice(0, 20)
+    .slice(0, RANKING_ROW_CAP)
     .map((r, i) => ({ rank: i + 1, ...r }));
 
   const challengeScoreByUser = computeChallengeScoreByUser(
@@ -185,7 +205,7 @@ export default async function RankingPage() {
       score,
     }))
     .sort((a, b) => b.score - a.score)
-    .slice(0, 20)
+    .slice(0, RANKING_ROW_CAP)
     .map((r, i) => ({ rank: i + 1, ...r }));
 
   const bestCpmByUser = new Map<string, number>();
@@ -195,7 +215,7 @@ export default async function RankingPage() {
   const typingRankingRows: TypingRankingRow[] = Array.from(bestCpmByUser.entries())
     .map(([userId, cpm]) => ({ userId, name: userNames[userId] ?? t("unknownUser"), cpm }))
     .sort((a, b) => b.cpm - a.cpm)
-    .slice(0, 20)
+    .slice(0, RANKING_ROW_CAP)
     .map((r, i) => ({ rank: i + 1, ...r }));
 
   return (
