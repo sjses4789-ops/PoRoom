@@ -81,6 +81,11 @@ export function useRoomPresence(
   // 상태를 보여주기 위한 캐시.
   const lastSeenAtRef = useRef<Map<string, number>>(new Map());
   const lastKnownPayloadRef = useRef<Map<string, PresencePayload>>(new Map());
+  // "나갔다"고 직접 알려 온 사람들. 나감 신호(broadcast)는 서버의 presence 해제 알림보다 먼저 도착하는
+  // 경우가 많은데, 그 사이에 다른 참여자의 상태 갱신(sync)이 오면 아직 목록에 남아 있는 이 사람이
+  // "방금 본 사람"으로 다시 기록되어 유예 시간 동안 접속 중으로 되살아났다. 이 집합에 들어 있는
+  // 동안은 presence에 남아 있어도 비접속으로 보고, 실제로 presence에서 사라지면 집합에서 뺀다.
+  const leftUsersRef = useRef<Set<string>>(new Set());
   // 예전엔 track() 호출들을 Promise 체인으로 직렬화했는데, 그중 하나가
   // 영원히 응답하지 않으면(채널이 조용히 죽어있는 등) 그 뒤로 큐에 걸린
   // 모든 track() — 타이핑/작업상태/뽀모도로 갱신 전부 — 가 그 자리에서
@@ -123,9 +128,14 @@ export function useRoomPresence(
         const latest = entries[entries.length - 1];
         if (latest) {
           next[key] = latest;
+          if (leftUsersRef.current.has(key)) continue;
           lastSeenAtRef.current.set(key, now);
           lastKnownPayloadRef.current.set(key, latest);
         }
+      }
+      // presence에서 실제로 사라진 사람은 "나감 표시"를 거둔다(다시 들어오면 정상적으로 접속 표시).
+      for (const key of Array.from(leftUsersRef.current)) {
+        if (!(key in next)) leftUsersRef.current.delete(key);
       }
       setPresenceMap(next);
     };
@@ -159,6 +169,10 @@ export function useRoomPresence(
           // 남아 있어서 그대로 접속으로 보인다.)
           const { userId } = payload as { userId?: string };
           if (!userId) return;
+          // 같은 사용자가 다른 탭/기기에서도 이 방에 접속 중이면(presence 항목이 2개 이상) 나간 게 아니다.
+          const metas = currentChannel?.presenceState<PresencePayload>()[userId];
+          if (metas && metas.length > 1) return;
+          leftUsersRef.current.add(userId);
           lastSeenAtRef.current.delete(userId);
           lastKnownPayloadRef.current.delete(userId);
           setTick((n) => n + 1);
@@ -367,6 +381,7 @@ export function useRoomPresence(
   // 빠지더라도 화면상으론 계속 접속 중인 것처럼 보이게 한다.
   const effectivePresence = useCallback(
     (userId: string): PresencePayload | null => {
+      if (leftUsersRef.current.has(userId)) return null;
       const live = presenceMap[userId];
       if (live) return live;
       const lastSeen = lastSeenAtRef.current.get(userId);

@@ -35,6 +35,8 @@ export function useRoomPresence(roomId: string, selfId: string, selfName: string
   const lastTrackedRef = useRef(0);
   const lastSeenAtRef = useRef<Map<string, number>>(new Map());
   const lastKnownPayloadRef = useRef<Map<string, PresencePayload>>(new Map());
+  // "나갔다"고 직접 알려 온 사람들(웹 훅의 leftUsersRef와 같은 이유) — presence에서 실제로 사라질 때까지 비접속으로 본다.
+  const leftUsersRef = useRef<Set<string>>(new Set());
   const selfPayloadRef = useRef<PresencePayload>({
     name: selfName,
     lastTypedAt: null,
@@ -69,9 +71,13 @@ export function useRoomPresence(roomId: string, selfId: string, selfName: string
         const latest = entries[entries.length - 1];
         if (latest) {
           next[key] = latest;
+          if (leftUsersRef.current.has(key)) continue;
           lastSeenAtRef.current.set(key, now);
           lastKnownPayloadRef.current.set(key, latest);
         }
+      }
+      for (const key of Array.from(leftUsersRef.current)) {
+        if (!(key in next)) leftUsersRef.current.delete(key);
       }
       setPresenceMap(next);
     };
@@ -95,6 +101,10 @@ export function useRoomPresence(roomId: string, selfId: string, selfName: string
           // 남아 있어서 그대로 접속으로 보인다.)
           const { userId } = payload as { userId?: string };
           if (!userId) return;
+          // 같은 사용자가 다른 탭/기기에서도 이 방에 접속 중이면(presence 항목이 2개 이상) 나간 게 아니다.
+          const metas = currentChannel?.presenceState<PresencePayload>()[userId];
+          if (metas && metas.length > 1) return;
+          leftUsersRef.current.add(userId);
           lastSeenAtRef.current.delete(userId);
           lastKnownPayloadRef.current.delete(userId);
           setTick((n) => n + 1);
@@ -194,6 +204,7 @@ export function useRoomPresence(roomId: string, selfId: string, selfName: string
 
   const effectivePresence = useCallback(
     (userId: string): PresencePayload | null => {
+      if (leftUsersRef.current.has(userId)) return null;
       const live = presenceMap[userId];
       if (live) return live;
       const lastSeen = lastSeenAtRef.current.get(userId);
