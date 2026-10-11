@@ -7,6 +7,7 @@ import { ADSENSE_REVIEW_MODE, TIER_BADGE_VISIBLE } from "@/lib/adsense-review-mo
 import { isAppRequest } from "@/lib/app-mode";
 import NavTabs from "./nav-tabs";
 import LogoutButton from "./logout-button";
+import { UsageGuideButton } from "./usage-guide-button";
 import { SiteFooter } from "./site-footer";
 import { PomodoroProvider } from "./pomodoro-context";
 import { PomodoroMiniWidget } from "./pomodoro-mini-widget";
@@ -98,6 +99,7 @@ export default async function MainLayout({
                 >
                   {profile.name}
                 </Link>
+                <UsageGuideButton />
                 <LogoutButton />
               </>
             ) : (
@@ -123,6 +125,7 @@ export default async function MainLayout({
               >
                 {profile.name}
               </Link>
+              <UsageGuideButton />
               <LogoutButton />
             </>
           ) : (

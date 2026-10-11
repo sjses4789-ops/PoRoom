@@ -1,0 +1,77 @@
+{
+  "button": "How to use",
+  "title": "How to use PoRoom",
+  "subtitle": "Screenshots show the real screens filled with sample data.",
+  "close": "Close",
+  "items": {
+    "main": {
+      "tab": "PoRoom",
+      "title": "[PoRoom] Find, create and join rooms",
+      "intro": "PoRoom is the home screen for finding, creating and entering rooms to focus in.",
+      "steps": [
+        "Deadline & Dawn rooms: always-open rooms for up to 50 people. Join with one button and focus together.",
+        "Create a room: pick a name, color, tags, record visibility and join type (invite code or open).",
+        "Join with an invite code: enter the 6-character code to get into a private room.",
+        "All / recommended rooms: filter by tag and join open rooms right away. Before entering, you can choose the nickname to use in that room.",
+        "My status: today's character count, attendance calendar, to-dos and this month's personal rank at a glance."
+      ]
+    },
+    "room": {
+      "tab": "Room",
+      "title": "[Room] A studio to focus together",
+      "intro": "Inside a room you get participant cards, chat, the Pomodoro timer and the character log on one screen.",
+      "steps": [
+        "Participant cards: see everyone's online status, focus/break and work status live. Turning on screen share shows your work screen as a pixelated mosaic, so the content stays hidden.",
+        "Pomodoro: set focus and break times and start. Your progress shows on your card, and the timer keeps running when you visit other pages.",
+        "Character log: set today's goal and enter your starting and current character counts. Webtoon artists add the number of cuts.",
+        "Chat: talk with the room and send whispers. The bubble color you pick also becomes your profile photo border. The owner can delete messages or reset the chat.",
+        "Records, Calendar, Polls, Board: the room's record table, schedule, polls, notices and posts.",
+        "Status & nickname: set your status (writing, revising...) and change the nickname you use in this room only."
+      ]
+    },
+    "feed": {
+      "tab": "Feed",
+      "title": "[Feed] Share today's news",
+      "intro": "A place to leave a short note about your day and cheer on other creators.",
+      "steps": [
+        "Post your day: add a short mood note; today's focus time and character count (cuts for webtoon) are filled in from your real records.",
+        "Browse by type: ALL, Work, Duel, Challenge, Submission and Contest tabs.",
+        "Cheer others: tap reactions on other posts to show support.",
+        "You can also share duel and challenge results, publisher submissions and contest news."
+      ]
+    },
+    "compete": {
+      "tab": "Compete",
+      "title": "[Compete] Duels and challenges",
+      "intro": "Keep goals going with duels and challenges.",
+      "steps": [
+        "Duels: compete over the same period by characters, cuts or work time. Join an open duel, create one with 'New duel', or join with an invite code.",
+        "Challenges: take on goals like writing 5,000 or 10,000 characters a day. They reset weekly or monthly on Korean time.",
+        "Duels and challenges you joined are listed at the top; past challenges appear under 'Ended challenges'.",
+        "Duel results are reflected in the duel win/loss ranking on [Ranking] after the period ends."
+      ]
+    },
+    "ranking": {
+      "tab": "Ranking",
+      "title": "[Ranking] See where you stand",
+      "intro": "Characters, work time, duels, challenges and typing speed — all rankings in one place.",
+      "steps": [
+        "Overall ranking: by room or by person, daily/monthly/yearly. Use the < > buttons to browse past dates.",
+        "Novel/Webtoon toggle: shown separately so characters and cuts never mix.",
+        "Duel win/loss, challenge and typing rankings are on the same screen.",
+        "Your rank and percentile appear in the bar at the bottom."
+      ]
+    },
+    "rest": {
+      "tab": "Rest",
+      "title": "[Rest] Take a break",
+      "intro": "Take a short break to practice typing or chat with other writers.",
+      "steps": [
+        "Typing practice: type along to see your speed and accuracy and keep your best record.",
+        "Choseong quiz & word chain: light games to clear your head.",
+        "Info board: read and share contests, writing tips and questions.",
+        "Recruit board: find writing partners or room members; you can link a post to your room."
+      ]
+    }
+  }
+}
