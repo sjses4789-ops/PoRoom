@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { AdSlot } from "@/components/ad-slot";
 import { ADS_VISIBLE } from "@/lib/adsense-review-mode";
-import { chatBubbleClass } from "@/lib/palette";
+import { chatBubbleClass, chatBorderClass } from "@/lib/palette";
 import { characterSrc } from "@/lib/characters";
 import { ChatColorPicker } from "./chat-color-picker";
 import { WhisperTargetPicker } from "./whisper-target-picker";
@@ -325,7 +325,14 @@ export function ChatPanel({
               key={m.id}
               className={`group flex items-end gap-1.5 text-sm ${isSelf ? "flex-row-reverse" : "flex-row"}`}
             >
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full border border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800">
+              <div
+                // 고른 말풍선 색이 프로필 사진 테두리색이 된다(안 골랐으면 기본 회색 테두리).
+                className={`flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-neutral-50 dark:bg-neutral-800 ${
+                  chatBorderClass(colorOf(m.userId))
+                    ? `border-2 ${chatBorderClass(colorOf(m.userId))}`
+                    : "border border-neutral-200 dark:border-neutral-700"
+                }`}
+              >
                 {avatarSrc ? (
                   <Image src={avatarSrc} alt="" width={28} height={28} className="h-full w-full object-cover" />
                 ) : (

@@ -53,12 +53,79 @@ export function rowColorByIndex(index: number) {
   return PALETTE[index % PALETTE.length].bg;
 }
 
+// 채팅 말풍선 색 팔레트 — 방/카테고리 색(PALETTE, 22색)과 따로 두고, 같은 색상에 연한 톤(기본)과 진한 톤
+// (-deep)을 모두 두어 선택지를 늘렸다(총 45색). 기존에 저장된 chat_color 값(예: "blue")은 그대로
+// 유효하다. 고른 색은 말풍선 배경이자 채팅 프로필 사진의 테두리색이 된다. Tailwind가 클래스를 알아보도록
+// 전부 문자열 그대로 적는다.
+export const CHAT_PALETTE = [
+  { key: "neutral", label: "회색", dot: "bg-neutral-500", bubble: "bg-neutral-100 text-neutral-900", border: "border-neutral-400" },
+  { key: "slate", label: "슬레이트", dot: "bg-slate-500", bubble: "bg-slate-100 text-neutral-900", border: "border-slate-400" },
+  { key: "zinc", label: "징크", dot: "bg-zinc-500", bubble: "bg-zinc-100 text-neutral-900", border: "border-zinc-400" },
+  { key: "stone", label: "스톤", dot: "bg-stone-500", bubble: "bg-stone-100 text-neutral-900", border: "border-stone-400" },
+  { key: "red", label: "빨강", dot: "bg-red-500", bubble: "bg-red-50 text-neutral-900", border: "border-red-400" },
+  { key: "rose", label: "장미", dot: "bg-rose-500", bubble: "bg-rose-50 text-neutral-900", border: "border-rose-400" },
+  { key: "pink", label: "분홍", dot: "bg-pink-500", bubble: "bg-pink-50 text-neutral-900", border: "border-pink-400" },
+  { key: "fuchsia", label: "자홍", dot: "bg-fuchsia-500", bubble: "bg-fuchsia-50 text-neutral-900", border: "border-fuchsia-400" },
+  { key: "purple", label: "보라", dot: "bg-purple-500", bubble: "bg-purple-50 text-neutral-900", border: "border-purple-400" },
+  { key: "violet", label: "바이올렛", dot: "bg-violet-500", bubble: "bg-violet-50 text-neutral-900", border: "border-violet-400" },
+  { key: "indigo", label: "인디고", dot: "bg-indigo-500", bubble: "bg-indigo-50 text-neutral-900", border: "border-indigo-400" },
+  { key: "blue", label: "파랑", dot: "bg-blue-500", bubble: "bg-blue-50 text-neutral-900", border: "border-blue-400" },
+  { key: "sky", label: "하늘", dot: "bg-sky-500", bubble: "bg-sky-50 text-neutral-900", border: "border-sky-400" },
+  { key: "cyan", label: "시안", dot: "bg-cyan-500", bubble: "bg-cyan-50 text-neutral-900", border: "border-cyan-400" },
+  { key: "teal", label: "청록", dot: "bg-teal-500", bubble: "bg-teal-50 text-neutral-900", border: "border-teal-400" },
+  { key: "emerald", label: "에메랄드", dot: "bg-emerald-500", bubble: "bg-emerald-50 text-neutral-900", border: "border-emerald-400" },
+  { key: "green", label: "초록", dot: "bg-green-500", bubble: "bg-green-50 text-neutral-900", border: "border-green-400" },
+  { key: "lime", label: "연두", dot: "bg-lime-500", bubble: "bg-lime-50 text-neutral-900", border: "border-lime-400" },
+  { key: "yellow", label: "노랑", dot: "bg-yellow-500", bubble: "bg-yellow-50 text-neutral-900", border: "border-yellow-400" },
+  { key: "amber", label: "호박", dot: "bg-amber-500", bubble: "bg-amber-50 text-neutral-900", border: "border-amber-400" },
+  { key: "orange", label: "주황", dot: "bg-orange-500", bubble: "bg-orange-50 text-neutral-900", border: "border-orange-400" },
+  { key: "gray", label: "그레이", dot: "bg-gray-500", bubble: "bg-gray-100 text-neutral-900", border: "border-gray-400" },
+  { key: "neutral-deep", label: "진한 회색", dot: "bg-neutral-600", bubble: "bg-neutral-200 text-neutral-900", border: "border-neutral-600" },
+  { key: "slate-deep", label: "진한 슬레이트", dot: "bg-slate-600", bubble: "bg-slate-200 text-neutral-900", border: "border-slate-600" },
+  { key: "zinc-deep", label: "진한 징크", dot: "bg-zinc-600", bubble: "bg-zinc-200 text-neutral-900", border: "border-zinc-600" },
+  { key: "stone-deep", label: "진한 스톤", dot: "bg-stone-600", bubble: "bg-stone-200 text-neutral-900", border: "border-stone-600" },
+  { key: "red-deep", label: "진한 빨강", dot: "bg-red-600", bubble: "bg-red-200 text-neutral-900", border: "border-red-600" },
+  { key: "rose-deep", label: "진한 장미", dot: "bg-rose-600", bubble: "bg-rose-200 text-neutral-900", border: "border-rose-600" },
+  { key: "pink-deep", label: "진한 분홍", dot: "bg-pink-600", bubble: "bg-pink-200 text-neutral-900", border: "border-pink-600" },
+  { key: "fuchsia-deep", label: "진한 자홍", dot: "bg-fuchsia-600", bubble: "bg-fuchsia-200 text-neutral-900", border: "border-fuchsia-600" },
+  { key: "purple-deep", label: "진한 보라", dot: "bg-purple-600", bubble: "bg-purple-200 text-neutral-900", border: "border-purple-600" },
+  { key: "violet-deep", label: "진한 바이올렛", dot: "bg-violet-600", bubble: "bg-violet-200 text-neutral-900", border: "border-violet-600" },
+  { key: "indigo-deep", label: "진한 인디고", dot: "bg-indigo-600", bubble: "bg-indigo-200 text-neutral-900", border: "border-indigo-600" },
+  { key: "blue-deep", label: "진한 파랑", dot: "bg-blue-600", bubble: "bg-blue-200 text-neutral-900", border: "border-blue-600" },
+  { key: "sky-deep", label: "진한 하늘", dot: "bg-sky-600", bubble: "bg-sky-200 text-neutral-900", border: "border-sky-600" },
+  { key: "cyan-deep", label: "진한 시안", dot: "bg-cyan-600", bubble: "bg-cyan-200 text-neutral-900", border: "border-cyan-600" },
+  { key: "teal-deep", label: "진한 청록", dot: "bg-teal-600", bubble: "bg-teal-200 text-neutral-900", border: "border-teal-600" },
+  { key: "emerald-deep", label: "진한 에메랄드", dot: "bg-emerald-600", bubble: "bg-emerald-200 text-neutral-900", border: "border-emerald-600" },
+  { key: "green-deep", label: "진한 초록", dot: "bg-green-600", bubble: "bg-green-200 text-neutral-900", border: "border-green-600" },
+  { key: "lime-deep", label: "진한 연두", dot: "bg-lime-600", bubble: "bg-lime-200 text-neutral-900", border: "border-lime-600" },
+  { key: "yellow-deep", label: "진한 노랑", dot: "bg-yellow-600", bubble: "bg-yellow-200 text-neutral-900", border: "border-yellow-600" },
+  { key: "amber-deep", label: "진한 호박", dot: "bg-amber-600", bubble: "bg-amber-200 text-neutral-900", border: "border-amber-600" },
+  { key: "orange-deep", label: "진한 주황", dot: "bg-orange-600", bubble: "bg-orange-200 text-neutral-900", border: "border-orange-600" },
+  { key: "gray-deep", label: "진한 그레이", dot: "bg-gray-600", bubble: "bg-gray-200 text-neutral-900", border: "border-gray-600" },
+  { key: "black", label: "검정", dot: "bg-neutral-900", bubble: "bg-neutral-900 text-white", border: "border-neutral-900" },
+] as const;
+
+const CHAT_BY_KEY = new Map<string, (typeof CHAT_PALETTE)[number]>(CHAT_PALETTE.map((p) => [p.key, p]));
+
+export function chatDot(key: string) {
+  return (CHAT_BY_KEY.get(key) ?? CHAT_PALETTE[0]).dot;
+}
+
+// 채팅 프로필 사진 테두리 — 색을 고르지 않았으면 null(기본 회색 테두리를 그대로 쓴다).
+export function chatBorderClass(key: string | null | undefined) {
+  if (!key) return null;
+  return CHAT_BY_KEY.get(key)?.border ?? null;
+}
+
 // chat bubble styling — a chosen color always wins; otherwise fall back to
 // the original neutral look (dark for me, light gray for everyone else).
 // bubble backgrounds are fixed light pastels/grays regardless of theme, so
 // the text stays dark in both themes — flipping it white in dark mode
 // would make it unreadable against the still-light bubble.
 export function chatBubbleClass(colorKey: string | null | undefined, isSelf: boolean) {
-  if (colorKey) return `${paletteBg(colorKey)} text-neutral-900`;
+  if (colorKey) {
+    const chat = CHAT_BY_KEY.get(colorKey);
+    return chat ? chat.bubble : `${paletteBg(colorKey)} text-neutral-900`;
+  }
   return isSelf ? "bg-neutral-900 text-white" : "bg-neutral-100 text-neutral-800";
 }

@@ -10,6 +10,7 @@ import LogoutButton from "./logout-button";
 import { SiteFooter } from "./site-footer";
 import { PomodoroProvider } from "./pomodoro-context";
 import { PomodoroMiniWidget } from "./pomodoro-mini-widget";
+import { PomodoroAwayKeeper } from "./pomodoro-away-keeper";
 import { SiteTimeTracker } from "./site-time-tracker";
 import { TimezoneSync } from "./timezone-sync";
 import { TierBadgeButton } from "./tier-badge-button";
@@ -138,6 +139,7 @@ export default async function MainLayout({
       <main className="flex-1 px-4 py-6 sm:px-6 md:px-8 md:py-8">{children}</main>
       {!inApp && <SiteFooter />}
       <PomodoroMiniWidget />
+      <PomodoroAwayKeeper />
       <SiteTimeTracker />
       <TimezoneSync />
     </div>

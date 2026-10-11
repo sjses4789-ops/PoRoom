@@ -13,6 +13,7 @@ import { CharInput } from "./char-input";
 import { sumTotals, type DailyRecord } from "@/lib/records";
 import { recordChars, touchLastSeen, setWorkStatus, type RecordVisibility } from "@/lib/rooms";
 import { effectiveRecordDate, toLocalDateKey } from "@/lib/time";
+import { clearStatusBeforeAway, readStatusBeforeAway } from "@/lib/auto-away";
 import { RichContent } from "@/components/rich-content";
 import { useCelebrationToast } from "@/components/celebration-toast";
 import { useTodayCharsSync } from "./today-chars-sync";
@@ -128,6 +129,16 @@ export function RoomView({
     updateSelfWorkStatus(status);
     setWorkStatus(roomId, status);
   };
+
+  // 뽀모도로를 켜 둔 채 다른 페이지에 있는 동안 자동으로 "자리 비움/휴식 중"으로 바뀌었다면(PomodoroAwayKeeper),
+  // 방 페이지로 돌아온 지금 원래 상태로 되돌린다.
+  useEffect(() => {
+    const saved = readStatusBeforeAway(roomId);
+    if (saved === null) return;
+    clearStatusBeforeAway(roomId);
+    handleChangeWorkStatus(saved || null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roomId]);
 
   // any keystroke anywhere on the room page counts as activity, not just
   // the chat/char inputs — a browser tab can't see keystrokes made in

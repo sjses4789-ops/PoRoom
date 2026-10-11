@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { PALETTE, paletteDot } from "@/lib/palette";
+import { CHAT_PALETTE, chatDot } from "@/lib/palette";
 import { setChatColor } from "@/lib/profile";
 
 export function ChatColorPicker({
@@ -22,7 +22,7 @@ export function ChatColorPicker({
         onClick={() => setOpen((v) => !v)}
         title={t("myChatColor")}
         className={`h-7 w-7 shrink-0 rounded-full border border-neutral-200 transition hover:opacity-80 ${
-          current ? paletteDot(current) : "bg-neutral-200"
+          current ? chatDot(current) : "bg-neutral-200"
         }`}
       />
       {open && (
@@ -31,12 +31,12 @@ export function ChatColorPicker({
             onClick={() => setOpen(false)}
             className="fixed inset-0 z-10 bg-neutral-900/20"
           />
-          <div className="fixed left-1/2 top-1/2 z-20 w-[min(18rem,calc(100vw-2.5rem))] -translate-x-1/2 -translate-y-1/2 rounded-md border border-neutral-300 bg-white p-3 shadow-lg dark:border-neutral-700 dark:bg-neutral-900">
+          <div className="fixed left-1/2 top-1/2 z-20 max-h-[80vh] w-[min(20rem,calc(100vw-2.5rem))] overflow-y-auto -translate-x-1/2 -translate-y-1/2 rounded-md border border-neutral-300 bg-white p-3 shadow-lg dark:border-neutral-700 dark:bg-neutral-900">
             <p className="mb-2 text-xs font-medium text-neutral-500 dark:text-neutral-400">
               {t("myChatColor")}
             </p>
             <div className="flex flex-wrap gap-1.5">
-              {PALETTE.map((p) => (
+              {CHAT_PALETTE.map((p) => (
                 <button
                   key={p.key}
                   type="button"
@@ -46,7 +46,7 @@ export function ChatColorPicker({
                     await setChatColor(p.key);
                   }}
                   title={p.label}
-                  className={`h-6 w-6 rounded-full ${paletteDot(p.key)} transition ${
+                  className={`h-6 w-6 rounded-full ${p.dot} transition ${
                     current === p.key
                       ? "ring-2 ring-neutral-900 ring-offset-2"
                       : "opacity-70 hover:opacity-100"

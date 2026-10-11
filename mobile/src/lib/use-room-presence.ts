@@ -18,7 +18,9 @@ const FORCE_RECONNECT_INTERVAL_MS = 60 * 1000;
 export type PomodoroPhase = "focus" | "break" | "idle";
 export type PresenceStatus = "offline" | "typing" | "idle";
 
-type PresencePayload = {
+export type PresencePayload = {
+  // 이 접속(탭/연결) 하나를 구분하는 값 — "나갔다" 신호가 그 접속에만 적용되게 한다.
+  sessionId?: string;
   name: string;
   lastTypedAt: number | null;
   pomodoroPhase: PomodoroPhase;
@@ -36,7 +38,9 @@ export function useRoomPresence(roomId: string, selfId: string, selfName: string
   const lastSeenAtRef = useRef<Map<string, number>>(new Map());
   const lastKnownPayloadRef = useRef<Map<string, PresencePayload>>(new Map());
   // "나갔다"고 직접 알려 온 사람들(웹 훅의 leftUsersRef와 같은 이유) — presence에서 실제로 사라질 때까지 비접속으로 본다.
-  const leftUsersRef = useRef<Set<string>>(new Set());
+  const leftUsersRef = useRef<Map<string, string | null>>(new Map());
+  // 이 훅 인스턴스(= 한 번의 방 입장)의 접속 구분값.
+  const sessionIdRef = useRef<string>((globalThis.crypto?.randomUUID?.() ?? String(Math.random())));
   const selfPayloadRef = useRef<PresencePayload>({
     name: selfName,
     lastTypedAt: null,
@@ -45,6 +49,7 @@ export function useRoomPresence(roomId: string, selfId: string, selfName: string
     pomodoroElapsedFraction: 0,
     pomodoroSnapshotAt: 0,
     pomodoroDurationSeconds: 0,
+    sessionId: sessionIdRef.current,
   });
   const [, setTick] = useState(0);
 
@@ -71,12 +76,20 @@ export function useRoomPresence(roomId: string, selfId: string, selfName: string
         const latest = entries[entries.length - 1];
         if (latest) {
           next[key] = latest;
-          if (leftUsersRef.current.has(key)) continue;
+          // 나갔다고 알린 그 접속이 아니라 새 접속(예: 다른 페이지에서 이어받은 접속)이면 표시를 푼다.
+          if (leftUsersRef.current.has(key)) {
+            const leftSession = leftUsersRef.current.get(key);
+            if (leftSession && latest.sessionId && latest.sessionId !== leftSession) {
+              leftUsersRef.current.delete(key);
+            } else {
+              continue;
+            }
+          }
           lastSeenAtRef.current.set(key, now);
           lastKnownPayloadRef.current.set(key, latest);
         }
       }
-      for (const key of Array.from(leftUsersRef.current)) {
+      for (const key of Array.from(leftUsersRef.current.keys())) {
         if (!(key in next)) leftUsersRef.current.delete(key);
       }
       setPresenceMap(next);
@@ -99,12 +112,12 @@ export function useRoomPresence(roomId: string, selfId: string, selfName: string
           // 상대가 이 방 페이지를 "나갔다"고 직접 알려 온 경우 — 유예 시간(PRESENCE_GRACE_MS) 동안 마지막
           // 상태를 보여주지 않고 바로 비접속으로 바꾼다. (다른 탭에 아직 접속 중이면 live presence가
           // 남아 있어서 그대로 접속으로 보인다.)
-          const { userId } = payload as { userId?: string };
+          const { userId, sessionId } = payload as { userId?: string; sessionId?: string };
           if (!userId) return;
           // 같은 사용자가 다른 탭/기기에서도 이 방에 접속 중이면(presence 항목이 2개 이상) 나간 게 아니다.
           const metas = currentChannel?.presenceState<PresencePayload>()[userId];
           if (metas && metas.length > 1) return;
-          leftUsersRef.current.add(userId);
+          leftUsersRef.current.set(userId, sessionId ?? null);
           lastSeenAtRef.current.delete(userId);
           lastKnownPayloadRef.current.delete(userId);
           setTick((n) => n + 1);
@@ -170,7 +183,7 @@ export function useRoomPresence(roomId: string, selfId: string, selfName: string
       // 방을 나갈 때 다른 참여자에게 "나갔다"고 직접 알려 바로 비접속으로 보이게 한다.
       if (subscribedRef.current && currentChannel) {
         currentChannel
-          .send({ type: "broadcast", event: "presence-left", payload: { userId: selfId } })
+          .send({ type: "broadcast", event: "presence-left", payload: { userId: selfId, sessionId: sessionIdRef.current } })
           .catch(() => {});
       }
       if (currentChannel) supabase.removeChannel(currentChannel);
@@ -204,8 +217,11 @@ export function useRoomPresence(roomId: string, selfId: string, selfName: string
 
   const effectivePresence = useCallback(
     (userId: string): PresencePayload | null => {
-      if (leftUsersRef.current.has(userId)) return null;
       const live = presenceMap[userId];
+      if (leftUsersRef.current.has(userId)) {
+        const leftSession = leftUsersRef.current.get(userId);
+        if (!(leftSession && live?.sessionId && live.sessionId !== leftSession)) return null;
+      }
       if (live) return live;
       const lastSeen = lastSeenAtRef.current.get(userId);
       if (lastSeen && Date.now() - lastSeen < PRESENCE_GRACE_MS) {
