@@ -82,7 +82,7 @@ const structuredData = {
       "@type": "Organization",
       "@id": `${SITE_URL}/#organization`,
       name: SITE_NAME,
-      alternateName: "포룸",
+      alternateName: ["포룸", "ポルーム", "PoRoom Pomodoro"],
       url: SITE_URL,
       logo: `${SITE_URL}/poroom-icon.png`,
     },
@@ -92,7 +92,7 @@ const structuredData = {
       name: SITE_NAME,
       url: SITE_URL,
       publisher: { "@id": `${SITE_URL}/#organization` },
-      inLanguage: "ko",
+      inLanguage: ["ko", "en", "ja", "zh"],
     },
   ],
 };
