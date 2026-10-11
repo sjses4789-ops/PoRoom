@@ -38,6 +38,14 @@ export async function unblockUser(blockedId: string): Promise<{ error: string } 
   return null;
 }
 
+// 나를 차단한 사람들의 id(0067) — 그 사람들의 채팅을 내 화면에서 거르는 데만 쓴다. 테이블/함수가 아직 없으면
+// 빈 목록으로 본다.
+export async function getBlockerIds(): Promise<string[]> {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("my_blockers");
+  return Array.isArray(data) ? (data as string[]) : [];
+}
+
 // 신고 — 관리자 페이지에서만 볼 수 있다. 같은 사람을 여러 번 신고해도 각각 기록된다.
 export async function reportUser(
   reportedId: string,

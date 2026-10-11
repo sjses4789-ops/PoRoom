@@ -289,6 +289,10 @@
     "close": "Close"
   },
   "participantMenu": {
+    "blockedListLink": "{count} blocked participant(s)",
+    "blockedListTitle": "Blocked participants",
+    "blockedListHint": "Blocked participants are hidden from your list and you can't see each other's chat. Unblock to show them again.",
+    "close": "Close",
     "note": "Send note",
     "block": "Block",
     "unblock": "Unblock",

@@ -289,6 +289,10 @@
     "close": "关闭"
   },
   "participantMenu": {
+    "blockedListLink": "已屏蔽的参与者 {count} 人",
+    "blockedListTitle": "已屏蔽的参与者",
+    "blockedListHint": "被屏蔽的参与者会从参与者列表中隐藏,双方都看不到对方的聊天。取消屏蔽后会重新显示。",
+    "close": "关闭",
     "note": "发送纸条",
     "block": "屏蔽",
     "unblock": "取消屏蔽",

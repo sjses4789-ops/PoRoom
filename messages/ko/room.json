@@ -289,6 +289,10 @@
     "close": "닫기"
   },
   "participantMenu": {
+    "blockedListLink": "차단한 참여자 {count}명",
+    "blockedListTitle": "차단한 참여자",
+    "blockedListHint": "차단한 참여자는 참여자 목록에서 숨겨지고, 서로의 채팅이 보이지 않아요. 차단을 풀면 다시 보여요.",
+    "close": "닫기",
     "note": "쪽지 보내기",
     "block": "차단",
     "unblock": "차단 해제",

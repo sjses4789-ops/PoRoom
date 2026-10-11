@@ -9,7 +9,8 @@ import { useLiveMembers } from "./use-live-members";
 import { ParticipantCard, type ParticipantData } from "./participant-card";
 import { ParticipantContextMenu, ReportDialog, type MenuTarget } from "./participant-menu";
 import { banMember } from "@/lib/room-admin";
-import { blockUser, reportUser, unblockUser } from "@/lib/safety";
+import { blockUser, getBlockerIds, reportUser, unblockUser } from "@/lib/safety";
+import { BlockedListDialog } from "./blocked-list-dialog";
 import { NoteDialog } from "@/components/note-dialog";
 import { sendNote } from "@/lib/notes";
 import { ChatPanel, type ChatMessage, type LatestNotice } from "./chat-panel";
@@ -68,8 +69,10 @@ export function RoomView({
   selfMonthChars,
   selfPosition,
   initialBlockedIds,
+  initialBlockedByIds,
 }: {
   initialBlockedIds: string[];
+  initialBlockedByIds: string[];
   roomId: string;
   roomName: string;
   isSystemRoom: boolean;
@@ -100,6 +103,17 @@ export function RoomView({
   const tMenu = useTranslations("room.participantMenu");
   // 참여자 카드 우클릭 메뉴(차단·신고·방에서 내보내기)
   const [blockedIds, setBlockedIds] = useState<string[]>(initialBlockedIds);
+  // 나를 차단한 사람들 — 그 사람들의 채팅은 내 화면에서 보이지 않는다(내가 차단한 사람과 같은 방식).
+  const [blockedByIds, setBlockedByIds] = useState<string[]>(initialBlockedByIds);
+  const [blockedListOpen, setBlockedListOpen] = useState(false);
+  useEffect(() => {
+    // 방에 머무는 동안 새로 나를 차단한 사람이 생길 수 있어 30초마다 다시 확인한다.
+    const id = setInterval(async () => {
+      if (document.visibilityState !== "visible") return;
+      setBlockedByIds(await getBlockerIds());
+    }, 30_000);
+    return () => clearInterval(id);
+  }, []);
   const [menu, setMenu] = useState<MenuTarget | null>(null);
   const [reportTarget, setReportTarget] = useState<{ id: string; name: string } | null>(null);
   const [noteTarget, setNoteTarget] = useState<{ id: string; name: string } | null>(null);
@@ -345,7 +359,10 @@ export function RoomView({
 
   const participants: ParticipantData[] = [selfParticipant, ...otherParticipants];
 
-  const onlineCount = participants.filter((p) => p.presence !== "offline").length;
+  // 내가 차단한 참여자는 내 참여자 목록과 접속 인원에서 숨긴다(내 화면 기준).
+  const visibleParticipants = participants.filter((p) => p.isSelf || !blockedIds.includes(p.id));
+  const onlineCount = visibleParticipants.filter((p) => p.presence !== "offline").length;
+  const blockedMembers = members.filter((m) => blockedIds.includes(m.id));
   const [noticeOpen, setNoticeOpen] = useState(false);
   const [chatCollapsed, setChatCollapsed] = useState(false);
 
@@ -410,7 +427,7 @@ export function RoomView({
             initialMessages={initialMessages}
             canModerate={canModerate}
             isOwner={ownerId === selfId}
-            blockedIds={blockedIds}
+            blockedIds={[...blockedIds, ...blockedByIds]}
             onActivity={reportTyping}
             collapsed={chatCollapsed}
             onToggleCollapsed={() => setChatCollapsed((v) => !v)}
@@ -492,7 +509,7 @@ export function RoomView({
             </>
           )}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 2xl:grid-cols-4">
-            {participants.map((p) => (
+            {visibleParticipants.map((p) => (
               <div
                 key={p.id}
                 onContextMenu={(e) => {
@@ -501,8 +518,6 @@ export function RoomView({
                   e.preventDefault();
                   setMenu({ id: p.id, name: p.name, x: e.clientX, y: e.clientY });
                 }}
-                className={blockedIds.includes(p.id) ? "opacity-50" : undefined}
-                title={blockedIds.includes(p.id) ? tMenu("blockedHint") : undefined}
               >
               <ParticipantCard
                 data={p}
@@ -527,6 +542,29 @@ export function RoomView({
           <p className="text-[12px] text-neutral-400">
             {t("onlineCount", { count: onlineCount })}
           </p>
+          {blockedMembers.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setBlockedListOpen(true)}
+              className="self-start text-[12px] text-neutral-400 underline-offset-2 hover:text-neutral-600 hover:underline dark:hover:text-neutral-300"
+            >
+              {tMenu("blockedListLink", { count: blockedMembers.length })}
+            </button>
+          )}
+          {blockedListOpen && blockedMembers.length > 0 && (
+            <BlockedListDialog
+              members={blockedMembers.map((m) => ({ id: m.id, name: m.name }))}
+              onClose={() => setBlockedListOpen(false)}
+              onUnblock={async (id) => {
+                setBlockedIds((prev) => prev.filter((x) => x !== id));
+                const error = await unblockUser(id);
+                if (error) {
+                  setBlockedIds((prev) => [...prev, id]);
+                  window.alert(error.error);
+                }
+              }}
+            />
+          )}
           {menu && (
             <ParticipantContextMenu
               target={menu}

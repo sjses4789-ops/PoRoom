@@ -289,6 +289,10 @@
     "close": "閉じる"
   },
   "participantMenu": {
+    "blockedListLink": "ブロック中の参加者 {count}人",
+    "blockedListTitle": "ブロック中の参加者",
+    "blockedListHint": "ブロックした参加者は参加者一覧から隠れ、お互いのチャットが見えなくなります。解除すると再び表示されます。",
+    "close": "閉じる",
     "note": "メモを送る",
     "block": "ブロック",
     "unblock": "ブロック解除",

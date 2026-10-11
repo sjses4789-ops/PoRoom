@@ -156,6 +156,7 @@ export default async function RoomPage({
     isSiteAdmin,
     myNicknames,
     { data: blockRows },
+    { data: blockerRows },
   ] = await Promise.all([
     supabase.auth.getUser(),
     supabase
@@ -177,6 +178,8 @@ export default async function RoomPage({
     getMyNicknames(),
     // 내가 차단한 참여자(0065) — 아직 테이블이 없어도 방은 정상적으로 열린다.
     supabase.from("user_blocks").select("blocked_id").returns<{ blocked_id: string }[]>(),
+    // 나를 차단한 사람들(0067) — 그 사람들의 채팅도 내 화면에서 숨긴다.
+    supabase.rpc("my_blockers"),
   ]);
 
   // 애드센스 심사 기간 동안 목록 페이지([포룸])는 로그인 없이도 열어뒀지만,
@@ -571,6 +574,7 @@ export default async function RoomPage({
             capacity={room.capacity}
             initialMessages={initialMessages}
             initialBlockedIds={(blockRows ?? []).map((b) => b.blocked_id)}
+            initialBlockedByIds={Array.isArray(blockerRows) ? (blockerRows as string[]) : []}
             canModerate={canModerateChat}
             latestNotice={latestNotice}
             dailyRecords={dailyRecords}
