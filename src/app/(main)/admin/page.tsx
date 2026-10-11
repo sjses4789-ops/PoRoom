@@ -7,8 +7,9 @@ import { AdminEventDeleteButton } from "./admin-event-delete-button";
 import { AdminEventEditButton } from "./admin-event-edit-button";
 import { AdminRoomDeleteButton } from "./admin-room-delete-button";
 import { AdminMemberList, type AdminUserRow } from "./admin-member-list";
-import { PublishInfoPostsButton } from "./publish-info-posts-button";
-import { ADMIN_INFO_POSTS } from "@/lib/admin-info-posts";
+import { AdminReportList, type AdminReport } from "./admin-report-list";
+import { RichContent } from "@/components/rich-content";
+import Link from "next/link";
 
 type RoomRow = { id: string; name: string; is_system: boolean; created_at: string };
 type MemberRow = { room_id: string };
@@ -40,7 +41,15 @@ export default async function AdminPage() {
     data: { user: self },
   } = await supabase.auth.getUser();
 
-  const [{ data: rooms }, { data: memberships }, { data: events }, { data: users }, { data: nicknameRows }] =
+  const [
+    { data: rooms },
+    { data: memberships },
+    { data: events },
+    { data: users },
+    { data: nicknameRows },
+    { data: reportRows },
+    { data: feedbackRows },
+  ] =
     await Promise.all([
       supabase
         .from("rooms")
@@ -65,7 +74,44 @@ export default async function AdminPage() {
         .select("user_id,nickname")
         .order("created_at", { ascending: true })
         .returns<{ user_id: string; nickname: string }[]>(),
+      // 참여자 신고(0065) — 관리자만 읽을 수 있다. 테이블이 없으면 빈 목록으로 보인다.
+      supabase
+        .from("user_reports")
+        .select("id,reporter_id,reported_id,room_id,reason,resolved,created_at")
+        .order("created_at", { ascending: false })
+        .returns<
+          {
+            id: string;
+            reporter_id: string;
+            reported_id: string;
+            room_id: string | null;
+            reason: string;
+            resolved: boolean;
+            created_at: string;
+          }[]
+        >(),
+      // [기능 제안 & 버그 신고] 글 — 비밀글이라 관리자(와 작성자)만 읽는다(0064).
+      supabase
+        .from("feedback_posts")
+        .select("id,user_id,category,title,content,created_at")
+        .order("created_at", { ascending: false })
+        .limit(100)
+        .returns<
+          { id: string; user_id: string; category: "suggestion" | "bug"; title: string; content: string; created_at: string }[]
+        >(),
     ]);
+
+  const displayName = new Map((users ?? []).map((u) => [u.id, u.name || u.email]));
+  const roomName = new Map((rooms ?? []).map((r) => [r.id, r.name]));
+  const reports: AdminReport[] = (reportRows ?? []).map((r) => ({
+    id: r.id,
+    reportedName: displayName.get(r.reported_id) ?? "알 수 없음",
+    reporterName: displayName.get(r.reporter_id) ?? "알 수 없음",
+    roomName: r.room_id ? (roomName.get(r.room_id) ?? "삭제된 방") : null,
+    reason: r.reason,
+    createdAt: r.created_at,
+    resolved: r.resolved,
+  }));
 
   const nicknamesByUser = new Map<string, string[]>();
   for (const n of nicknameRows ?? []) {
@@ -98,12 +144,53 @@ export default async function AdminPage() {
       </section>
 
       <section className="flex flex-col gap-3 rounded-md border border-neutral-200 p-4 dark:border-neutral-700">
-        <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">정보 게시판 운영자 글 게시</h2>
+        <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">참여자 신고</h2>
         <p className="text-xs text-neutral-400">
-          준비된 운영자 글 {ADMIN_INFO_POSTS.length}편(팁&노하우·공모전·질문·기타)을 지금 로그인한 관리자 계정으로 [휴식]-정보
-          게시판에 올립니다. 같은 제목의 글이 이미 있으면 건너뛰므로 여러 번 눌러도 중복되지 않습니다.
+          방 참여자 카드에서 접수된 신고예요. 신고 대상의 계정 차단은 아래 회원 목록에서 할 수 있어요.
         </p>
-        <PublishInfoPostsButton total={ADMIN_INFO_POSTS.length} />
+        <AdminReportList reports={reports} />
+      </section>
+
+      <section className="flex flex-col gap-3 rounded-md border border-neutral-200 p-4 dark:border-neutral-700">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
+            기능 제안 & 버그 신고 ({(feedbackRows ?? []).length}건)
+          </h2>
+          <Link href="/feedback" className="text-xs text-neutral-500 underline hover:text-neutral-900 dark:hover:text-white">
+            답글 달러 가기
+          </Link>
+        </div>
+        <p className="text-xs text-neutral-400">비밀글로 접수된 글이에요. 최근 100건까지 보여 줘요.</p>
+        {(feedbackRows ?? []).length === 0 ? (
+          <p className="text-xs text-neutral-400">접수된 글이 없습니다.</p>
+        ) : (
+          <ul className="flex max-h-[28rem] flex-col gap-2 overflow-y-auto">
+            {(feedbackRows ?? []).map((p) => (
+              <li key={p.id} className="rounded-md border border-neutral-200 dark:border-neutral-700">
+                <details className="group">
+                  <summary className="flex cursor-pointer flex-wrap items-center gap-x-2 gap-y-0.5 px-3 py-2 text-[13px]">
+                    <span
+                      className={`rounded-full px-1.5 py-0.5 text-[10px] font-medium ${
+                        p.category === "bug"
+                          ? "bg-red-100 text-red-600 dark:bg-red-950 dark:text-red-400"
+                          : "bg-blue-100 text-blue-600 dark:bg-blue-950 dark:text-blue-400"
+                      }`}
+                    >
+                      {p.category === "bug" ? "버그 신고" : "기능 제안"}
+                    </span>
+                    <span className="font-medium text-neutral-900 dark:text-white">{p.title}</span>
+                    <span className="text-[12px] text-neutral-400">
+                      · {displayName.get(p.user_id) ?? "알 수 없음"} · {new Date(p.created_at).toLocaleString("ko-KR")}
+                    </span>
+                  </summary>
+                  <div className="border-t border-neutral-100 px-3 py-3 text-sm dark:border-neutral-800">
+                    <RichContent content={p.content} />
+                  </div>
+                </details>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
 
       <section className="flex flex-col gap-4">

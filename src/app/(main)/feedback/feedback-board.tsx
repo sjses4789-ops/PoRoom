@@ -126,7 +126,10 @@ export function FeedbackBoard({
   return (
     <div className="flex flex-col gap-4 border border-neutral-400 p-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">전체 {posts.length}건</h2>
+        <h2 className="flex items-center gap-1.5 text-sm font-semibold text-neutral-900 dark:text-white">
+          <span aria-hidden title="비밀글">🔒</span>
+          {isAdmin ? `전체 ${posts.length}건` : `내가 남긴 글 ${posts.length}건`}
+        </h2>
         <button
           onClick={() => setWriting((v) => !v)}
           className="rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-neutral-700"

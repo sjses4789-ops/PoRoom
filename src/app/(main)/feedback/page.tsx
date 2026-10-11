@@ -80,7 +80,7 @@ export default async function FeedbackPage() {
           기능 제안 & 버그 신고
         </h1>
         <p className="mt-1 text-sm text-neutral-500">
-          PoRoom을 더 좋게 만들 아이디어나 발견한 버그를 자유롭게 남겨주세요.
+          PoRoom을 더 좋게 만들 아이디어나 발견한 버그를 자유롭게 남겨주세요. 남긴 글은 비밀글로 등록되어 작성자 본인과 관리자만 볼 수 있어요.
         </p>
       </div>
       <FeedbackBoard

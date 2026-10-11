@@ -7,7 +7,6 @@ import { ADSENSE_REVIEW_MODE, TIER_BADGE_VISIBLE } from "@/lib/adsense-review-mo
 import { isAppRequest } from "@/lib/app-mode";
 import NavTabs from "./nav-tabs";
 import LogoutButton from "./logout-button";
-import { UsageGuideButton } from "./usage-guide-button";
 import { SiteFooter } from "./site-footer";
 import { PomodoroProvider } from "./pomodoro-context";
 import { PomodoroMiniWidget } from "./pomodoro-mini-widget";
@@ -92,7 +91,6 @@ export default async function MainLayout({
           <div className="flex items-center gap-3 text-sm text-neutral-500 dark:text-neutral-400 md:hidden">
             {profile ? (
               <>
-                <UsageGuideButton />
                 {TIER_BADGE_VISIBLE && <TierBadgeButton isPremium={profile.is_premium} />}
                 <Link
                   href="/me"
@@ -118,7 +116,6 @@ export default async function MainLayout({
         <div className="hidden items-center gap-3 text-sm text-neutral-500 dark:text-neutral-400 md:flex">
           {profile ? (
             <>
-              <UsageGuideButton />
               {TIER_BADGE_VISIBLE && <TierBadgeButton isPremium={profile.is_premium} />}
               <Link
                 href="/me"

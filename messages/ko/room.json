@@ -288,6 +288,24 @@
     "inUse": "사용 중",
     "close": "닫기"
   },
+  "participantMenu": {
+    "block": "차단",
+    "unblock": "차단 해제",
+    "report": "신고",
+    "kick": "방에서 내보내기(방 차단)",
+    "kickConfirm": "\"{name}\" 님을 이 방에서 내보내고 다시 들어오지 못하게 할까요?",
+    "blockedHint": "내가 차단한 참여자예요(채팅이 숨겨져요)"
+  },
+  "reportDialog": {
+    "title": "{name} 님 신고",
+    "hint": "신고 이유를 자세히 적어 주세요. 관리자만 확인하고, 신고한 사람이 누구인지는 상대에게 알려지지 않아요.",
+    "placeholder": "어떤 점이 문제였는지 적어 주세요",
+    "submit": "신고하기",
+    "sending": "보내는 중...",
+    "cancel": "취소",
+    "close": "닫기",
+    "sent": "신고가 접수되었어요. 확인 후 조치할게요."
+  },
   "leaveRoomButton": {
     "lastMemberWarning": "방을 나가시면 방이 폭파됩니다.",
     "confirmLeave": "이 방에서 나가시겠어요?",

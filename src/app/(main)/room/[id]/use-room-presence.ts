@@ -89,7 +89,7 @@ export function useRoomPresence(
   // 동안은 presence에 남아 있어도 비접속으로 보고, 실제로 presence에서 사라지면 집합에서 뺀다.
   const leftUsersRef = useRef<Map<string, string | null>>(new Map());
   // 이 훅 인스턴스(= 한 번의 방 입장)의 접속 구분값.
-  const sessionIdRef = useRef<string>((globalThis.crypto?.randomUUID?.() ?? String(Math.random())));
+  const sessionIdRef = useRef<string>("");
   // 예전엔 track() 호출들을 Promise 체인으로 직렬화했는데, 그중 하나가
   // 영원히 응답하지 않으면(채널이 조용히 죽어있는 등) 그 뒤로 큐에 걸린
   // 모든 track() — 타이핑/작업상태/뽀모도로 갱신 전부 — 가 그 자리에서
@@ -110,7 +110,6 @@ export function useRoomPresence(
     // 실제 값은 최초로 setPomodoroState가 불릴 때 채워진다.
     pomodoroSnapshotAt: 0,
     pomodoroDurationSeconds: 0,
-    sessionId: sessionIdRef.current,
   });
   const [, setTick] = useState(0);
 
@@ -118,6 +117,11 @@ export function useRoomPresence(
     const supabase = createClient();
     let cancelled = false;
     let retrySubscribeId: ReturnType<typeof setTimeout> | null = null;
+    // 접속(탭/연결) 구분값은 렌더 중이 아니라 여기서 한 번 만든다.
+    if (!sessionIdRef.current) {
+      sessionIdRef.current = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
+      selfPayloadRef.current = { ...selfPayloadRef.current, sessionId: sessionIdRef.current };
+    }
     let currentChannel: RealtimeChannel | null = null;
     let lastSyncEventAt = Date.now();
     let hiddenSince: number | null = null;

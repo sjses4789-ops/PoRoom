@@ -288,6 +288,24 @@
     "inUse": "使用中",
     "close": "关闭"
   },
+  "participantMenu": {
+    "block": "屏蔽",
+    "unblock": "取消屏蔽",
+    "report": "举报",
+    "kick": "移出房间(房间封禁)",
+    "kickConfirm": "要将“{name}”移出本房间并禁止其再次加入吗?",
+    "blockedHint": "你已屏蔽该参与者(其聊天已隐藏)"
+  },
+  "reportDialog": {
+    "title": "举报 {name}",
+    "hint": "请详细描述问题。只有管理员可以查看,被举报的人不会知道是谁举报的。",
+    "placeholder": "请描述具体问题",
+    "submit": "提交举报",
+    "sending": "发送中...",
+    "cancel": "取消",
+    "close": "关闭",
+    "sent": "已收到举报,我们会确认后处理。"
+  },
   "leaveRoomButton": {
     "lastMemberWarning": "离开后,这个房间将被炸毁(删除)。",
     "confirmLeave": "要退出这个房间吗?",

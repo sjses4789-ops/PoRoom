@@ -7,6 +7,9 @@ import { useRoomPresence } from "./use-room-presence";
 import { useScreenShare } from "./use-screen-share";
 import { useLiveMembers } from "./use-live-members";
 import { ParticipantCard, type ParticipantData } from "./participant-card";
+import { ParticipantContextMenu, ReportDialog, type MenuTarget } from "./participant-menu";
+import { banMember } from "@/lib/room-admin";
+import { blockUser, reportUser, unblockUser } from "@/lib/safety";
 import { ChatPanel, type ChatMessage, type LatestNotice } from "./chat-panel";
 import { PomodoroPanel } from "./pomodoro-panel";
 import { CharInput } from "./char-input";
@@ -62,7 +65,9 @@ export function RoomView({
   selfMonthGoalChars,
   selfMonthChars,
   selfPosition,
+  initialBlockedIds,
 }: {
+  initialBlockedIds: string[];
   roomId: string;
   roomName: string;
   isSystemRoom: boolean;
@@ -90,6 +95,11 @@ export function RoomView({
   // 소유) — 웹툰 작가는 컷수 입력이라 안 쓰이지만 항상 넘겨받는다.
 }) {
   const t = useTranslations("room.roomView");
+  const tMenu = useTranslations("room.participantMenu");
+  // 참여자 카드 우클릭 메뉴(차단·신고·방에서 내보내기)
+  const [blockedIds, setBlockedIds] = useState<string[]>(initialBlockedIds);
+  const [menu, setMenu] = useState<MenuTarget | null>(null);
+  const [reportTarget, setReportTarget] = useState<{ id: string; name: string } | null>(null);
   const { toast: celebrationToast, celebrate } = useCelebrationToast();
   // 이번 달 글자수는 화면에 직접 렌더링하지 않고 목표 달성 감지에만
   // 쓰므로, 리렌더를 유발하지 않는 ref로 들고 있는다.
@@ -397,6 +407,7 @@ export function RoomView({
             initialMessages={initialMessages}
             canModerate={canModerate}
             isOwner={ownerId === selfId}
+            blockedIds={blockedIds}
             onActivity={reportTyping}
             collapsed={chatCollapsed}
             onToggleCollapsed={() => setChatCollapsed((v) => !v)}
@@ -479,8 +490,18 @@ export function RoomView({
           )}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 2xl:grid-cols-4">
             {participants.map((p) => (
-              <ParticipantCard
+              <div
                 key={p.id}
+                onContextMenu={(e) => {
+                  // 내 카드에는 메뉴가 없다. (전역 우클릭 방지와 별개로 이 카드 위에서만 자체 메뉴를 띄운다.)
+                  if (p.isSelf) return;
+                  e.preventDefault();
+                  setMenu({ id: p.id, name: p.name, x: e.clientX, y: e.clientY });
+                }}
+                className={blockedIds.includes(p.id) ? "opacity-50" : undefined}
+                title={blockedIds.includes(p.id) ? tMenu("blockedHint") : undefined}
+              >
+              <ParticipantCard
                 data={p}
                 onChangeWorkStatus={p.isSelf ? handleChangeWorkStatus : undefined}
                 selfPosition={selfPosition}
@@ -497,11 +518,52 @@ export function RoomView({
                       }
                 }
               />
+              </div>
             ))}
           </div>
           <p className="text-[12px] text-neutral-400">
             {t("onlineCount", { count: onlineCount })}
           </p>
+          {menu && (
+            <ParticipantContextMenu
+              target={menu}
+              isBlocked={blockedIds.includes(menu.id)}
+              canKick={!isSystemRoom && ownerId === selfId}
+              onClose={() => setMenu(null)}
+              onToggleBlock={async () => {
+                const target = menu;
+                setMenu(null);
+                const blocked = blockedIds.includes(target.id);
+                // 낙관적으로 먼저 바꾸고, 실패하면 되돌린다.
+                setBlockedIds((prev) => (blocked ? prev.filter((id) => id !== target.id) : [...prev, target.id]));
+                const error = blocked ? await unblockUser(target.id) : await blockUser(target.id);
+                if (error) {
+                  setBlockedIds((prev) => (blocked ? [...prev, target.id] : prev.filter((id) => id !== target.id)));
+                  window.alert(error.error);
+                }
+              }}
+              onReport={() => {
+                setReportTarget({ id: menu.id, name: menu.name });
+                setMenu(null);
+              }}
+              onKick={async () => {
+                const target = menu;
+                setMenu(null);
+                if (!window.confirm(tMenu("kickConfirm", { name: target.name }))) return;
+                await banMember(roomId, target.id);
+              }}
+            />
+          )}
+          {reportTarget && (
+            <ReportDialog
+              targetName={reportTarget.name}
+              onClose={() => setReportTarget(null)}
+              onSubmit={async (reason) => {
+                const result = await reportUser(reportTarget.id, roomId, reason);
+                return "error" in result ? result.error : null;
+              }}
+            />
+          )}
         </div>
 
         <div className="flex flex-col gap-4 lg:order-3">

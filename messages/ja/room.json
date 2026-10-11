@@ -288,6 +288,24 @@
     "inUse": "使用中",
     "close": "閉じる"
   },
+  "participantMenu": {
+    "block": "ブロック",
+    "unblock": "ブロック解除",
+    "report": "通報",
+    "kick": "ルームから退出させる(ルームブロック)",
+    "kickConfirm": "「{name}」さんをこのルームから退出させ、再入室できないようにしますか?",
+    "blockedHint": "ブロック中の参加者です(チャットが非表示になります)"
+  },
+  "reportDialog": {
+    "title": "{name}さんを通報",
+    "hint": "問題の内容を詳しく書いてください。管理者だけが確認し、通報した人が誰かは相手に知らされません。",
+    "placeholder": "どんな点が問題だったか書いてください",
+    "submit": "通報する",
+    "sending": "送信中...",
+    "cancel": "キャンセル",
+    "close": "閉じる",
+    "sent": "通報を受け付けました。確認のうえ対応します。"
+  },
   "leaveRoomButton": {
     "lastMemberWarning": "退出するとルームが爆破(削除)されます。",
     "confirmLeave": "このルームを退出しますか?",

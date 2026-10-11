@@ -38,6 +38,7 @@ export function ChatPanel({
   initialMessages,
   canModerate,
   isOwner,
+  blockedIds,
   onActivity,
   collapsed,
   onToggleCollapsed,
@@ -49,6 +50,8 @@ export function ChatPanel({
   canModerate: boolean;
   // 방장만 "채팅 초기화"(모든 메시지 삭제)를 쓸 수 있다.
   isOwner: boolean;
+  // 내가 차단한 참여자 — 그 사람의 메시지(귓속말 포함)는 내 화면에서 숨긴다.
+  blockedIds: string[];
   onActivity?: () => void;
   collapsed: boolean;
   onToggleCollapsed: () => void;
@@ -316,7 +319,9 @@ export function ChatPanel({
         </div>
       </div>
       <div ref={listRef} className="chat-scroll flex-1 space-y-3 overflow-y-auto px-4 py-3">
-        {messages.map((m) => {
+        {messages
+          .filter((m) => !blockedIds.includes(m.userId))
+          .map((m) => {
           const isSelf = m.userId === selfId;
           const canDelete = isSelf || canModerate;
           const avatarSrc = characterSrc(characterIdOf(m.userId));

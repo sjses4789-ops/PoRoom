@@ -288,6 +288,24 @@
     "inUse": "In use",
     "close": "Close"
   },
+  "participantMenu": {
+    "block": "Block",
+    "unblock": "Unblock",
+    "report": "Report",
+    "kick": "Remove from room (room ban)",
+    "kickConfirm": "Remove \"{name}\" from this room and stop them from rejoining?",
+    "blockedHint": "You blocked this participant (their chat is hidden)"
+  },
+  "reportDialog": {
+    "title": "Report {name}",
+    "hint": "Please describe the problem in detail. Only administrators can see it, and the person you report won't know who reported them.",
+    "placeholder": "Describe what the problem was",
+    "submit": "Submit report",
+    "sending": "Sending...",
+    "cancel": "Cancel",
+    "close": "Close",
+    "sent": "Your report was received. We'll review it and take action."
+  },
   "leaveRoomButton": {
     "lastMemberWarning": "If you leave, this room will be blown up (deleted).",
     "confirmLeave": "Leave this room?",

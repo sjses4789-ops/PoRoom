@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { UsageGuideFooterLink } from "./usage-guide";
 
 export async function SiteFooter() {
   const t = await getTranslations("layout.footer");
@@ -34,12 +35,11 @@ export async function SiteFooter() {
             {t("writingApp")}
           </a>
           <span aria-hidden>·</span>
-          <Link
-            href="/guide"
+          {/* 누르면 [포룸]·[방]·[피드]·[도전]·[랭킹]·[휴식] 사용 방법 안내창이 뜬다. */}
+          <UsageGuideFooterLink
+            label={t("usageGuide")}
             className="hover:text-neutral-600 hover:underline dark:hover:text-neutral-300"
-          >
-            {t("guide")}
-          </Link>
+          />
           <span aria-hidden>·</span>
           <Link
             href="/about"

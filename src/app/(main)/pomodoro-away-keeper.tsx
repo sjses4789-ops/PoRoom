@@ -27,7 +27,10 @@ export function PomodoroAwayKeeper() {
   const tStatus = useTranslations("room.workStatusPicker.presets");
 
   const roomId = pomodoro.activeRoomId;
-  const active = !!roomId && pomodoro.started;
+  // 접속 중으로 보이는 경우: (1) 그 방 페이지에 있을 때(방 화면이 직접 접속을 맡는다), (2) 그 방에서 뽀모도로를
+  // "실행 중"이면서 poroom의 다른 페이지에 있을 때(이 컴포넌트가 대신 붙어 있는다). 일시정지·정지 상태로
+  // 방을 떠나면 비접속이다.
+  const active = !!roomId && pomodoro.started && pomodoro.running;
   const awayRoomId = active && pathname !== `/room/${roomId}` ? roomId : null;
   const statusKey: "away" | "resting" =
     pomodoro.running && pomodoro.phase === "focus" ? "away" : "resting";
