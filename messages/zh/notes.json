@@ -1,0 +1,21 @@
+{
+  "compose": {
+    "title": "给 {name} 发送纸条",
+    "placeholder": "请输入纸条内容",
+    "send": "发送",
+    "sending": "发送中...",
+    "cancel": "取消",
+    "close": "关闭",
+    "sent": "纸条已发送。"
+  },
+  "inbox": {
+    "title": "收到的纸条",
+    "close": "关闭",
+    "loading": "加载中...",
+    "empty": "还没有收到纸条。",
+    "selectHint": "在左侧列表中选择纸条即可查看内容。",
+    "reply": "回复",
+    "delete": "删除",
+    "deleteConfirm": "要删除这条纸条吗?"
+  }
+}

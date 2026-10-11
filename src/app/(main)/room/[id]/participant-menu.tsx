@@ -11,6 +11,7 @@ export function ParticipantContextMenu({
   target,
   isBlocked,
   canKick,
+  onNote,
   onToggleBlock,
   onReport,
   onKick,
@@ -19,6 +20,7 @@ export function ParticipantContextMenu({
   target: MenuTarget;
   isBlocked: boolean;
   canKick: boolean;
+  onNote: () => void;
   onToggleBlock: () => void;
   onReport: () => void;
   onKick: () => void;
@@ -74,6 +76,9 @@ export function ParticipantContextMenu({
         <p className="truncate border-b border-neutral-100 px-3 py-1.5 text-[11px] font-medium text-neutral-400 dark:border-neutral-800">
           {target.name}
         </p>
+        <button type="button" role="menuitem" className={itemClass} onClick={onNote}>
+          {t("note")}
+        </button>
         <button type="button" role="menuitem" className={itemClass} onClick={onToggleBlock}>
           {isBlocked ? t("unblock") : t("block")}
         </button>

@@ -1,0 +1,21 @@
+{
+  "compose": {
+    "title": "{name} 님에게 쪽지",
+    "placeholder": "쪽지 내용을 적어 주세요",
+    "send": "보내기",
+    "sending": "보내는 중...",
+    "cancel": "취소",
+    "close": "닫기",
+    "sent": "쪽지를 보냈어요."
+  },
+  "inbox": {
+    "title": "받은 쪽지",
+    "close": "닫기",
+    "loading": "불러오는 중...",
+    "empty": "받은 쪽지가 없어요.",
+    "selectHint": "왼쪽 목록에서 쪽지를 선택하면 내용이 보여요.",
+    "reply": "답장",
+    "delete": "삭제",
+    "deleteConfirm": "이 쪽지를 삭제할까요?"
+  }
+}

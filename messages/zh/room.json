@@ -289,6 +289,7 @@
     "close": "关闭"
   },
   "participantMenu": {
+    "note": "发送纸条",
     "block": "屏蔽",
     "unblock": "取消屏蔽",
     "report": "举报",

@@ -1,0 +1,21 @@
+{
+  "compose": {
+    "title": "Send a note to {name}",
+    "placeholder": "Write your note",
+    "send": "Send",
+    "sending": "Sending...",
+    "cancel": "Cancel",
+    "close": "Close",
+    "sent": "Your note was sent."
+  },
+  "inbox": {
+    "title": "Notes",
+    "close": "Close",
+    "loading": "Loading...",
+    "empty": "No notes yet.",
+    "selectHint": "Select a note from the list to read it.",
+    "reply": "Reply",
+    "delete": "Delete",
+    "deleteConfirm": "Delete this note?"
+  }
+}

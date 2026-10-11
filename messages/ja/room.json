@@ -289,6 +289,7 @@
     "close": "閉じる"
   },
   "participantMenu": {
+    "note": "メモを送る",
     "block": "ブロック",
     "unblock": "ブロック解除",
     "report": "通報",

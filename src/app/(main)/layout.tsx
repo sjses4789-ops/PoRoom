@@ -7,6 +7,7 @@ import { ADSENSE_REVIEW_MODE, TIER_BADGE_VISIBLE } from "@/lib/adsense-review-mo
 import { isAppRequest } from "@/lib/app-mode";
 import NavTabs from "./nav-tabs";
 import LogoutButton from "./logout-button";
+import { NotesInbox } from "./notes-inbox";
 import { SiteFooter } from "./site-footer";
 import { PomodoroProvider } from "./pomodoro-context";
 import { PomodoroMiniWidget } from "./pomodoro-mini-widget";
@@ -92,6 +93,7 @@ export default async function MainLayout({
             {profile ? (
               <>
                 {TIER_BADGE_VISIBLE && <TierBadgeButton isPremium={profile.is_premium} />}
+                {user && <NotesInbox userId={user.id} />}
                 <Link
                   href="/me"
                   className="max-w-[100px] truncate font-bold text-neutral-900 hover:underline dark:text-white"
@@ -117,6 +119,7 @@ export default async function MainLayout({
           {profile ? (
             <>
               {TIER_BADGE_VISIBLE && <TierBadgeButton isPremium={profile.is_premium} />}
+              {user && <NotesInbox userId={user.id} />}
               <Link
                 href="/me"
                 className="max-w-[160px] truncate font-bold text-neutral-900 hover:underline dark:text-white"

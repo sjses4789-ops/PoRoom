@@ -10,6 +10,8 @@ import { ParticipantCard, type ParticipantData } from "./participant-card";
 import { ParticipantContextMenu, ReportDialog, type MenuTarget } from "./participant-menu";
 import { banMember } from "@/lib/room-admin";
 import { blockUser, reportUser, unblockUser } from "@/lib/safety";
+import { NoteDialog } from "@/components/note-dialog";
+import { sendNote } from "@/lib/notes";
 import { ChatPanel, type ChatMessage, type LatestNotice } from "./chat-panel";
 import { PomodoroPanel } from "./pomodoro-panel";
 import { CharInput } from "./char-input";
@@ -100,6 +102,7 @@ export function RoomView({
   const [blockedIds, setBlockedIds] = useState<string[]>(initialBlockedIds);
   const [menu, setMenu] = useState<MenuTarget | null>(null);
   const [reportTarget, setReportTarget] = useState<{ id: string; name: string } | null>(null);
+  const [noteTarget, setNoteTarget] = useState<{ id: string; name: string } | null>(null);
   const { toast: celebrationToast, celebrate } = useCelebrationToast();
   // 이번 달 글자수는 화면에 직접 렌더링하지 않고 목표 달성 감지에만
   // 쓰므로, 리렌더를 유발하지 않는 ref로 들고 있는다.
@@ -530,6 +533,10 @@ export function RoomView({
               isBlocked={blockedIds.includes(menu.id)}
               canKick={!isSystemRoom && ownerId === selfId}
               onClose={() => setMenu(null)}
+              onNote={() => {
+                setNoteTarget({ id: menu.id, name: menu.name });
+                setMenu(null);
+              }}
               onToggleBlock={async () => {
                 const target = menu;
                 setMenu(null);
@@ -551,6 +558,16 @@ export function RoomView({
                 setMenu(null);
                 if (!window.confirm(tMenu("kickConfirm", { name: target.name }))) return;
                 await banMember(roomId, target.id);
+              }}
+            />
+          )}
+          {noteTarget && (
+            <NoteDialog
+              targetName={noteTarget.name}
+              onClose={() => setNoteTarget(null)}
+              onSubmit={async (content) => {
+                const result = await sendNote(noteTarget.id, roomId, content);
+                return "error" in result ? result.error : null;
               }}
             />
           )}
