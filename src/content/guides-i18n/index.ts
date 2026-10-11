@@ -2,7 +2,13 @@ import { GUIDES } from "../guides";
 import type { GuideCategory } from "../guides/types";
 import type { LocalizedGuide, LocalizedGuideMap } from "./types";
 import { EN_A } from "./en-a";
+import { EN_B } from "./en-b";
+import { EN_C } from "./en-c";
+import { EN_D } from "./en-d";
 import { JA_A } from "./ja-a";
+import { JA_B } from "./ja-b";
+import { JA_C } from "./ja-c";
+import { JA_D } from "./ja-d";
 
 export type GuideLang = "en" | "ja";
 export const GUIDE_LANGS: GuideLang[] = ["en", "ja"];
@@ -12,8 +18,8 @@ export function isGuideLang(value: string): value is GuideLang {
 }
 
 const MAPS: Record<GuideLang, LocalizedGuideMap> = {
-  en: { ...EN_A },
-  ja: { ...JA_A },
+  en: { ...EN_A, ...EN_B, ...EN_C, ...EN_D },
+  ja: { ...JA_A, ...JA_B, ...JA_C, ...JA_D },
 };
 
 // 번역이 있는 글만, 원본(한국어) 순서대로 돌려준다.
