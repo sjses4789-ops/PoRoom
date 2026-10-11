@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { NoteDialog } from "@/components/note-dialog";
@@ -19,6 +19,9 @@ function MailIcon({ size = 16 }: { size?: number }) {
 // 볼 수 있는 팝업이 뜬다. 새 쪽지는 실시간으로 반영된다(느려지면 1분마다 한 번 다시 확인).
 export function NotesInbox({ userId }: { userId: string }) {
   const t = useTranslations("notes.inbox");
+  // 이 컴포넌트는 상단바에 두 번(모바일/데스크톱 배치) 그려진다 — 같은 이름의 채널을 두 번 만들면 오류가
+  // 나므로 인스턴스마다 이름을 다르게 한다.
+  const instanceId = useId();
   const [open, setOpen] = useState(false);
   const [unread, setUnread] = useState(0);
   const [notes, setNotes] = useState<NoteItem[] | null>(null);
@@ -46,7 +49,7 @@ export function NotesInbox({ userId }: { userId: string }) {
     void refreshCount();
     const supabase = createClient();
     const channel = supabase
-      .channel(`notes:${userId}`)
+      .channel(`notes:${userId}:${instanceId}`)
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "direct_notes", filter: `recipient_id=eq.${userId}` },
@@ -64,7 +67,7 @@ export function NotesInbox({ userId }: { userId: string }) {
       clearInterval(poll);
       supabase.removeChannel(channel);
     };
-  }, [userId, refreshCount, loadInbox]);
+  }, [userId, instanceId, refreshCount, loadInbox]);
 
   useEffect(() => {
     if (!open) return;

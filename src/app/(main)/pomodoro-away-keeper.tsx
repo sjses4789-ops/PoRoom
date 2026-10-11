@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import type { RealtimeChannel } from "@supabase/supabase-js";
-import { createClient } from "@/lib/supabase/client";
+import { createClient, createIsolatedClient } from "@/lib/supabase/client";
 import { setWorkStatus } from "@/lib/rooms";
 import {
   clearStatusBeforeAway,
@@ -101,7 +101,8 @@ export function PomodoroAwayKeeper() {
   // 2) 떠나 있는 동안 그 방 접속 채널에 대신 붙어 있기.
   useEffect(() => {
     if (!awayRoomId) return;
-    const supabase = createClient();
+    // 방 화면이 같은 이름의 채널을 쓰므로 별도 연결을 쓴다(공용 클라이언트에서는 같은 이름의 채널이 하나로 합쳐진다).
+    const supabase = createIsolatedClient();
     let cancelled = false;
     let channel: RealtimeChannel | null = null;
     let retrackId: ReturnType<typeof setInterval> | null = null;
@@ -151,7 +152,9 @@ export function PomodoroAwayKeeper() {
             .send({ type: "broadcast", event: "presence-left", payload: { userId: selfId, sessionId } })
             .catch(() => {});
         }
-        supabase.removeChannel(channel);
+        void supabase.removeChannel(channel).finally(() => supabase.realtime.disconnect());
+      } else {
+        supabase.realtime.disconnect();
       }
     };
   }, [awayRoomId]);
