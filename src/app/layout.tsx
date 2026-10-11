@@ -32,7 +32,11 @@ export const metadata: Metadata = {
   keywords: SITE_KEYWORDS.ko,
   // 네이버 서치어드바이저 사이트 소유 확인(<meta name="naver-site-verification">).
   verification: {
-    other: { "naver-site-verification": "43b2dae17ca365381469579a94876b1f425b6a45" },
+    other: {
+      "naver-site-verification": "43b2dae17ca365381469579a94876b1f425b6a45",
+      // Bing 웹마스터 도구 사이트 소유 확인(<meta name="msvalidate.01">).
+      "msvalidate.01": "A018CDEB8E540E4A264F8BAD3AEBC9BB",
+    },
   },
   icons: {
     icon: "/icon.png",
