@@ -45,10 +45,13 @@ export async function updateSession(request: NextRequest) {
   // 홈페이지의 언어별 SEO 진입점(/en, /ja, /zh) — 실제로는 "/"와 같은
   // 페이지를 렌더링하지만, URL이 따로 있어야 구글이 언어별로 색인한다.
   const homeLocaleMatch = /^\/(en|ja|zh)$/.exec(request.nextUrl.pathname);
+  // 영어·일본어 공개 정보 페이지(/en/guide, /ja/about, /en/faq ...) — 로그인 없이 읽히고, 언어는 URL로 정한다.
+  const intlPageMatch = /^\/(en|ja)\/(guide|about|faq)(\/|$)/.exec(request.nextUrl.pathname);
 
   const isPublicRoute =
     request.nextUrl.pathname === "/" ||
     homeLocaleMatch !== null ||
+    intlPageMatch !== null ||
     // 로그인 없이 (main) 레이아웃 헤더(테마 토글 등)를 재현해 실제
     // 배포 환경에서 테스트하기 위한 숨김 QA 페이지 — 어디에도 링크되지
     // 않고 robots.ts에서도 색인을 막아둔다.
@@ -102,6 +105,16 @@ export async function updateSession(request: NextRequest) {
     url.pathname = "/rest";
     url.search = "?tab=info";
     const rewritten = NextResponse.rewrite(url);
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
+      rewritten.cookies.set(cookie);
+    });
+    return rewritten;
+  }
+
+  if (intlPageMatch) {
+    // 같은 주소로 다시 쓰면서 언어 헤더만 실어 보낸다(루트 레이아웃의 html lang·메시지 언어가 URL을 따른다).
+    const rewritten = NextResponse.rewrite(request.nextUrl.clone());
+    rewritten.headers.set("x-poroom-locale", intlPageMatch[1]);
     supabaseResponse.cookies.getAll().forEach((cookie) => {
       rewritten.cookies.set(cookie);
     });

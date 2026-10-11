@@ -103,6 +103,9 @@ export default async function Home() {
   }
 
   const t = await getTranslations("login");
+  // 영어·일본어 방문자는 같은 언어로 번역된 공개 정보 페이지(/en/guide 등)로 안내한다.
+  const homeLocale = await getLocale();
+  const intlBase = homeLocale === "en" || homeLocale === "ja" ? `/${homeLocale}` : "";
   const tFooter = await getTranslations("layout.footer");
   const features = t.raw("landing.features") as Feature[];
   const highlights = t.raw("landing.highlights") as Feature[];
@@ -332,15 +335,15 @@ export default async function Home() {
               {tFooter("writingApp")}
             </a>
             <span aria-hidden>·</span>
-            <Link href="/guide" className="hover:text-neutral-600 hover:underline">
+            <Link href={`${intlBase}/guide`} className="hover:text-neutral-600 hover:underline">
               {tFooter("guide")}
             </Link>
             <span aria-hidden>·</span>
-            <Link href="/about" className="hover:text-neutral-600 hover:underline">
+            <Link href={`${intlBase}/about`} className="hover:text-neutral-600 hover:underline">
               {tFooter("about")}
             </Link>
             <span aria-hidden>·</span>
-            <Link href="/faq" className="hover:text-neutral-600 hover:underline">
+            <Link href={`${intlBase}/faq`} className="hover:text-neutral-600 hover:underline">
               {tFooter("faq")}
             </Link>
             <span aria-hidden>·</span>

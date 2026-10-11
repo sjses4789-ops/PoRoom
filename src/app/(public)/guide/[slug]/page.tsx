@@ -8,6 +8,7 @@ import {
   getGuide,
   guideReadMinutes,
 } from "@/content/guides";
+import { translatedLangs } from "@/content/guides-i18n";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 
 type Params = { slug: string };
@@ -23,7 +24,19 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   return {
     title: guide.title,
     description: guide.description,
-    alternates: { canonical: `${SITE_URL}/guide/${guide.slug}` },
+    alternates: {
+      canonical: `${SITE_URL}/guide/${guide.slug}`,
+      // 영어·일본어 번역본이 있으면 서로 연결한다(hreflang).
+      ...(translatedLangs(guide.slug).length > 0
+        ? {
+            languages: {
+              ko: `${SITE_URL}/guide/${guide.slug}`,
+              ...Object.fromEntries(translatedLangs(guide.slug).map((l) => [l, `${SITE_URL}/${l}/guide/${guide.slug}`])),
+              "x-default": `${SITE_URL}/guide/${guide.slug}`,
+            },
+          }
+        : {}),
+    },
     openGraph: {
       type: "article",
       title: guide.title,
