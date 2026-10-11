@@ -16,7 +16,7 @@ const ITEMS = [
 type ItemKey = (typeof ITEMS)[number]["key"];
 
 // 상단바의 "사용 방법" 버튼 — 누르면 [포룸]·[방]·[피드]·[도전]·[랭킹]·[휴식]의 사용법을 실제 화면 사진과
-// 함께 설명한 안내창이 뜬다. 버튼 모양은 바로 옆 "로그아웃" 버튼과 같은 테두리색의 둥근 흰 박스다.
+// 함께 설명한 안내창이 뜬다. 닉네임 왼쪽에 놓이고, "로그아웃" 버튼과 같은 테두리색의 둥근 흰 박스다(크기는 조금 작게).
 export function UsageGuideButton() {
   const t = useTranslations("usageGuide");
   const [open, setOpen] = useState(false);
@@ -39,7 +39,7 @@ export function UsageGuideButton() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="shrink-0 rounded-md border border-neutral-200 bg-white px-3 py-1.5 text-xs font-medium text-neutral-600 transition hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-800"
+        className="shrink-0 rounded-md border border-neutral-200 bg-white px-2 py-1 text-[11px] font-medium text-neutral-600 transition hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-800"
       >
         {t("button")}
       </button>

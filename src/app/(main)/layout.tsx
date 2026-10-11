@@ -92,6 +92,7 @@ export default async function MainLayout({
           <div className="flex items-center gap-3 text-sm text-neutral-500 dark:text-neutral-400 md:hidden">
             {profile ? (
               <>
+                <UsageGuideButton />
                 {TIER_BADGE_VISIBLE && <TierBadgeButton isPremium={profile.is_premium} />}
                 <Link
                   href="/me"
@@ -99,7 +100,6 @@ export default async function MainLayout({
                 >
                   {profile.name}
                 </Link>
-                <UsageGuideButton />
                 <LogoutButton />
               </>
             ) : (
@@ -118,6 +118,7 @@ export default async function MainLayout({
         <div className="hidden items-center gap-3 text-sm text-neutral-500 dark:text-neutral-400 md:flex">
           {profile ? (
             <>
+              <UsageGuideButton />
               {TIER_BADGE_VISIBLE && <TierBadgeButton isPremium={profile.is_premium} />}
               <Link
                 href="/me"
@@ -125,7 +126,6 @@ export default async function MainLayout({
               >
                 {profile.name}
               </Link>
-              <UsageGuideButton />
               <LogoutButton />
             </>
           ) : (
