@@ -9,6 +9,11 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const envFile = path.resolve(here, "..", "..", ".env.local");
 const wanted = { NEXT_PUBLIC_SUPABASE_URL: "SUPABASE_URL", NEXT_PUBLIC_SUPABASE_ANON_KEY: "SUPABASE_ANON_KEY" };
 const out = { WEB_URL: process.env.POROOM_WEB_URL ?? "https://poroom.kr" };
+// 앱 안 구글 로그인용 클라이언트 ID(공개 값) — 환경변수로 넘기면 env.json에 같이 담는다.
+//   GOOGLE_WEB_CLIENT_ID=... node tool/gen_env.mjs
+for (const key of ["GOOGLE_WEB_CLIENT_ID", "GOOGLE_IOS_CLIENT_ID"]) {
+  if (process.env[key]) out[key] = process.env[key];
+}
 
 for (const line of fs.readFileSync(envFile, "utf8").split(/\r?\n/)) {
   const m = /^([A-Z0-9_]+)=(.*)$/.exec(line.trim());

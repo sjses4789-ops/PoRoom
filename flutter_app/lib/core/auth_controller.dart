@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'env.dart';
@@ -101,6 +102,30 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool _googleReady = false;
+
+  // 앱 안에서 구글 계정을 고르는 로그인(Android Credential Manager / iOS) — 받은 ID 토큰으로 Supabase에 로그인한다.
+  // 성공하면 null, 사용자가 취소하면 null, 이 방식을 못 쓰는 환경/설정 문제면 예외를 던진다(호출부가 브라우저 로그인으로 대신한다).
+  Future<void> _signInWithGoogleNative() async {
+    if (!_googleReady) {
+      await GoogleSignIn.instance.initialize(
+        serverClientId: Env.googleWebClientId,
+        clientId: defaultTargetPlatform == TargetPlatform.iOS && Env.googleIosClientId.isNotEmpty ? Env.googleIosClientId : null,
+      );
+      _googleReady = true;
+    }
+    final account = await GoogleSignIn.instance.authenticate();
+    final idToken = account.authentication.idToken;
+    if (idToken == null) throw StateError('구글 ID 토큰을 받지 못했어요.');
+    await client.auth.signInWithIdToken(provider: OAuthProvider.google, idToken: idToken);
+  }
+
+  bool get _canUseNativeGoogle =>
+      !kIsWeb &&
+      Env.googleWebClientId.isNotEmpty &&
+      (defaultTargetPlatform == TargetPlatform.android ||
+          (defaultTargetPlatform == TargetPlatform.iOS && Env.googleIosClientId.isNotEmpty));
+
   // 구글 로그인 — 시스템 브라우저로 로그인하고 poroom://auth-callback 으로 앱에 돌아온다(웹과 같은 PKCE 방식).
   // Supabase 대시보드 Redirect URLs 에 poroom://auth-callback 이 등록돼 있어야 한다(기존 Expo 앱과 같은 값).
   Future<String?> signInWithGoogle() async {
@@ -110,6 +135,17 @@ class AuthController extends ChangeNotifier {
       status = AuthStatus.signedIn;
       notifyListeners();
       return null;
+    }
+    if (_canUseNativeGoogle) {
+      try {
+        await _signInWithGoogleNative();
+        return null; // 세션은 onAuthStateChange가 반영한다.
+      } on GoogleSignInException catch (e) {
+        // 사용자가 계정 선택창을 닫은 경우는 조용히 끝낸다. 그 밖의 오류(설정 문제 등)는 브라우저 로그인으로 대신한다.
+        if (e.code == GoogleSignInExceptionCode.canceled) return null;
+      } catch (_) {
+        // 아래 브라우저 로그인으로 이어간다.
+      }
     }
     try {
       await client.auth.signInWithOAuth(
