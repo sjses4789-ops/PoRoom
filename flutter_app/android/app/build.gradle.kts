@@ -7,7 +7,8 @@ plugins {
 android {
     namespace = "kr.poroom.poroom_app"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    // 이 PC에 설치된 NDK(30.x)를 쓴다 — 기본값(flutter.ndkVersion=28.2)은 설치돼 있지 않으면 SDK 관리자가 받으려다 실패한다(플러그인은 "가장 높은 NDK"를 쓰라고 안내하고, NDK는 하위 호환이다).
+    ndkVersion = "30.0.16138531"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
