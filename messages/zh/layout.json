@@ -24,5 +24,11 @@
   },
   "loginLink": "登录",
   "themeDark": "深色主题（点击切换为浅色主题）",
-  "themeLight": "浅色主题（点击切换为深色主题）"
+  "themeLight": "浅色主题（点击切换为深色主题）",
+  "loginGate": {
+    "title": "需要登录",
+    "body": "未登录时只能浏览。加入房间、发帖、点赞、参与等功能需要先用 Google 账号登录。",
+    "google": "使用 Google 账号登录",
+    "close": "关闭"
+  }
 }

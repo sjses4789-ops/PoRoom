@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { useLoginGate } from "@/components/login-gate";
 import { joinChallenge } from "@/lib/challenges";
 
 export function OpenSystemChallengeCard({
@@ -28,6 +29,7 @@ export function OpenSystemChallengeCard({
 }) {
   const t = useTranslations("compete.openSystemChallengeCard");
   const [joining, setJoining] = useState(false);
+  const gate = useLoginGate();
   const [joined, setJoined] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -52,6 +54,7 @@ export function OpenSystemChallengeCard({
       <button
         disabled={joining || joined}
         onClick={async () => {
+          if (!gate.requireLogin()) return;
           setJoining(true);
           setError(null);
           const result = await joinChallenge(id);

@@ -4,10 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
-import { GoogleSignInButton } from "@/components/google-sign-in-button";
 import { UsageGuideSection } from "./usage-guide-section";
 import { SITE_URL, SITE_NAME, HOME_LOCALE_PATH, HOME_META, SITE_KEYWORDS } from "@/lib/site";
-import { ADSENSE_REVIEW_MODE } from "@/lib/adsense-review-mode";
 
 const CTA_CLASS =
   "flex items-center gap-3 rounded-md bg-[#f1dcdc] px-6 py-3 text-sm font-medium text-[#7a4a4a] transition hover:bg-[#e9cccc]";
@@ -19,14 +17,11 @@ const CTA_CLASS =
 // 못했다. ADSENSE_REVIEW_MODE를 false로 되돌리면 원래의 구글 로그인
 // 버튼으로 자동 복귀한다.
 function HomeCta({ label }: { label: string }) {
-  if (ADSENSE_REVIEW_MODE) {
-    return (
-      <Link href="/main" className={CTA_CLASS}>
-        {label}
-      </Link>
-    );
-  }
-  return <GoogleSignInButton label={label} className={CTA_CLASS} />;
+  return (
+    <Link href="/main" className={CTA_CLASS}>
+      {label}
+    </Link>
+  );
 }
 
 type Feature = { icon: string; title: string; desc: string };
@@ -138,7 +133,7 @@ export default async function Home() {
             {t("landing.heroBody")}
           </p>
           <div className="flex flex-col items-start gap-2">
-            <HomeCta label={ADSENSE_REVIEW_MODE ? t("landing.enterCta") : t("google")} />
+            <HomeCta label={t("landing.enterRoomCta")} />
           </div>
         </div>
 
@@ -299,7 +294,7 @@ export default async function Home() {
             {t("landing.footerCtaTitle")}
           </h2>
           <p className="text-sm text-neutral-500">{t("landing.footerCtaBody")}</p>
-          <HomeCta label={ADSENSE_REVIEW_MODE ? t("landing.enterCta") : t("google")} />
+          <HomeCta label={t("landing.enterRoomCta")} />
         </div>
       </section>
 

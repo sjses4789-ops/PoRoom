@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { useLoginGate } from "@/components/login-gate";
 import {
   createRestPost,
   updateRestPost,
@@ -78,6 +79,7 @@ export function RestBoard({
   const t = useTranslations("rest.board");
   const [posts, setPosts] = useState<RestPost[]>(initialPosts);
   const [writing, setWriting] = useState(false);
+  const gate = useLoginGate();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [roomId, setRoomId] = useState("");
@@ -101,6 +103,7 @@ export function RestBoard({
     .sort((a, b) => Number(b.pinned) - Number(a.pinned));
 
   const submit = async () => {
+    if (!gate.requireLogin()) return;
     setPending(true);
     setError(null);
     const result = await createRestPost(
@@ -237,7 +240,10 @@ export function RestBoard({
           {t(`category.${category}`)}
         </h2>
         <button
-          onClick={() => setWriting((v) => !v)}
+          onClick={() => {
+            if (!writing && !gate.requireLogin()) return;
+            setWriting((v) => !v);
+          }}
           className="rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
         >
           {writing ? t("cancel") : t("write")}

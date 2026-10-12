@@ -3,6 +3,7 @@
 import { useActionState, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { createRoom, type ActionResult } from "@/lib/rooms";
+import { useLoginGate } from "@/components/login-gate";
 import { useNicknameChooser } from "@/components/use-nickname-chooser";
 import { PALETTE, paletteDot, paletteLabel } from "@/lib/palette";
 import { ROOM_TAGS, translateRoomTag } from "@/lib/room-tags";
@@ -49,6 +50,7 @@ export default function CreateRoomButton({
     createRoom,
     null
   );
+  const gate = useLoginGate();
   const chooser = useNicknameChooser();
   const confirmedRef = useRef(false);
   const nicknameInputRef = useRef<HTMLInputElement>(null);
@@ -56,7 +58,10 @@ export default function CreateRoomButton({
   return (
     <>
       <button
-        onClick={onToggle}
+        onClick={() => {
+          if (!open && !gate.requireLogin()) return;
+          onToggle();
+        }}
         className="rounded-md border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-700 transition hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
       >
         {t("trigger")}

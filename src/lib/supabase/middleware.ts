@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { ADSENSE_HOME_IS_INFO_BOARD, ADSENSE_REVIEW_MODE } from "@/lib/adsense-review-mode";
+import { GUEST_BROWSING } from "@/lib/guest-mode";
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -82,7 +83,7 @@ export async function updateSession(request: NextRequest) {
   // 맡긴다 — [포룸]·[피드]·[랭킹]·[휴식]·[도전] 목록은 로그인 없이도
   // 렌더링되도록 고쳐뒀고, [개인]·방 내부·도전 상세·피드백·관리자
   // 페이지는 각자 자기 안에서 여전히 로그인을 요구한다.
-  if (!user && !isPublicRoute && !ADSENSE_REVIEW_MODE) {
+  if (!user && !isPublicRoute && !ADSENSE_REVIEW_MODE && !GUEST_BROWSING) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);

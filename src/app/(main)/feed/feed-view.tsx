@@ -17,6 +17,7 @@ import {
 import { characterSrc } from "@/lib/characters";
 import { useCelebrationToast } from "@/components/celebration-toast";
 import { createClient } from "@/lib/supabase/client";
+import { useLoginGate } from "@/components/login-gate";
 
 export type { ReactionType, PostType, FeedPostMeta, DuelOption, ChallengeOption };
 
@@ -255,6 +256,7 @@ export function FeedView({
 }) {
   const t = useTranslations("feed.view");
   const { toast: celebrationToast, celebrate } = useCelebrationToast();
+  const gate = useLoginGate();
   const [posts, setPosts] = useState<FeedPost[]>(initialPosts);
   const [category, setCategory] = useState<CategoryFilter>("all");
   const [mood, setMood] = useState("");
@@ -335,7 +337,6 @@ export function FeedView({
   const visiblePosts = category === "all" ? posts : posts.filter((p) => p.postType === category);
 
   const canSubmit =
-    selfId !== null &&
     category !== "all" &&
     mood.trim().length > 0 &&
     (category !== "duel" || duelId) &&
@@ -344,6 +345,8 @@ export function FeedView({
     (category !== "contest" || contestName.trim().length > 0);
 
   const submit = async () => {
+    // 비로그인(보기 전용)이면 글을 쓰지 않고 로그인 안내 팝업을 띄운다.
+    if (!gate.requireLogin()) return;
     if (!canSubmit) return;
     setPending(true);
     setError(null);
@@ -421,8 +424,8 @@ export function FeedView({
   };
 
   const react = async (postId: string, type: ReactionType) => {
-    // 게스트는 반응을 남길 수 없다 — 낙관적 업데이트만 하고 서버에는
-    // 저장되지 않는 상태가 되는 걸 막는다.
+    // 게스트는 반응을 남길 수 없다 — 로그인 안내 팝업을 띄운다.
+    if (!gate.requireLogin()) return;
     if (!selfId) return;
     setPosts((prev) =>
       prev.map((p) => {

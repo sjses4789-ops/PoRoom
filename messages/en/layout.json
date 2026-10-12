@@ -24,5 +24,11 @@
   },
   "loginLink": "Log in",
   "themeDark": "Dark theme (click to switch to light)",
-  "themeLight": "Light theme (click to switch to dark)"
+  "themeLight": "Light theme (click to switch to dark)",
+  "loginGate": {
+    "title": "Please log in",
+    "body": "Without logging in you can only look around. Joining rooms, writing, reacting and taking part need you to log in with your Google account.",
+    "google": "Log in with Google",
+    "close": "Close"
+  }
 }

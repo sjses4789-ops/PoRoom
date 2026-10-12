@@ -5,16 +5,19 @@ import { createClient } from "@/lib/supabase/client";
 export function GoogleSignInButton({
   label,
   className,
+  next,
 }: {
   label: string;
   className?: string;
+  // 로그인이 끝난 뒤 돌아올 주소(예: 지금 보던 페이지). 없으면 [포룸].
+  next?: string;
 }) {
   const handleGoogleLogin = async () => {
     const supabase = createClient();
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: `${window.location.origin}/auth/callback${next ? `?next=${encodeURIComponent(next)}` : ""}`,
       },
     });
   };

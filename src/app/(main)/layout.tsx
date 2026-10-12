@@ -10,6 +10,8 @@ import LogoutButton from "./logout-button";
 import { NotesInbox } from "./notes-inbox";
 import { SiteFooter } from "./site-footer";
 import { PomodoroProvider } from "./pomodoro-context";
+import { GUEST_BROWSING } from "@/lib/guest-mode";
+import { LoginGateProvider } from "@/components/login-gate";
 import { PomodoroMiniWidget } from "./pomodoro-mini-widget";
 import { PomodoroAwayKeeper } from "./pomodoro-away-keeper";
 import { SiteTimeTracker } from "./site-time-tracker";
@@ -31,7 +33,7 @@ export default async function MainLayout({
   // ADSENSE_REVIEW_MODE 동안은 비로그인 방문자도 이 레이아웃을 그대로
   // 통과시킨다(아래에서 profile이 없는 게스트로 렌더링됨) — 심사가
   // 끝나면 이 값을 false로 돌려서 원래대로(로그인 필수) 복구한다.
-  if (!user && !ADSENSE_REVIEW_MODE) {
+  if (!user && !ADSENSE_REVIEW_MODE && !GUEST_BROWSING) {
     redirect("/login");
   }
 
@@ -71,6 +73,7 @@ export default async function MainLayout({
 
   return (
     <PomodoroProvider>
+    <LoginGateProvider isGuest={!user}>
     <div className="flex min-h-screen flex-col bg-white dark:bg-neutral-950">
       {!inApp && (
       <header className="flex flex-col gap-3 border-b border-neutral-100 px-4 py-3 sm:px-6 md:flex-row md:items-center md:justify-between md:px-8 md:py-4 dark:border-neutral-800">
@@ -147,6 +150,7 @@ export default async function MainLayout({
       <SiteTimeTracker />
       <TimezoneSync />
     </div>
+    </LoginGateProvider>
     </PomodoroProvider>
   );
 }

@@ -3,6 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 import { getNicknameContext, type NicknameItem } from "@/lib/nicknames";
 import { NicknamePicker } from "@/components/nickname-picker";
+import { useLoginGate } from "@/components/login-gate";
 
 type Context = { defaultName: string; nicknames: NicknameItem[] };
 // null = 취소(입장하지 않음), { nicknameId: null } = 기본 닉네임 사용.
@@ -20,6 +21,7 @@ export type NicknameChoice = { nicknameId: string | null } | null;
 export function useNicknameChooser() {
   const [context, setContext] = useState<Context | null>(null);
   const resolverRef = useRef<((choice: NicknameChoice) => void) | null>(null);
+  const gate = useLoginGate();
 
   const finish = useCallback((choice: NicknameChoice) => {
     resolverRef.current?.(choice);
@@ -28,12 +30,14 @@ export function useNicknameChooser() {
   }, []);
 
   const ask = useCallback(async (): Promise<NicknameChoice> => {
+    // 비로그인(보기 전용)이면 입장하지 않고 로그인 안내 팝업을 띄운다.
+    if (!gate.requireLogin()) return null;
     const ctx = await getNicknameContext();
     return new Promise<NicknameChoice>((resolve) => {
       resolverRef.current = resolve;
       setContext(ctx);
     });
-  }, []);
+  }, [gate]);
 
   const element = context ? (
     <NicknamePicker

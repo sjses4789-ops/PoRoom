@@ -3,6 +3,7 @@
 import { useActionState, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { joinRoomByCode, type ActionResult } from "@/lib/rooms";
+import { useLoginGate } from "@/components/login-gate";
 import { useNicknameChooser } from "@/components/use-nickname-chooser";
 
 export default function InviteCodeButton({
@@ -17,6 +18,7 @@ export default function InviteCodeButton({
     joinRoomByCode,
     null
   );
+  const gate = useLoginGate();
   const chooser = useNicknameChooser();
   const confirmedRef = useRef(false);
   const nicknameInputRef = useRef<HTMLInputElement>(null);
@@ -24,7 +26,10 @@ export default function InviteCodeButton({
   return (
     <>
       <button
-        onClick={onToggle}
+        onClick={() => {
+          if (!open && !gate.requireLogin()) return;
+          onToggle();
+        }}
         className="rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-neutral-700"
       >
         {t("trigger")}

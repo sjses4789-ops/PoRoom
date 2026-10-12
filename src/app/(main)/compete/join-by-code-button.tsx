@@ -2,12 +2,14 @@
 
 import { useActionState, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useLoginGate } from "@/components/login-gate";
 import { joinChallengeByCode } from "@/lib/challenges";
 import type { ActionResult } from "@/lib/rooms";
 
 export default function JoinByCodeButton() {
   const t = useTranslations("compete.joinByCodeButton");
   const [open, setOpen] = useState(false);
+  const gate = useLoginGate();
   const [state, formAction, pending] = useActionState<ActionResult, FormData>(
     joinChallengeByCode,
     null
@@ -16,7 +18,10 @@ export default function JoinByCodeButton() {
   return (
     <>
       <button
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => {
+          if (!open && !gate.requireLogin()) return;
+          setOpen((v) => !v);
+        }}
         className="rounded-md border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-700 transition hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
       >
         {t("trigger")}

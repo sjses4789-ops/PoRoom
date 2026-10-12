@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useLoginGate } from "@/components/login-gate";
 import { createChallenge } from "@/lib/challenges";
 import type { ActionResult } from "@/lib/rooms";
 import { PALETTE, paletteDot, paletteLabel } from "@/lib/palette";
@@ -12,6 +13,7 @@ export default function CreateChallengeButton() {
   const t = useTranslations("compete.createChallengeButton");
   const tColors = useTranslations("colors");
   const [open, setOpen] = useState(false);
+  const gate = useLoginGate();
   const [color, setColor] = useState<string>(PALETTE[0].key);
   const [capacity, setCapacity] = useState("");
   const [startMode, setStartMode] = useState<"manual" | "full">("manual");
@@ -29,7 +31,10 @@ export default function CreateChallengeButton() {
   return (
     <>
       <button
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => {
+          if (!open && !gate.requireLogin()) return;
+          setOpen((v) => !v);
+        }}
         className="rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-neutral-700"
       >
         {t("trigger")}
