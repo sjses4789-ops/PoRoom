@@ -39,6 +39,7 @@ export function ChatPanel({
   canModerate,
   isOwner,
   blockedIds,
+  onAvatarContextMenu,
   onActivity,
   collapsed,
   onToggleCollapsed,
@@ -52,6 +53,8 @@ export function ChatPanel({
   isOwner: boolean;
   // 내가 차단한 참여자 — 그 사람의 메시지(귓속말 포함)는 내 화면에서 숨긴다.
   blockedIds: string[];
+  // 채팅의 프로필 사진을 우클릭했을 때(참여자 카드 우클릭 메뉴와 같은 메뉴를 띄우기 위해 방 화면이 처리한다).
+  onAvatarContextMenu?: (userId: string, name: string, x: number, y: number) => void;
   onActivity?: () => void;
   collapsed: boolean;
   onToggleCollapsed: () => void;
@@ -332,6 +335,12 @@ export function ChatPanel({
             >
               <div
                 // 고른 말풍선 색이 프로필 사진 테두리색이 된다(안 골랐으면 기본 회색 테두리).
+                onContextMenu={(e) => {
+                  // 내 사진에는 메뉴가 없다.
+                  if (isSelf || !onAvatarContextMenu) return;
+                  e.preventDefault();
+                  onAvatarContextMenu(m.userId, nameOf(m.userId), e.clientX, e.clientY);
+                }}
                 className={`flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-neutral-50 dark:bg-neutral-800 ${
                   chatBorderClass(colorOf(m.userId))
                     ? `border-2 ${chatBorderClass(colorOf(m.userId))}`

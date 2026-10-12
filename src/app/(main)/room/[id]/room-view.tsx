@@ -428,6 +428,7 @@ export function RoomView({
             canModerate={canModerate}
             isOwner={ownerId === selfId}
             blockedIds={[...blockedIds, ...blockedByIds]}
+            onAvatarContextMenu={(userId, name, x, y) => setMenu({ id: userId, name, x, y })}
             onActivity={reportTyping}
             collapsed={chatCollapsed}
             onToggleCollapsed={() => setChatCollapsed((v) => !v)}
