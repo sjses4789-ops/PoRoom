@@ -1,0 +1,22 @@
+{
+  "prompt": "リンク先のアドレスを入力してください",
+  "paragraph": "本文",
+  "heading1": "見出し1",
+  "heading2": "見出し2",
+  "heading3": "見出し3",
+  "bold": "太字",
+  "italic": "斜体",
+  "underline": "下線",
+  "strike": "取り消し線",
+  "alignLeft": "左揃え",
+  "alignCenter": "中央揃え",
+  "alignRight": "右揃え",
+  "quote": "引用",
+  "textColor": "文字色",
+  "bgColor": "文字の背景色",
+  "link": "リンク",
+  "list": "リスト",
+  "uploading": "画像をアップロード中...",
+  "addImage": "画像を追加",
+  "clearColor": "色を消去"
+}

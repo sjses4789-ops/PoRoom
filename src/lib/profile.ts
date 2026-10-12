@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { err } from "@/lib/errors";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionResult } from "@/lib/rooms";
@@ -13,13 +14,13 @@ export async function setNickname(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const nickname = String(formData.get("nickname") ?? "").trim();
   const redirectTo = String(formData.get("redirectTo") ?? "/main");
 
-  if (!nickname) return { error: "닉네임을 입력해주세요." };
-  if (nickname.length > 20) return { error: "닉네임은 20자 이내로 입력해주세요." };
+  if (!nickname) return { error: await err("nicknameRequired") };
+  if (nickname.length > 20) return { error: await err("nickname20") };
 
   const { error } = await supabase
     .from("users")
@@ -82,16 +83,16 @@ export async function completeOnboarding(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const nickname = String(formData.get("nickname") ?? "").trim();
   const position = String(formData.get("position") ?? "");
   const redirectTo = String(formData.get("redirectTo") ?? "/main");
 
-  if (!nickname) return { error: "닉네임을 입력해주세요." };
-  if (nickname.length > 20) return { error: "닉네임은 20자 이내로 입력해주세요." };
+  if (!nickname) return { error: await err("nicknameRequired") };
+  if (nickname.length > 20) return { error: await err("nickname20") };
   if (position !== "novelist" && position !== "webtoon") {
-    return { error: "직업을 선택해주세요." };
+    return { error: await err("positionSelect") };
   }
 
   const { error } = await supabase

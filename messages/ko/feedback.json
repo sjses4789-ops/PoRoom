@@ -1,0 +1,20 @@
+{
+  "title": "기능 제안 & 버그 신고",
+  "intro": "PoRoom을 더 좋게 만들 아이디어나 발견한 버그를 자유롭게 남겨주세요. 남긴 글은 비밀글로 등록되어 작성자 본인과 관리자만 볼 수 있어요.",
+  "suggestion": "기능 제안",
+  "bug": "버그 신고",
+  "secret": "비밀글",
+  "countAll": "전체 {count}건",
+  "countMine": "내가 남긴 글 {count}건",
+  "write": "글쓰기",
+  "cancel": "취소",
+  "titlePlaceholder": "제목",
+  "contentPlaceholder": "내용",
+  "submitting": "등록 중...",
+  "submit": "등록",
+  "empty": "아직 등록된 글이 없습니다.",
+  "answers": "답변 {count}",
+  "delete": "삭제",
+  "adminReply": "관리자 답글",
+  "register": "등록"
+}

@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { err } from "@/lib/errors";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { logActivity } from "@/lib/activity";
@@ -34,7 +35,7 @@ export async function createRoom(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const name = String(formData.get("name") ?? "").trim();
   const color = String(formData.get("color") ?? "neutral");
@@ -50,14 +51,14 @@ export async function createRoom(
   // 입장 전에 고른 이 방의 닉네임(비어 있으면 기본 닉네임).
   const nicknameId = String(formData.get("nicknameId") ?? "") || null;
   const chosen = await resolveJoinNickname(supabase, user.id, nicknameId);
-  if (!chosen.ok) return { error: "존재하지 않는 닉네임이에요." };
+  if (!chosen.ok) return { error: await err("nicknameNotFound") };
 
-  if (!name) return { error: "방 이름을 입력해주세요." };
+  if (!name) return { error: await err("roomNameRequired") };
   if (!["shared", "private", "free"].includes(recordVisibility)) {
-    return { error: "잘못된 기록 공개 설정입니다." };
+    return { error: await err("invalidRecordVisibility") };
   }
   if (!["invite", "open"].includes(joinType)) {
-    return { error: "잘못된 입장 방식 설정입니다." };
+    return { error: await err("invalidJoinType") };
   }
 
   let roomId: string | null = null;
@@ -88,7 +89,7 @@ export async function createRoom(
   }
 
   if (!roomId) {
-    return { error: "초대코드 생성에 실패했습니다. 다시 시도해주세요." };
+    return { error: await err("inviteCodeCreateFailed") };
   }
 
   await supabase
@@ -113,16 +114,16 @@ export async function joinRoomByCode(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const nicknameId = String(formData.get("nicknameId") ?? "") || null;
   const chosen = await resolveJoinNickname(supabase, user.id, nicknameId);
-  if (!chosen.ok) return { error: "존재하지 않는 닉네임이에요." };
+  if (!chosen.ok) return { error: await err("nicknameNotFound") };
 
   const code = String(formData.get("code") ?? "")
     .trim()
     .toUpperCase();
-  if (!code) return { error: "초대코드를 입력해주세요." };
+  if (!code) return { error: await err("inviteCodeRequired") };
 
   const { data: room, error: roomError } = await supabase
     .from("rooms")
@@ -131,7 +132,7 @@ export async function joinRoomByCode(
     .maybeSingle<{ id: string; target_position: string | null }>();
 
   if (roomError) return { error: roomError.message };
-  if (!room) return { error: "존재하지 않는 초대코드입니다." };
+  if (!room) return { error: await err("inviteCodeNotFound") };
 
   const { data: ban } = await supabase
     .from("room_bans")
@@ -139,7 +140,7 @@ export async function joinRoomByCode(
     .eq("room_id", room.id)
     .eq("user_id", user.id)
     .maybeSingle();
-  if (ban) return { error: "방장에게 차단되어 입장할 수 없습니다." };
+  if (ban) return { error: await err("bannedByOwner") };
 
   if (room.target_position) {
     const { data: profile } = await supabase
@@ -151,8 +152,8 @@ export async function joinRoomByCode(
       return {
         error:
           room.target_position === "webtoon"
-            ? "웹툰 작가만 입장할 수 있는 방입니다."
-            : "웹소설 작가만 입장할 수 있는 방입니다.",
+            ? await err("roomWebtoonOnly")
+            : await err("roomNovelistOnly"),
       };
     }
   }
@@ -384,7 +385,7 @@ export async function setDailyChars(roomId: string, date: string, chars: number)
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const safeChars = Math.max(0, Math.floor(chars) || 0);
 

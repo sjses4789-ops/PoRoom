@@ -1,0 +1,22 @@
+{
+  "prompt": "Enter the link address",
+  "paragraph": "Paragraph",
+  "heading1": "Heading 1",
+  "heading2": "Heading 2",
+  "heading3": "Heading 3",
+  "bold": "Bold",
+  "italic": "Italic",
+  "underline": "Underline",
+  "strike": "Strikethrough",
+  "alignLeft": "Align left",
+  "alignCenter": "Align center",
+  "alignRight": "Align right",
+  "quote": "Quote",
+  "textColor": "Text color",
+  "bgColor": "Highlight color",
+  "link": "Link",
+  "list": "List",
+  "uploading": "Uploading image...",
+  "addImage": "Add image",
+  "clearColor": "Clear color"
+}

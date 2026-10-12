@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { err } from "@/lib/errors";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionResult } from "@/lib/rooms";
 import { uploadPostImage } from "@/lib/uploads";
@@ -35,7 +36,7 @@ export async function createAdminChallengeEvent(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const title = String(formData.get("title") ?? "").trim();
   const startDate = String(formData.get("startDate") ?? "");
@@ -45,11 +46,11 @@ export async function createAdminChallengeEvent(
     | "minutes"
     | "achievement";
 
-  if (!title) return { error: "이벤트 이름을 입력해주세요." };
-  if (!startDate || !endDate) return { error: "기간을 선택해주세요." };
-  if (endDate < startDate) return { error: "종료일이 시작일보다 빠릅니다." };
+  if (!title) return { error: await err("eventNameRequired") };
+  if (!startDate || !endDate) return { error: await err("periodRequired") };
+  if (endDate < startDate) return { error: await err("endBeforeStart") };
   if (!["chars", "minutes", "achievement"].includes(metric)) {
-    return { error: "잘못된 기준입니다." };
+    return { error: await err("invalidMetric") };
   }
 
   // 공모전 세부 내용(공고 이미지)은 선택 사항 — 안 올려도 이벤트를
@@ -95,17 +96,17 @@ export async function adminUpdateChallengeEvent(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const challengeId = String(formData.get("challengeId") ?? "");
   const title = String(formData.get("title") ?? "").trim();
   const startDate = String(formData.get("startDate") ?? "");
   const endDate = String(formData.get("endDate") ?? "");
 
-  if (!challengeId) return { error: "잘못된 요청입니다." };
-  if (!title) return { error: "이벤트 이름을 입력해주세요." };
-  if (!startDate || !endDate) return { error: "기간을 선택해주세요." };
-  if (endDate < startDate) return { error: "종료일이 시작일보다 빠릅니다." };
+  if (!challengeId) return { error: await err("invalidRequest") };
+  if (!title) return { error: await err("eventNameRequired") };
+  if (!startDate || !endDate) return { error: await err("periodRequired") };
+  if (endDate < startDate) return { error: await err("endBeforeStart") };
 
   const patch: Record<string, unknown> = { title, start_date: startDate, end_date: endDate };
 

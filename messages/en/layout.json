@@ -21,5 +21,8 @@
     "perkEmoji": "Use emoji in room chat",
     "price": "₩{amount}",
     "comingSoon": "Payment is coming soon!"
-  }
+  },
+  "loginLink": "Log in",
+  "themeDark": "Dark theme (click to switch to light)",
+  "themeLight": "Light theme (click to switch to dark)"
 }

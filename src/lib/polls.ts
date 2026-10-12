@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { err } from "@/lib/errors";
 import { createClient } from "@/lib/supabase/server";
 
 export type PollType = "yesno" | "single" | "multi";
@@ -31,21 +32,21 @@ export async function createPoll(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const trimmedTitle = title.trim();
-  if (!trimmedTitle) return { error: "투표 제목을 입력해주세요." };
+  if (!trimmedTitle) return { error: await err("pollTitleRequired") };
 
   const labels =
     pollType === "yesno"
-      ? ["찬성", "반대"]
+      ? [await err("pollYes"), await err("pollNo")]
       : candidateLabels.map((l) => l.trim()).filter(Boolean);
 
   if (pollType !== "yesno" && labels.length < 2) {
-    return { error: "선택지를 2개 이상 입력해주세요." };
+    return { error: await err("pollOptionsMin") };
   }
   if (durationDays !== null && (!Number.isFinite(durationDays) || durationDays < 1)) {
-    return { error: "잘못된 투표 기간입니다." };
+    return { error: await err("pollInvalidPeriod") };
   }
 
   const endsAt =
@@ -68,7 +69,7 @@ export async function createPoll(
     .single();
 
   if (pollError || !poll) {
-    return { error: pollError?.message ?? "투표 생성에 실패했습니다." };
+    return { error: pollError?.message ?? await err("pollCreateFailed") };
   }
 
   const { data: options, error: optionsError } = await supabase
@@ -77,7 +78,7 @@ export async function createPoll(
     .select("id,label");
 
   if (optionsError || !options) {
-    return { error: optionsError?.message ?? "투표 항목 생성에 실패했습니다." };
+    return { error: optionsError?.message ?? await err("pollOptionsFailed") };
   }
 
   revalidatePath(`/room/${roomId}`);
@@ -106,7 +107,7 @@ export async function castVote(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const { data: poll } = await supabase
     .from("polls")
@@ -114,7 +115,7 @@ export async function castVote(
     .eq("id", pollId)
     .maybeSingle<{ ends_at: string | null }>();
   if (poll?.ends_at && new Date(poll.ends_at) <= new Date()) {
-    return { error: "종료된 투표입니다." };
+    return { error: await err("pollEnded") };
   }
 
   if (pollType === "multi") {

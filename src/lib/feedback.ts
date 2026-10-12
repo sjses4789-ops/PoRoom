@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { err } from "@/lib/errors";
 import { createClient } from "@/lib/supabase/server";
 
 export type FeedbackCategory = "suggestion" | "bug";
@@ -24,14 +25,14 @@ export async function createFeedbackPost(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const trimmedTitle = title.trim();
   const trimmedContent = content.trim();
-  if (!trimmedTitle) return { error: "제목을 입력해주세요." };
-  if (!trimmedContent) return { error: "내용을 입력해주세요." };
+  if (!trimmedTitle) return { error: await err("titleRequired") };
+  if (!trimmedContent) return { error: await err("contentRequired") };
   if (category !== "suggestion" && category !== "bug") {
-    return { error: "잘못된 분류입니다." };
+    return { error: await err("invalidCategory") };
   }
 
   const { data, error } = await supabase
@@ -41,7 +42,7 @@ export async function createFeedbackPost(
     .single();
 
   if (error || !data) {
-    return { error: error?.message ?? "등록에 실패했습니다." };
+    return { error: error?.message ?? await err("registerFailed") };
   }
 
   revalidatePath("/feedback");
@@ -68,10 +69,10 @@ export async function createFeedbackComment(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const trimmed = content.trim();
-  if (!trimmed) return { error: "댓글 내용을 입력해주세요." };
+  if (!trimmed) return { error: await err("commentRequired") };
 
   const { data, error } = await supabase
     .from("feedback_comments")
@@ -80,7 +81,7 @@ export async function createFeedbackComment(
     .single();
 
   if (error || !data) {
-    return { error: error?.message ?? "댓글 등록에 실패했습니다." };
+    return { error: error?.message ?? await err("commentFailed") };
   }
 
   revalidatePath("/feedback");

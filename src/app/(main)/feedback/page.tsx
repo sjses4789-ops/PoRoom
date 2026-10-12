@@ -1,4 +1,6 @@
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
+import { err } from "@/lib/errors";
 import { createClient } from "@/lib/supabase/server";
 import { isCurrentUserAdmin } from "@/lib/admin";
 import { FeedbackBoard, type FeedbackPost, type FeedbackComment } from "./feedback-board";
@@ -15,6 +17,9 @@ type UserRow = { id: string; name: string | null; email: string };
 type CommentRow = { id: string; post_id: string; user_id: string; content: string; created_at: string };
 
 export default async function FeedbackPage() {
+  const t = await getTranslations("feedback");
+  const unknown = await err("unknown");
+  const me = await err("selfLabel");
   const supabase = await createClient();
   const {
     data: { user },
@@ -58,7 +63,7 @@ export default async function FeedbackPage() {
       id: c.id,
       content: c.content,
       createdAt: c.created_at,
-      authorName: userNames[c.user_id] ?? "알 수 없음",
+      authorName: userNames[c.user_id] ?? unknown,
     });
     commentsByPost.set(c.post_id, list);
   }
@@ -69,7 +74,7 @@ export default async function FeedbackPage() {
     title: p.title,
     content: p.content,
     createdAt: p.created_at,
-    authorName: userNames[p.user_id] ?? "알 수 없음",
+    authorName: userNames[p.user_id] ?? unknown,
     comments: commentsByPost.get(p.id) ?? [],
   }));
 
@@ -77,14 +82,14 @@ export default async function FeedbackPage() {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-lg font-semibold tracking-tight text-neutral-900 dark:text-white">
-          기능 제안 & 버그 신고
+          {t("title")}
         </h1>
         <p className="mt-1 text-sm text-neutral-500">
-          PoRoom을 더 좋게 만들 아이디어나 발견한 버그를 자유롭게 남겨주세요. 남긴 글은 비밀글로 등록되어 작성자 본인과 관리자만 볼 수 있어요.
+          {t("intro")}
         </p>
       </div>
       <FeedbackBoard
-        selfName={myProfile?.name ?? user!.email ?? "나"}
+        selfName={myProfile?.name ?? user!.email ?? me}
         initialPosts={posts}
         isAdmin={isAdmin}
       />

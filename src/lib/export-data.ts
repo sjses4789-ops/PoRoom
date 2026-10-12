@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { err } from "@/lib/errors";
 import { inRange } from "@/lib/records";
 import { todayKst } from "@/lib/time";
 import { computeWinLossByUser, computeChallengeScoreByUser } from "@/lib/challenge-rankings";
@@ -71,7 +72,7 @@ export async function buildExportBundle(): Promise<ExportBundle | { error: strin
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const today = todayKst();
 
@@ -407,7 +408,7 @@ export async function buildBackupDump(): Promise<BackupBundle | { error: string 
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const [
     { data: myProfile },

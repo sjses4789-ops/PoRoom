@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { err } from "@/lib/errors";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionResult } from "@/lib/rooms";
 
@@ -12,14 +13,14 @@ export async function saveGoal(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const period = String(formData.get("period") ?? "month");
   const targetChars = Number(formData.get("targetChars") ?? 0) || 0;
   const targetMinutes = Number(formData.get("targetMinutes") ?? 0) || 0;
 
   if (!["month", "year"].includes(period)) {
-    return { error: "잘못된 기간입니다." };
+    return { error: await err("invalidPeriod") };
   }
 
   const { error } = await supabase.from("goals").upsert(

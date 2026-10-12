@@ -4,7 +4,7 @@ import { useActionState, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { createRoom, type ActionResult } from "@/lib/rooms";
 import { useNicknameChooser } from "@/components/use-nickname-chooser";
-import { PALETTE, paletteDot } from "@/lib/palette";
+import { PALETTE, paletteDot, paletteLabel } from "@/lib/palette";
 import { ROOM_TAGS, translateRoomTag } from "@/lib/room-tags";
 
 export default function CreateRoomButton({
@@ -15,6 +15,7 @@ export default function CreateRoomButton({
   onToggle: () => void;
 }) {
   const t = useTranslations("main.createRoom");
+  const tColors = useTranslations("colors");
   const tTags = useTranslations("tags");
 
   const RECORD_VISIBILITY_OPTIONS = [
@@ -102,7 +103,7 @@ export default function CreateRoomButton({
                     key={p.key}
                     type="button"
                     onClick={() => setColor(p.key)}
-                    title={p.label}
+                    title={paletteLabel(tColors, p.key)}
                     className={`h-6 w-6 rounded-full ${paletteDot(p.key)} transition ${
                       color === p.key
                         ? "ring-2 ring-neutral-900 ring-offset-2"

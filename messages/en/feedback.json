@@ -1,0 +1,20 @@
+{
+  "title": "Feature requests & bug reports",
+  "intro": "Share ideas to make PoRoom better or bugs you found. Your post is private — only you and the admins can see it.",
+  "suggestion": "Feature request",
+  "bug": "Bug report",
+  "secret": "Private",
+  "countAll": "{count} posts in total",
+  "countMine": "{count} of your posts",
+  "write": "Write",
+  "cancel": "Cancel",
+  "titlePlaceholder": "Title",
+  "contentPlaceholder": "Details",
+  "submitting": "Submitting...",
+  "submit": "Submit",
+  "empty": "No posts yet.",
+  "answers": "{count} replies",
+  "delete": "Delete",
+  "adminReply": "Admin reply",
+  "register": "Post"
+}

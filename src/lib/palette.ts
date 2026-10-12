@@ -129,3 +129,14 @@ export function chatBubbleClass(colorKey: string | null | undefined, isSelf: boo
   }
   return isSelf ? "bg-neutral-900 text-white" : "bg-neutral-100 text-neutral-800";
 }
+
+// 색 이름 툴팁을 현재 언어로 만든다(messages/<언어>/colors.json). key가 "red-deep"이면 "진한 빨강"처럼 만든다.
+export function paletteLabel(
+  t: (key: string, values?: Record<string, string>) => string,
+  key: string
+): string {
+  if (key.endsWith("-deep")) {
+    return t("deep", { name: t(key.slice(0, -5)) });
+  }
+  return t(key);
+}

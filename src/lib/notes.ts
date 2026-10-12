@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { err } from "@/lib/errors";
 import { NOTE_MAX_LENGTH } from "@/lib/notes-limits";
 
 export type NoteItem = {
@@ -26,12 +27,12 @@ export async function sendNote(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
-  if (user.id === recipientId) return { error: "자기 자신에게는 쪽지를 보낼 수 없어요." };
+  if (!user) return { error: await err("loginRequired") };
+  if (user.id === recipientId) return { error: await err("noteSelf") };
 
   const text = content.trim();
-  if (!text) return { error: "쪽지 내용을 적어 주세요." };
-  if (text.length > NOTE_MAX_LENGTH) return { error: `쪽지는 ${NOTE_MAX_LENGTH}자 이하로 적어 주세요.` };
+  if (!text) return { error: await err("noteRequired") };
+  if (text.length > NOTE_MAX_LENGTH) return { error: await err("noteTooLong", { max: NOTE_MAX_LENGTH }) };
 
   // 상대가 보게 될 내 이름: 그 방에서 닉네임을 쓰고 있으면 닉네임, 아니면 기본 닉네임.
   const [{ data: profile }, memberResult] = await Promise.all([
@@ -45,12 +46,12 @@ export async function sendNote(
           .maybeSingle<{ nickname: string | null }>()
       : Promise.resolve({ data: null as { nickname: string | null } | null }),
   ]);
-  const senderName = memberResult.data?.nickname || profile?.name || "알 수 없음";
+  const senderName = memberResult.data?.nickname || profile?.name || await err("unknown");
 
   const { error } = await supabase
     .from("direct_notes")
     .insert({ sender_id: user.id, recipient_id: recipientId, room_id: roomId, sender_name: senderName, content: text });
-  if (error) return { error: "쪽지를 보내지 못했어요. 잠시 후 다시 시도해 주세요." };
+  if (error) return { error: await err("noteSendFailed") };
   return { ok: true };
 }
 

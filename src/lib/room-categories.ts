@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { err } from "@/lib/errors";
 import { createClient } from "@/lib/supabase/server";
 
 export type CategoryResult =
@@ -16,10 +17,10 @@ export async function createCategory(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const trimmed = name.trim();
-  if (!trimmed) return { error: "카테고리 이름을 입력해주세요." };
+  if (!trimmed) return { error: await err("categoryNameRequired") };
 
   const { data, error } = await supabase
     .from("room_event_categories")
@@ -28,7 +29,7 @@ export async function createCategory(
     .single();
 
   if (error || !data) {
-    return { error: error?.message ?? "카테고리 생성에 실패했습니다." };
+    return { error: error?.message ?? await err("categoryCreateFailed") };
   }
 
   revalidatePath(`/room/${roomId}`);

@@ -23,6 +23,7 @@ export default async function MainLayout({
 }) {
   const supabase = await createClient();
   const tLogin = await getTranslations("login");
+  const tLayout = await getTranslations("layout");
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -107,7 +108,7 @@ export default async function MainLayout({
                 href="/login"
                 className="font-bold text-neutral-900 hover:underline dark:text-white"
               >
-                로그인
+                {tLayout("loginLink")}
               </Link>
             )}
           </div>
@@ -133,7 +134,7 @@ export default async function MainLayout({
               href="/login"
               className="font-bold text-neutral-900 hover:underline dark:text-white"
             >
-              로그인
+              {tLayout("loginLink")}
             </Link>
           )}
         </div>

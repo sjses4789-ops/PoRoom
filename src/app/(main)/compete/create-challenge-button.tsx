@@ -4,12 +4,13 @@ import { useActionState, useState } from "react";
 import { useTranslations } from "next-intl";
 import { createChallenge } from "@/lib/challenges";
 import type { ActionResult } from "@/lib/rooms";
-import { PALETTE, paletteDot } from "@/lib/palette";
+import { PALETTE, paletteDot, paletteLabel } from "@/lib/palette";
 
 const DURATION_OPTIONS = [3, 7, 14, 30] as const;
 
 export default function CreateChallengeButton() {
   const t = useTranslations("compete.createChallengeButton");
+  const tColors = useTranslations("colors");
   const [open, setOpen] = useState(false);
   const [color, setColor] = useState<string>(PALETTE[0].key);
   const [capacity, setCapacity] = useState("");
@@ -184,7 +185,7 @@ export default function CreateChallengeButton() {
                     key={p.key}
                     type="button"
                     onClick={() => setColor(p.key)}
-                    title={p.label}
+                    title={paletteLabel(tColors, p.key)}
                     className={`h-6 w-6 rounded-full ${paletteDot(p.key)} transition ${
                       color === p.key
                         ? "ring-2 ring-neutral-900 ring-offset-2"

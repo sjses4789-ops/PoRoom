@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { err } from "@/lib/errors";
 import { createClient } from "@/lib/supabase/server";
 import { todayKst } from "@/lib/time";
 
@@ -11,10 +12,10 @@ export async function createWork(title: string): Promise<CreateWorkResult> {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const trimmed = title.trim();
-  if (!trimmed) return { error: "작품 이름을 입력해주세요." };
+  if (!trimmed) return { error: await err("workNameRequired") };
 
   const { data, error } = await supabase
     .from("works")
@@ -22,7 +23,7 @@ export async function createWork(title: string): Promise<CreateWorkResult> {
     .select("id,title")
     .single();
 
-  if (error || !data) return { error: error?.message ?? "작품 추가에 실패했습니다." };
+  if (error || !data) return { error: error?.message ?? await err("workAddFailed") };
 
   revalidatePath("/room/[id]", "page");
   return { id: data.id, title: data.title };
@@ -33,10 +34,10 @@ export async function renameWork(workId: string, title: string): Promise<CreateW
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const trimmed = title.trim();
-  if (!trimmed) return { error: "작품 이름을 입력해주세요." };
+  if (!trimmed) return { error: await err("workNameRequired") };
 
   const { data, error } = await supabase
     .from("works")
@@ -46,7 +47,7 @@ export async function renameWork(workId: string, title: string): Promise<CreateW
     .select("id,title")
     .single();
 
-  if (error || !data) return { error: error?.message ?? "작품 이름 수정에 실패했습니다." };
+  if (error || !data) return { error: error?.message ?? await err("workRenameFailed") };
 
   revalidatePath("/me");
   revalidatePath("/room/[id]", "page");
@@ -139,7 +140,7 @@ export async function setWorkRecordChars(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const safeChars = Math.max(0, Math.floor(chars) || 0);
 

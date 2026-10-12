@@ -76,13 +76,29 @@ export function formatAbsoluteDateTime(iso: string): string {
   return `${get("year")}.${get("month")}.${get("day")} ${get("hour")}:${get("minute")}`;
 }
 
-export function formatRelativeTime(iso: string | null): string | null {
+export type RelativeTimeLabels = {
+  justNow: string;
+  minutesAgo: (n: number) => string;
+  hoursAgo: (n: number) => string;
+};
+
+const KO_RELATIVE_TIME: RelativeTimeLabels = {
+  justNow: "방금 전",
+  minutesAgo: (n) => `${n}분 전`,
+  hoursAgo: (n) => `${n}시간 전`,
+};
+
+// labels를 넘기면 그 언어로(getRelativeTimeLabels — lib/errors.ts), 안 넘기면 한국어로 표시한다.
+export function formatRelativeTime(
+  iso: string | null,
+  labels: RelativeTimeLabels = KO_RELATIVE_TIME
+): string | null {
   if (!iso) return null;
   const diffMs = Date.now() - new Date(iso).getTime();
   const minutes = Math.floor(diffMs / 60000);
-  if (minutes < 1) return "방금 전";
-  if (minutes < 60) return `${minutes}분 전`;
+  if (minutes < 1) return labels.justNow;
+  if (minutes < 60) return labels.minutesAgo(minutes);
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}시간 전`;
+  if (hours < 24) return labels.hoursAgo(hours);
   return formatAbsoluteDateTime(iso);
 }

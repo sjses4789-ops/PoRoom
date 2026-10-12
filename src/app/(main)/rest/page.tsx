@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { err } from "@/lib/errors";
 import { createClient } from "@/lib/supabase/server";
 import { isCurrentUserAdmin } from "@/lib/admin";
 import { getMyJoinedRooms } from "@/lib/rest";
@@ -101,13 +102,14 @@ export default async function RestPage({
   const roomNames: Record<string, string> = {};
   for (const r of rooms) roomNames[r.id] = r.name;
 
+  const unknownName = await err("unknown");
   const posts: RestPost[] = postRows.map((p) => ({
     id: p.id,
     title: p.title,
     content: p.content,
     createdAt: p.created_at,
     authorId: p.user_id,
-    authorName: userNames[p.user_id] ?? "알 수 없음",
+    authorName: userNames[p.user_id] ?? unknownName,
     category: p.category,
     infoCategory: p.info_category,
     pinned: p.pinned,
@@ -131,7 +133,7 @@ export default async function RestPage({
       </div>
       <RestNav
         selfId={selfId ?? ""}
-        selfName={myProfile?.name ?? user?.email ?? "나"}
+        selfName={myProfile?.name ?? user?.email ?? (await err("selfLabel"))}
         isAdmin={isAdmin}
         myBestCpm={myScores && myScores.length > 0 ? myScores[0].cpm : null}
         initialPosts={posts}

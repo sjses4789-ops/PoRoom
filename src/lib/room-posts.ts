@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { err } from "@/lib/errors";
 import { createClient } from "@/lib/supabase/server";
 
 export type PostCategory = "공지사항" | "정보 공유" | "팁 전수" | "자유";
@@ -27,12 +28,12 @@ export async function createPost(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const trimmedTitle = title.trim();
   const trimmedContent = content.trim();
-  if (!trimmedTitle) return { error: "제목을 입력해주세요." };
-  if (!trimmedContent) return { error: "내용을 입력해주세요." };
+  if (!trimmedTitle) return { error: await err("titleRequired") };
+  if (!trimmedContent) return { error: await err("contentRequired") };
 
   // 고정은 공지사항 글에서만 의미가 있다 — 다른 카테고리면 무시한다.
   const isNotice = category === "공지사항";
@@ -52,7 +53,7 @@ export async function createPost(
     .single();
 
   if (error || !data) {
-    return { error: error?.message ?? "게시글 작성에 실패했습니다." };
+    return { error: error?.message ?? await err("postCreateFailed") };
   }
 
   revalidatePath(`/room/${roomId}`);
@@ -78,12 +79,12 @@ export async function updatePost(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const trimmedTitle = title.trim();
   const trimmedContent = content.trim();
-  if (!trimmedTitle) return { error: "제목을 입력해주세요." };
-  if (!trimmedContent) return { error: "내용을 입력해주세요." };
+  if (!trimmedTitle) return { error: await err("titleRequired") };
+  if (!trimmedContent) return { error: await err("contentRequired") };
 
   const { error } = await supabase
     .from("room_posts")
@@ -101,7 +102,7 @@ export async function deletePost(roomId: string, postId: string): Promise<EditPo
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const { error } = await supabase.from("room_posts").delete().eq("id", postId);
 

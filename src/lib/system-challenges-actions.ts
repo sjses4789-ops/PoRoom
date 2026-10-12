@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { err } from "@/lib/errors";
 import { createClient } from "@/lib/supabase/server";
 import { ensureSystemChallenge } from "@/lib/system-challenges";
 import { todayKst, kstDayRangeUtc } from "@/lib/time";
@@ -12,10 +13,10 @@ export async function markDraftDone(): Promise<MarkDraftDoneResult> {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const challengeId = await ensureSystemChallenge(supabase, "monthly_draft", user.id);
-  if (!challengeId) return { error: "챌린지를 불러오지 못했습니다." };
+  if (!challengeId) return { error: await err("challengeLoadFailed") };
 
   const { data: participant } = await supabase
     .from("challenge_participants")
@@ -23,7 +24,7 @@ export async function markDraftDone(): Promise<MarkDraftDoneResult> {
     .eq("challenge_id", challengeId)
     .eq("user_id", user.id)
     .maybeSingle();
-  if (!participant) return { error: "먼저 챌린지에 참여해주세요." };
+  if (!participant) return { error: await err("joinChallengeFirst") };
 
   const today = todayKst();
   const monthStart = `${today.slice(0, 7)}-01`;
@@ -35,7 +36,7 @@ export async function markDraftDone(): Promise<MarkDraftDoneResult> {
     .gte("created_at", kstDayRangeUtc(monthStart).startUtc)
     .limit(1);
   if ((existing ?? []).length > 0) {
-    return { error: "이미 이번 달 초단 완고를 기록했습니다." };
+    return { error: await err("draftAlreadyDone") };
   }
 
   await supabase

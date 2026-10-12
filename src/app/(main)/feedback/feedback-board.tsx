@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import {
   createFeedbackPost,
   createFeedbackComment,
@@ -36,18 +37,13 @@ export type FeedbackPost = {
   comments: FeedbackComment[];
 };
 
-const CATEGORY_LABEL: Record<FeedbackCategory, string> = {
-  suggestion: "기능 제안",
-  bug: "버그 신고",
-};
-
 const CATEGORY_BADGE: Record<FeedbackCategory, string> = {
   suggestion: "bg-sky-500",
   bug: "bg-red-500",
 };
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleString("ko-KR", {
+function formatDate(iso: string, locale: string) {
+  return new Date(iso).toLocaleString(locale, {
     year: "numeric",
     month: "numeric",
     day: "numeric",
@@ -65,6 +61,8 @@ export function FeedbackBoard({
   initialPosts: FeedbackPost[];
   isAdmin: boolean;
 }) {
+  const t = useTranslations("feedback");
+  const locale = useLocale();
   const [posts, setPosts] = useState<FeedbackPost[]>(initialPosts);
   const [writing, setWriting] = useState(false);
   const [category, setCategory] = useState<FeedbackCategory>("suggestion");
@@ -127,14 +125,14 @@ export function FeedbackBoard({
     <div className="flex flex-col gap-4 border border-neutral-400 p-4">
       <div className="flex items-center justify-between">
         <h2 className="flex items-center gap-1.5 text-sm font-semibold text-neutral-900 dark:text-white">
-          <span aria-hidden title="비밀글">🔒</span>
-          {isAdmin ? `전체 ${posts.length}건` : `내가 남긴 글 ${posts.length}건`}
+          <span aria-hidden title={t("secret")}>🔒</span>
+          {isAdmin ? t("countAll", { count: posts.length }) : t("countMine", { count: posts.length })}
         </h2>
         <button
           onClick={() => setWriting((v) => !v)}
           className="rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-neutral-700"
         >
-          {writing ? "취소" : "글쓰기"}
+          {writing ? t("cancel") : t("write")}
         </button>
       </div>
 
@@ -150,30 +148,30 @@ export function FeedbackBoard({
                   onChange={() => setCategory(c)}
                   className="accent-neutral-900"
                 />
-                {CATEGORY_LABEL[c]}
+                {t(c === "bug" ? "bug" : "suggestion")}
               </label>
             ))}
           </div>
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="제목"
+            placeholder={t("titlePlaceholder")}
             className="rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
           />
-          <RichTextEditor value={content} onChange={setContent} placeholder="내용" />
+          <RichTextEditor value={content} onChange={setContent} placeholder={t("contentPlaceholder")} />
           {error && <p className="text-xs text-red-500">{error}</p>}
           <button
             onClick={submit}
             disabled={pending}
             className="self-start rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-neutral-700 disabled:opacity-50"
           >
-            {pending ? "등록 중..." : "등록"}
+            {pending ? t("submitting") : t("submit")}
           </button>
         </div>
       )}
 
       {posts.length === 0 ? (
-        <p className="text-xs text-neutral-400">아직 등록된 글이 없습니다.</p>
+        <p className="text-xs text-neutral-400">{t("empty")}</p>
       ) : (
         <ul className="flex flex-col divide-y divide-neutral-400 border border-neutral-400">
           {posts.map((p) => {
@@ -188,19 +186,19 @@ export function FeedbackBoard({
                     <span
                       className={`shrink-0 rounded px-1.5 py-0.5 text-[11px] font-medium text-white ${CATEGORY_BADGE[p.category]}`}
                     >
-                      {CATEGORY_LABEL[p.category]}
+                      {t(p.category === "bug" ? "bug" : "suggestion")}
                     </span>
                     <span className="min-w-0 truncate font-medium text-neutral-900 dark:text-white">
                       {p.title}
                     </span>
                     {p.comments.length > 0 && (
                       <span className="shrink-0 rounded px-1.5 py-0.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
-                        답변 {p.comments.length}
+                        {t("answers", { count: p.comments.length })}
                       </span>
                     )}
                   </span>
                   <span className="shrink-0 whitespace-nowrap text-[12px] text-neutral-400">
-                    {p.authorName} · {formatDate(p.createdAt)}
+                    {p.authorName} · {formatDate(p.createdAt, locale)}
                   </span>
                 </button>
                 {isOpen && (
@@ -213,14 +211,14 @@ export function FeedbackBoard({
                           <div key={c.id} className="flex flex-col gap-0.5">
                             <div className="flex items-center justify-between gap-2">
                               <span className="text-[12px] font-medium text-neutral-500 dark:text-neutral-400">
-                                {c.authorName} · {formatDate(c.createdAt)}
+                                {c.authorName} · {formatDate(c.createdAt, locale)}
                               </span>
                               {isAdmin && (
                                 <button
                                   onClick={() => removeComment(p.id, c.id)}
                                   className="text-[11px] text-neutral-300 hover:text-red-500 dark:text-neutral-600"
                                 >
-                                  삭제
+                                  {t("delete")}
                                 </button>
                               )}
                             </div>
@@ -240,7 +238,7 @@ export function FeedbackBoard({
                             setReplyDrafts((prev) => ({ ...prev, [p.id]: e.target.value }))
                           }
                           onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && submitReply(p.id)}
-                          placeholder="관리자 답글"
+                          placeholder={t("adminReply")}
                           className="min-w-0 flex-1 rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
                         />
                         <button
@@ -248,7 +246,7 @@ export function FeedbackBoard({
                           disabled={replyPending === p.id}
                           className="shrink-0 rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-neutral-700 disabled:opacity-50"
                         >
-                          등록
+                          {t("register")}
                         </button>
                       </div>
                     )}

@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { err } from "@/lib/errors";
 import { createClient } from "@/lib/supabase/server";
 
 // 백업 JSON을 현재 로그인한 계정에 "추가"한다 — 백업 파일 안에 user_id가
@@ -12,16 +13,16 @@ export async function POST(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "로그인이 필요합니다." }, { status: 401 });
+  if (!user) return NextResponse.json({ error: await err("loginRequired") }, { status: 401 });
 
   let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: "올바른 백업 파일이 아니에요." }, { status: 400 });
+    return NextResponse.json({ error: await err("invalidBackup") }, { status: 400 });
   }
   if (!body || typeof body !== "object") {
-    return NextResponse.json({ error: "올바른 백업 파일이 아니에요." }, { status: 400 });
+    return NextResponse.json({ error: await err("invalidBackup") }, { status: 400 });
   }
   const dump = body as Record<string, unknown>;
   const asArray = (v: unknown): Record<string, unknown>[] =>

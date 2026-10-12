@@ -1,0 +1,22 @@
+{
+  "prompt": "링크 주소를 입력하세요",
+  "paragraph": "본문",
+  "heading1": "제목 1",
+  "heading2": "제목 2",
+  "heading3": "제목 3",
+  "bold": "굵게",
+  "italic": "기울임",
+  "underline": "밑줄",
+  "strike": "취소선",
+  "alignLeft": "왼쪽 정렬",
+  "alignCenter": "가운데 정렬",
+  "alignRight": "오른쪽 정렬",
+  "quote": "인용",
+  "textColor": "글자색",
+  "bgColor": "글자 배경색",
+  "link": "링크",
+  "list": "목록",
+  "uploading": "이미지 업로드 중...",
+  "addImage": "그림 추가",
+  "clearColor": "색 지우기"
+}

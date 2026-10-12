@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { err } from "@/lib/errors";
 
 const MAX_BYTES = 5 * 1024 * 1024;
 const ALLOWED_TYPES: Record<string, string> = {
@@ -20,13 +21,13 @@ export async function uploadPostImage(formData: FormData): Promise<UploadImageRe
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const file = formData.get("file");
-  if (!(file instanceof File)) return { error: "이미지 파일을 선택해주세요." };
+  if (!(file instanceof File)) return { error: await err("imageRequired") };
   const ext = ALLOWED_TYPES[file.type];
-  if (!ext) return { error: "PNG, JPG, WEBP, GIF 이미지만 업로드할 수 있어요." };
-  if (file.size > MAX_BYTES) return { error: "이미지 용량은 5MB 이하여야 해요." };
+  if (!ext) return { error: await err("imageType") };
+  if (file.size > MAX_BYTES) return { error: await err("imageSize") };
 
   const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
   const { error } = await supabase.storage.from("post-images").upload(path, file, {

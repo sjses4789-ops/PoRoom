@@ -12,6 +12,10 @@ const LOCALE_HEADER = "x-poroom-locale";
 // 때 같은 파일을 동시에 건드리지 않도록 하기 위함 — 새 네임스페이스를
 // 추가하면 여기 목록에도 추가해야 한다.
 const NAMESPACES = [
+  "errors",
+  "feedback",
+  "richEditor",
+  "colors",
   "common",
   "nav",
   "layout",

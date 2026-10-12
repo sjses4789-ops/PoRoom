@@ -1,0 +1,22 @@
+{
+  "prompt": "请输入链接地址",
+  "paragraph": "正文",
+  "heading1": "标题 1",
+  "heading2": "标题 2",
+  "heading3": "标题 3",
+  "bold": "加粗",
+  "italic": "斜体",
+  "underline": "下划线",
+  "strike": "删除线",
+  "alignLeft": "左对齐",
+  "alignCenter": "居中对齐",
+  "alignRight": "右对齐",
+  "quote": "引用",
+  "textColor": "文字颜色",
+  "bgColor": "文字背景色",
+  "link": "链接",
+  "list": "列表",
+  "uploading": "正在上传图片...",
+  "addImage": "添加图片",
+  "clearColor": "清除颜色"
+}

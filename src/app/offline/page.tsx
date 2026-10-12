@@ -6,6 +6,7 @@ export const metadata: Metadata = {
 };
 
 // 인터넷 연결이 끊겼을 때 서비스 워커(public/sw.js)가 대신 보여주는 정적 안내 페이지.
+// 정적 페이지라 언어를 고를 수 없어서 지원하는 네 언어로 함께 안내한다.
 export default function OfflinePage() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-3 px-6 text-center">
@@ -14,6 +15,8 @@ export default function OfflinePage() {
         PoRoom은 함께 집중하는 서비스라 연결이 필요해요. 연결을 확인한 뒤 다시 시도해 주세요.
       </p>
       <p className="text-xs text-neutral-400">You&apos;re offline. Please check your connection and try again.</p>
+      <p className="text-xs text-neutral-400">インターネットに接続されていません。接続を確認してもう一度お試しください。</p>
+      <p className="text-xs text-neutral-400">当前未连接到互联网。请检查网络连接后重试。</p>
     </main>
   );
 }

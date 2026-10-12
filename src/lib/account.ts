@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { err } from "@/lib/errors";
 import { leaveRoom } from "@/lib/rooms";
 
 // 계정 탈퇴: 참여 중인 모든 방에서 먼저 정상적으로 나가게 한다(leaveRoom과
@@ -20,7 +21,7 @@ export async function deleteAccount(): Promise<{ error: string } | null> {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const { data: memberships } = await supabase
     .from("room_members")

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { updateChallengeSettings } from "@/lib/challenges";
-import { PALETTE, paletteDot } from "@/lib/palette";
+import { PALETTE, paletteDot, paletteLabel } from "@/lib/palette";
 
 const DURATION_OPTIONS = [3, 7, 14, 30] as const;
 
@@ -24,6 +24,7 @@ export function ChallengeSettingsButton({
   started: boolean;
 }) {
   const t = useTranslations("compete.challengeSettingsButton");
+  const tColors = useTranslations("colors");
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState(currentTitle);
@@ -90,7 +91,7 @@ export function ChallengeSettingsButton({
                     key={p.key}
                     type="button"
                     onClick={() => setColor(p.key)}
-                    title={p.label}
+                    title={paletteLabel(tColors, p.key)}
                     className={`h-6 w-6 rounded-full ${paletteDot(p.key)} transition ${
                       color === p.key
                         ? "ring-2 ring-neutral-900 ring-offset-2"

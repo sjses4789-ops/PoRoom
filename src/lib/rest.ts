@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { err } from "@/lib/errors";
 import { createClient } from "@/lib/supabase/server";
 import { isCurrentUserAdmin } from "@/lib/admin";
 import { REST_INFO_CATEGORIES, type RestPostCategory, type RestInfoCategory } from "@/lib/rest-types";
@@ -29,12 +30,12 @@ export async function createRestPost(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const trimmedTitle = title.trim();
   const trimmedContent = content.trim();
-  if (!trimmedTitle) return { error: "제목을 입력해주세요." };
-  if (!trimmedContent) return { error: "내용을 입력해주세요." };
+  if (!trimmedTitle) return { error: await err("titleRequired") };
+  if (!trimmedContent) return { error: await err("contentRequired") };
 
   // 방 링크는 "인원 모집" 게시판에서만, 그리고 작성자가 실제로 그 방에
   // 참여 중일 때만 걸 수 있게 한다 — 다른 방을 흉내내 링크를 거는 걸
@@ -69,7 +70,7 @@ export async function createRestPost(
     .single();
 
   if (error || !data) {
-    return { error: error?.message ?? "게시글 작성에 실패했습니다." };
+    return { error: error?.message ?? await err("postCreateFailed") };
   }
 
   revalidatePath("/rest");
@@ -92,7 +93,7 @@ export async function setRestPostPinned(
   pinned: boolean
 ): Promise<{ error: string } | { ok: true }> {
   const isAdmin = await isCurrentUserAdmin();
-  if (!isAdmin) return { error: "관리자만 고정할 수 있어요." };
+  if (!isAdmin) return { error: await err("pinAdminOnly") };
 
   const supabase = await createClient();
   const { error } = await supabase.from("rest_posts").update({ pinned }).eq("id", postId);
@@ -135,12 +136,12 @@ export async function updateRestPost(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const trimmedTitle = title.trim();
   const trimmedContent = content.trim();
-  if (!trimmedTitle) return { error: "제목을 입력해주세요." };
-  if (!trimmedContent) return { error: "내용을 입력해주세요." };
+  if (!trimmedTitle) return { error: await err("titleRequired") };
+  if (!trimmedContent) return { error: await err("contentRequired") };
 
   let linkedRoomId: string | null = null;
   if (roomId) {
@@ -176,7 +177,7 @@ export async function deleteRestPost(postId: string): Promise<RestPostEditResult
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const { error } = await supabase.from("rest_posts").delete().eq("id", postId);
   if (error) return { error: error.message };
@@ -192,13 +193,13 @@ export async function submitTypingScore(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   if (!Number.isFinite(cpm) || cpm < 0 || cpm > 2000) {
-    return { error: "잘못된 기록입니다." };
+    return { error: await err("invalidRecord") };
   }
   if (!Number.isFinite(accuracy) || accuracy < 0 || accuracy > 100) {
-    return { error: "잘못된 기록입니다." };
+    return { error: await err("invalidRecord") };
   }
 
   const { error } = await supabase

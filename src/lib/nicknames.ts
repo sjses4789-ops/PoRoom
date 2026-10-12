@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { err } from "@/lib/errors";
 import { createClient } from "@/lib/supabase/server";
 import { MAX_EXTRA_NICKNAMES, MAX_NICKNAME_LENGTH } from "@/lib/nickname-limits";
 
@@ -45,20 +46,20 @@ export async function createNickname(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const nickname = raw.trim();
-  if (!nickname) return { error: "닉네임을 입력해주세요." };
+  if (!nickname) return { error: await err("nicknameRequired") };
   if (nickname.length > MAX_NICKNAME_LENGTH) {
-    return { error: `닉네임은 ${MAX_NICKNAME_LENGTH}자 이하로 입력해주세요.` };
+    return { error: await err("nicknameTooLong", { max: MAX_NICKNAME_LENGTH }) };
   }
 
   const existing = await getMyNicknames();
   if (existing.length >= MAX_EXTRA_NICKNAMES) {
-    return { error: `닉네임은 기본 닉네임을 포함해 최대 ${MAX_EXTRA_NICKNAMES + 1}개까지 만들 수 있어요.` };
+    return { error: await err("nicknameLimit", { max: MAX_EXTRA_NICKNAMES + 1 }) };
   }
   if (existing.some((n) => n.nickname === nickname)) {
-    return { error: "이미 만들어 둔 닉네임이에요." };
+    return { error: await err("nicknameDuplicate") };
   }
 
   const { data, error } = await supabase
@@ -67,7 +68,7 @@ export async function createNickname(
     .select("id,nickname")
     .single<NicknameItem>();
   if (error || !data) {
-    return { error: error?.code === "P0001" ? "더 이상 닉네임을 만들 수 없어요." : "닉네임을 만들지 못했어요." };
+    return { error: error?.code === "P0001" ? await err("nicknameCannotCreateMore") : await err("nicknameCreateFailed") };
   }
   return data;
 }
@@ -82,20 +83,20 @@ export async function updateNickname(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const nickname = raw.trim();
-  if (!nickname) return { error: "닉네임을 입력해주세요." };
+  if (!nickname) return { error: await err("nicknameRequired") };
   if (nickname.length > MAX_NICKNAME_LENGTH) {
-    return { error: `닉네임은 ${MAX_NICKNAME_LENGTH}자 이하로 입력해주세요.` };
+    return { error: await err("nicknameTooLong", { max: MAX_NICKNAME_LENGTH }) };
   }
 
   const existing = await getMyNicknames();
   const current = existing.find((n) => n.id === id);
-  if (!current) return { error: "존재하지 않는 닉네임이에요." };
+  if (!current) return { error: await err("nicknameNotFound") };
   if (current.nickname === nickname) return { id, nickname };
   if (existing.some((n) => n.id !== id && n.nickname === nickname)) {
-    return { error: "이미 만들어 둔 닉네임이에요." };
+    return { error: await err("nicknameDuplicate") };
   }
 
   // RLS가 막으면(정책 미적용 등) 오류 없이 0행만 바뀌므로, 실제로 바뀐 행이 있는지 확인한다.
@@ -105,7 +106,7 @@ export async function updateNickname(
     .eq("id", id)
     .eq("user_id", user.id)
     .select("id");
-  if (error || !updated || updated.length === 0) return { error: "닉네임을 바꾸지 못했어요." };
+  if (error || !updated || updated.length === 0) return { error: await err("nicknameChangeFailed") };
 
   await supabase
     .from("room_members")
@@ -127,7 +128,7 @@ export async function setRoomNickname(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   let nickname: string | null = null;
   if (nicknameId) {
@@ -137,7 +138,7 @@ export async function setRoomNickname(
       .eq("id", nicknameId)
       .eq("user_id", user.id)
       .maybeSingle<{ nickname: string }>();
-    if (!data) return { error: "존재하지 않는 닉네임이에요." };
+    if (!data) return { error: await err("nicknameNotFound") };
     nickname = data.nickname;
   }
 
@@ -146,7 +147,7 @@ export async function setRoomNickname(
     .update({ nickname, nickname_set: true })
     .eq("room_id", roomId)
     .eq("user_id", user.id);
-  if (error) return { error: "닉네임을 바꾸지 못했어요." };
+  if (error) return { error: await err("nicknameChangeFailed") };
 
   revalidatePath(`/room/${roomId}`);
   return { nickname };

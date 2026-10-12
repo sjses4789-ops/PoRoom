@@ -21,5 +21,8 @@
     "perkEmoji": "방 채팅창에서 이모티콘 사용",
     "price": "{amount}원",
     "comingSoon": "결제 기능은 준비 중이에요. 곧 만나요!"
-  }
+  },
+  "loginLink": "로그인",
+  "themeDark": "다크 테마 (누르면 라이트 테마로 전환)",
+  "themeLight": "라이트 테마 (누르면 다크 테마로 전환)"
 }

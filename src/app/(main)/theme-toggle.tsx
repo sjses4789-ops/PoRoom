@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
 const STORAGE_KEY = "poroom-theme";
 
@@ -15,6 +16,7 @@ function MoonIcon() {
 }
 
 export function ThemeToggle() {
+  const t = useTranslations("layout");
   // 서버는 <html>에 뭐가 붙어있는지 알 길이 없어 항상 "라이트"로 렌더링
   // 한다. 예전엔 여기서 useState 초기값을 document.documentElement에서
   // 바로 읽어와(다크면 dark=true) 첫 렌더부터 아이콘이 <MoonIcon/>(svg
@@ -47,7 +49,7 @@ export function ThemeToggle() {
       type="button"
       onClick={toggle}
       aria-pressed={dark}
-      aria-label={dark ? "다크 테마 (누르면 라이트 테마로 전환)" : "라이트 테마 (누르면 다크 테마로 전환)"}
+      aria-label={dark ? t("themeDark") : t("themeLight")}
       // 기본(라이트) 테마: 트랙 전체(달 아이콘 쪽·해 쪽 모두)가 검정.
       // 다크 테마: 트랙 전체가 화이트.
       className="relative flex h-6 w-12 shrink-0 items-center rounded-full border border-neutral-300 bg-black p-0.5 transition dark:border-neutral-600 dark:bg-white"

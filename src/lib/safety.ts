@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { err } from "@/lib/errors";
 import { createClient } from "@/lib/supabase/server";
 import { isCurrentUserAdmin } from "@/lib/admin";
 import { REPORT_MAX_LENGTH, REPORT_MIN_LENGTH } from "@/lib/safety-limits";
@@ -12,13 +13,13 @@ export async function blockUser(blockedId: string): Promise<{ error: string } | 
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
-  if (user.id === blockedId) return { error: "자기 자신은 차단할 수 없어요." };
+  if (!user) return { error: await err("loginRequired") };
+  if (user.id === blockedId) return { error: await err("blockSelf") };
 
   const { error } = await supabase
     .from("user_blocks")
     .upsert({ blocker_id: user.id, blocked_id: blockedId }, { onConflict: "blocker_id,blocked_id" });
-  if (error) return { error: "차단하지 못했어요. 잠시 후 다시 시도해 주세요." };
+  if (error) return { error: await err("blockFailed") };
   return null;
 }
 
@@ -27,14 +28,14 @@ export async function unblockUser(blockedId: string): Promise<{ error: string } 
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const { error } = await supabase
     .from("user_blocks")
     .delete()
     .eq("blocker_id", user.id)
     .eq("blocked_id", blockedId);
-  if (error) return { error: "차단을 풀지 못했어요. 잠시 후 다시 시도해 주세요." };
+  if (error) return { error: await err("unblockFailed") };
   return null;
 }
 
@@ -56,17 +57,17 @@ export async function reportUser(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
-  if (user.id === reportedId) return { error: "자기 자신은 신고할 수 없어요." };
+  if (!user) return { error: await err("loginRequired") };
+  if (user.id === reportedId) return { error: await err("reportSelf") };
 
   const text = reason.trim();
-  if (text.length < REPORT_MIN_LENGTH) return { error: "신고 이유를 적어 주세요." };
-  if (text.length > REPORT_MAX_LENGTH) return { error: `신고 이유는 ${REPORT_MAX_LENGTH}자 이하로 적어 주세요.` };
+  if (text.length < REPORT_MIN_LENGTH) return { error: await err("reportReasonRequired") };
+  if (text.length > REPORT_MAX_LENGTH) return { error: await err("reportTooLong", { max: REPORT_MAX_LENGTH }) };
 
   const { error } = await supabase
     .from("user_reports")
     .insert({ reporter_id: user.id, reported_id: reportedId, room_id: roomId, reason: text });
-  if (error) return { error: "신고를 접수하지 못했어요. 잠시 후 다시 시도해 주세요." };
+  if (error) return { error: await err("reportFailed") };
   return { ok: true };
 }
 

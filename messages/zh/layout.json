@@ -21,5 +21,8 @@
     "perkEmoji": "在房间聊天中使用表情符号",
     "price": "{amount}韩元",
     "comingSoon": "支付功能即将上线！"
-  }
+  },
+  "loginLink": "登录",
+  "themeDark": "深色主题（点击切换为浅色主题）",
+  "themeLight": "浅色主题（点击切换为深色主题）"
 }

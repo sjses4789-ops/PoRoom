@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { todayKst, formatRelativeTime } from "@/lib/time";
 import { PageAdRail } from "@/components/page-ad-rail";
+import { getRelativeTimeLabels } from "@/lib/errors";
 import { getMyChallengeOptions } from "@/lib/feed";
 import { getDemoData, shouldShowDemoData } from "@/lib/demo-data";
 import { FeedView, type FeedPost, type ReactionType, type PostType, type FeedPostMeta } from "./feed-view";
@@ -28,6 +29,7 @@ const REACTION_TYPES: ReactionType[] = ["heart", "clap", "fire"];
 
 export default async function FeedPage() {
   const t = await getTranslations("feed.page");
+  const relativeLabels = await getRelativeTimeLabels();
   const supabase = await createClient();
   const {
     data: { user },
@@ -129,7 +131,7 @@ export default async function FeedPage() {
       chars: p.chars,
       meta: p.meta ?? {},
       createdAt: p.created_at,
-      createdAtLabel: formatRelativeTime(p.created_at) ?? "",
+      createdAtLabel: formatRelativeTime(p.created_at, relativeLabels) ?? "",
       reactions,
     };
   });

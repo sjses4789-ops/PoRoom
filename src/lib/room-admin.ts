@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { err } from "@/lib/errors";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionResult, RecordVisibility, JoinType } from "@/lib/rooms";
 import { isRoomTag } from "@/lib/room-tags";
@@ -13,7 +14,7 @@ export async function updateRoomSettings(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const roomId = String(formData.get("roomId") ?? "");
   const name = String(formData.get("name") ?? "").trim();
@@ -24,8 +25,8 @@ export async function updateRoomSettings(
   ) as RecordVisibility;
   const joinType = String(formData.get("joinType") ?? "invite") as JoinType;
 
-  if (!roomId) return { error: "잘못된 요청입니다." };
-  if (!name) return { error: "방 이름을 입력해주세요." };
+  if (!roomId) return { error: await err("invalidRequest") };
+  if (!name) return { error: await err("roomNameRequired") };
 
   const { error } = await supabase
     .from("rooms")
@@ -51,7 +52,7 @@ export async function deleteRoom(roomId: string) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const { error } = await supabase
     .from("rooms")
@@ -134,9 +135,10 @@ export async function getBannedMembers(roomId: string): Promise<BannedMember[]> 
     .order("banned_at", { ascending: false })
     .returns<{ user_id: string; users: { name: string | null; email: string } | null }[]>();
 
+  const unknown = await err("unknown");
   return (data ?? []).map((r) => ({
     userId: r.user_id,
-    name: r.users?.name || r.users?.email || "알 수 없음",
+    name: r.users?.name || r.users?.email || unknown,
   }));
 }
 

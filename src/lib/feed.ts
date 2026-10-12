@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { err, getRelativeTimeLabels } from "@/lib/errors";
 import { fetchAllPages } from "@/lib/paginate";
 import { createClient } from "@/lib/supabase/server";
 import { todayKst, kstDayRangeUtc, formatRelativeTime } from "@/lib/time";
@@ -93,7 +94,7 @@ async function computeDuelResult(
       end_date: string | null;
     }>();
   if (!challenge || !challenge.start_date || !challenge.end_date) {
-    return { error: "대결을 찾을 수 없습니다." };
+    return { error: await err("duelNotFoundFeed") };
   }
 
   const { data: participants } = await supabase
@@ -103,7 +104,7 @@ async function computeDuelResult(
     .returns<{ user_id: string | null }[]>();
   const participantIds = (participants ?? []).map((p) => p.user_id).filter((id): id is string => !!id);
   if (!participantIds.includes(userId)) {
-    return { error: "참여하지 않은 대결입니다." };
+    return { error: await err("notInDuel") };
   }
 
   const records = await fetchAllPages<{ user_id: string; record_date: string; chars: number; focus_minutes: number }>(
@@ -159,7 +160,7 @@ async function computeChallengeAchievement(
     .select("id,title,kind,is_admin_event")
     .eq("id", challengeId)
     .maybeSingle<{ id: string; title: string; kind: SystemChallengeKind | null; is_admin_event: boolean }>();
-  if (!challenge) return { error: "챌린지를 찾을 수 없습니다." };
+  if (!challenge) return { error: await err("challengeNotFound") };
 
   const { data: participant } = await supabase
     .from("challenge_participants")
@@ -167,7 +168,7 @@ async function computeChallengeAchievement(
     .eq("challenge_id", challengeId)
     .eq("user_id", userId)
     .maybeSingle<{ id: string; achieved: boolean }>();
-  if (!participant) return { error: "참여하지 않은 챌린지입니다." };
+  if (!participant) return { error: await err("notInChallenge") };
 
   const title = challenge.kind ? SYSTEM_CHALLENGE_META[challenge.kind].title : challenge.title;
 
@@ -209,10 +210,10 @@ export async function createFeedPost(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const trimmedMood = input.mood.trim();
-  if (!trimmedMood) return { error: "오늘 기분이나 소식을 입력해주세요." };
+  if (!trimmedMood) return { error: await err("moodRequired") };
 
   let focusMinutes = 0;
   let chars = 0;
@@ -233,11 +234,11 @@ export async function createFeedPost(
   } else if (input.postType === "submission") {
     const publisherCount = Math.max(0, Math.floor(input.publisherCount) || 0);
     const genre = input.genre.trim();
-    if (!genre) return { error: "장르를 입력해주세요." };
+    if (!genre) return { error: await err("genreRequired") };
     meta = { publisherCount, genre };
   } else if (input.postType === "contest") {
     const contestName = input.contestName.trim();
-    if (!contestName) return { error: "공모전 이름을 입력해주세요." };
+    if (!contestName) return { error: await err("contestNameRequired") };
     if (input.contestMode === "complete") {
       meta = { contestName, contestMode: "complete", contestComplete: !!input.contestComplete };
     } else if (input.contestMode === "round") {
@@ -293,7 +294,7 @@ export async function createFeedPost(
     .single();
 
   if (error || !data) {
-    return { error: error?.message ?? "게시에 실패했습니다." };
+    return { error: error?.message ?? await err("postFailed") };
   }
 
   revalidatePath("/feed");
@@ -371,7 +372,7 @@ export async function getFeedPostById(postId: string): Promise<FeedPostData | nu
     id: post.id,
     postType: post.post_type,
     authorId: post.user_id,
-    authorName: author?.name || "알 수 없음",
+    authorName: author?.name || await err("unknown"),
     characterId: author?.character_id ?? null,
     authorPosition: author?.position === "webtoon" ? "webtoon" : "novelist",
     mood: post.mood,
@@ -379,7 +380,7 @@ export async function getFeedPostById(postId: string): Promise<FeedPostData | nu
     chars: post.chars,
     meta: post.meta ?? {},
     createdAt: post.created_at,
-    createdAtLabel: formatRelativeTime(post.created_at) ?? "",
+    createdAtLabel: formatRelativeTime(post.created_at, await getRelativeTimeLabels()) ?? "",
     reactions: { heart: countOf("heart"), clap: countOf("clap"), fire: countOf("fire") },
   };
 }
@@ -389,7 +390,7 @@ export async function deleteFeedPost(postId: string): Promise<{ error: string } 
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const { error } = await supabase.from("feed_posts").delete().eq("id", postId);
   if (error) return { error: error.message };
@@ -408,7 +409,7 @@ export async function toggleFeedReaction(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const { data: existing } = await supabase
     .from("feed_reactions")

@@ -1,0 +1,20 @@
+{
+  "title": "機能提案・バグ報告",
+  "intro": "PoRoomをより良くするアイデアや見つけたバグを自由にお寄せください。投稿は非公開で、投稿者本人と管理者だけが見られます。",
+  "suggestion": "機能提案",
+  "bug": "バグ報告",
+  "secret": "非公開",
+  "countAll": "全{count}件",
+  "countMine": "自分の投稿 {count}件",
+  "write": "書く",
+  "cancel": "キャンセル",
+  "titlePlaceholder": "タイトル",
+  "contentPlaceholder": "内容",
+  "submitting": "登録中...",
+  "submit": "登録",
+  "empty": "まだ投稿がありません。",
+  "answers": "返信 {count}",
+  "delete": "削除",
+  "adminReply": "管理者の返信",
+  "register": "登録"
+}

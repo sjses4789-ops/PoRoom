@@ -13,6 +13,7 @@ import TextAlign from "@tiptap/extension-text-align";
 import CharacterCount from "@tiptap/extension-character-count";
 import Placeholder from "@tiptap/extension-placeholder";
 import Image from "@tiptap/extension-image";
+import { useTranslations } from "next-intl";
 import { uploadPostImage } from "@/lib/uploads";
 
 const MAX_CHARS = 5000;
@@ -36,6 +37,7 @@ export function RichTextEditor({
   onChange: (html: string) => void;
   placeholder?: string;
 }) {
+  const t = useTranslations("richEditor");
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
@@ -89,7 +91,7 @@ export function RichTextEditor({
 
   const setLink = () => {
     const prev = editor.getAttributes("link").href as string | undefined;
-    const url = window.prompt("링크 주소를 입력하세요", prev ?? "https://");
+    const url = window.prompt(t("prompt"), prev ?? "https://");
     if (url === null) return;
     if (url === "") {
       editor.chain().focus().extendMarkRange("link").unsetLink().run();
@@ -123,24 +125,24 @@ export function RichTextEditor({
           onChange={(e) => setHeading(e.target.value)}
           className="rounded border border-neutral-200 bg-white px-1.5 py-1 text-xs text-neutral-700 outline-none dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
         >
-          <option value="0">본문</option>
-          <option value="1">제목 1</option>
-          <option value="2">제목 2</option>
-          <option value="3">제목 3</option>
+          <option value="0">{t("paragraph")}</option>
+          <option value="1">{t("heading1")}</option>
+          <option value="2">{t("heading2")}</option>
+          <option value="3">{t("heading3")}</option>
         </select>
 
         <Divider />
 
-        <ToolbarButton active={editor.isActive("bold")} onClick={() => editor.chain().focus().toggleBold().run()} label="굵게">
+        <ToolbarButton active={editor.isActive("bold")} onClick={() => editor.chain().focus().toggleBold().run()} label={t("bold")}>
           <span className="font-bold">B</span>
         </ToolbarButton>
-        <ToolbarButton active={editor.isActive("italic")} onClick={() => editor.chain().focus().toggleItalic().run()} label="기울임">
+        <ToolbarButton active={editor.isActive("italic")} onClick={() => editor.chain().focus().toggleItalic().run()} label={t("italic")}>
           <span className="italic">I</span>
         </ToolbarButton>
-        <ToolbarButton active={editor.isActive("underline")} onClick={() => editor.chain().focus().toggleUnderline().run()} label="밑줄">
+        <ToolbarButton active={editor.isActive("underline")} onClick={() => editor.chain().focus().toggleUnderline().run()} label={t("underline")}>
           <span className="underline">U</span>
         </ToolbarButton>
-        <ToolbarButton active={editor.isActive("strike")} onClick={() => editor.chain().focus().toggleStrike().run()} label="취소선">
+        <ToolbarButton active={editor.isActive("strike")} onClick={() => editor.chain().focus().toggleStrike().run()} label={t("strike")}>
           <span className="line-through">S</span>
         </ToolbarButton>
 
@@ -149,51 +151,51 @@ export function RichTextEditor({
         <ToolbarButton
           active={editor.isActive({ textAlign: "left" })}
           onClick={() => editor.chain().focus().setTextAlign("left").run()}
-          label="왼쪽 정렬"
+          label={t("alignLeft")}
         >
           <AlignIcon variant="left" />
         </ToolbarButton>
         <ToolbarButton
           active={editor.isActive({ textAlign: "center" })}
           onClick={() => editor.chain().focus().setTextAlign("center").run()}
-          label="가운데 정렬"
+          label={t("alignCenter")}
         >
           <AlignIcon variant="center" />
         </ToolbarButton>
         <ToolbarButton
           active={editor.isActive({ textAlign: "right" })}
           onClick={() => editor.chain().focus().setTextAlign("right").run()}
-          label="오른쪽 정렬"
+          label={t("alignRight")}
         >
           <AlignIcon variant="right" />
         </ToolbarButton>
 
         <Divider />
 
-        <ToolbarButton active={editor.isActive("blockquote")} onClick={() => editor.chain().focus().toggleBlockquote().run()} label="인용">
+        <ToolbarButton active={editor.isActive("blockquote")} onClick={() => editor.chain().focus().toggleBlockquote().run()} label={t("quote")}>
           <QuoteIcon />
         </ToolbarButton>
         <ColorPicker
-          label="글자색"
+          label={t("textColor")}
           color={textColor}
           onPick={(c) => editor.chain().focus().setColor(c).run()}
           onClear={() => editor.chain().focus().unsetColor().run()}
           swatch={(c) => <TextColorIcon color={c} />}
         />
         <ColorPicker
-          label="글자 배경색"
+          label={t("bgColor")}
           color={highlightColor}
           onPick={(c) => editor.chain().focus().setHighlight({ color: c }).run()}
           onClear={() => editor.chain().focus().unsetHighlight().run()}
           swatch={(c) => <BgColorIcon color={c} />}
         />
-        <ToolbarButton active={editor.isActive("link")} onClick={setLink} label="링크">
+        <ToolbarButton active={editor.isActive("link")} onClick={setLink} label={t("link")}>
           <LinkIcon />
         </ToolbarButton>
-        <ToolbarButton active={editor.isActive("bulletList")} onClick={() => editor.chain().focus().toggleBulletList().run()} label="목록">
+        <ToolbarButton active={editor.isActive("bulletList")} onClick={() => editor.chain().focus().toggleBulletList().run()} label={t("list")}>
           <ListIcon />
         </ToolbarButton>
-        <ToolbarButton active={false} onClick={() => imageInputRef.current?.click()} label={uploading ? "이미지 업로드 중..." : "그림 추가"}>
+        <ToolbarButton active={false} onClick={() => imageInputRef.current?.click()} label={uploading ? t("uploading") : t("addImage")}>
           {uploading ? <span className="text-[10px]">⏳</span> : <ImageIcon />}
         </ToolbarButton>
         <input
@@ -262,6 +264,7 @@ function ColorPicker({
   onClear: () => void;
   swatch: (color: string | undefined) => ReactNode;
 }) {
+  const t = useTranslations("richEditor");
   const inputRef = useRef<HTMLInputElement>(null);
   return (
     <span className="relative flex items-center">
@@ -285,8 +288,8 @@ function ColorPicker({
       {color && (
         <button
           type="button"
-          title="색 지우기"
-          aria-label="색 지우기"
+          title={t("clearColor")}
+          aria-label={t("clearColor")}
           onClick={onClear}
           className="ml-0.5 text-[10px] text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200"
         >

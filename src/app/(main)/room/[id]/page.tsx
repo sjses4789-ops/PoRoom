@@ -31,6 +31,7 @@ import { SystemRoomLeaveGuard } from "./system-room-leave-guard";
 import { paletteDot } from "@/lib/palette";
 import { isCurrentUserAdmin } from "@/lib/admin";
 import { fetchAllPages } from "@/lib/paginate";
+import { getRelativeTimeLabels } from "@/lib/errors";
 
 type RecordVisibility = "shared" | "private" | "free";
 type JoinType = "invite" | "open";
@@ -126,6 +127,7 @@ export default async function RoomPage({
   const { id } = await params;
   const t = await getTranslations("room.page");
   const tCommon = await getTranslations("room.common");
+  const relativeLabels = await getRelativeTimeLabels();
   const RECORD_VISIBILITY_LABEL: Record<RecordVisibility, string> = {
     shared: t("recordVisibility.shared"),
     private: t("recordVisibility.private"),
@@ -206,7 +208,7 @@ export default async function RoomPage({
       room.record_visibility === "shared" ||
       m.user_id === user!.id ||
       (room.record_visibility === "free" && shareRecordsMap.get(m.user_id) === true),
-    lastSeenLabel: formatRelativeTime(m.last_seen_at),
+    lastSeenLabel: formatRelativeTime(m.last_seen_at, relativeLabels),
     workStatus: m.work_status ?? null,
     position: (m.users?.position === "webtoon" ? "webtoon" : "novelist") as
       | "novelist"

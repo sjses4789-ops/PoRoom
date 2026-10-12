@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { err } from "@/lib/errors";
 import { resolveJoinNickname } from "@/lib/nickname-join";
 
 const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -31,7 +32,7 @@ export async function joinSystemRoom(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const name = SYSTEM_ROOM_NAME[kind];
 
@@ -70,14 +71,14 @@ export async function joinSystemRoom(
         .eq("name", name)
         .eq("is_system", true)
         .maybeSingle<{ id: string }>();
-      if (!retry) return { error: "방 생성에 실패했습니다. 다시 시도해주세요." };
+      if (!retry) return { error: await err("roomCreateFailed") };
       roomId = retry.id;
     } else {
       roomId = created.id;
     }
   }
 
-  if (!roomId) return { error: "방 생성에 실패했습니다. 다시 시도해주세요." };
+  if (!roomId) return { error: await err("roomCreateFailed") };
 
   const { data: myMembership } = await supabase
     .from("room_members")
@@ -94,11 +95,11 @@ export async function joinSystemRoom(
     .eq("room_id", roomId);
 
   if ((count ?? 0) >= SYSTEM_ROOM_CAPACITY) {
-    return { error: `${name} 정원(${SYSTEM_ROOM_CAPACITY}명)이 가득 찼습니다.` };
+    return { error: await err("systemRoomFull", { name, count: SYSTEM_ROOM_CAPACITY }) };
   }
 
   const chosen = await resolveJoinNickname(supabase, user.id, nicknameId);
-  if (!chosen.ok) return { error: "존재하지 않는 닉네임이에요." };
+  if (!chosen.ok) return { error: await err("nicknameNotFound") };
 
   const { error: joinError } = await supabase.from("room_members").insert(
     nicknameId !== undefined

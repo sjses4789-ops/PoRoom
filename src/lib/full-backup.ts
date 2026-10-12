@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { err } from "@/lib/errors";
 import { isCurrentUserAdmin } from "@/lib/admin";
 
 // 관리자 전용 "전체 데이터 백업" — 서비스 키가 없는 환경이라 이 요청을
@@ -77,13 +78,13 @@ export type FullBackupResult =
 
 export async function buildFullBackup(): Promise<FullBackupResult> {
   const isAdmin = await isCurrentUserAdmin();
-  if (!isAdmin) return { error: "관리자만 사용할 수 있습니다." };
+  if (!isAdmin) return { error: await err("adminOnly") };
 
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const entries = await Promise.all(
     BACKUP_TABLES.map(async (table) => [table, await fetchAllRows(supabase, table)] as const)

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import type { RecordVisibility } from "@/lib/rooms";
 import type { Member } from "./room-view";
@@ -40,6 +41,11 @@ export function useLiveMembers(
   ownerId: string,
   isSystemRoom: boolean
 ) {
+  const unknownLabel = useTranslations("room.common")("unknown");
+  const unknownLabelRef = useRef(unknownLabel);
+  useEffect(() => {
+    unknownLabelRef.current = unknownLabel;
+  }, [unknownLabel]);
   const [members, setMembers] = useState<Member[]>(initialMembers);
   // 실시간 이벤트 핸들러가 최신 목록을 읽을 수 있게 ref에도 담아 둔다.
   const membersRef = useRef(members);
@@ -92,7 +98,7 @@ export function useLiveMembers(
           ...prev,
           {
             id: userId,
-            name: row.nickname || row.users?.name || row.users?.email || "알 수 없음",
+            name: row.nickname || row.users?.name || row.users?.email || unknownLabelRef.current,
             nickname: row.nickname,
             characterId: row.users?.character_id ?? null,
             chatColor: row.users?.chat_color ?? null,
@@ -127,7 +133,7 @@ export function useLiveMembers(
           const existing = prevById.get(row.user_id);
           return {
             id: row.user_id,
-            name: row.nickname || row.users?.name || row.users?.email || existing?.name || "알 수 없음",
+            name: row.nickname || row.users?.name || row.users?.email || existing?.name || unknownLabelRef.current,
             nickname: row.nickname,
             characterId: row.users?.character_id ?? null,
             chatColor: row.users?.chat_color ?? null,

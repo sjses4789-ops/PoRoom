@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { err } from "@/lib/errors";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionResult } from "@/lib/rooms";
@@ -33,7 +34,7 @@ export async function createChallenge(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const title = String(formData.get("title") ?? "").trim();
   const metric = String(formData.get("metric") ?? "chars") as ChallengeMetric;
@@ -49,26 +50,26 @@ export async function createChallenge(
   const targetPosition: ChallengeTargetPosition =
     targetPositionRaw === "novelist" || targetPositionRaw === "webtoon" ? targetPositionRaw : null;
 
-  if (!title) return { error: "대결 이름을 입력해주세요." };
+  if (!title) return { error: await err("duelNameRequired") };
   if (!["chars", "minutes"].includes(metric)) {
-    return { error: "잘못된 기준입니다." };
+    return { error: await err("invalidMetric") };
   }
   // 글자수/컷수는 직업마다 단위가 다르므로, 누구나(대상 제한 없음)로
   // 두려면 반드시 집중 시간 기준이어야 한다.
   if (metric === "chars" && targetPosition === null) {
-    return { error: "글자수/컷수 기준 대결은 대상 직업을 웹소설 작가 또는 웹툰 작가 중 하나로 정해야 해요." };
+    return { error: await err("duelPositionRequired") };
   }
   if (!["open", "private"].includes(visibility)) {
-    return { error: "잘못된 공개 설정입니다." };
+    return { error: await err("invalidVisibility") };
   }
   if (!Number.isFinite(durationDays) || durationDays < 1) {
-    return { error: "대결 기간을 선택해주세요." };
+    return { error: await err("duelPeriodRequired") };
   }
   if (capacity !== null && (!Number.isFinite(capacity) || capacity < 2)) {
-    return { error: "인원은 2명 이상으로 설정해주세요." };
+    return { error: await err("minTwoPeople") };
   }
   if (!["manual", "full"].includes(startModeRaw)) {
-    return { error: "잘못된 시작 시점입니다." };
+    return { error: await err("invalidStart") };
   }
   // 정원이 무제한이면 "다 찼을 때"라는 기준 자체가 없으므로 무조건 수동
   // 시작으로 취급한다.
@@ -107,7 +108,7 @@ export async function createChallenge(
   }
 
   if (!challengeId) {
-    return { error: "대결 생성에 실패했습니다. 다시 시도해주세요." };
+    return { error: await err("duelCreateFailed") };
   }
 
   await supabase
@@ -162,7 +163,7 @@ export async function joinChallenge(challengeId: string): Promise<JoinChallengeR
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const { data: challenge } = await supabase
     .from("challenges")
@@ -179,11 +180,11 @@ export async function joinChallenge(challengeId: string): Promise<JoinChallengeR
       target_position: string | null;
     }>();
 
-  if (!challenge) return { error: "존재하지 않는 대결입니다." };
+  if (!challenge) return { error: await err("duelNotFound") };
 
   const today = todayKst();
   if (challenge.end_date && today > challenge.end_date) {
-    return { error: "이미 종료된 대결입니다." };
+    return { error: await err("duelEnded") };
   }
 
   if (challenge.target_position) {
@@ -196,8 +197,8 @@ export async function joinChallenge(challengeId: string): Promise<JoinChallengeR
       return {
         error:
           challenge.target_position === "webtoon"
-            ? "웹툰 작가만 참여할 수 있는 대결입니다."
-            : "웹소설 작가만 참여할 수 있는 대결입니다.",
+            ? await err("duelWebtoonOnly")
+            : await err("duelNovelistOnly"),
       };
     }
   }
@@ -210,7 +211,7 @@ export async function joinChallenge(challengeId: string): Promise<JoinChallengeR
       .select("*", { count: "exact", head: true })
       .eq("challenge_id", challengeId);
     if ((count ?? 0) >= challenge.capacity) {
-      return { error: `정원(${challenge.capacity}명)이 가득 찼습니다.` };
+      return { error: await err("capacityFull", { count: challenge.capacity ?? 0 }) };
     }
   }
 
@@ -240,12 +241,12 @@ export async function joinChallengeByCode(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const code = String(formData.get("code") ?? "")
     .trim()
     .toUpperCase();
-  if (!code) return { error: "초대코드를 입력해주세요." };
+  if (!code) return { error: await err("inviteCodeRequired") };
 
   const { data: challenge, error } = await supabase
     .from("challenges")
@@ -263,11 +264,11 @@ export async function joinChallengeByCode(
     }>();
 
   if (error) return { error: error.message };
-  if (!challenge) return { error: "존재하지 않는 초대코드입니다." };
+  if (!challenge) return { error: await err("inviteCodeNotFound") };
 
   const today = todayKst();
   if (challenge.end_date && today > challenge.end_date) {
-    return { error: "이미 종료된 대결입니다." };
+    return { error: await err("duelEnded") };
   }
 
   if (challenge.target_position) {
@@ -280,8 +281,8 @@ export async function joinChallengeByCode(
       return {
         error:
           challenge.target_position === "webtoon"
-            ? "웹툰 작가만 참여할 수 있는 대결입니다."
-            : "웹소설 작가만 참여할 수 있는 대결입니다.",
+            ? await err("duelWebtoonOnly")
+            : await err("duelNovelistOnly"),
       };
     }
   }
@@ -292,7 +293,7 @@ export async function joinChallengeByCode(
       .select("*", { count: "exact", head: true })
       .eq("challenge_id", challenge.id);
     if ((count ?? 0) >= challenge.capacity) {
-      return { error: `정원(${challenge.capacity}명)이 가득 찼습니다.` };
+      return { error: await err("capacityFull", { count: challenge.capacity ?? 0 }) };
     }
   }
 
@@ -318,7 +319,7 @@ export async function startChallenge(challengeId: string): Promise<JoinChallenge
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const { data: challenge } = await supabase
     .from("challenges")
@@ -332,17 +333,17 @@ export async function startChallenge(challengeId: string): Promise<JoinChallenge
       duration_days: number;
     }>();
 
-  if (!challenge) return { error: "존재하지 않는 대결입니다." };
-  if (challenge.created_by !== user.id) return { error: "권한이 없습니다." };
-  if (challenge.kind) return { error: "시스템 챌린지는 별도로 관리됩니다." };
-  if (challenge.started_at) return { error: "이미 시작된 대결입니다." };
+  if (!challenge) return { error: await err("duelNotFound") };
+  if (challenge.created_by !== user.id) return { error: await err("noPermission") };
+  if (challenge.kind) return { error: await err("systemChallengeManaged") };
+  if (challenge.started_at) return { error: await err("alreadyStarted") };
 
   const { count } = await supabase
     .from("challenge_participants")
     .select("*", { count: "exact", head: true })
     .eq("challenge_id", challengeId);
   if ((count ?? 0) < 2) {
-    return { error: "참여자가 2명 이상 모이면 시작할 수 있습니다." };
+    return { error: await err("needTwoParticipants") };
   }
 
   const startDate = todayKst();
@@ -368,7 +369,7 @@ export async function leaveChallenge(challengeId: string): Promise<JoinChallenge
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const { error } = await supabase
     .from("challenge_participants")
@@ -399,7 +400,7 @@ export async function updateChallengeSettings(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const { data: challenge } = await supabase
     .from("challenges")
@@ -413,20 +414,20 @@ export async function updateChallengeSettings(
       start_mode: string;
     }>();
 
-  if (!challenge) return { error: "존재하지 않는 대결입니다." };
-  if (challenge.created_by !== user.id) return { error: "권한이 없습니다." };
+  if (!challenge) return { error: await err("duelNotFound") };
+  if (challenge.created_by !== user.id) return { error: await err("noPermission") };
 
   const patch: Record<string, unknown> = {};
 
   if (updates.title !== undefined) {
     const title = updates.title.trim();
-    if (!title) return { error: "대결 이름을 입력해주세요." };
+    if (!title) return { error: await err("duelNameRequired") };
     patch.title = title;
   }
   if (updates.color !== undefined) patch.color = updates.color;
   if (updates.capacity !== undefined) {
     if (updates.capacity !== null && updates.capacity < 2) {
-      return { error: "인원은 2명 이상으로 설정해주세요." };
+      return { error: await err("minTwoPeople") };
     }
     patch.capacity = updates.capacity;
     // 인원 제한을 무제한으로 풀면 "다 찼을 때 시작" 기준 자체가 사라지므로
@@ -437,7 +438,7 @@ export async function updateChallengeSettings(
   }
   if (updates.durationDays !== undefined) {
     if (!Number.isFinite(updates.durationDays) || updates.durationDays < 1) {
-      return { error: "대결 기간을 선택해주세요." };
+      return { error: await err("duelPeriodRequired") };
     }
     patch.duration_days = updates.durationDays;
     if (challenge.started_at && challenge.start_date) {

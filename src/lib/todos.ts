@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { err } from "@/lib/errors";
 import { createClient } from "@/lib/supabase/server";
 import { todayKst } from "@/lib/time";
 import { isTodoRowActive } from "@/lib/system-challenges";
@@ -12,10 +13,10 @@ export async function createTodo(content: string): Promise<CreateTodoResult> {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const trimmed = content.trim();
-  if (!trimmed) return { error: "할 일을 입력해주세요." };
+  if (!trimmed) return { error: await err("todoRequired") };
 
   const { data, error } = await supabase
     .from("todos")
@@ -23,7 +24,7 @@ export async function createTodo(content: string): Promise<CreateTodoResult> {
     .select("id,content")
     .single();
 
-  if (error || !data) return { error: error?.message ?? "추가에 실패했습니다." };
+  if (error || !data) return { error: error?.message ?? await err("addFailed") };
 
   revalidatePath("/me");
   revalidatePath("/main");

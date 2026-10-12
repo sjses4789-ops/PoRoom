@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { err } from "@/lib/errors";
 import { createClient } from "@/lib/supabase/server";
 
 export type EventResult =
@@ -24,11 +25,11 @@ export async function createEvent(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const trimmedTitle = title.trim();
-  if (!trimmedTitle) return { error: "일정 제목을 입력해주세요." };
-  if (!eventDate) return { error: "날짜를 선택해주세요." };
+  if (!trimmedTitle) return { error: await err("eventTitleRequired") };
+  if (!eventDate) return { error: await err("dateRequired") };
 
   const { data, error } = await supabase
     .from("room_events")
@@ -44,7 +45,7 @@ export async function createEvent(
     .single();
 
   if (error || !data) {
-    return { error: error?.message ?? "일정 추가에 실패했습니다." };
+    return { error: error?.message ?? await err("eventAddFailed") };
   }
 
   revalidatePath(`/room/${roomId}`);
@@ -72,11 +73,11 @@ export async function updateEvent(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const trimmedTitle = title.trim();
-  if (!trimmedTitle) return { error: "일정 제목을 입력해주세요." };
-  if (!eventDate) return { error: "날짜를 선택해주세요." };
+  if (!trimmedTitle) return { error: await err("eventTitleRequired") };
+  if (!eventDate) return { error: await err("dateRequired") };
 
   const { error } = await supabase
     .from("room_events")
@@ -99,7 +100,7 @@ export async function deleteEvent(roomId: string, eventId: string): Promise<Even
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "로그인이 필요합니다." };
+  if (!user) return { error: await err("loginRequired") };
 
   const { error } = await supabase.from("room_events").delete().eq("id", eventId);
   if (error) return { error: error.message };

@@ -1,0 +1,20 @@
+{
+  "title": "功能建议与问题反馈",
+  "intro": "欢迎留下让 PoRoom 更好的想法或发现的问题。您的帖子为私密帖，只有作者本人和管理员可以查看。",
+  "suggestion": "功能建议",
+  "bug": "问题反馈",
+  "secret": "私密",
+  "countAll": "共 {count} 条",
+  "countMine": "我发布的 {count} 条",
+  "write": "发帖",
+  "cancel": "取消",
+  "titlePlaceholder": "标题",
+  "contentPlaceholder": "内容",
+  "submitting": "提交中...",
+  "submit": "提交",
+  "empty": "还没有帖子。",
+  "answers": "回复 {count}",
+  "delete": "删除",
+  "adminReply": "管理员回复",
+  "register": "提交"
+}
