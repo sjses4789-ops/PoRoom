@@ -17,12 +17,23 @@ import { KeyboardView } from "./keyboard-view";
 // 그래서 두 값의 평균을 "분당 타수"로 쓴다 — 어느 한쪽 방식만 쓰는
 // 곳보다 체감상 중간 정도로 나온다. 영문은 한 글자가 곧 한 번의 입력이라
 // 두 값이 같아서 이 평균이 그대로 글자 수 기준과 일치한다.
-function typingSpeedUnits(text: string): number {
+// 일본어/중국어는 로마자·병음으로 입력해 변환하므로 글자당 입력 수를 어림해서 쓴다
+// (가나 한 글자 ≈ 2타, 한자 한 글자 ≈ 일본어 4타 / 중국어 3타, 그 외 1타).
+function keystrokesFor(ch: string, locale: string): number {
+  if (locale === "ja" || locale === "zh") {
+    if (/[぀-ヿ]/.test(ch)) return 2;
+    if (/[一-鿿]/.test(ch)) return locale === "ja" ? 4 : 3;
+    return 1;
+  }
+  return decomposeChar(ch).length || 1;
+}
+
+function typingSpeedUnits(text: string, locale: string): number {
   let syllables = 0;
   let keystrokes = 0;
   for (const ch of text) {
     syllables += 1;
-    keystrokes += decomposeChar(ch).length || 1;
+    keystrokes += keystrokesFor(ch, locale);
   }
   return (syllables + keystrokes) / 2;
 }
@@ -39,6 +50,11 @@ export function TypingPractice({ myBestCpm }: { myBestCpm: number | null }) {
   const locale = useLocale();
   const [sentence, setSentence] = useState(() => pickRandomSentence(locale));
   const [recentSentences, setRecentSentences] = useState<string[]>(() => [sentence]);
+  // 일본어/중국어는 입력기(IME)로 글자를 만들어 확정한다 — 조합 중인 글자(로마자/병음)는 정답 비교에서
+  // 빼고, 확정된 글자만 비교한다.
+  const needsIme = locale === "ja" || locale === "zh";
+  const [composing, setComposing] = useState(false);
+  const [committed, setCommitted] = useState("");
   const [input, setInput] = useState("");
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [now, setNow] = useState<number | null>(null);
@@ -47,6 +63,9 @@ export function TypingPractice({ myBestCpm }: { myBestCpm: number | null }) {
   const [lastResult, setLastResult] = useState<{ cpm: number; accuracy: number } | null>(null);
   const [bestCpm, setBestCpm] = useState(myBestCpm);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // 화면에 정오 표시를 할 입력값 — 일본어/중국어는 조합 중인 글자를 빼고 확정된 글자만 쓴다.
+  const shown = needsIme && composing ? committed : input;
 
   // 입력 중일 때만 실시간으로 현재 타자 속도를 갱신한다.
   useEffect(() => {
@@ -57,7 +76,7 @@ export function TypingPractice({ myBestCpm }: { myBestCpm: number | null }) {
 
   const liveCpm =
     startedAt !== null && now !== null
-      ? Math.round(typingSpeedUnits(input) / Math.max((now - startedAt) / 60000, 1 / 60))
+      ? Math.round(typingSpeedUnits(shown, locale) / Math.max((now - startedAt) / 60000, 1 / 60))
       : null;
 
   // 1번째 엔터(또는 문장을 정확히 다 쳤을 때): 그 시점까지 "완성된"
@@ -70,7 +89,7 @@ export function TypingPractice({ myBestCpm }: { myBestCpm: number | null }) {
   const evaluate = (finalInput: string) => {
     if (startedAt === null || finalInput.length === 0) return;
     const elapsedMinutes = Math.max((Date.now() - startedAt) / 60000, 1 / 60);
-    const cpm = Math.round(typingSpeedUnits(finalInput) / elapsedMinutes);
+    const cpm = Math.round(typingSpeedUnits(finalInput, locale) / elapsedMinutes);
     let correct = 0;
     for (let i = 0; i < sentence.length; i++) {
       if (finalInput[i] === sentence[i]) correct++;
@@ -94,6 +113,7 @@ export function TypingPractice({ myBestCpm }: { myBestCpm: number | null }) {
     setSentence(next);
     setRecentSentences((prev) => [...prev, next].slice(-RECENT_HISTORY_SIZE));
     setInput("");
+    setCommitted("");
     setStartedAt(null);
     setNow(null);
     setResult(null);
@@ -101,8 +121,7 @@ export function TypingPractice({ myBestCpm }: { myBestCpm: number | null }) {
     inputRef.current?.focus();
   };
 
-  const onChange = (value: string) => {
-    if (stage !== "typing") return;
+  const applyValue = (value: string) => {
     if (value.length > sentence.length) return;
     if (startedAt === null && value.length > 0) {
       const start = Date.now();
@@ -110,19 +129,37 @@ export function TypingPractice({ myBestCpm }: { myBestCpm: number | null }) {
       setNow(start);
     }
     setInput(value);
+    setCommitted(value);
     if (value === sentence) evaluate(value);
+  };
+
+  const onChange = (value: string, isComposing: boolean) => {
+    if (stage !== "typing") return;
+    if (needsIme && isComposing) {
+      // 조합 중에는 입력칸 내용만 그대로 보여 주고(제한/채점은 확정될 때 한다).
+      if (startedAt === null && value.length > 0) {
+        const start = Date.now();
+        setStartedAt(start);
+        setNow(start);
+      }
+      setInput(value);
+      return;
+    }
+    applyValue(value);
   };
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key !== "Enter") return;
+    // 일본어/중국어에서 Enter는 변환 확정에도 쓰이므로, 조합 중에는 다음 동작으로 넘기지 않는다.
+    if (needsIme && e.nativeEvent.isComposing) return;
     e.preventDefault();
     if (stage === "typing") evaluate(input);
     else advance();
   };
 
   const nextCharKeys =
-    stage === "typing" && input.length < sentence.length
-      ? decomposeChar(sentence[input.length])
+    stage === "typing" && shown.length < sentence.length
+      ? decomposeChar(sentence[shown.length])
       : [];
 
   return (
@@ -164,7 +201,7 @@ export function TypingPractice({ myBestCpm }: { myBestCpm: number | null }) {
         ) : (
           <div className="text-center text-lg leading-relaxed tracking-wide">
             {sentence.split("").map((ch, i) => {
-              const typedChar = input[i];
+              const typedChar = shown[i];
               const state =
                 typedChar === undefined ? "pending" : typedChar === ch ? "correct" : "incorrect";
               return (
@@ -189,7 +226,12 @@ export function TypingPractice({ myBestCpm }: { myBestCpm: number | null }) {
       <input
         ref={inputRef}
         value={input}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => onChange(e.target.value, (e.nativeEvent as InputEvent).isComposing)}
+        onCompositionStart={() => setComposing(true)}
+        onCompositionEnd={(e) => {
+          setComposing(false);
+          if (needsIme && stage === "typing") applyValue(e.currentTarget.value);
+        }}
         onKeyDown={onKeyDown}
         readOnly={stage === "result"}
         autoFocus
@@ -197,7 +239,7 @@ export function TypingPractice({ myBestCpm }: { myBestCpm: number | null }) {
         className="rounded-sm border border-neutral-400 px-3 py-2 text-sm text-neutral-900 outline-none focus:border-neutral-600 dark:border-neutral-600 dark:text-white dark:focus:border-neutral-400"
       />
 
-      <KeyboardView activeKeys={nextCharKeys} />
+      {!needsIme && <KeyboardView activeKeys={nextCharKeys} />}
     </div>
   );
 }
