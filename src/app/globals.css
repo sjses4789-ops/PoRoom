@@ -69,9 +69,14 @@ a {
 
 /* 채팅 스크롤바 — 테마와 무관하게 항상 고정. 바(트랙)가 움직이는 영역은
    흰색 채움, 스크롤 바와 위아래 버튼만 회색 테두리. */
-.chat-scroll {
-  scrollbar-color: #ffffff #ffffff;
-  scrollbar-width: thin;
+/* Chrome 121 이상은 scrollbar-color/scrollbar-width가 지정되면 아래 ::-webkit-scrollbar 꾸밈을 통째로 무시한다 —
+   예전엔 흰 바탕에 흰 막대(scrollbar-color: #fff #fff)를 줘서 스크롤바가 아예 안 보였다. 그래서 이 두 속성은
+   ::-webkit-scrollbar를 모르는 브라우저(파이어폭스)에만 쓰고, 크롬·사파리·엣지는 아래 규칙으로 그린다. */
+@supports not selector(::-webkit-scrollbar) {
+  .chat-scroll {
+    scrollbar-color: #a3a3a3 #ffffff;
+    scrollbar-width: thin;
+  }
 }
 
 .chat-scroll::-webkit-scrollbar {
@@ -85,6 +90,7 @@ a {
 .chat-scroll::-webkit-scrollbar-thumb {
   background-color: #ffffff;
   border: 1px solid #a3a3a3;
+  min-height: 32px;
   border-radius: 9999px;
 }
 
