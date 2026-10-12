@@ -324,5 +324,9 @@
   "challengeDaily1k": "Daily 1,000 Characters Challenge",
   "challengeDaily5k": "Daily 5,000 Characters Challenge",
   "challengeDaily10k": "Daily 10,000 Characters Challenge",
-  "challengeMonthlyDraft": "Monthly First-Draft Challenge"
+  "challengeMonthlyDraft": "Monthly First-Draft Challenge",
+  "guestLoginButton": "Log in",
+  "loginRequiredTitle": "Please log in",
+  "loginRequiredBody": "Without logging in you can only look around. Writing, reacting and joining rooms need you to log in first.",
+  "guestViewerBanner": "View only · Log in to use every feature"
 }

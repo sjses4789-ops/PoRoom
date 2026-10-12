@@ -9,6 +9,7 @@ import '../../core/time_util.dart';
 import '../../core/web_api.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/common.dart';
+import '../../widgets/login_gate.dart';
 
 class _Challenge {
   const _Challenge({
@@ -108,7 +109,10 @@ class _CompetePageState extends State<CompetePage> {
     }
 
     final today = todayKst();
-    final todayRows = await _client.from('daily_records').select('chars').eq('user_id', selfId).eq('record_date', today);
+    // 로그인 전에는 내 기록이 없다.
+    final todayRows = selfId.isEmpty
+        ? <Map<String, dynamic>>[]
+        : List<Map<String, dynamic>>.from(await _client.from('daily_records').select('chars').eq('user_id', selfId).eq('record_date', today));
     final todayChars = todayRows.fold<int>(0, (sum, r) => sum + (r['chars'] as int? ?? 0));
 
     _Challenge toItem(Map<String, dynamic> r) => _Challenge(
@@ -146,6 +150,8 @@ class _CompetePageState extends State<CompetePage> {
       };
 
   Future<void> _toggle(_Challenge c) async {
+    if (!await requireLogin(context)) return;
+    if (!mounted) return;
     setState(() => _busyId = c.id);
     await WebApi.rpc<Object?>(c.joined ? 'leaveChallenge' : 'joinChallenge', [c.id]);
     if (!mounted) return;

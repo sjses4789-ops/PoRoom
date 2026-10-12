@@ -324,5 +324,9 @@
   "challengeDaily1k": "每日1000字写作挑战",
   "challengeDaily5k": "每日5000字写作挑战",
   "challengeDaily10k": "每日1万字写作挑战",
-  "challengeMonthlyDraft": "每月初稿完成挑战"
+  "challengeMonthlyDraft": "每月初稿完成挑战",
+  "guestLoginButton": "登录",
+  "loginRequiredTitle": "需要登录",
+  "loginRequiredBody": "未登录时只能浏览。发帖、点赞、加入房间等功能需要先登录。",
+  "guestViewerBanner": "仅供浏览 · 登录后可使用全部功能"
 }

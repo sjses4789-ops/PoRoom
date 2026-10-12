@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/auth_controller.dart';
 import '../../core/theme.dart';
 import '../../l10n/app_localizations.dart';
+import '../../widgets/login_gate.dart';
 import 'room_models.dart';
 import 'room_page.dart';
 import 'room_repository.dart';
@@ -35,11 +36,15 @@ class _RoomsPageState extends State<RoomsPage> {
   }
 
   Future<void> _open(RoomSummary room) async {
+    if (!await requireLogin(context)) return;
+    if (!mounted) return;
     await Navigator.of(context).push(MaterialPageRoute(builder: (_) => RoomPage(room: room)));
     if (mounted) _reload();
   }
 
   Future<void> _join(RoomSummary room) async {
+    if (!await requireLogin(context)) return;
+    if (!mounted) return;
     final l10n = L10n.of(context);
     setState(() => _joiningId = room.id);
     final ok = await _repo.joinOpenRoom(room.id);

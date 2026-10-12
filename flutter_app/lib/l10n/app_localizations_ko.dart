@@ -546,4 +546,17 @@ class L10nKo extends L10n {
 
   @override
   String get challengeMonthlyDraft => '매 달 초단 1완고 챌린지';
+
+  @override
+  String get guestLoginButton => '로그인';
+
+  @override
+  String get loginRequiredTitle => '로그인이 필요해요';
+
+  @override
+  String get loginRequiredBody =>
+      '로그인하지 않으면 둘러보기만 할 수 있어요. 글쓰기·반응·방 입장 같은 기능은 로그인한 뒤에 쓸 수 있어요.';
+
+  @override
+  String get guestViewerBanner => '보기 전용 · 로그인하면 모든 기능을 쓸 수 있어요';
 }

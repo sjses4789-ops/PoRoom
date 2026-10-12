@@ -553,4 +553,17 @@ class L10nEn extends L10n {
 
   @override
   String get challengeMonthlyDraft => 'Monthly First-Draft Challenge';
+
+  @override
+  String get guestLoginButton => 'Log in';
+
+  @override
+  String get loginRequiredTitle => 'Please log in';
+
+  @override
+  String get loginRequiredBody =>
+      'Without logging in you can only look around. Writing, reacting and joining rooms need you to log in first.';
+
+  @override
+  String get guestViewerBanner => 'View only · Log in to use every feature';
 }

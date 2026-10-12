@@ -5,7 +5,10 @@ import '../../core/theme.dart';
 import '../../l10n/app_localizations.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  // dismissible: 보기 전용 화면에서 열었을 때(닫고 돌아갈 수 있다). 차단된 계정처럼 루트로 뜰 때는 false.
+  const LoginPage({super.key, this.dismissible = false});
+
+  final bool dismissible;
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -33,7 +36,15 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     final pal = context.pal;
     final l10n = L10n.of(context);
+    final auth = AuthScope.of(context);
+    if (widget.dismissible && auth.isSignedIn) {
+      // 로그인이 끝나면 이 화면을 닫고 원래 화면(이제 모든 기능 사용 가능)으로 돌아간다.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && Navigator.of(context).canPop()) Navigator.of(context).pop();
+      });
+    }
     return Scaffold(
+      appBar: widget.dismissible ? AppBar() : null,
       body: SafeArea(
         child: Center(
           child: Padding(

@@ -23,9 +23,13 @@ class RoomRepository {
 
     final ids = [for (final r in rows) r['id'] as String];
     // 인원 수/내 참여 여부는 보이는 방들에 대해서만 센다(전체 멤버십을 읽으면 조회 상한에 걸린다).
-    final members = ids.isEmpty
-        ? <Map<String, dynamic>>[]
-        : List<Map<String, dynamic>>.from(await _client.from('room_members').select('room_id,user_id').inFilter('room_id', ids));
+    // 로그인 전에는 멤버 목록을 못 읽을 수 있다 — 그래도 방 목록은 보여 준다(인원 수만 비게 된다).
+    List<Map<String, dynamic>> members = <Map<String, dynamic>>[];
+    if (ids.isNotEmpty) {
+      try {
+        members = List<Map<String, dynamic>>.from(await _client.from('room_members').select('room_id,user_id').inFilter('room_id', ids));
+      } catch (_) {}
+    }
     final countByRoom = <String, int>{};
     final mine = <String>{};
     for (final m in members) {

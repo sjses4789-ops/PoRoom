@@ -35,11 +35,13 @@ class PoRoomApp extends StatelessWidget {
                 case AuthStatus.loading:
                   return const Scaffold(body: Center(child: CircularProgressIndicator()));
                 case AuthStatus.signedOut:
-                  return const LoginPage();
+                  // 로그인 전에도 앱 화면으로 바로 들어간다(보기 전용). 기능을 쓰려고 할 때 로그인을 안내한다.
+                  return const AppShell(key: ValueKey('guest'));
                 case AuthStatus.signedIn:
                   if (auth.profile?.isBanned ?? false) return const LoginPage();
                   if (!(auth.profile?.isComplete ?? false)) return const ProfileIncompletePage();
-                  return const AppShell();
+                  // 로그인 상태가 바뀌면 화면을 새로 만들어 내 데이터로 다시 불러온다.
+                  return AppShell(key: ValueKey(auth.userId));
               }
             },
           ),

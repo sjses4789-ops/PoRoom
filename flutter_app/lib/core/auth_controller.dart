@@ -42,12 +42,20 @@ class AuthController extends ChangeNotifier {
   StreamSubscription<AuthState>? _sub;
 
   SupabaseClient get client => Supabase.instance.client;
+  // 로그인하지 않은 상태 — 화면은 둘러볼 수 있지만(보기 전용) 쓰기·반응·방 입장 같은 기능은 로그인이 필요하다.
+  bool get isGuest => status == AuthStatus.signedOut;
+  bool get isSignedIn => status == AuthStatus.signedIn;
+
   String? get userId => Env.preview ? Profile.preview.id : client.auth.currentUser?.id;
 
   Future<void> init() async {
     if (Env.preview) {
-      profile = Profile.preview;
-      status = AuthStatus.signedIn;
+      if (Env.previewGuest) {
+        status = AuthStatus.signedOut;
+      } else {
+        profile = Profile.preview;
+        status = AuthStatus.signedIn;
+      }
       notifyListeners();
       return;
     }
@@ -96,6 +104,13 @@ class AuthController extends ChangeNotifier {
   // 구글 로그인 — 시스템 브라우저로 로그인하고 poroom://auth-callback 으로 앱에 돌아온다(웹과 같은 PKCE 방식).
   // Supabase 대시보드 Redirect URLs 에 poroom://auth-callback 이 등록돼 있어야 한다(기존 Expo 앱과 같은 값).
   Future<String?> signInWithGoogle() async {
+    if (Env.preview) {
+      // 미리보기에는 서버 연결이 없어서, 로그인 버튼을 누르면 로그인된 것처럼 바꿔 흐름만 보여 준다.
+      profile = Profile.preview;
+      status = AuthStatus.signedIn;
+      notifyListeners();
+      return null;
+    }
     try {
       await client.auth.signInWithOAuth(
         OAuthProvider.google,
@@ -109,7 +124,12 @@ class AuthController extends ChangeNotifier {
   }
 
   Future<void> signOut() async {
-    if (Env.preview) return;
+    if (Env.preview) {
+      profile = null;
+      status = AuthStatus.signedOut;
+      notifyListeners();
+      return;
+    }
     await client.auth.signOut();
   }
 

@@ -1090,6 +1090,30 @@ abstract class L10n {
   /// In ko, this message translates to:
   /// **'매 달 초단 1완고 챌린지'**
   String get challengeMonthlyDraft;
+
+  /// No description provided for @guestLoginButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'로그인'**
+  String get guestLoginButton;
+
+  /// No description provided for @loginRequiredTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'로그인이 필요해요'**
+  String get loginRequiredTitle;
+
+  /// No description provided for @loginRequiredBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'로그인하지 않으면 둘러보기만 할 수 있어요. 글쓰기·반응·방 입장 같은 기능은 로그인한 뒤에 쓸 수 있어요.'**
+  String get loginRequiredBody;
+
+  /// No description provided for @guestViewerBanner.
+  ///
+  /// In ko, this message translates to:
+  /// **'보기 전용 · 로그인하면 모든 기능을 쓸 수 있어요'**
+  String get guestViewerBanner;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

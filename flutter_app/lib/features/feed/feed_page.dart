@@ -5,6 +5,7 @@ import '../../core/theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/character_avatar.dart';
 import '../../widgets/common.dart';
+import '../../widgets/login_gate.dart';
 import 'feed_models.dart';
 import 'feed_repository.dart';
 
@@ -49,6 +50,8 @@ class _FeedPageState extends State<FeedPage> {
   }
 
   Future<void> _post() async {
+    if (!await requireLogin(context)) return;
+    if (!mounted) return;
     final text = _mood.text.trim();
     if (text.isEmpty || _posting) return;
     setState(() => _posting = true);
@@ -66,6 +69,8 @@ class _FeedPageState extends State<FeedPage> {
   }
 
   Future<void> _react(FeedPostItem post, String type) async {
+    if (!await requireLogin(context)) return;
+    if (!mounted) return;
     final cur = post.reactions[type] ?? const FeedReaction(0, false);
     final next = FeedReaction(
       cur.count + (cur.selfActive ? -1 : 1),

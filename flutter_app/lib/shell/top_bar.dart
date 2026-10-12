@@ -10,6 +10,7 @@ import '../features/me/me_page.dart';
 import '../features/notes/notes_page.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/character_avatar.dart';
+import '../widgets/login_gate.dart';
 
 // 상단 바: 왼쪽에 로고(+BETA), 오른쪽에 우편함 아이콘(안 읽은 쪽지 수 뱃지)과 닉네임(누르면 [개인] 화면).
 // 우편함/닉네임 위치는 아직 확정 전이라 여기 한 곳만 고치면 바뀐다.
@@ -41,50 +42,83 @@ class AppTopBar extends StatelessWidget {
                   const SizedBox(width: 6),
                   Text(
                     l10n.appTitle,
-                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, letterSpacing: -0.2),
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.2,
+                    ),
                   ),
                 ],
               ),
               const SizedBox(height: 2),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 6,
+                  vertical: 1.5,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFFEF3C7),
                   borderRadius: BorderRadius.circular(99),
                 ),
                 child: const Text(
                   'BETA',
-                  style: TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: Color(0xFFB45309)),
+                  style: TextStyle(
+                    fontSize: 9,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFFB45309),
+                  ),
                 ),
               ),
             ],
           ),
           const Spacer(),
-          const _MailButton(),
-          const SizedBox(width: 2),
-          InkWell(
-            borderRadius: BorderRadius.circular(99),
-            onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const MePage())),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CharacterAvatar(characterId: auth.profile?.characterId, size: 26),
-                  const SizedBox(width: 6),
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 110),
-                    child: Text(
-                      name.isEmpty ? l10n.myPage : name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700),
+          if (auth.isGuest)
+            FilledButton(
+              onPressed: () => openLogin(context),
+              style: FilledButton.styleFrom(
+                visualDensity: VisualDensity.compact,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+              ),
+              child: Text(
+                l10n.guestLoginButton,
+                style: const TextStyle(fontWeight: FontWeight.w700),
+              ),
+            )
+          else ...[
+            const _MailButton(),
+            const SizedBox(width: 2),
+            InkWell(
+              borderRadius: BorderRadius.circular(99),
+              onTap: () =>
+                  Navigator.of(context)
+                      .push(MaterialPageRoute(builder: (_) => const MePage())),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CharacterAvatar(
+                      characterId: auth.profile?.characterId,
+                      size: 26,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 6),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 110),
+                      child: Text(
+                        name.isEmpty ? l10n.myPage : name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
+          ],
         ],
       ),
     );
@@ -135,7 +169,8 @@ class _MailButtonState extends State<_MailButton> {
         IconButton(
           tooltip: l10n.mailbox,
           onPressed: () async {
-            await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NotesPage()));
+            await Navigator.of(context)
+                .push(MaterialPageRoute(builder: (_) => const NotesPage()));
             _refresh();
           },
           icon: Icon(Icons.mail_outline_rounded, color: pal.subtext),
@@ -147,11 +182,18 @@ class _MailButtonState extends State<_MailButton> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
               constraints: const BoxConstraints(minWidth: 16),
-              decoration: BoxDecoration(color: const Color(0xFFF87171), borderRadius: BorderRadius.circular(99)),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF87171),
+                borderRadius: BorderRadius.circular(99),
+              ),
               child: Text(
                 _unread > 9 ? '9+' : '$_unread',
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Colors.white),
+                style: const TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                ),
               ),
             ),
           ),

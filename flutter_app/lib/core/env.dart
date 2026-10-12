@@ -12,5 +12,8 @@ class Env {
   // PREVIEW=true 로 빌드하면 로그인 없이 예시 데이터로 화면 모양만 볼 수 있다(개발용).
   static const preview = bool.fromEnvironment('PREVIEW');
 
+  // PREVIEW_GUEST=true 이면 미리보기도 로그인 전(보기 전용) 상태로 시작한다(개발용).
+  static const previewGuest = bool.fromEnvironment('PREVIEW_GUEST');
+
   static bool get hasBackend => supabaseUrl.isNotEmpty && supabaseAnonKey.isNotEmpty;
 }

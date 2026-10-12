@@ -324,5 +324,9 @@
   "challengeDaily1k": "毎日1千文字執筆チャレンジ",
   "challengeDaily5k": "毎日5千文字執筆チャレンジ",
   "challengeDaily10k": "毎日1万文字執筆チャレンジ",
-  "challengeMonthlyDraft": "毎月初稿完成チャレンジ"
+  "challengeMonthlyDraft": "毎月初稿完成チャレンジ",
+  "guestLoginButton": "ログイン",
+  "loginRequiredTitle": "ログインが必要です",
+  "loginRequiredBody": "ログインしないと閲覧のみできます。投稿・リアクション・ルームへの入室などはログイン後に使えます。",
+  "guestViewerBanner": "閲覧専用 · ログインするとすべての機能が使えます"
 }

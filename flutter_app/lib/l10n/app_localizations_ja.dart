@@ -545,4 +545,17 @@ class L10nJa extends L10n {
 
   @override
   String get challengeMonthlyDraft => '毎月初稿完成チャレンジ';
+
+  @override
+  String get guestLoginButton => 'ログイン';
+
+  @override
+  String get loginRequiredTitle => 'ログインが必要です';
+
+  @override
+  String get loginRequiredBody =>
+      'ログインしないと閲覧のみできます。投稿・リアクション・ルームへの入室などはログイン後に使えます。';
+
+  @override
+  String get guestViewerBanner => '閲覧専用 · ログインするとすべての機能が使えます';
 }

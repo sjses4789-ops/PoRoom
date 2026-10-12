@@ -543,4 +543,16 @@ class L10nZh extends L10n {
 
   @override
   String get challengeMonthlyDraft => '每月初稿完成挑战';
+
+  @override
+  String get guestLoginButton => '登录';
+
+  @override
+  String get loginRequiredTitle => '需要登录';
+
+  @override
+  String get loginRequiredBody => '未登录时只能浏览。发帖、点赞、加入房间等功能需要先登录。';
+
+  @override
+  String get guestViewerBanner => '仅供浏览 · 登录后可使用全部功能';
 }
