@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import { createClient, createIsolatedClient } from "@/lib/supabase/client";
+import { getBrowserId } from "@/lib/browser-id";
 import { setWorkStatus } from "@/lib/rooms";
 import {
   clearStatusBeforeAway,
@@ -35,6 +36,14 @@ export function PomodoroAwayKeeper() {
   const statusKey: "away" | "resting" =
     pomodoro.running && pomodoro.phase === "focus" ? "away" : "resting";
   const statusLabel = tStatus(statusKey);
+  const tGuard = useTranslations("room.sessionGuard");
+  // 다른 브라우저에서 이 방을 이어받았을 때 이 브라우저의 뽀모도로를 멈추기 위한 최신 값/문구 참조.
+  const pomodoroRef = useRef(pomodoro);
+  const guardTextRef = useRef(tGuard("keeperAlert"));
+  useEffect(() => {
+    pomodoroRef.current = pomodoro;
+    guardTextRef.current = tGuard("keeperAlert");
+  });
 
   // 최신 뽀모도로 값을 interval/cleanup에서 읽기 위한 ref.
   const latestRef = useRef({
@@ -109,11 +118,16 @@ export function PomodoroAwayKeeper() {
     let selfId: string | null = null;
 
     const sessionId = (globalThis.crypto?.randomUUID?.() ?? String(Math.random()));
+    const browserId = getBrowserId();
+    const joinedAt = Date.now();
     const payload = (): PresencePayload => {
       const l = latestRef.current;
       return {
         name: "",
         sessionId,
+        browserId,
+        joinedAt,
+        proxy: true,
         lastTypedAt: null,
         pomodoroPhase: l.phase === "idle" ? "idle" : l.phase,
         pomodoroProgressing: l.running,
@@ -131,6 +145,14 @@ export function PomodoroAwayKeeper() {
       selfId = user.id;
       channel = supabase.channel(`room-presence:${awayRoomId}`, {
         config: { presence: { key: user.id }, private: true },
+      });
+      channel.on("broadcast", { event: "session-takeover" }, ({ payload }) => {
+        // 같은 계정이 다른 브라우저에서 이 방을 이어받았다 — 이 브라우저의 뽀모도로를 멈춰 기록이 겹치지 않게 한다.
+        const p = payload as { userId?: string; browserId?: string };
+        if (p.userId !== user.id || !p.browserId || p.browserId === browserId) return;
+        pomodoroRef.current.flushPending();
+        pomodoroRef.current.pause();
+        window.alert(guardTextRef.current);
       });
       channel.subscribe((status) => {
         if (cancelled || !channel) return;

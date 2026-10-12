@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
+import { getBrowserId } from "@/lib/browser-id";
 
 const TYPING_WINDOW_MS = 5000;
 const TRACK_THROTTLE_MS = 2000;
@@ -38,6 +39,11 @@ type PomodoroPhase = "focus" | "break" | "idle";
 export type PresencePayload = {
   // 이 접속(탭/연결) 하나를 구분하는 값 — "나갔다" 신호가 그 접속에만 적용되게 한다.
   sessionId?: string;
+  // 접속한 브라우저(저장소) 구분값과 이 접속을 시작한 시각 — 같은 계정이 다른 브라우저에서 같은 방에
+  // 동시에 접속했는지(중복 접속) 가리는 데 쓴다. proxy는 방 페이지가 아니라 뽀모도로 대리 접속이다.
+  browserId?: string;
+  joinedAt?: number;
+  proxy?: boolean;
   name: string;
   lastTypedAt: number | null;
   pomodoroPhase: PomodoroPhase;
@@ -112,6 +118,14 @@ export function useRoomPresence(
     pomodoroDurationSeconds: 0,
   });
   const [, setTick] = useState(0);
+  // 같은 계정이 다른 브라우저/기기에서 이 방에 이미 접속해 있는데 내가 나중에 들어온 경우.
+  const [duplicateSession, setDuplicateSession] = useState(false);
+  // 내가 "이 화면에서 계속"을 고른 뒤에는 같은 경고를 다시 띄우지 않는다.
+  const sessionClaimedRef = useRef(false);
+  // 다른 브라우저에서 "이 화면에서 계속"을 골라 이 접속이 밀려난 경우.
+  const [takenOver, setTakenOver] = useState(false);
+  const browserIdRef = useRef("");
+  const joinedAtRef = useRef(0);
 
   useEffect(() => {
     const supabase = createClient();
@@ -120,7 +134,14 @@ export function useRoomPresence(
     // 접속(탭/연결) 구분값은 렌더 중이 아니라 여기서 한 번 만든다.
     if (!sessionIdRef.current) {
       sessionIdRef.current = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
-      selfPayloadRef.current = { ...selfPayloadRef.current, sessionId: sessionIdRef.current };
+      browserIdRef.current = getBrowserId();
+      joinedAtRef.current = Date.now();
+      selfPayloadRef.current = {
+        ...selfPayloadRef.current,
+        sessionId: sessionIdRef.current,
+        browserId: browserIdRef.current,
+        joinedAt: joinedAtRef.current,
+      };
     }
     let currentChannel: RealtimeChannel | null = null;
     let lastSyncEventAt = Date.now();
@@ -132,6 +153,18 @@ export function useRoomPresence(
       const state = currentChannel.presenceState<PresencePayload>();
       const next: Record<string, PresencePayload> = {};
       const now = Date.now();
+      // 중복 접속 확인: 내 계정으로 다른 브라우저에서 이미 들어와 있는 접속이 있고 내가 가장 나중이면 경고한다.
+      // (같은 브라우저의 다른 탭은 뽀모도로 기록을 같이 관리하므로 중복으로 보지 않는다.)
+      const mineEntries = state[selfId] ?? [];
+      const others = mineEntries.filter(
+        (m) => m.sessionId !== sessionIdRef.current && m.browserId && m.browserId !== browserIdRef.current
+      );
+      const iAmNewest = others.every(
+        (o) =>
+          (o.joinedAt ?? 0) < joinedAtRef.current ||
+          ((o.joinedAt ?? 0) === joinedAtRef.current && (o.sessionId ?? "") < sessionIdRef.current)
+      );
+      setDuplicateSession(others.length > 0 && iAmNewest && !sessionClaimedRef.current);
       for (const key of Object.keys(state)) {
         const entries = state[key];
         const latest = entries[entries.length - 1];
@@ -193,6 +226,11 @@ export function useRoomPresence(
           lastSeenAtRef.current.delete(userId);
           lastKnownPayloadRef.current.delete(userId);
           setTick((n) => n + 1);
+        })
+        .on("broadcast", { event: "session-takeover" }, ({ payload }) => {
+          // 같은 계정이 다른 브라우저에서 "이 화면에서 계속"을 골랐다 — 이 접속은 밀려난다.
+          const { userId, browserId } = payload as { userId?: string; browserId?: string };
+          if (userId === selfId && browserId && browserId !== browserIdRef.current) setTakenOver(true);
         })
         .on("broadcast", { event: "screen-frame" }, ({ payload }) => {
           const { userId, dataUrl } = payload as { userId: string; dataUrl: string };
@@ -468,6 +506,19 @@ export function useRoomPresence(
     });
   }, [selfId]);
 
+  // 다른 브라우저에서 이미 접속 중인데 "이 화면에서 계속 사용"을 고른 경우 — 그쪽 접속을 밀어낸다.
+  const claimSession = useCallback(() => {
+    sessionClaimedRef.current = true;
+    setDuplicateSession(false);
+    channelRef.current
+      ?.send({
+        type: "broadcast",
+        event: "session-takeover",
+        payload: { userId: selfId, browserId: browserIdRef.current },
+      })
+      .catch(() => {});
+  }, [selfId]);
+
   const getScreenFrame = useCallback(
     (userId: string): string | null => screenFrames[userId] ?? null,
     [screenFrames]
@@ -481,5 +532,8 @@ export function useRoomPresence(
     broadcastScreenFrame,
     stopScreenShareBroadcast,
     getScreenFrame,
+    duplicateSession,
+    takenOver,
+    claimSession,
   };
 }

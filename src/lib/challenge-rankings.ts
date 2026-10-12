@@ -3,8 +3,9 @@ import { inRange } from "@/lib/records";
 // 챌린지 랭킹 점수: 챌린지 종류별로 난이도가 다르므로 성공 횟수를 그냥
 // 더하지 않고 가중치를 매겨서 합산한다.
 export const CHALLENGE_SCORE_WEIGHTS = {
-  milestone_5k: 1,
-  milestone_10k: 2,
+  milestone_1k: 1,
+  milestone_5k: 2,
+  milestone_10k: 3,
   draft_done: 5,
   admin_event: 7,
 } as const;

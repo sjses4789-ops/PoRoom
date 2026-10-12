@@ -82,13 +82,13 @@ export default async function RankingPage() {
       .eq("type", "user")
       .is("kind", null)
       .returns<UserChallengeRow[]>(),
-    // 챌린지 랭킹: 매일 5천자·매일 1만자·초단 완고 성공(milestone_5k/
+    // 챌린지 랭킹: 매일 1천자·5천자·1만자·초단 완고 성공(milestone_1k/milestone_5k/
     // milestone_10k/draft_done) 횟수를 종류 구분 없이 동일하게 합산해서
     // 집계한다. 위 조회들과 서로 무관해서 같은 배치로 함께 보낸다.
     supabase
       .from("activity_logs")
       .select("user_id,type")
-      .in("type", ["milestone_5k", "milestone_10k", "draft_done"])
+      .in("type", ["milestone_1k", "milestone_5k", "milestone_10k", "draft_done"])
       .returns<{ user_id: string; type: string }[]>(),
     // 관리자가 만든 "달성 여부" 임시 이벤트는 마일스톤 로그 대신
     // challenge_participants.achieved 자가 신고로 성공 여부를 판단한다 —

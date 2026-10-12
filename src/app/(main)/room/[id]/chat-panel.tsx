@@ -136,28 +136,72 @@ export function ChatPanel({
     null
   );
 
+  // 실시간 신호(broadcast)는 방 참여자 누구나 보낼 수 있어서 내용을 믿을 수 없다 — 다른 사람 이름으로 가짜
+  // 메시지를 띄우거나 남의 메시지를 지운 것처럼 보이게 할 수 있다. 그래서 신호에는 메시지 id만 싣고, 받는 쪽이
+  // DB(RLS로 보호됨)에서 그 메시지를 직접 읽어 확인한 내용만 화면에 반영한다.
+  const messagesRef = useRef(messages);
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
+
   useEffect(() => {
     const supabase = createClient();
+    const rowToMessage = (r: {
+      id: string;
+      user_id: string;
+      content: string;
+      created_at: string;
+      target_user_id: string | null;
+    }): ChatMessage => ({
+      id: r.id,
+      userId: r.user_id,
+      content: r.content,
+      createdAt: r.created_at,
+      targetUserId: r.target_user_id,
+    });
+    const acceptMessage = async (payload: unknown) => {
+      const id = (payload as { id?: unknown } | null)?.id;
+      if (typeof id !== "string" || messagesRef.current.some((m) => m.id === id)) return;
+      const { data } = await supabase
+        .from("chat_messages")
+        .select("id,user_id,content,created_at,target_user_id")
+        .eq("id", id)
+        .maybeSingle();
+      if (!data) return; // DB에 없는 메시지 — 위조된 신호이거나 내가 볼 수 없는 메시지다.
+      const msg = rowToMessage(data);
+      if (messagesRef.current.some((m) => m.id === msg.id)) return;
+      setMessages((prev) => (prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]));
+      if (collapsedRef.current && msg.userId !== selfId) setUnreadCount((c) => c + 1);
+    };
+    const confirmDeleted = async (payload: unknown) => {
+      const id = (payload as { id?: unknown } | null)?.id;
+      if (typeof id !== "string") return;
+      const { data } = await supabase.from("chat_messages").select("id").eq("id", id).maybeSingle();
+      if (!data) setMessages((prev) => prev.filter((m) => m.id !== id));
+    };
+    const reloadAfterClear = async () => {
+      const { data } = await supabase
+        .from("chat_messages")
+        .select("id,user_id,content,created_at,target_user_id")
+        .eq("room_id", roomId)
+        .order("created_at", { ascending: false })
+        .limit(50);
+      setMessages([...(data ?? [])].reverse().map(rowToMessage));
+      setUnreadCount(0);
+    };
     const roomChannel = supabase
       // private: 방 참여자만 이 채널을 듣고 보낼 수 있다(realtime.messages RLS — 0061 마이그레이션).
       // 공개 채널이면 anon 키와 방 id만 알아도 누구나 대화를 엿볼 수 있었다.
       .channel(`room-chat:${roomId}`, { config: { private: true } })
       .on("broadcast", { event: "message" }, ({ payload }) => {
-        const msg = payload as ChatMessage;
-        setMessages((prev) => (prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]));
-        if (collapsedRef.current && msg.userId !== selfId) {
-          setUnreadCount((c) => c + 1);
-        }
+        void acceptMessage(payload);
       })
       .on("broadcast", { event: "delete" }, ({ payload }) => {
-        const { id } = payload as { id: string };
-        setMessages((prev) => prev.filter((m) => m.id !== id));
+        void confirmDeleted(payload);
       })
       .on("broadcast", { event: "clear" }, () => {
-        // 방장이 채팅을 초기화하면 전체 공개 메시지가 사라진다(내가 받은 귓속말은 DB에서도
-        // 방장 삭제 대상이라 함께 지워진다 — 새로고침하면 DB 기준으로 다시 맞춰진다).
-        setMessages([]);
-        setUnreadCount(0);
+        // 방장이 채팅을 초기화하면 DB의 메시지가 지워진다 — 신호만 믿지 않고 DB 기준으로 다시 불러온다.
+        void reloadAfterClear();
       })
       .subscribe();
     channelRef.current = roomChannel;
@@ -165,11 +209,7 @@ export function ChatPanel({
     const inboxChannel = supabase
       .channel(`whisper-inbox:${roomId}:${selfId}`, { config: { private: true } })
       .on("broadcast", { event: "whisper" }, ({ payload }) => {
-        const msg = payload as ChatMessage;
-        setMessages((prev) => (prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]));
-        if (collapsedRef.current) {
-          setUnreadCount((c) => c + 1);
-        }
+        void acceptMessage(payload);
       })
       .subscribe();
 
@@ -189,7 +229,7 @@ export function ChatPanel({
     const channel = supabase.channel(`whisper-inbox:${roomId}:${targetUserId}`, { config: { private: true } });
     channel.subscribe((status) => {
       if (status === "SUBSCRIBED") {
-        channel.send({ type: "broadcast", event: "whisper", payload: message });
+        channel.send({ type: "broadcast", event: "whisper", payload: { id: message.id } });
         setTimeout(() => supabase.removeChannel(channel), 500);
       }
     });
@@ -218,7 +258,7 @@ export function ChatPanel({
     if (message.targetUserId) {
       sendWhisperBroadcast(message.targetUserId, message);
     } else {
-      channelRef.current?.send({ type: "broadcast", event: "message", payload: message });
+      channelRef.current?.send({ type: "broadcast", event: "message", payload: { id: message.id } });
     }
   };
 

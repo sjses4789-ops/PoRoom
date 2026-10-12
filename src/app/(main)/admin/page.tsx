@@ -7,6 +7,7 @@ import { AdminEventDeleteButton } from "./admin-event-delete-button";
 import { AdminEventEditButton } from "./admin-event-edit-button";
 import { AdminRoomDeleteButton } from "./admin-room-delete-button";
 import { AdminMemberList, type AdminUserRow } from "./admin-member-list";
+import { DownloadLink } from "@/components/download-link";
 import { AdminTabs } from "./admin-tabs";
 import { AdminReportList, type AdminReport } from "./admin-report-list";
 import { RichContent } from "@/components/rich-content";
@@ -232,12 +233,12 @@ export default async function AdminPage() {
           {t("fullBackupHeading")}
         </h2>
         <p className="text-xs text-neutral-400">{t("fullBackupHint")}</p>
-        <a
+        <DownloadLink
           href="/api/admin/full-backup"
           className="self-start rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
         >
           {t("fullBackupButton")}
-        </a>
+        </DownloadLink>
       </section>
       <section className="flex flex-col gap-3 rounded-md border border-neutral-200 p-4 dark:border-neutral-700">
         <div className="flex items-center justify-between gap-3">

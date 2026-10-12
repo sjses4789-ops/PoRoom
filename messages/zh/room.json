@@ -369,5 +369,16 @@
     "boardHeading": "房间公告板",
     "pinned": "置顶",
     "pomodoroHint": "登录后即可使用自己的番茄钟。"
+  },
+  "sessionGuard": {
+    "duplicateTitle": "您已在其他地方连接",
+    "duplicateBody": "同一账号已在另一个浏览器或设备上进入此房间。同时使用两处可能会让番茄钟时间和字数记录重复累计。",
+    "continueHere": "在此屏幕继续使用",
+    "continueHint": "另一处的连接将结束，那边的番茄钟会停止。",
+    "leave": "返回PoRoom",
+    "takenOverTitle": "您已在其他地方继续使用此房间",
+    "takenOverBody": "同一账号在另一个浏览器或设备上进入此房间并接管了使用。为避免记录重叠，此屏幕的番茄钟已停止。",
+    "ok": "前往PoRoom",
+    "keeperAlert": "您在另一个浏览器中继续使用此房间，因此此浏览器的番茄钟已停止。"
   }
 }

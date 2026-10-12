@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { fetchAllPages } from "@/lib/paginate";
+import { DownloadLink } from "@/components/download-link";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { inPeriod, inRange } from "@/lib/records";
@@ -374,7 +375,7 @@ export default async function MePage() {
   const winLossRank = winLossRankIndex === -1 ? null : winLossRankIndex + 1;
   const winLossTotal = winLossRanked.length;
 
-  // 챌린지 랭킹: 종류별 가중치(5천자 1점·1만자 2점·초단 5점·관리자 이벤트
+  // 챌린지 랭킹: 종류별 가중치(1천자 1점·5천자 2점·1만자 3점·초단 5점·관리자 이벤트
   // 7점)로 합산한 점수 전체 순위 중 내 순위를 찾는다 — /ranking과 동일한
   // 규칙을 공유한다.
   const challengeScoreByUser = computeChallengeScoreByUser(
@@ -445,18 +446,18 @@ export default async function MePage() {
                 {t("joinDate", { date: user.created_at.slice(0, 10).replace(/-/g, ".") })}
               </span>
               <div className="mt-1.5 flex flex-wrap justify-center gap-2">
-                <a
+                <DownloadLink
                   href="/api/export/excel"
                   className="rounded-md border border-neutral-200 px-2.5 py-1.5 text-xs font-medium text-neutral-600 transition hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
                 >
                   {t("exportExcel")}
-                </a>
-                <a
+                </DownloadLink>
+                <DownloadLink
                   href="/api/export/backup"
                   className="rounded-md border border-neutral-200 px-2.5 py-1.5 text-xs font-medium text-neutral-600 transition hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
                 >
                   {t("backup")}
-                </a>
+                </DownloadLink>
                 <ImportBackupButton />
               </div>
             </div>

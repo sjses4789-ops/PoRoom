@@ -60,6 +60,48 @@ type StoredPomodoroState = {
   sessionStart: number;
 };
 
+// 서버에 이미 반영한 분(分) 수를 탭들이 함께 보는 장부 — 같은 브라우저에서 탭을 여러 개 열어 두면 탭마다
+// 같은 뽀모도로가 흘러가는데, 각자 "이번 분을 반영한다"고 서버에 쓰면 같은 시간이 두 번 기록된다. 반영하기
+// 직전에 이 장부로 "이미 반영된 분"을 확인하고(탭 간에는 Web Locks로 한 번에 하나씩) 아직 안 쓴 만큼만 쓴다.
+const FLUSHED_KEY = "poroom:pomodoro-flushed";
+type FlushedLedger = { sessionStart: number; focus: number; brk: number };
+
+async function claimMinutes(
+  kind: "focus" | "brk",
+  target: number,
+  sessionStart: number,
+  localFlushed: number
+): Promise<{ delta: number; flushed: number }> {
+  const run = () => {
+    let ledger: FlushedLedger | null = null;
+    try {
+      const raw = window.localStorage.getItem(FLUSHED_KEY);
+      if (raw) ledger = JSON.parse(raw) as FlushedLedger;
+    } catch {
+      ledger = null;
+    }
+    const sameSession = !!ledger && ledger.sessionStart === sessionStart;
+    const flushed = Math.max(localFlushed, sameSession ? ledger![kind] : 0);
+    if (target <= flushed) return { delta: 0, flushed };
+    const next: FlushedLedger = {
+      sessionStart,
+      focus: sameSession ? ledger!.focus : 0,
+      brk: sameSession ? ledger!.brk : 0,
+      [kind]: target,
+    };
+    try {
+      window.localStorage.setItem(FLUSHED_KEY, JSON.stringify(next));
+    } catch {
+      // 장부를 못 쓰는 환경이면 이 탭의 기록만 믿는다.
+    }
+    return { delta: target - flushed, flushed: target };
+  };
+  if (typeof navigator !== "undefined" && navigator.locks) {
+    return navigator.locks.request("poroom-pomodoro-flush", run);
+  }
+  return run();
+}
+
 function readStoredPomodoro(): StoredPomodoroState | null {
   if (typeof window === "undefined") return null;
   try {
@@ -285,10 +327,14 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
     if (!activeRoom) return;
     const currentMinutes = Math.floor(accumulatedFocusSeconds / 60);
     if (currentMinutes > lastFlushedMinutesRef.current) {
-      const delta = currentMinutes - lastFlushedMinutesRef.current;
-      lastFlushedMinutesRef.current = currentMinutes;
-      // 매분 하는 기록이라 화면 재조회(revalidate)는 하지 않는다(마지막 인자 false).
-      recordFocusMinutes(activeRoom.id, delta, effectiveRecordDate(sessionStartRef.current), false);
+      const sessionStart = sessionStartRef.current;
+      claimMinutes("focus", currentMinutes, sessionStart, lastFlushedMinutesRef.current).then(
+        ({ delta, flushed }) => {
+          lastFlushedMinutesRef.current = Math.max(lastFlushedMinutesRef.current, flushed);
+          // 매분 하는 기록이라 화면 재조회(revalidate)는 하지 않는다(마지막 인자 false).
+          if (delta > 0) recordFocusMinutes(activeRoom.id, delta, effectiveRecordDate(sessionStart), false);
+        }
+      );
     }
   }, [accumulatedFocusSeconds, activeRoom]);
 
@@ -296,9 +342,13 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
     if (!activeRoom) return;
     const currentMinutes = Math.floor(accumulatedBreakSeconds / 60);
     if (currentMinutes > lastFlushedBreakMinutesRef.current) {
-      const delta = currentMinutes - lastFlushedBreakMinutesRef.current;
-      lastFlushedBreakMinutesRef.current = currentMinutes;
-      recordBreakMinutes(activeRoom.id, delta, effectiveRecordDate(sessionStartRef.current));
+      const sessionStart = sessionStartRef.current;
+      claimMinutes("brk", currentMinutes, sessionStart, lastFlushedBreakMinutesRef.current).then(
+        ({ delta, flushed }) => {
+          lastFlushedBreakMinutesRef.current = Math.max(lastFlushedBreakMinutesRef.current, flushed);
+          if (delta > 0) recordBreakMinutes(activeRoom.id, delta, effectiveRecordDate(sessionStart));
+        }
+      );
     }
   }, [accumulatedBreakSeconds, activeRoom]);
 
@@ -347,15 +397,23 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
     if (!activeRoom) return;
     const focusMinutesNow = Math.round(accumulatedFocusSeconds / 60);
     if (focusMinutesNow > lastFlushedMinutesRef.current) {
-      const delta = focusMinutesNow - lastFlushedMinutesRef.current;
-      lastFlushedMinutesRef.current = focusMinutesNow;
-      recordFocusMinutes(activeRoom.id, delta, effectiveRecordDate(sessionStartRef.current));
+      const sessionStart = sessionStartRef.current;
+      claimMinutes("focus", focusMinutesNow, sessionStart, lastFlushedMinutesRef.current).then(
+        ({ delta, flushed }) => {
+          lastFlushedMinutesRef.current = Math.max(lastFlushedMinutesRef.current, flushed);
+          if (delta > 0) recordFocusMinutes(activeRoom.id, delta, effectiveRecordDate(sessionStart));
+        }
+      );
     }
     const breakMinutesNow = Math.round(accumulatedBreakSeconds / 60);
     if (breakMinutesNow > lastFlushedBreakMinutesRef.current) {
-      const delta = breakMinutesNow - lastFlushedBreakMinutesRef.current;
-      lastFlushedBreakMinutesRef.current = breakMinutesNow;
-      recordBreakMinutes(activeRoom.id, delta, effectiveRecordDate(sessionStartRef.current));
+      const sessionStart = sessionStartRef.current;
+      claimMinutes("brk", breakMinutesNow, sessionStart, lastFlushedBreakMinutesRef.current).then(
+        ({ delta, flushed }) => {
+          lastFlushedBreakMinutesRef.current = Math.max(lastFlushedBreakMinutesRef.current, flushed);
+          if (delta > 0) recordBreakMinutes(activeRoom.id, delta, effectiveRecordDate(sessionStart));
+        }
+      );
     }
   }, [activeRoom, accumulatedFocusSeconds, accumulatedBreakSeconds]);
 
@@ -433,6 +491,7 @@ export function PomodoroProvider({ children }: { children: React.ReactNode }) {
     lastFlushedBreakMinutesRef.current = 0;
     setFocusSessionCount(0);
     window.localStorage.removeItem(STORAGE_KEY);
+    window.localStorage.removeItem(FLUSHED_KEY);
   }, [activeRoom, started, focusMinutes]);
 
   // 모바일 앱(WebView) 안에서는 타이머 상태가 바뀔 때마다 앱에 알려서, 앱이

@@ -369,5 +369,16 @@
     "boardHeading": "Room board",
     "pinned": "Pinned",
     "pomodoroHint": "Log in to use your own Pomodoro timer."
+  },
+  "sessionGuard": {
+    "duplicateTitle": "You are already connected elsewhere",
+    "duplicateBody": "This account is already in this room from another browser or device. Using both at once can double-count your Pomodoro time and character records.",
+    "continueHere": "Continue on this screen",
+    "continueHint": "The other connection will end and its Pomodoro will stop.",
+    "leave": "Back to PoRoom",
+    "takenOverTitle": "You continued this room somewhere else",
+    "takenOverBody": "This account joined this room from another browser or device and took over. Your Pomodoro on this screen was stopped so records do not overlap.",
+    "ok": "Go to PoRoom",
+    "keeperAlert": "You continued this room in another browser, so the Pomodoro in this browser was stopped."
   }
 }

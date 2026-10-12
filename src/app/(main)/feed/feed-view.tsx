@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import {
   createFeedPost,
   deleteFeedPost,
+  getFeedPostById,
   toggleFeedReaction,
   type ReactionType,
   type PostType,
@@ -282,18 +283,29 @@ export function FeedView({
   // 저장/삭제 자체는 서버 액션이 그대로 처리하고, 이 채널은 이미 완료된
   // 결과를 실어 나르기만 한다.
   const channelRef = useRef<ReturnType<ReturnType<typeof createClient>["channel"]> | null>(null);
+  const postsRef = useRef(posts);
+  useEffect(() => {
+    postsRef.current = posts;
+  }, [posts]);
 
   useEffect(() => {
     const supabase = createClient();
     const channel = supabase
       .channel("feed:global")
-      .on("broadcast", { event: "new-post" }, ({ payload }) => {
-        const post = payload as FeedPost;
+      // 이 채널은 누구나 신호를 보낼 수 있어 내용을 믿을 수 없다 — 신호에는 글 id만 싣고, 받는 쪽이 DB에서 그
+      // 글을 직접 읽어 온 결과만 화면에 반영한다(가짜 글을 끼워 넣거나 남의 글을 지운 것처럼 보이게 하는 것을 막는다).
+      .on("broadcast", { event: "new-post" }, async ({ payload }) => {
+        const id = (payload as { id?: unknown } | null)?.id;
+        if (typeof id !== "string" || postsRef.current.some((p) => p.id === id)) return;
+        const post = await getFeedPostById(id);
+        if (!post) return;
         setPosts((prev) => (prev.some((p) => p.id === post.id) ? prev : [post, ...prev]));
       })
-      .on("broadcast", { event: "delete-post" }, ({ payload }) => {
-        const { id } = payload as { id: string };
-        setPosts((prev) => prev.filter((p) => p.id !== id));
+      .on("broadcast", { event: "delete-post" }, async ({ payload }) => {
+        const id = (payload as { id?: unknown } | null)?.id;
+        if (typeof id !== "string") return;
+        const post = await getFeedPostById(id);
+        if (!post) setPosts((prev) => prev.filter((p) => p.id !== id));
       })
       .subscribe();
     channelRef.current = channel;
@@ -393,7 +405,7 @@ export function FeedView({
       reactions: emptyReactions,
     };
     setPosts((prev) => [newPost, ...prev]);
-    channelRef.current?.send({ type: "broadcast", event: "new-post", payload: newPost });
+    channelRef.current?.send({ type: "broadcast", event: "new-post", payload: { id: newPost.id } });
     if (result.postType === "challenge" && result.meta.achieved) {
       celebrate(t("challengeSuccessToast"));
     }
@@ -403,8 +415,9 @@ export function FeedView({
   const remove = async (postId: string) => {
     if (!window.confirm(t("deleteConfirm"))) return;
     setPosts((prev) => prev.filter((p) => p.id !== postId));
-    channelRef.current?.send({ type: "broadcast", event: "delete-post", payload: { id: postId } });
+    // DB에서 지운 뒤에 알린다 — 받는 쪽이 DB를 확인해서 지워졌을 때만 화면에서 뺀다.
     await deleteFeedPost(postId);
+    channelRef.current?.send({ type: "broadcast", event: "delete-post", payload: { id: postId } });
   };
 
   const react = async (postId: string, type: ReactionType) => {

@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { usePomodoroContext } from "../../pomodoro-context";
 import { useRoomPresence } from "./use-room-presence";
 import { useScreenShare } from "./use-screen-share";
 import { useLiveMembers } from "./use-live-members";
 import { ParticipantCard, type ParticipantData } from "./participant-card";
+import { SessionGuardDialog } from "./session-guard-dialog";
 import { ParticipantContextMenu, ReportDialog, type MenuTarget } from "./participant-menu";
 import { banMember } from "@/lib/room-admin";
 import { blockUser, getBlockerIds, reportUser, unblockUser } from "@/lib/safety";
@@ -145,7 +147,20 @@ export function RoomView({
     broadcastScreenFrame,
     stopScreenShareBroadcast,
     getScreenFrame,
+    duplicateSession,
+    takenOver,
+    claimSession,
   } = useRoomPresence(roomId, selfId, selfName);
+  const router = useRouter();
+
+  // 다른 브라우저/기기에서 이 방을 이어받으면 이 화면의 뽀모도로는 멈춘다 — 두 곳에서 동시에 흘러가며 집중
+  // 시간이 겹쳐 기록되는 것을 막는다(멈추기 전에 지금까지 쌓인 시간은 먼저 반영한다).
+  useEffect(() => {
+    if (!takenOver) return;
+    pomodoro.flushPending();
+    if (pomodoro.activeRoomId === roomId && pomodoro.running) pomodoro.pause();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [takenOver]);
   const screenShare = useScreenShare(broadcastScreenFrame, stopScreenShareBroadcast);
 
   // "상태설정"은 presence(그 방 세션 동안만 사는 실시간 상태)가 아니라 이 방의
@@ -415,6 +430,13 @@ export function RoomView({
   return (
     <>
     {celebrationToast}
+    {(duplicateSession || takenOver) && (
+      <SessionGuardDialog
+        kind={takenOver ? "takenOver" : "duplicate"}
+        onContinue={claimSession}
+        onLeave={() => router.push("/main")}
+      />
+    )}
     <div
       className="grid grid-cols-1 gap-6 lg:grid-cols-[var(--chat-w)_1fr_260px]"
       style={{ "--chat-w": chatCollapsed ? "56px" : `${chatWidth}px` } as React.CSSProperties}

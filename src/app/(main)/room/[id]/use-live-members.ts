@@ -182,18 +182,25 @@ export function useLiveMembers(
         .on("broadcast", { event: "member-joined" }, ({ payload }) => {
           addMember((payload as { userId: string }).userId);
         })
-        .on("broadcast", { event: "member-left" }, ({ payload }) => {
-          removeMember((payload as { userId: string }).userId);
+        // 실시간 신호는 누구나 보낼 수 있어 내용을 믿지 않는다 — 신호는 "다시 확인하라"는 알림으로만 쓰고,
+        // 실제 목록·방장·부방장은 DB(RLS로 보호됨)에서 읽은 값으로 맞춘다.
+        .on("broadcast", { event: "member-left" }, () => {
+          refetchAll();
         })
         // 방장 위임/부방장 지정은 5초 폴링을 기다리지 않고 즉시 모두의
         // 화면(왕관 배지)에 반영되어야 하므로 방송으로도 알린다.
-        .on("broadcast", { event: "owner-changed" }, ({ payload }) => {
-          const { userId } = payload as { userId: string };
-          setMembers((prev) => prev.map((m) => ({ ...m, isOwner: m.id === userId })));
+        .on("broadcast", { event: "owner-changed" }, async () => {
+          if (isSystemRoom) return;
+          const { data: room } = await supabase
+            .from("rooms")
+            .select("owner_id")
+            .eq("id", roomId)
+            .maybeSingle<{ owner_id: string }>();
+          if (!room || cancelled) return;
+          setMembers((prev) => prev.map((m) => ({ ...m, isOwner: m.id === room.owner_id })));
         })
-        .on("broadcast", { event: "vice-changed" }, ({ payload }) => {
-          const { userId, isVice } = payload as { userId: string; isVice: boolean };
-          setMembers((prev) => prev.map((m) => (m.id === userId ? { ...m, isVice } : m)));
+        .on("broadcast", { event: "vice-changed" }, () => {
+          refetchAll();
         })
         // 이 방 참여자의 닉네임·상태설정 변경(방별로 저장되므로 users가 아니라 room_members를 본다).
         .on(

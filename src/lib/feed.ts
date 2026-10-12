@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { fetchAllPages } from "@/lib/paginate";
 import { createClient } from "@/lib/supabase/server";
-import { todayKst, kstDayRangeUtc } from "@/lib/time";
+import { todayKst, kstDayRangeUtc, formatRelativeTime } from "@/lib/time";
 import { SYSTEM_CHALLENGE_META, type SystemChallengeKind } from "@/lib/system-challenges";
 
 export type ReactionType = "heart" | "clap" | "fire";
@@ -305,6 +305,82 @@ export async function createFeedPost(
     chars: data.chars,
     meta: data.meta ?? {},
     createdAt: data.created_at,
+  };
+}
+
+export type FeedPostData = {
+  id: string;
+  postType: PostType;
+  authorId: string;
+  authorName: string;
+  characterId: string | null;
+  authorPosition: "novelist" | "webtoon";
+  mood: string;
+  focusMinutes: number;
+  chars: number;
+  meta: FeedPostMeta;
+  createdAt: string;
+  createdAtLabel: string;
+  reactions: Record<ReactionType, { count: number; selfActive: boolean }>;
+};
+
+// 다른 사용자가 새 글을 올렸다는 실시간 신호를 받았을 때, 신호에 실린 내용을 믿지 않고 DB에서 그 글을 직접
+// 읽어 온다(없으면 null) — 실시간 신호는 누구나 보낼 수 있어서 가짜 글/삭제 신호를 걸러내기 위함이다.
+export async function getFeedPostById(postId: string): Promise<FeedPostData | null> {
+  if (typeof postId !== "string" || postId.length > 64) return null;
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const { data: post } = await supabase
+    .from("feed_posts")
+    .select("id,user_id,post_type,mood,focus_minutes,chars,meta,created_at")
+    .eq("id", postId)
+    .maybeSingle<{
+      id: string;
+      user_id: string;
+      post_type: PostType;
+      mood: string;
+      focus_minutes: number;
+      chars: number;
+      meta: FeedPostMeta | null;
+      created_at: string;
+    }>();
+  if (!post) return null;
+
+  const [{ data: author }, { data: reactions }] = await Promise.all([
+    supabase
+      .from("users")
+      .select("name,character_id,position")
+      .eq("id", post.user_id)
+      .maybeSingle<{ name: string | null; character_id: string | null; position: string | null }>(),
+    supabase
+      .from("feed_reactions")
+      .select("user_id,reaction_type")
+      .eq("post_id", postId)
+      .returns<{ user_id: string; reaction_type: ReactionType }[]>(),
+  ]);
+
+  const countOf = (type: ReactionType) => {
+    const list = (reactions ?? []).filter((r) => r.reaction_type === type);
+    return { count: list.length, selfActive: user ? list.some((r) => r.user_id === user.id) : false };
+  };
+
+  return {
+    id: post.id,
+    postType: post.post_type,
+    authorId: post.user_id,
+    authorName: author?.name || "알 수 없음",
+    characterId: author?.character_id ?? null,
+    authorPosition: author?.position === "webtoon" ? "webtoon" : "novelist",
+    mood: post.mood,
+    focusMinutes: post.focus_minutes,
+    chars: post.chars,
+    meta: post.meta ?? {},
+    createdAt: post.created_at,
+    createdAtLabel: formatRelativeTime(post.created_at) ?? "",
+    reactions: { heart: countOf("heart"), clap: countOf("clap"), fire: countOf("fire") },
   };
 }
 

@@ -39,13 +39,36 @@ export function ChallengeChatPanel({
     userId === selfId ? t("selfLabel") : members.find((m) => m.id === userId)?.name ?? t("unknownUser");
   const colorOf = (userId: string) => members.find((m) => m.id === userId)?.chatColor ?? null;
 
+  // 실시간 신호는 참가자 누구나 보낼 수 있어 내용을 믿을 수 없다 — 신호에는 메시지 id만 싣고, 받는 쪽이 DB에서
+  // 직접 읽어 확인한 메시지만 화면에 반영한다(다른 사람 이름으로 가짜 메시지를 띄우는 것을 막는다).
+  const messagesRef = useRef(messages);
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
+
   useEffect(() => {
     const supabase = createClient();
+    const acceptMessage = async (payload: unknown) => {
+      const id = (payload as { id?: unknown } | null)?.id;
+      if (typeof id !== "string" || messagesRef.current.some((m) => m.id === id)) return;
+      const { data } = await supabase
+        .from("challenge_messages")
+        .select("id,user_id,content,created_at")
+        .eq("id", id)
+        .maybeSingle();
+      if (!data) return;
+      const msg: ChallengeChatMessage = {
+        id: data.id,
+        userId: data.user_id,
+        content: data.content,
+        createdAt: data.created_at,
+      };
+      setMessages((prev) => (prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]));
+    };
     const channel = supabase
       .channel(`challenge-chat:${challengeId}`, { config: { private: true } })
       .on("broadcast", { event: "message" }, ({ payload }) => {
-        const msg = payload as ChallengeChatMessage;
-        setMessages((prev) => (prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]));
+        void acceptMessage(payload);
       })
       .subscribe();
     channelRef.current = channel;
@@ -79,7 +102,7 @@ export function ChallengeChatPanel({
       createdAt: data.created_at,
     };
     setMessages((prev) => (prev.some((m) => m.id === message.id) ? prev : [...prev, message]));
-    channelRef.current?.send({ type: "broadcast", event: "message", payload: message });
+    channelRef.current?.send({ type: "broadcast", event: "message", payload: { id: message.id } });
   };
 
   return (
