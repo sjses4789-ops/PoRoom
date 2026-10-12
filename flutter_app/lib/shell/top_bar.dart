@@ -12,7 +12,7 @@ import '../l10n/app_localizations.dart';
 import '../widgets/character_avatar.dart';
 import '../widgets/login_gate.dart';
 
-// 상단 바: 왼쪽에 로고(+BETA), 오른쪽에 우편함 아이콘(안 읽은 쪽지 수 뱃지)과 닉네임(누르면 [개인] 화면).
+// 상단 바: 왼쪽에 로고, 오른쪽에 우편함 아이콘(안 읽은 쪽지 수 뱃지)과 닉네임(누르면 [개인] 화면).
 // 우편함/닉네임 위치는 아직 확정 전이라 여기 한 곳만 고치면 바뀐다.
 class AppTopBar extends StatelessWidget {
   const AppTopBar({super.key});
@@ -32,41 +32,18 @@ class AppTopBar extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Column(
+          // 로고(앱에서는 BETA 표시를 쓰지 않는다 — 웹의 BETA 표시는 앱 출시 때 함께 없앨 예정).
+          Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Image.asset('assets/images/icon.png', width: 22, height: 22),
-                  const SizedBox(width: 6),
-                  Text(
-                    l10n.appTitle,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: -0.2,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 2),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 6,
-                  vertical: 1.5,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFEF3C7),
-                  borderRadius: BorderRadius.circular(99),
-                ),
-                child: const Text(
-                  'BETA',
-                  style: TextStyle(
-                    fontSize: 9,
-                    fontWeight: FontWeight.w800,
-                    color: Color(0xFFB45309),
-                  ),
+              Image.asset('assets/images/icon.png', width: 24, height: 24),
+              const SizedBox(width: 6),
+              Text(
+                l10n.appTitle,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -0.2,
                 ),
               ),
             ],
