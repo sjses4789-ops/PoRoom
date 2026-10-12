@@ -297,4 +297,252 @@ class L10nJa extends L10n {
 
   @override
   String get sessionGuardOk => 'PoRoomへ移動';
+
+  @override
+  String get feedCatAll => 'すべて';
+
+  @override
+  String get feedCatWrite => '作業';
+
+  @override
+  String get feedCatDuel => '対決';
+
+  @override
+  String get feedCatChallenge => 'チャレンジ';
+
+  @override
+  String get feedCatSubmission => '投稿';
+
+  @override
+  String get feedCatContest => '公募展';
+
+  @override
+  String get feedMoodHint => '今日の気分やお知らせを残しましょう';
+
+  @override
+  String get feedPost => '投稿';
+
+  @override
+  String get feedPostFailed => '投稿できませんでした。';
+
+  @override
+  String get feedEmpty => 'まだ投稿がありません。';
+
+  @override
+  String get feedWriteOnWebHint => 'この分類の投稿はウェブで書けます。';
+
+  @override
+  String get feedDeleteConfirm => 'この投稿を削除しますか？';
+
+  @override
+  String feedMinutesFocus(int count) {
+    return '$count分集中';
+  }
+
+  @override
+  String get feedWin => '勝';
+
+  @override
+  String get feedLoss => '負';
+
+  @override
+  String get feedDraw => '分';
+
+  @override
+  String get feedAchieved => '達成';
+
+  @override
+  String get feedNotAchieved => '未達成';
+
+  @override
+  String get rankTabChars => '文字数';
+
+  @override
+  String get rankTabChallenge => 'チャレンジ';
+
+  @override
+  String get rankTabTyping => 'タイピング';
+
+  @override
+  String get rankScopeUser => '個人';
+
+  @override
+  String get rankScopeRoom => 'ルーム';
+
+  @override
+  String get rankPeriodDay => '日別';
+
+  @override
+  String get rankPeriodMonth => '月別';
+
+  @override
+  String get rankPeriodYear => '年別';
+
+  @override
+  String rankDateDay(int month, int day) {
+    return '$month月$day日';
+  }
+
+  @override
+  String rankDateMonth(int year, int month) {
+    return '$year年$month月';
+  }
+
+  @override
+  String rankDateYear(int year) {
+    return '$year年';
+  }
+
+  @override
+  String rankScoreValue(String score) {
+    return '$score点';
+  }
+
+  @override
+  String rankCpmValue(int cpm) {
+    return '$cpm打/分';
+  }
+
+  @override
+  String rankMyRank(int rank, int total, String value) {
+    return '自分の順位 $rank位 / $total人 · $value';
+  }
+
+  @override
+  String get rankEmpty => '集計された記録がありません。';
+
+  @override
+  String get rankChallengeHint => '1千字1点 · 5千字2点 · 1万字3点 · 初稿5点 · 管理者イベント7点';
+
+  @override
+  String get positionNovelist => 'ウェブ小説';
+
+  @override
+  String get positionWebtoon => 'ウェブトゥーン';
+
+  @override
+  String get competeChallenges => 'チャレンジ';
+
+  @override
+  String get competeDuels => '対決';
+
+  @override
+  String get competeEmpty => 'まだありません。';
+
+  @override
+  String get competeJoined => '参加中';
+
+  @override
+  String get competeOpen => '参加できます';
+
+  @override
+  String get competeCreateOnWeb => '対決の作成・招待コードでの参加はウェブで';
+
+  @override
+  String get competeJoinedBadge => '参加中';
+
+  @override
+  String get competeNotStarted => '開始前';
+
+  @override
+  String competeParticipants(int count) {
+    return '$count人参加';
+  }
+
+  @override
+  String get competeEnded => '終了';
+
+  @override
+  String competeProgress(String a, String b) {
+    return '今日 $a / $b';
+  }
+
+  @override
+  String get competeLeave => 'やめる';
+
+  @override
+  String get competeJoin => '参加する';
+
+  @override
+  String get restTabBoard => '掲示板';
+
+  @override
+  String get restTabGames => 'ゲーム';
+
+  @override
+  String get restCatInfo => '情報';
+
+  @override
+  String get restCatRecruit => 'メンバー募集';
+
+  @override
+  String get restCatFree => '自由';
+
+  @override
+  String get restGameTyping => 'タイピング練習';
+
+  @override
+  String get restGameMinesweeper => 'マインスイーパー';
+
+  @override
+  String get restGameTetris => 'テトリス';
+
+  @override
+  String get restGameWordChain => 'しりとり';
+
+  @override
+  String get restGameChoseong => '初声クイズ';
+
+  @override
+  String get restGamesHint => 'ゲームはウェブで楽しめます。';
+
+  @override
+  String get notesReply => '返信';
+
+  @override
+  String notesReplyTo(String name) {
+    return '$nameさんに返信';
+  }
+
+  @override
+  String get notesPlaceholder => 'メモの内容を入力してください';
+
+  @override
+  String get notesSend => '送信';
+
+  @override
+  String get notesSent => 'メモを送りました';
+
+  @override
+  String get notesEmpty => '受信したメモはありません。';
+
+  @override
+  String get meToday => '今日';
+
+  @override
+  String get meMonth => '今月';
+
+  @override
+  String get meTodos => 'やること';
+
+  @override
+  String get meTodoHint => 'やることを追加';
+
+  @override
+  String get meNoTodos => 'やることはありません。';
+
+  @override
+  String get meOpenWeb => '統計・目標・作品はウェブで';
+
+  @override
+  String get challengeDaily1k => '毎日1千文字執筆チャレンジ';
+
+  @override
+  String get challengeDaily5k => '毎日5千文字執筆チャレンジ';
+
+  @override
+  String get challengeDaily10k => '毎日1万文字執筆チャレンジ';
+
+  @override
+  String get challengeMonthlyDraft => '毎月初稿完成チャレンジ';
 }

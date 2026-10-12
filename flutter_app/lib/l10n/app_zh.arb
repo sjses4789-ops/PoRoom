@@ -163,5 +163,166 @@
   "sessionGuardLeave": "返回PoRoom",
   "sessionGuardTakenOverTitle": "您已在其他地方继续使用此房间",
   "sessionGuardTakenOverBody": "同一账号在另一个浏览器或设备上进入此房间并接管了使用。为避免记录重叠，此屏幕的番茄钟已停止。",
-  "sessionGuardOk": "前往PoRoom"
+  "sessionGuardOk": "前往PoRoom",
+  "feedCatAll": "全部",
+  "feedCatWrite": "创作",
+  "feedCatDuel": "对决",
+  "feedCatChallenge": "挑战",
+  "feedCatSubmission": "投稿",
+  "feedCatContest": "比赛",
+  "feedMoodHint": "分享今天的心情或近况",
+  "feedPost": "发布",
+  "feedPostFailed": "发布失败。",
+  "feedEmpty": "还没有帖子。",
+  "feedWriteOnWebHint": "该分类的帖子请在网页上发布。",
+  "feedDeleteConfirm": "要删除这条帖子吗？",
+  "feedMinutesFocus": "专注{count}分钟",
+  "@feedMinutesFocus": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "feedWin": "胜",
+  "feedLoss": "负",
+  "feedDraw": "平",
+  "feedAchieved": "已达成",
+  "feedNotAchieved": "未达成",
+  "rankTabChars": "字数",
+  "rankTabChallenge": "挑战",
+  "rankTabTyping": "打字",
+  "rankScopeUser": "个人",
+  "rankScopeRoom": "房间",
+  "rankPeriodDay": "日榜",
+  "rankPeriodMonth": "月榜",
+  "rankPeriodYear": "年榜",
+  "rankDateDay": "{month}月{day}日",
+  "@rankDateDay": {
+    "placeholders": {
+      "month": {
+        "type": "int"
+      },
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "rankDateMonth": "{year}年{month}月",
+  "@rankDateMonth": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      },
+      "month": {
+        "type": "int"
+      }
+    }
+  },
+  "rankDateYear": "{year}年",
+  "@rankDateYear": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "rankScoreValue": "{score}分",
+  "@rankScoreValue": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "rankCpmValue": "{cpm}字/分",
+  "@rankCpmValue": {
+    "placeholders": {
+      "cpm": {
+        "type": "int"
+      }
+    }
+  },
+  "rankMyRank": "我的排名 第{rank}名 / 共{total}人 · {value}",
+  "@rankMyRank": {
+    "placeholders": {
+      "rank": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "rankEmpty": "暂无统计记录。",
+  "rankChallengeHint": "1千字1分 · 5千字2分 · 1万字3分 · 初稿5分 · 管理员活动7分",
+  "positionNovelist": "网络小说",
+  "positionWebtoon": "网络漫画",
+  "competeChallenges": "挑战",
+  "competeDuels": "对决",
+  "competeEmpty": "暂时没有。",
+  "competeJoined": "参与中",
+  "competeOpen": "可参加",
+  "competeCreateOnWeb": "创建对决或凭邀请码加入请在网页上操作",
+  "competeJoinedBadge": "参与中",
+  "competeNotStarted": "未开始",
+  "competeParticipants": "{count}人参加",
+  "@competeParticipants": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "competeEnded": "已结束",
+  "competeProgress": "今天 {a} / {b}",
+  "@competeProgress": {
+    "placeholders": {
+      "a": {
+        "type": "String"
+      },
+      "b": {
+        "type": "String"
+      }
+    }
+  },
+  "competeLeave": "退出",
+  "competeJoin": "参加",
+  "restTabBoard": "公告栏",
+  "restTabGames": "游戏",
+  "restCatInfo": "信息",
+  "restCatRecruit": "招募",
+  "restCatFree": "自由",
+  "restGameTyping": "打字练习",
+  "restGameMinesweeper": "扫雷",
+  "restGameTetris": "俄罗斯方块",
+  "restGameWordChain": "成语接龙",
+  "restGameChoseong": "首音猜词",
+  "restGamesHint": "游戏请在网页上玩。",
+  "notesReply": "回复",
+  "notesReplyTo": "回复{name}",
+  "@notesReplyTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "notesPlaceholder": "请填写纸条内容",
+  "notesSend": "发送",
+  "notesSent": "纸条已发送",
+  "notesEmpty": "没有收到的纸条。",
+  "meToday": "今天",
+  "meMonth": "本月",
+  "meTodos": "待办",
+  "meTodoHint": "添加待办",
+  "meNoTodos": "没有待办事项。",
+  "meOpenWeb": "统计·目标·作品请在网页查看",
+  "challengeDaily1k": "每日1000字写作挑战",
+  "challengeDaily5k": "每日5000字写作挑战",
+  "challengeDaily10k": "每日1万字写作挑战",
+  "challengeMonthlyDraft": "每月初稿完成挑战"
 }

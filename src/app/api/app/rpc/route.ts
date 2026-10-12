@@ -11,6 +11,13 @@ import {
 } from "@/lib/rooms";
 import { getMyWorks, createWork, recordWorkChars } from "@/lib/works";
 import { setDailyCharGoal } from "@/lib/daily-goal";
+import { sendNote, getInbox, getUnreadNoteCount, markNoteRead, deleteNote } from "@/lib/notes";
+import { createFeedPost, deleteFeedPost, toggleFeedReaction, getFeedPostById, getMyChallengeOptions } from "@/lib/feed";
+import { joinChallenge, leaveChallenge } from "@/lib/challenges";
+import { createTodo, setTodoCompleted, deleteTodo } from "@/lib/todos";
+import { submitTypingScore } from "@/lib/rest";
+import { setChatColor, setCharacter } from "@/lib/profile";
+import { blockUser, unblockUser, reportUser } from "@/lib/safety";
 
 // 모바일 앱이 웹의 서버 액션(src/lib/*.ts)을 그대로 부르는 통로.
 // 앱은 "Authorization: Bearer <로그인 토큰>"을 보내고, createClient()가 그 토큰의
@@ -30,6 +37,32 @@ const ACTIONS: Record<string, (...args: any[]) => Promise<unknown>> = {
   createWork,
   recordWorkChars,
   setDailyCharGoal,
+  // 쪽지
+  sendNote,
+  getInbox,
+  getUnreadNoteCount,
+  markNoteRead,
+  deleteNote,
+  // 피드
+  createFeedPost,
+  deleteFeedPost,
+  toggleFeedReaction,
+  getFeedPostById,
+  getMyChallengeOptions,
+  // 도전
+  joinChallenge,
+  leaveChallenge,
+  // 할 일 / 휴식(타자 연습 기록)
+  createTodo,
+  setTodoCompleted,
+  deleteTodo,
+  submitTypingScore,
+  // 프로필 / 안전
+  setChatColor,
+  setCharacter,
+  blockUser,
+  unblockUser,
+  reportUser,
 };
 
 // 서버 액션 중 일부는 끝에 redirect()를 부르는데, 이건 에러를 던지는 방식으로 동작한다 —

@@ -163,5 +163,166 @@
   "sessionGuardLeave": "PoRoomに戻る",
   "sessionGuardTakenOverTitle": "別の場所でこのルームを続けています",
   "sessionGuardTakenOverBody": "同じアカウントが別のブラウザまたは端末でこのルームに接続し、続きを使い始めました。記録が重複しないよう、この画面のポモドーロは停止しました。",
-  "sessionGuardOk": "PoRoomへ移動"
+  "sessionGuardOk": "PoRoomへ移動",
+  "feedCatAll": "すべて",
+  "feedCatWrite": "作業",
+  "feedCatDuel": "対決",
+  "feedCatChallenge": "チャレンジ",
+  "feedCatSubmission": "投稿",
+  "feedCatContest": "公募展",
+  "feedMoodHint": "今日の気分やお知らせを残しましょう",
+  "feedPost": "投稿",
+  "feedPostFailed": "投稿できませんでした。",
+  "feedEmpty": "まだ投稿がありません。",
+  "feedWriteOnWebHint": "この分類の投稿はウェブで書けます。",
+  "feedDeleteConfirm": "この投稿を削除しますか？",
+  "feedMinutesFocus": "{count}分集中",
+  "@feedMinutesFocus": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "feedWin": "勝",
+  "feedLoss": "負",
+  "feedDraw": "分",
+  "feedAchieved": "達成",
+  "feedNotAchieved": "未達成",
+  "rankTabChars": "文字数",
+  "rankTabChallenge": "チャレンジ",
+  "rankTabTyping": "タイピング",
+  "rankScopeUser": "個人",
+  "rankScopeRoom": "ルーム",
+  "rankPeriodDay": "日別",
+  "rankPeriodMonth": "月別",
+  "rankPeriodYear": "年別",
+  "rankDateDay": "{month}月{day}日",
+  "@rankDateDay": {
+    "placeholders": {
+      "month": {
+        "type": "int"
+      },
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "rankDateMonth": "{year}年{month}月",
+  "@rankDateMonth": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      },
+      "month": {
+        "type": "int"
+      }
+    }
+  },
+  "rankDateYear": "{year}年",
+  "@rankDateYear": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "rankScoreValue": "{score}点",
+  "@rankScoreValue": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "rankCpmValue": "{cpm}打/分",
+  "@rankCpmValue": {
+    "placeholders": {
+      "cpm": {
+        "type": "int"
+      }
+    }
+  },
+  "rankMyRank": "自分の順位 {rank}位 / {total}人 · {value}",
+  "@rankMyRank": {
+    "placeholders": {
+      "rank": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "rankEmpty": "集計された記録がありません。",
+  "rankChallengeHint": "1千字1点 · 5千字2点 · 1万字3点 · 初稿5点 · 管理者イベント7点",
+  "positionNovelist": "ウェブ小説",
+  "positionWebtoon": "ウェブトゥーン",
+  "competeChallenges": "チャレンジ",
+  "competeDuels": "対決",
+  "competeEmpty": "まだありません。",
+  "competeJoined": "参加中",
+  "competeOpen": "参加できます",
+  "competeCreateOnWeb": "対決の作成・招待コードでの参加はウェブで",
+  "competeJoinedBadge": "参加中",
+  "competeNotStarted": "開始前",
+  "competeParticipants": "{count}人参加",
+  "@competeParticipants": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "competeEnded": "終了",
+  "competeProgress": "今日 {a} / {b}",
+  "@competeProgress": {
+    "placeholders": {
+      "a": {
+        "type": "String"
+      },
+      "b": {
+        "type": "String"
+      }
+    }
+  },
+  "competeLeave": "やめる",
+  "competeJoin": "参加する",
+  "restTabBoard": "掲示板",
+  "restTabGames": "ゲーム",
+  "restCatInfo": "情報",
+  "restCatRecruit": "メンバー募集",
+  "restCatFree": "自由",
+  "restGameTyping": "タイピング練習",
+  "restGameMinesweeper": "マインスイーパー",
+  "restGameTetris": "テトリス",
+  "restGameWordChain": "しりとり",
+  "restGameChoseong": "初声クイズ",
+  "restGamesHint": "ゲームはウェブで楽しめます。",
+  "notesReply": "返信",
+  "notesReplyTo": "{name}さんに返信",
+  "@notesReplyTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "notesPlaceholder": "メモの内容を入力してください",
+  "notesSend": "送信",
+  "notesSent": "メモを送りました",
+  "notesEmpty": "受信したメモはありません。",
+  "meToday": "今日",
+  "meMonth": "今月",
+  "meTodos": "やること",
+  "meTodoHint": "やることを追加",
+  "meNoTodos": "やることはありません。",
+  "meOpenWeb": "統計・目標・作品はウェブで",
+  "challengeDaily1k": "毎日1千文字執筆チャレンジ",
+  "challengeDaily5k": "毎日5千文字執筆チャレンジ",
+  "challengeDaily10k": "毎日1万文字執筆チャレンジ",
+  "challengeMonthlyDraft": "毎月初稿完成チャレンジ"
 }

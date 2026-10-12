@@ -295,4 +295,252 @@ class L10nZh extends L10n {
 
   @override
   String get sessionGuardOk => '前往PoRoom';
+
+  @override
+  String get feedCatAll => '全部';
+
+  @override
+  String get feedCatWrite => '创作';
+
+  @override
+  String get feedCatDuel => '对决';
+
+  @override
+  String get feedCatChallenge => '挑战';
+
+  @override
+  String get feedCatSubmission => '投稿';
+
+  @override
+  String get feedCatContest => '比赛';
+
+  @override
+  String get feedMoodHint => '分享今天的心情或近况';
+
+  @override
+  String get feedPost => '发布';
+
+  @override
+  String get feedPostFailed => '发布失败。';
+
+  @override
+  String get feedEmpty => '还没有帖子。';
+
+  @override
+  String get feedWriteOnWebHint => '该分类的帖子请在网页上发布。';
+
+  @override
+  String get feedDeleteConfirm => '要删除这条帖子吗？';
+
+  @override
+  String feedMinutesFocus(int count) {
+    return '专注$count分钟';
+  }
+
+  @override
+  String get feedWin => '胜';
+
+  @override
+  String get feedLoss => '负';
+
+  @override
+  String get feedDraw => '平';
+
+  @override
+  String get feedAchieved => '已达成';
+
+  @override
+  String get feedNotAchieved => '未达成';
+
+  @override
+  String get rankTabChars => '字数';
+
+  @override
+  String get rankTabChallenge => '挑战';
+
+  @override
+  String get rankTabTyping => '打字';
+
+  @override
+  String get rankScopeUser => '个人';
+
+  @override
+  String get rankScopeRoom => '房间';
+
+  @override
+  String get rankPeriodDay => '日榜';
+
+  @override
+  String get rankPeriodMonth => '月榜';
+
+  @override
+  String get rankPeriodYear => '年榜';
+
+  @override
+  String rankDateDay(int month, int day) {
+    return '$month月$day日';
+  }
+
+  @override
+  String rankDateMonth(int year, int month) {
+    return '$year年$month月';
+  }
+
+  @override
+  String rankDateYear(int year) {
+    return '$year年';
+  }
+
+  @override
+  String rankScoreValue(String score) {
+    return '$score分';
+  }
+
+  @override
+  String rankCpmValue(int cpm) {
+    return '$cpm字/分';
+  }
+
+  @override
+  String rankMyRank(int rank, int total, String value) {
+    return '我的排名 第$rank名 / 共$total人 · $value';
+  }
+
+  @override
+  String get rankEmpty => '暂无统计记录。';
+
+  @override
+  String get rankChallengeHint => '1千字1分 · 5千字2分 · 1万字3分 · 初稿5分 · 管理员活动7分';
+
+  @override
+  String get positionNovelist => '网络小说';
+
+  @override
+  String get positionWebtoon => '网络漫画';
+
+  @override
+  String get competeChallenges => '挑战';
+
+  @override
+  String get competeDuels => '对决';
+
+  @override
+  String get competeEmpty => '暂时没有。';
+
+  @override
+  String get competeJoined => '参与中';
+
+  @override
+  String get competeOpen => '可参加';
+
+  @override
+  String get competeCreateOnWeb => '创建对决或凭邀请码加入请在网页上操作';
+
+  @override
+  String get competeJoinedBadge => '参与中';
+
+  @override
+  String get competeNotStarted => '未开始';
+
+  @override
+  String competeParticipants(int count) {
+    return '$count人参加';
+  }
+
+  @override
+  String get competeEnded => '已结束';
+
+  @override
+  String competeProgress(String a, String b) {
+    return '今天 $a / $b';
+  }
+
+  @override
+  String get competeLeave => '退出';
+
+  @override
+  String get competeJoin => '参加';
+
+  @override
+  String get restTabBoard => '公告栏';
+
+  @override
+  String get restTabGames => '游戏';
+
+  @override
+  String get restCatInfo => '信息';
+
+  @override
+  String get restCatRecruit => '招募';
+
+  @override
+  String get restCatFree => '自由';
+
+  @override
+  String get restGameTyping => '打字练习';
+
+  @override
+  String get restGameMinesweeper => '扫雷';
+
+  @override
+  String get restGameTetris => '俄罗斯方块';
+
+  @override
+  String get restGameWordChain => '成语接龙';
+
+  @override
+  String get restGameChoseong => '首音猜词';
+
+  @override
+  String get restGamesHint => '游戏请在网页上玩。';
+
+  @override
+  String get notesReply => '回复';
+
+  @override
+  String notesReplyTo(String name) {
+    return '回复$name';
+  }
+
+  @override
+  String get notesPlaceholder => '请填写纸条内容';
+
+  @override
+  String get notesSend => '发送';
+
+  @override
+  String get notesSent => '纸条已发送';
+
+  @override
+  String get notesEmpty => '没有收到的纸条。';
+
+  @override
+  String get meToday => '今天';
+
+  @override
+  String get meMonth => '本月';
+
+  @override
+  String get meTodos => '待办';
+
+  @override
+  String get meTodoHint => '添加待办';
+
+  @override
+  String get meNoTodos => '没有待办事项。';
+
+  @override
+  String get meOpenWeb => '统计·目标·作品请在网页查看';
+
+  @override
+  String get challengeDaily1k => '每日1000字写作挑战';
+
+  @override
+  String get challengeDaily5k => '每日5000字写作挑战';
+
+  @override
+  String get challengeDaily10k => '每日1万字写作挑战';
+
+  @override
+  String get challengeMonthlyDraft => '每月初稿完成挑战';
 }

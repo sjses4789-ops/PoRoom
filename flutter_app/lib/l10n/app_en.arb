@@ -163,5 +163,166 @@
   "sessionGuardLeave": "Back to PoRoom",
   "sessionGuardTakenOverTitle": "You continued this room somewhere else",
   "sessionGuardTakenOverBody": "This account joined this room from another browser or device and took over. Your Pomodoro on this screen was stopped so records do not overlap.",
-  "sessionGuardOk": "Go to PoRoom"
+  "sessionGuardOk": "Go to PoRoom",
+  "feedCatAll": "All",
+  "feedCatWrite": "Writing",
+  "feedCatDuel": "Duel",
+  "feedCatChallenge": "Challenge",
+  "feedCatSubmission": "Submission",
+  "feedCatContest": "Contest",
+  "feedMoodHint": "Share how you feel or your news today",
+  "feedPost": "Post",
+  "feedPostFailed": "Couldn't post.",
+  "feedEmpty": "No posts yet.",
+  "feedWriteOnWebHint": "Posts in this category can be written on the web.",
+  "feedDeleteConfirm": "Delete this post?",
+  "feedMinutesFocus": "{count} min focus",
+  "@feedMinutesFocus": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "feedWin": "Win",
+  "feedLoss": "Loss",
+  "feedDraw": "Draw",
+  "feedAchieved": "Achieved",
+  "feedNotAchieved": "Not achieved",
+  "rankTabChars": "Characters",
+  "rankTabChallenge": "Challenge",
+  "rankTabTyping": "Typing",
+  "rankScopeUser": "People",
+  "rankScopeRoom": "Rooms",
+  "rankPeriodDay": "Daily",
+  "rankPeriodMonth": "Monthly",
+  "rankPeriodYear": "Yearly",
+  "rankDateDay": "{month}/{day}",
+  "@rankDateDay": {
+    "placeholders": {
+      "month": {
+        "type": "int"
+      },
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "rankDateMonth": "{year}-{month}",
+  "@rankDateMonth": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      },
+      "month": {
+        "type": "int"
+      }
+    }
+  },
+  "rankDateYear": "{year}",
+  "@rankDateYear": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "rankScoreValue": "{score} pts",
+  "@rankScoreValue": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "rankCpmValue": "{cpm} CPM",
+  "@rankCpmValue": {
+    "placeholders": {
+      "cpm": {
+        "type": "int"
+      }
+    }
+  },
+  "rankMyRank": "My rank #{rank} of {total} · {value}",
+  "@rankMyRank": {
+    "placeholders": {
+      "rank": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "rankEmpty": "No records for this period.",
+  "rankChallengeHint": "Daily 1k = 1pt · 5k = 2pt · 10k = 3pt · draft finish = 5pt · admin event = 7pt",
+  "positionNovelist": "Web novel",
+  "positionWebtoon": "Webtoon",
+  "competeChallenges": "Challenges",
+  "competeDuels": "Duels",
+  "competeEmpty": "Nothing here yet.",
+  "competeJoined": "Joined",
+  "competeOpen": "Open to join",
+  "competeCreateOnWeb": "Create a duel or join by code on the web",
+  "competeJoinedBadge": "Joined",
+  "competeNotStarted": "Not started",
+  "competeParticipants": "{count} joined",
+  "@competeParticipants": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "competeEnded": "Ended",
+  "competeProgress": "Today {a} / {b}",
+  "@competeProgress": {
+    "placeholders": {
+      "a": {
+        "type": "String"
+      },
+      "b": {
+        "type": "String"
+      }
+    }
+  },
+  "competeLeave": "Leave",
+  "competeJoin": "Join",
+  "restTabBoard": "Board",
+  "restTabGames": "Games",
+  "restCatInfo": "Info",
+  "restCatRecruit": "Recruiting",
+  "restCatFree": "Free",
+  "restGameTyping": "Typing practice",
+  "restGameMinesweeper": "Minesweeper",
+  "restGameTetris": "Tetris",
+  "restGameWordChain": "Word chain",
+  "restGameChoseong": "Initial-consonant quiz",
+  "restGamesHint": "Games are available on the web.",
+  "notesReply": "Reply",
+  "notesReplyTo": "Reply to {name}",
+  "@notesReplyTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "notesPlaceholder": "Write your note",
+  "notesSend": "Send",
+  "notesSent": "Note sent",
+  "notesEmpty": "No notes yet.",
+  "meToday": "Today",
+  "meMonth": "This month",
+  "meTodos": "To-do",
+  "meTodoHint": "Add a to-do",
+  "meNoTodos": "Nothing to do.",
+  "meOpenWeb": "Stats, goals & works on the web",
+  "challengeDaily1k": "Daily 1,000 Characters Challenge",
+  "challengeDaily5k": "Daily 5,000 Characters Challenge",
+  "challengeDaily10k": "Daily 10,000 Characters Challenge",
+  "challengeMonthlyDraft": "Monthly First-Draft Challenge"
 }

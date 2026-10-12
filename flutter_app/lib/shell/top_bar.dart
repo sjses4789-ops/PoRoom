@@ -1,13 +1,17 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../core/auth_controller.dart';
+import '../core/env.dart';
 import '../core/theme.dart';
+import '../core/web_api.dart';
 import '../features/me/me_page.dart';
 import '../features/notes/notes_page.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/character_avatar.dart';
 
-// 상단 바: 왼쪽에 로고(+BETA), 오른쪽에 우편함 아이콘과 닉네임(누르면 [개인] 화면).
+// 상단 바: 왼쪽에 로고(+BETA), 오른쪽에 우편함 아이콘(안 읽은 쪽지 수 뱃지)과 닉네임(누르면 [개인] 화면).
 // 우편함/닉네임 위치는 아직 확정 전이라 여기 한 곳만 고치면 바뀐다.
 class AppTopBar extends StatelessWidget {
   const AppTopBar({super.key});
@@ -56,11 +60,7 @@ class AppTopBar extends StatelessWidget {
             ],
           ),
           const Spacer(),
-          IconButton(
-            tooltip: l10n.mailbox,
-            onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NotesPage())),
-            icon: Icon(Icons.mail_outline_rounded, color: pal.subtext),
-          ),
+          const _MailButton(),
           const SizedBox(width: 2),
           InkWell(
             borderRadius: BorderRadius.circular(99),
@@ -87,6 +87,75 @@ class AppTopBar extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+// 우편함 아이콘 — 안 읽은 쪽지 수를 뱃지로 보여 준다(1분마다 다시 확인).
+class _MailButton extends StatefulWidget {
+  const _MailButton();
+
+  @override
+  State<_MailButton> createState() => _MailButtonState();
+}
+
+class _MailButtonState extends State<_MailButton> {
+  int _unread = 0;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    if (Env.preview) {
+      _unread = 1;
+      return;
+    }
+    _refresh();
+    _timer = Timer.periodic(const Duration(seconds: 60), (_) => _refresh());
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _refresh() async {
+    final n = await WebApi.rpc<int>('getUnreadNoteCount');
+    if (mounted && n != null) setState(() => _unread = n);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final pal = context.pal;
+    final l10n = L10n.of(context);
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        IconButton(
+          tooltip: l10n.mailbox,
+          onPressed: () async {
+            await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NotesPage()));
+            _refresh();
+          },
+          icon: Icon(Icons.mail_outline_rounded, color: pal.subtext),
+        ),
+        if (_unread > 0)
+          Positioned(
+            right: 4,
+            top: 4,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+              constraints: const BoxConstraints(minWidth: 16),
+              decoration: BoxDecoration(color: const Color(0xFFF87171), borderRadius: BorderRadius.circular(99)),
+              child: Text(
+                _unread > 9 ? '9+' : '$_unread',
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Colors.white),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

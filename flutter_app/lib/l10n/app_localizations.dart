@@ -634,6 +634,462 @@ abstract class L10n {
   /// In ko, this message translates to:
   /// **'포룸으로 이동'**
   String get sessionGuardOk;
+
+  /// No description provided for @feedCatAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체'**
+  String get feedCatAll;
+
+  /// No description provided for @feedCatWrite.
+  ///
+  /// In ko, this message translates to:
+  /// **'작업'**
+  String get feedCatWrite;
+
+  /// No description provided for @feedCatDuel.
+  ///
+  /// In ko, this message translates to:
+  /// **'대결'**
+  String get feedCatDuel;
+
+  /// No description provided for @feedCatChallenge.
+  ///
+  /// In ko, this message translates to:
+  /// **'챌린지'**
+  String get feedCatChallenge;
+
+  /// No description provided for @feedCatSubmission.
+  ///
+  /// In ko, this message translates to:
+  /// **'투고'**
+  String get feedCatSubmission;
+
+  /// No description provided for @feedCatContest.
+  ///
+  /// In ko, this message translates to:
+  /// **'공모전'**
+  String get feedCatContest;
+
+  /// No description provided for @feedMoodHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘의 기분이나 소식을 남겨 보세요'**
+  String get feedMoodHint;
+
+  /// No description provided for @feedPost.
+  ///
+  /// In ko, this message translates to:
+  /// **'올리기'**
+  String get feedPost;
+
+  /// No description provided for @feedPostFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'글을 올리지 못했어요.'**
+  String get feedPostFailed;
+
+  /// No description provided for @feedEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 글이 없어요.'**
+  String get feedEmpty;
+
+  /// No description provided for @feedWriteOnWebHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 분류의 글은 웹에서 쓸 수 있어요.'**
+  String get feedWriteOnWebHint;
+
+  /// No description provided for @feedDeleteConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 글을 삭제할까요?'**
+  String get feedDeleteConfirm;
+
+  /// No description provided for @feedMinutesFocus.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}분 집중'**
+  String feedMinutesFocus(int count);
+
+  /// No description provided for @feedWin.
+  ///
+  /// In ko, this message translates to:
+  /// **'승'**
+  String get feedWin;
+
+  /// No description provided for @feedLoss.
+  ///
+  /// In ko, this message translates to:
+  /// **'패'**
+  String get feedLoss;
+
+  /// No description provided for @feedDraw.
+  ///
+  /// In ko, this message translates to:
+  /// **'무'**
+  String get feedDraw;
+
+  /// No description provided for @feedAchieved.
+  ///
+  /// In ko, this message translates to:
+  /// **'달성'**
+  String get feedAchieved;
+
+  /// No description provided for @feedNotAchieved.
+  ///
+  /// In ko, this message translates to:
+  /// **'미달성'**
+  String get feedNotAchieved;
+
+  /// No description provided for @rankTabChars.
+  ///
+  /// In ko, this message translates to:
+  /// **'글자수'**
+  String get rankTabChars;
+
+  /// No description provided for @rankTabChallenge.
+  ///
+  /// In ko, this message translates to:
+  /// **'챌린지'**
+  String get rankTabChallenge;
+
+  /// No description provided for @rankTabTyping.
+  ///
+  /// In ko, this message translates to:
+  /// **'타자'**
+  String get rankTabTyping;
+
+  /// No description provided for @rankScopeUser.
+  ///
+  /// In ko, this message translates to:
+  /// **'개인'**
+  String get rankScopeUser;
+
+  /// No description provided for @rankScopeRoom.
+  ///
+  /// In ko, this message translates to:
+  /// **'방'**
+  String get rankScopeRoom;
+
+  /// No description provided for @rankPeriodDay.
+  ///
+  /// In ko, this message translates to:
+  /// **'일별'**
+  String get rankPeriodDay;
+
+  /// No description provided for @rankPeriodMonth.
+  ///
+  /// In ko, this message translates to:
+  /// **'월별'**
+  String get rankPeriodMonth;
+
+  /// No description provided for @rankPeriodYear.
+  ///
+  /// In ko, this message translates to:
+  /// **'연별'**
+  String get rankPeriodYear;
+
+  /// No description provided for @rankDateDay.
+  ///
+  /// In ko, this message translates to:
+  /// **'{month}월 {day}일'**
+  String rankDateDay(int month, int day);
+
+  /// No description provided for @rankDateMonth.
+  ///
+  /// In ko, this message translates to:
+  /// **'{year}년 {month}월'**
+  String rankDateMonth(int year, int month);
+
+  /// No description provided for @rankDateYear.
+  ///
+  /// In ko, this message translates to:
+  /// **'{year}년'**
+  String rankDateYear(int year);
+
+  /// No description provided for @rankScoreValue.
+  ///
+  /// In ko, this message translates to:
+  /// **'{score}점'**
+  String rankScoreValue(String score);
+
+  /// No description provided for @rankCpmValue.
+  ///
+  /// In ko, this message translates to:
+  /// **'{cpm}타/분'**
+  String rankCpmValue(int cpm);
+
+  /// No description provided for @rankMyRank.
+  ///
+  /// In ko, this message translates to:
+  /// **'내 순위 {rank}위 / {total}명 · {value}'**
+  String rankMyRank(int rank, int total, String value);
+
+  /// No description provided for @rankEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'집계된 기록이 없어요.'**
+  String get rankEmpty;
+
+  /// No description provided for @rankChallengeHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'1천자 1점 · 5천자 2점 · 1만자 3점 · 초단 5점 · 관리자 이벤트 7점'**
+  String get rankChallengeHint;
+
+  /// No description provided for @positionNovelist.
+  ///
+  /// In ko, this message translates to:
+  /// **'웹소설'**
+  String get positionNovelist;
+
+  /// No description provided for @positionWebtoon.
+  ///
+  /// In ko, this message translates to:
+  /// **'웹툰'**
+  String get positionWebtoon;
+
+  /// No description provided for @competeChallenges.
+  ///
+  /// In ko, this message translates to:
+  /// **'챌린지'**
+  String get competeChallenges;
+
+  /// No description provided for @competeDuels.
+  ///
+  /// In ko, this message translates to:
+  /// **'대결'**
+  String get competeDuels;
+
+  /// No description provided for @competeEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 없어요.'**
+  String get competeEmpty;
+
+  /// No description provided for @competeJoined.
+  ///
+  /// In ko, this message translates to:
+  /// **'참여 중'**
+  String get competeJoined;
+
+  /// No description provided for @competeOpen.
+  ///
+  /// In ko, this message translates to:
+  /// **'참여할 수 있어요'**
+  String get competeOpen;
+
+  /// No description provided for @competeCreateOnWeb.
+  ///
+  /// In ko, this message translates to:
+  /// **'대결 만들기·초대코드 입장은 웹에서'**
+  String get competeCreateOnWeb;
+
+  /// No description provided for @competeJoinedBadge.
+  ///
+  /// In ko, this message translates to:
+  /// **'참여 중'**
+  String get competeJoinedBadge;
+
+  /// No description provided for @competeNotStarted.
+  ///
+  /// In ko, this message translates to:
+  /// **'시작 전'**
+  String get competeNotStarted;
+
+  /// No description provided for @competeParticipants.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}명 참여'**
+  String competeParticipants(int count);
+
+  /// No description provided for @competeEnded.
+  ///
+  /// In ko, this message translates to:
+  /// **'종료'**
+  String get competeEnded;
+
+  /// No description provided for @competeProgress.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘 {a} / {b}'**
+  String competeProgress(String a, String b);
+
+  /// No description provided for @competeLeave.
+  ///
+  /// In ko, this message translates to:
+  /// **'그만두기'**
+  String get competeLeave;
+
+  /// No description provided for @competeJoin.
+  ///
+  /// In ko, this message translates to:
+  /// **'참여하기'**
+  String get competeJoin;
+
+  /// No description provided for @restTabBoard.
+  ///
+  /// In ko, this message translates to:
+  /// **'게시판'**
+  String get restTabBoard;
+
+  /// No description provided for @restTabGames.
+  ///
+  /// In ko, this message translates to:
+  /// **'게임'**
+  String get restTabGames;
+
+  /// No description provided for @restCatInfo.
+  ///
+  /// In ko, this message translates to:
+  /// **'정보'**
+  String get restCatInfo;
+
+  /// No description provided for @restCatRecruit.
+  ///
+  /// In ko, this message translates to:
+  /// **'인원 모집'**
+  String get restCatRecruit;
+
+  /// No description provided for @restCatFree.
+  ///
+  /// In ko, this message translates to:
+  /// **'자유'**
+  String get restCatFree;
+
+  /// No description provided for @restGameTyping.
+  ///
+  /// In ko, this message translates to:
+  /// **'타자 연습'**
+  String get restGameTyping;
+
+  /// No description provided for @restGameMinesweeper.
+  ///
+  /// In ko, this message translates to:
+  /// **'지뢰찾기'**
+  String get restGameMinesweeper;
+
+  /// No description provided for @restGameTetris.
+  ///
+  /// In ko, this message translates to:
+  /// **'테트리스'**
+  String get restGameTetris;
+
+  /// No description provided for @restGameWordChain.
+  ///
+  /// In ko, this message translates to:
+  /// **'끝말잇기'**
+  String get restGameWordChain;
+
+  /// No description provided for @restGameChoseong.
+  ///
+  /// In ko, this message translates to:
+  /// **'초성 퀴즈'**
+  String get restGameChoseong;
+
+  /// No description provided for @restGamesHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'게임은 웹에서 즐길 수 있어요.'**
+  String get restGamesHint;
+
+  /// No description provided for @notesReply.
+  ///
+  /// In ko, this message translates to:
+  /// **'답장'**
+  String get notesReply;
+
+  /// No description provided for @notesReplyTo.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name}님에게 답장'**
+  String notesReplyTo(String name);
+
+  /// No description provided for @notesPlaceholder.
+  ///
+  /// In ko, this message translates to:
+  /// **'쪽지 내용을 적어 주세요'**
+  String get notesPlaceholder;
+
+  /// No description provided for @notesSend.
+  ///
+  /// In ko, this message translates to:
+  /// **'보내기'**
+  String get notesSend;
+
+  /// No description provided for @notesSent.
+  ///
+  /// In ko, this message translates to:
+  /// **'쪽지를 보냈어요'**
+  String get notesSent;
+
+  /// No description provided for @notesEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'받은 쪽지가 없어요.'**
+  String get notesEmpty;
+
+  /// No description provided for @meToday.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘'**
+  String get meToday;
+
+  /// No description provided for @meMonth.
+  ///
+  /// In ko, this message translates to:
+  /// **'이번 달'**
+  String get meMonth;
+
+  /// No description provided for @meTodos.
+  ///
+  /// In ko, this message translates to:
+  /// **'할 일'**
+  String get meTodos;
+
+  /// No description provided for @meTodoHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'할 일 추가'**
+  String get meTodoHint;
+
+  /// No description provided for @meNoTodos.
+  ///
+  /// In ko, this message translates to:
+  /// **'할 일이 없어요.'**
+  String get meNoTodos;
+
+  /// No description provided for @meOpenWeb.
+  ///
+  /// In ko, this message translates to:
+  /// **'통계·목표·작품은 웹에서 보기'**
+  String get meOpenWeb;
+
+  /// No description provided for @challengeDaily1k.
+  ///
+  /// In ko, this message translates to:
+  /// **'매일 1천자 쓰기 챌린지'**
+  String get challengeDaily1k;
+
+  /// No description provided for @challengeDaily5k.
+  ///
+  /// In ko, this message translates to:
+  /// **'매일 5천자 쓰기 챌린지'**
+  String get challengeDaily5k;
+
+  /// No description provided for @challengeDaily10k.
+  ///
+  /// In ko, this message translates to:
+  /// **'매일 1만자 쓰기 챌린지'**
+  String get challengeDaily10k;
+
+  /// No description provided for @challengeMonthlyDraft.
+  ///
+  /// In ko, this message translates to:
+  /// **'매 달 초단 1완고 챌린지'**
+  String get challengeMonthlyDraft;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

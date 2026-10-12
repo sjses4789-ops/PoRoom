@@ -163,5 +163,166 @@
   "sessionGuardLeave": "포룸으로 돌아가기",
   "sessionGuardTakenOverTitle": "다른 곳에서 이 방을 이어 사용하고 있어요",
   "sessionGuardTakenOverBody": "같은 계정으로 다른 브라우저(또는 기기)에서 이 방에 접속해 이어서 사용하기 시작했어요. 기록이 겹치지 않도록 이 화면의 뽀모도로는 멈췄어요.",
-  "sessionGuardOk": "포룸으로 이동"
+  "sessionGuardOk": "포룸으로 이동",
+  "feedCatAll": "전체",
+  "feedCatWrite": "작업",
+  "feedCatDuel": "대결",
+  "feedCatChallenge": "챌린지",
+  "feedCatSubmission": "투고",
+  "feedCatContest": "공모전",
+  "feedMoodHint": "오늘의 기분이나 소식을 남겨 보세요",
+  "feedPost": "올리기",
+  "feedPostFailed": "글을 올리지 못했어요.",
+  "feedEmpty": "아직 글이 없어요.",
+  "feedWriteOnWebHint": "이 분류의 글은 웹에서 쓸 수 있어요.",
+  "feedDeleteConfirm": "이 글을 삭제할까요?",
+  "feedMinutesFocus": "{count}분 집중",
+  "@feedMinutesFocus": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "feedWin": "승",
+  "feedLoss": "패",
+  "feedDraw": "무",
+  "feedAchieved": "달성",
+  "feedNotAchieved": "미달성",
+  "rankTabChars": "글자수",
+  "rankTabChallenge": "챌린지",
+  "rankTabTyping": "타자",
+  "rankScopeUser": "개인",
+  "rankScopeRoom": "방",
+  "rankPeriodDay": "일별",
+  "rankPeriodMonth": "월별",
+  "rankPeriodYear": "연별",
+  "rankDateDay": "{month}월 {day}일",
+  "@rankDateDay": {
+    "placeholders": {
+      "month": {
+        "type": "int"
+      },
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "rankDateMonth": "{year}년 {month}월",
+  "@rankDateMonth": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      },
+      "month": {
+        "type": "int"
+      }
+    }
+  },
+  "rankDateYear": "{year}년",
+  "@rankDateYear": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "rankScoreValue": "{score}점",
+  "@rankScoreValue": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "rankCpmValue": "{cpm}타/분",
+  "@rankCpmValue": {
+    "placeholders": {
+      "cpm": {
+        "type": "int"
+      }
+    }
+  },
+  "rankMyRank": "내 순위 {rank}위 / {total}명 · {value}",
+  "@rankMyRank": {
+    "placeholders": {
+      "rank": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "rankEmpty": "집계된 기록이 없어요.",
+  "rankChallengeHint": "1천자 1점 · 5천자 2점 · 1만자 3점 · 초단 5점 · 관리자 이벤트 7점",
+  "positionNovelist": "웹소설",
+  "positionWebtoon": "웹툰",
+  "competeChallenges": "챌린지",
+  "competeDuels": "대결",
+  "competeEmpty": "아직 없어요.",
+  "competeJoined": "참여 중",
+  "competeOpen": "참여할 수 있어요",
+  "competeCreateOnWeb": "대결 만들기·초대코드 입장은 웹에서",
+  "competeJoinedBadge": "참여 중",
+  "competeNotStarted": "시작 전",
+  "competeParticipants": "{count}명 참여",
+  "@competeParticipants": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "competeEnded": "종료",
+  "competeProgress": "오늘 {a} / {b}",
+  "@competeProgress": {
+    "placeholders": {
+      "a": {
+        "type": "String"
+      },
+      "b": {
+        "type": "String"
+      }
+    }
+  },
+  "competeLeave": "그만두기",
+  "competeJoin": "참여하기",
+  "restTabBoard": "게시판",
+  "restTabGames": "게임",
+  "restCatInfo": "정보",
+  "restCatRecruit": "인원 모집",
+  "restCatFree": "자유",
+  "restGameTyping": "타자 연습",
+  "restGameMinesweeper": "지뢰찾기",
+  "restGameTetris": "테트리스",
+  "restGameWordChain": "끝말잇기",
+  "restGameChoseong": "초성 퀴즈",
+  "restGamesHint": "게임은 웹에서 즐길 수 있어요.",
+  "notesReply": "답장",
+  "notesReplyTo": "{name}님에게 답장",
+  "@notesReplyTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "notesPlaceholder": "쪽지 내용을 적어 주세요",
+  "notesSend": "보내기",
+  "notesSent": "쪽지를 보냈어요",
+  "notesEmpty": "받은 쪽지가 없어요.",
+  "meToday": "오늘",
+  "meMonth": "이번 달",
+  "meTodos": "할 일",
+  "meTodoHint": "할 일 추가",
+  "meNoTodos": "할 일이 없어요.",
+  "meOpenWeb": "통계·목표·작품은 웹에서 보기",
+  "challengeDaily1k": "매일 1천자 쓰기 챌린지",
+  "challengeDaily5k": "매일 5천자 쓰기 챌린지",
+  "challengeDaily10k": "매일 1만자 쓰기 챌린지",
+  "challengeMonthlyDraft": "매 달 초단 1완고 챌린지"
 }

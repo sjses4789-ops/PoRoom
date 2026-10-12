@@ -297,4 +297,253 @@ class L10nKo extends L10n {
 
   @override
   String get sessionGuardOk => '포룸으로 이동';
+
+  @override
+  String get feedCatAll => '전체';
+
+  @override
+  String get feedCatWrite => '작업';
+
+  @override
+  String get feedCatDuel => '대결';
+
+  @override
+  String get feedCatChallenge => '챌린지';
+
+  @override
+  String get feedCatSubmission => '투고';
+
+  @override
+  String get feedCatContest => '공모전';
+
+  @override
+  String get feedMoodHint => '오늘의 기분이나 소식을 남겨 보세요';
+
+  @override
+  String get feedPost => '올리기';
+
+  @override
+  String get feedPostFailed => '글을 올리지 못했어요.';
+
+  @override
+  String get feedEmpty => '아직 글이 없어요.';
+
+  @override
+  String get feedWriteOnWebHint => '이 분류의 글은 웹에서 쓸 수 있어요.';
+
+  @override
+  String get feedDeleteConfirm => '이 글을 삭제할까요?';
+
+  @override
+  String feedMinutesFocus(int count) {
+    return '$count분 집중';
+  }
+
+  @override
+  String get feedWin => '승';
+
+  @override
+  String get feedLoss => '패';
+
+  @override
+  String get feedDraw => '무';
+
+  @override
+  String get feedAchieved => '달성';
+
+  @override
+  String get feedNotAchieved => '미달성';
+
+  @override
+  String get rankTabChars => '글자수';
+
+  @override
+  String get rankTabChallenge => '챌린지';
+
+  @override
+  String get rankTabTyping => '타자';
+
+  @override
+  String get rankScopeUser => '개인';
+
+  @override
+  String get rankScopeRoom => '방';
+
+  @override
+  String get rankPeriodDay => '일별';
+
+  @override
+  String get rankPeriodMonth => '월별';
+
+  @override
+  String get rankPeriodYear => '연별';
+
+  @override
+  String rankDateDay(int month, int day) {
+    return '$month월 $day일';
+  }
+
+  @override
+  String rankDateMonth(int year, int month) {
+    return '$year년 $month월';
+  }
+
+  @override
+  String rankDateYear(int year) {
+    return '$year년';
+  }
+
+  @override
+  String rankScoreValue(String score) {
+    return '$score점';
+  }
+
+  @override
+  String rankCpmValue(int cpm) {
+    return '$cpm타/분';
+  }
+
+  @override
+  String rankMyRank(int rank, int total, String value) {
+    return '내 순위 $rank위 / $total명 · $value';
+  }
+
+  @override
+  String get rankEmpty => '집계된 기록이 없어요.';
+
+  @override
+  String get rankChallengeHint =>
+      '1천자 1점 · 5천자 2점 · 1만자 3점 · 초단 5점 · 관리자 이벤트 7점';
+
+  @override
+  String get positionNovelist => '웹소설';
+
+  @override
+  String get positionWebtoon => '웹툰';
+
+  @override
+  String get competeChallenges => '챌린지';
+
+  @override
+  String get competeDuels => '대결';
+
+  @override
+  String get competeEmpty => '아직 없어요.';
+
+  @override
+  String get competeJoined => '참여 중';
+
+  @override
+  String get competeOpen => '참여할 수 있어요';
+
+  @override
+  String get competeCreateOnWeb => '대결 만들기·초대코드 입장은 웹에서';
+
+  @override
+  String get competeJoinedBadge => '참여 중';
+
+  @override
+  String get competeNotStarted => '시작 전';
+
+  @override
+  String competeParticipants(int count) {
+    return '$count명 참여';
+  }
+
+  @override
+  String get competeEnded => '종료';
+
+  @override
+  String competeProgress(String a, String b) {
+    return '오늘 $a / $b';
+  }
+
+  @override
+  String get competeLeave => '그만두기';
+
+  @override
+  String get competeJoin => '참여하기';
+
+  @override
+  String get restTabBoard => '게시판';
+
+  @override
+  String get restTabGames => '게임';
+
+  @override
+  String get restCatInfo => '정보';
+
+  @override
+  String get restCatRecruit => '인원 모집';
+
+  @override
+  String get restCatFree => '자유';
+
+  @override
+  String get restGameTyping => '타자 연습';
+
+  @override
+  String get restGameMinesweeper => '지뢰찾기';
+
+  @override
+  String get restGameTetris => '테트리스';
+
+  @override
+  String get restGameWordChain => '끝말잇기';
+
+  @override
+  String get restGameChoseong => '초성 퀴즈';
+
+  @override
+  String get restGamesHint => '게임은 웹에서 즐길 수 있어요.';
+
+  @override
+  String get notesReply => '답장';
+
+  @override
+  String notesReplyTo(String name) {
+    return '$name님에게 답장';
+  }
+
+  @override
+  String get notesPlaceholder => '쪽지 내용을 적어 주세요';
+
+  @override
+  String get notesSend => '보내기';
+
+  @override
+  String get notesSent => '쪽지를 보냈어요';
+
+  @override
+  String get notesEmpty => '받은 쪽지가 없어요.';
+
+  @override
+  String get meToday => '오늘';
+
+  @override
+  String get meMonth => '이번 달';
+
+  @override
+  String get meTodos => '할 일';
+
+  @override
+  String get meTodoHint => '할 일 추가';
+
+  @override
+  String get meNoTodos => '할 일이 없어요.';
+
+  @override
+  String get meOpenWeb => '통계·목표·작품은 웹에서 보기';
+
+  @override
+  String get challengeDaily1k => '매일 1천자 쓰기 챌린지';
+
+  @override
+  String get challengeDaily5k => '매일 5천자 쓰기 챌린지';
+
+  @override
+  String get challengeDaily10k => '매일 1만자 쓰기 챌린지';
+
+  @override
+  String get challengeMonthlyDraft => '매 달 초단 1완고 챌린지';
 }

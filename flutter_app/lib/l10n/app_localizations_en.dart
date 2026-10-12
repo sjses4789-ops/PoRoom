@@ -303,4 +303,254 @@ class L10nEn extends L10n {
 
   @override
   String get sessionGuardOk => 'Go to PoRoom';
+
+  @override
+  String get feedCatAll => 'All';
+
+  @override
+  String get feedCatWrite => 'Writing';
+
+  @override
+  String get feedCatDuel => 'Duel';
+
+  @override
+  String get feedCatChallenge => 'Challenge';
+
+  @override
+  String get feedCatSubmission => 'Submission';
+
+  @override
+  String get feedCatContest => 'Contest';
+
+  @override
+  String get feedMoodHint => 'Share how you feel or your news today';
+
+  @override
+  String get feedPost => 'Post';
+
+  @override
+  String get feedPostFailed => 'Couldn\'t post.';
+
+  @override
+  String get feedEmpty => 'No posts yet.';
+
+  @override
+  String get feedWriteOnWebHint =>
+      'Posts in this category can be written on the web.';
+
+  @override
+  String get feedDeleteConfirm => 'Delete this post?';
+
+  @override
+  String feedMinutesFocus(int count) {
+    return '$count min focus';
+  }
+
+  @override
+  String get feedWin => 'Win';
+
+  @override
+  String get feedLoss => 'Loss';
+
+  @override
+  String get feedDraw => 'Draw';
+
+  @override
+  String get feedAchieved => 'Achieved';
+
+  @override
+  String get feedNotAchieved => 'Not achieved';
+
+  @override
+  String get rankTabChars => 'Characters';
+
+  @override
+  String get rankTabChallenge => 'Challenge';
+
+  @override
+  String get rankTabTyping => 'Typing';
+
+  @override
+  String get rankScopeUser => 'People';
+
+  @override
+  String get rankScopeRoom => 'Rooms';
+
+  @override
+  String get rankPeriodDay => 'Daily';
+
+  @override
+  String get rankPeriodMonth => 'Monthly';
+
+  @override
+  String get rankPeriodYear => 'Yearly';
+
+  @override
+  String rankDateDay(int month, int day) {
+    return '$month/$day';
+  }
+
+  @override
+  String rankDateMonth(int year, int month) {
+    return '$year-$month';
+  }
+
+  @override
+  String rankDateYear(int year) {
+    return '$year';
+  }
+
+  @override
+  String rankScoreValue(String score) {
+    return '$score pts';
+  }
+
+  @override
+  String rankCpmValue(int cpm) {
+    return '$cpm CPM';
+  }
+
+  @override
+  String rankMyRank(int rank, int total, String value) {
+    return 'My rank #$rank of $total · $value';
+  }
+
+  @override
+  String get rankEmpty => 'No records for this period.';
+
+  @override
+  String get rankChallengeHint =>
+      'Daily 1k = 1pt · 5k = 2pt · 10k = 3pt · draft finish = 5pt · admin event = 7pt';
+
+  @override
+  String get positionNovelist => 'Web novel';
+
+  @override
+  String get positionWebtoon => 'Webtoon';
+
+  @override
+  String get competeChallenges => 'Challenges';
+
+  @override
+  String get competeDuels => 'Duels';
+
+  @override
+  String get competeEmpty => 'Nothing here yet.';
+
+  @override
+  String get competeJoined => 'Joined';
+
+  @override
+  String get competeOpen => 'Open to join';
+
+  @override
+  String get competeCreateOnWeb => 'Create a duel or join by code on the web';
+
+  @override
+  String get competeJoinedBadge => 'Joined';
+
+  @override
+  String get competeNotStarted => 'Not started';
+
+  @override
+  String competeParticipants(int count) {
+    return '$count joined';
+  }
+
+  @override
+  String get competeEnded => 'Ended';
+
+  @override
+  String competeProgress(String a, String b) {
+    return 'Today $a / $b';
+  }
+
+  @override
+  String get competeLeave => 'Leave';
+
+  @override
+  String get competeJoin => 'Join';
+
+  @override
+  String get restTabBoard => 'Board';
+
+  @override
+  String get restTabGames => 'Games';
+
+  @override
+  String get restCatInfo => 'Info';
+
+  @override
+  String get restCatRecruit => 'Recruiting';
+
+  @override
+  String get restCatFree => 'Free';
+
+  @override
+  String get restGameTyping => 'Typing practice';
+
+  @override
+  String get restGameMinesweeper => 'Minesweeper';
+
+  @override
+  String get restGameTetris => 'Tetris';
+
+  @override
+  String get restGameWordChain => 'Word chain';
+
+  @override
+  String get restGameChoseong => 'Initial-consonant quiz';
+
+  @override
+  String get restGamesHint => 'Games are available on the web.';
+
+  @override
+  String get notesReply => 'Reply';
+
+  @override
+  String notesReplyTo(String name) {
+    return 'Reply to $name';
+  }
+
+  @override
+  String get notesPlaceholder => 'Write your note';
+
+  @override
+  String get notesSend => 'Send';
+
+  @override
+  String get notesSent => 'Note sent';
+
+  @override
+  String get notesEmpty => 'No notes yet.';
+
+  @override
+  String get meToday => 'Today';
+
+  @override
+  String get meMonth => 'This month';
+
+  @override
+  String get meTodos => 'To-do';
+
+  @override
+  String get meTodoHint => 'Add a to-do';
+
+  @override
+  String get meNoTodos => 'Nothing to do.';
+
+  @override
+  String get meOpenWeb => 'Stats, goals & works on the web';
+
+  @override
+  String get challengeDaily1k => 'Daily 1,000 Characters Challenge';
+
+  @override
+  String get challengeDaily5k => 'Daily 5,000 Characters Challenge';
+
+  @override
+  String get challengeDaily10k => 'Daily 10,000 Characters Challenge';
+
+  @override
+  String get challengeMonthlyDraft => 'Monthly First-Draft Challenge';
 }
