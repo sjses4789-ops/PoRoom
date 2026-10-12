@@ -73,6 +73,7 @@ type ChatMessageRow = {
   content: string;
   created_at: string;
   target_user_id: string | null;
+  image_path?: string | null;
 };
 
 type DailyRecordRow = {
@@ -258,7 +259,7 @@ export default async function RoomPage({
   ] = await Promise.all([
     supabase
       .from("chat_messages")
-      .select("id,user_id,content,created_at,target_user_id")
+      .select("id,user_id,content,created_at,target_user_id,image_path")
       .eq("room_id", id)
       .order("created_at", { ascending: false })
       .limit(50)
@@ -374,6 +375,7 @@ export default async function RoomPage({
     content: m.content,
     createdAt: m.created_at,
     targetUserId: m.target_user_id,
+    imagePath: m.image_path ?? null,
   }));
 
   const dailyRecords: DailyRecord[] = (recordRows ?? [])

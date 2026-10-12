@@ -129,7 +129,19 @@
     "deleteMessage": "删除消息",
     "deleteConfirm": "确定删除这条消息吗？",
     "collapse": "收起聊天",
-    "expand": "展开聊天"
+    "expand": "展开聊天",
+    "attachMenuTitle": "附件",
+    "attachPhoto": "添加照片",
+    "imageConfirmTitle": "要发送这张照片吗？",
+    "imageConfirmSend": "发送",
+    "imageConfirmCancel": "取消",
+    "imageSending": "发送中...",
+    "imageConfirmWhisper": "将以悄悄话发送给{name}",
+    "imageTooLarge": "照片不能超过5MB。",
+    "imageTypeInvalid": "只能发送 PNG、JPG、WEBP、GIF 照片。",
+    "imageSendFailed": "照片发送失败，请稍后再试。",
+    "imageAlt": "附件照片",
+    "imageLoadFailed": "无法加载照片"
   },
   "pollPanel": {
     "title": "投票",

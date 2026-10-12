@@ -129,7 +129,19 @@
     "deleteMessage": "メッセージ削除",
     "deleteConfirm": "このメッセージを削除しますか？",
     "collapse": "チャットを閉じる",
-    "expand": "チャットを開く"
+    "expand": "チャットを開く",
+    "attachMenuTitle": "添付",
+    "attachPhoto": "写真を添付",
+    "imageConfirmTitle": "この写真を送信しますか？",
+    "imageConfirmSend": "送信",
+    "imageConfirmCancel": "キャンセル",
+    "imageSending": "送信中...",
+    "imageConfirmWhisper": "{name}さんにささやきとして送信されます",
+    "imageTooLarge": "写真は5MB以下のものだけ送れます。",
+    "imageTypeInvalid": "送れるのはPNG、JPG、WEBP、GIFの写真だけです。",
+    "imageSendFailed": "写真を送れませんでした。しばらくしてからもう一度お試しください。",
+    "imageAlt": "添付写真",
+    "imageLoadFailed": "写真を読み込めませんでした"
   },
   "pollPanel": {
     "title": "投票",

@@ -129,7 +129,19 @@
     "deleteMessage": "Delete message",
     "deleteConfirm": "Delete this message?",
     "collapse": "Collapse chat",
-    "expand": "Expand chat"
+    "expand": "Expand chat",
+    "attachMenuTitle": "Attach",
+    "attachPhoto": "Attach photo",
+    "imageConfirmTitle": "Send this photo?",
+    "imageConfirmSend": "Send",
+    "imageConfirmCancel": "Cancel",
+    "imageSending": "Sending...",
+    "imageConfirmWhisper": "It will be sent to {name} as a whisper",
+    "imageTooLarge": "Photos must be 5MB or smaller.",
+    "imageTypeInvalid": "Only PNG, JPG, WEBP and GIF photos can be sent.",
+    "imageSendFailed": "Couldn't send the photo. Please try again in a moment.",
+    "imageAlt": "Attached photo",
+    "imageLoadFailed": "Couldn't load the photo"
   },
   "pollPanel": {
     "title": "Polls",

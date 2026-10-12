@@ -129,7 +129,19 @@
     "deleteMessage": "메시지 삭제",
     "deleteConfirm": "이 메시지를 삭제할까요?",
     "collapse": "채팅 접기",
-    "expand": "채팅 펼치기"
+    "expand": "채팅 펼치기",
+    "attachMenuTitle": "첨부",
+    "attachPhoto": "사진 첨부",
+    "imageConfirmTitle": "이 사진을 전송할까요?",
+    "imageConfirmSend": "전송",
+    "imageConfirmCancel": "취소",
+    "imageSending": "보내는 중...",
+    "imageConfirmWhisper": "{name}님에게 귓속말로 전송돼요",
+    "imageTooLarge": "사진은 5MB 이하만 보낼 수 있어요.",
+    "imageTypeInvalid": "PNG, JPG, WEBP, GIF 사진만 보낼 수 있어요.",
+    "imageSendFailed": "사진을 보내지 못했어요. 잠시 후 다시 시도해 주세요.",
+    "imageAlt": "첨부 사진",
+    "imageLoadFailed": "사진을 불러오지 못했어요"
   },
   "pollPanel": {
     "title": "투표",

@@ -9,6 +9,13 @@ import { ADS_VISIBLE } from "@/lib/adsense-review-mode";
 import { chatBubbleClass, chatBorderClass } from "@/lib/palette";
 import { characterSrc } from "@/lib/characters";
 import { ChatColorPicker } from "./chat-color-picker";
+import {
+  ChatImage,
+  ChatImageConfirm,
+  CHAT_IMAGE_BUCKET,
+  CHAT_IMAGE_MAX_BYTES,
+  CHAT_IMAGE_TYPES,
+} from "./chat-image";
 import { WhisperTargetPicker } from "./whisper-target-picker";
 import type { Member } from "./room-view";
 
@@ -18,7 +25,12 @@ export type ChatMessage = {
   content: string;
   createdAt: string;
   targetUserId: string | null;
+  // 첨부한 사진의 저장 경로(chat-images 버킷). 사진이 없으면 null.
+  imagePath: string | null;
 };
+
+// 사진만 보내는 메시지의 content — content는 not null이고, 앱/구버전 화면은 이 글자를 그대로 보여 준다.
+const IMAGE_ONLY_CONTENT = "📷";
 
 export type LatestNotice = {
   title: string;
@@ -152,19 +164,21 @@ export function ChatPanel({
       content: string;
       created_at: string;
       target_user_id: string | null;
+      image_path?: string | null;
     }): ChatMessage => ({
       id: r.id,
       userId: r.user_id,
       content: r.content,
       createdAt: r.created_at,
       targetUserId: r.target_user_id,
+      imagePath: r.image_path ?? null,
     });
     const acceptMessage = async (payload: unknown) => {
       const id = (payload as { id?: unknown } | null)?.id;
       if (typeof id !== "string" || messagesRef.current.some((m) => m.id === id)) return;
       const { data } = await supabase
         .from("chat_messages")
-        .select("id,user_id,content,created_at,target_user_id")
+        .select("id,user_id,content,created_at,target_user_id,image_path")
         .eq("id", id)
         .maybeSingle();
       if (!data) return; // DB에 없는 메시지 — 위조된 신호이거나 내가 볼 수 없는 메시지다.
@@ -182,7 +196,7 @@ export function ChatPanel({
     const reloadAfterClear = async () => {
       const { data } = await supabase
         .from("chat_messages")
-        .select("id,user_id,content,created_at,target_user_id")
+        .select("id,user_id,content,created_at,target_user_id,image_path")
         .eq("room_id", roomId)
         .order("created_at", { ascending: false })
         .limit(50);
@@ -235,17 +249,15 @@ export function ChatPanel({
     });
   };
 
-  const send = async () => {
-    const content = input.trim();
-    if (!content) return;
-    setInput("");
+  // 메시지를 DB에 저장하고 화면에 넣은 뒤, 상대에게 "새 메시지(id)" 신호를 보낸다(글/사진 공통).
+  const insertAndDeliver = async (values: { content: string; image_path?: string | null }) => {
     const supabase = createClient();
     const { data, error } = await supabase
       .from("chat_messages")
-      .insert({ room_id: roomId, user_id: selfId, content, target_user_id: whisperTargetId })
-      .select("id,user_id,content,created_at,target_user_id")
+      .insert({ room_id: roomId, user_id: selfId, target_user_id: whisperTargetId, ...values })
+      .select("id,user_id,content,created_at,target_user_id,image_path")
       .single();
-    if (error || !data) return;
+    if (error || !data) return false;
 
     const message: ChatMessage = {
       id: data.id,
@@ -253,6 +265,7 @@ export function ChatPanel({
       content: data.content,
       createdAt: data.created_at,
       targetUserId: data.target_user_id,
+      imagePath: data.image_path ?? null,
     };
     setMessages((prev) => (prev.some((m) => m.id === message.id) ? prev : [...prev, message]));
     if (message.targetUserId) {
@@ -260,24 +273,104 @@ export function ChatPanel({
     } else {
       channelRef.current?.send({ type: "broadcast", event: "message", payload: { id: message.id } });
     }
+    return true;
+  };
+
+  const send = async () => {
+    const content = input.trim();
+    if (!content) return;
+    setInput("");
+    await insertAndDeliver({ content });
+  };
+
+  // ── 사진 첨부 ──────────────────────────────────────────────────────────
+  // 파일 선택(귓속말 팝업의 "사진 첨부")과 붙여넣기(Ctrl+V) 모두 여기로 들어와서, 바로 보내지 않고 미리보기 확인
+  // 팝업을 먼저 띄운다.
+  const [pendingImage, setPendingImage] = useState<{ file: File; url: string } | null>(null);
+  const [imageSending, setImageSending] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const stageImage = (file: File) => {
+    if (!CHAT_IMAGE_TYPES.includes(file.type)) {
+      window.alert(t("imageTypeInvalid"));
+      return;
+    }
+    if (file.size > CHAT_IMAGE_MAX_BYTES) {
+      window.alert(t("imageTooLarge"));
+      return;
+    }
+    setPendingImage((prev) => {
+      if (prev) URL.revokeObjectURL(prev.url);
+      return { file, url: URL.createObjectURL(file) };
+    });
+  };
+
+  const cancelImage = () => {
+    if (imageSending) return;
+    setPendingImage((prev) => {
+      if (prev) URL.revokeObjectURL(prev.url);
+      return null;
+    });
+  };
+
+  const sendImage = async () => {
+    if (!pendingImage || imageSending) return;
+    setImageSending(true);
+    const supabase = createClient();
+    const ext = pendingImage.file.type === "image/jpeg" ? "jpg" : pendingImage.file.type.split("/")[1];
+    // 경로: <방>/<나>/<범위>/<파일> — 범위는 방 전체(all) 또는 귓속말 상대(to-<id>)(0070 정책이 이 규칙으로 읽기를 제한한다).
+    const scope = whisperTargetId ? `to-${whisperTargetId}` : "all";
+    const path = `${roomId}/${selfId}/${scope}/${crypto.randomUUID()}.${ext}`;
+    const { error: uploadError } = await supabase.storage
+      .from(CHAT_IMAGE_BUCKET)
+      .upload(path, pendingImage.file, { contentType: pendingImage.file.type, upsert: false });
+    if (uploadError) {
+      setImageSending(false);
+      window.alert(t("imageSendFailed"));
+      return;
+    }
+    const ok = await insertAndDeliver({ content: IMAGE_ONLY_CONTENT, image_path: path });
+    if (!ok) {
+      // 메시지 저장에 실패하면 올린 사진도 지운다.
+      await supabase.storage.from(CHAT_IMAGE_BUCKET).remove([path]);
+      setImageSending(false);
+      window.alert(t("imageSendFailed"));
+      return;
+    }
+    setImageSending(false);
+    setPendingImage((prev) => {
+      if (prev) URL.revokeObjectURL(prev.url);
+      return null;
+    });
   };
 
   const removeMessage = async (id: string) => {
     if (!window.confirm(t("deleteConfirm"))) return;
+    const target = messages.find((m) => m.id === id);
     setMessages((prev) => prev.filter((m) => m.id !== id));
     const supabase = createClient();
     await supabase.from("chat_messages").delete().eq("id", id);
+    // 사진 메시지면 저장된 사진도 함께 지운다(내 사진이거나 방장/부방장일 때만 정책이 허용한다).
+    if (target?.imagePath) await supabase.storage.from(CHAT_IMAGE_BUCKET).remove([target.imagePath]);
     channelRef.current?.send({ type: "broadcast", event: "delete", payload: { id } });
   };
 
   const clearAll = async () => {
     if (!window.confirm(t("clearConfirm"))) return;
     const supabase = createClient();
+    // 지우기 전에 이 방의 사진 경로를 모아 둔다 — 메시지를 지운 뒤 사진 파일도 함께 지운다.
+    const { data: imageRows } = await supabase
+      .from("chat_messages")
+      .select("image_path")
+      .eq("room_id", roomId)
+      .not("image_path", "is", null);
     const { error } = await supabase.from("chat_messages").delete().eq("room_id", roomId);
     if (error) {
       window.alert(t("clearFailed"));
       return;
     }
+    const imagePaths = (imageRows ?? []).map((r) => r.image_path as string).filter(Boolean);
+    if (imagePaths.length > 0) await supabase.storage.from(CHAT_IMAGE_BUCKET).remove(imagePaths);
     setMessages([]);
     channelRef.current?.send({ type: "broadcast", event: "clear", payload: {} });
   };
@@ -423,7 +516,7 @@ export function ChatPanel({
                       isSelf
                     )}`}
                   >
-                    {m.content}
+                    {m.imagePath ? <ChatImage path={m.imagePath} /> : m.content}
                   </span>
                   {canDelete && (
                     <button
@@ -480,8 +573,23 @@ export function ChatPanel({
                 setPickerOpen(false);
               }}
               onClose={() => setPickerOpen(false)}
+              onAttach={() => {
+                setPickerOpen(false);
+                fileInputRef.current?.click();
+              }}
             />
           )}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept={CHAT_IMAGE_TYPES.join(",")}
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              e.target.value = "";
+              if (file) stageImage(file);
+            }}
+          />
         </div>
         <input
           value={input}
@@ -490,6 +598,13 @@ export function ChatPanel({
             onActivity?.();
           }}
           onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && send()}
+          onPaste={(e) => {
+            // 복사한 이미지를 붙여넣으면 바로 보내지 않고 미리보기 확인 팝업을 띄운다(글자 붙여넣기는 그대로).
+            const file = Array.from(e.clipboardData.files).find((f) => f.type.startsWith("image/"));
+            if (!file) return;
+            e.preventDefault();
+            stageImage(file);
+          }}
           placeholder={whisperTargetId ? t("whisperInputPlaceholder") : t("inputPlaceholder")}
           className="min-w-0 flex-1 rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
         />
@@ -506,6 +621,15 @@ export function ChatPanel({
         <div className="h-14 overflow-hidden border-t border-neutral-100 dark:border-neutral-800">
           <AdSlot className="h-14" />
         </div>
+      )}
+      {pendingImage && (
+        <ChatImageConfirm
+          previewUrl={pendingImage.url}
+          whisperName={whisperTargetId ? nameOf(whisperTargetId) : null}
+          sending={imageSending}
+          onSend={sendImage}
+          onCancel={cancelImage}
+        />
       )}
     </div>
   );
