@@ -144,7 +144,7 @@ export function CharInput({
                 setCutInput(e.target.value);
                 onActivity?.();
               }}
-              onKeyDown={(e) => e.key === "Enter" && addCuts()}
+              onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && addCuts()}
               placeholder={tw("cutCountPlaceholder")}
               className="w-full min-w-0 rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
             />
@@ -180,7 +180,7 @@ export function CharInput({
                   setCurrent(e.target.value);
                   onActivity?.();
                 }}
-                onKeyDown={(e) => e.key === "Enter" && calculate()}
+                onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && calculate()}
                 placeholder={t("currentCharsPlaceholder")}
                 className="w-full min-w-0 rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 outline-none focus:border-neutral-400 dark:text-white"
               />
@@ -223,7 +223,7 @@ export function CharInput({
               min={0}
               value={goalInput}
               onChange={(e) => setGoalInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && saveGoal()}
+              onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && saveGoal()}
               placeholder={isWebtoon ? tw("goalPlaceholder") : t("goalPlaceholder")}
               className="w-full rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
             />

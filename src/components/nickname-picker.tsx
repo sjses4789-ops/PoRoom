@@ -145,7 +145,7 @@ export function NicknamePicker({
                 <input
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && createAndUse()}
+                  onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && createAndUse()}
                   maxLength={MAX_NICKNAME_LENGTH}
                   placeholder={t("createPlaceholder")}
                   className="min-w-0 flex-1 rounded-md border border-neutral-200 px-2.5 py-1.5 text-xs text-neutral-900 outline-none focus:border-neutral-400 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"

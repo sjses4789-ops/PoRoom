@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { inRange } from "@/lib/records";
+import { fetchAllPages } from "@/lib/paginate";
 import { PageAdRail } from "@/components/page-ad-rail";
 import CreateChallengeButton from "./create-challenge-button";
 import JoinByCodeButton from "./join-by-code-button";
@@ -20,7 +21,7 @@ const ADMIN_EVENT_CARD_BG = "bg-[#faf0f0] dark:bg-[#2a1c1c]";
 import { todayKst, kstDayRangeUtc } from "@/lib/time";
 import { getDemoData, shouldShowDemoData, withoutDemoIds } from "@/lib/demo-data";
 
-const SYSTEM_CHALLENGE_KINDS: SystemChallengeKind[] = ["daily5k", "daily10k", "monthly_draft"];
+const SYSTEM_CHALLENGE_KINDS: SystemChallengeKind[] = ["daily1k", "daily5k", "daily10k", "monthly_draft"];
 
 type ChallengeRow = {
   id: string;
@@ -73,7 +74,7 @@ export default async function CompetePage() {
   // 열어뒀다 — "내 것" 관련 조회/자동 참여는 selfId가 없으면 건너뛴다.
   const selfId = user?.id ?? null;
 
-  // 반복형 시스템 챌린지(5천자/1만자/초단 완고)가 아직 없으면 만들고,
+  // 반복형 시스템 챌린지(1천자/5천자/1만자/초단 완고)가 아직 없으면 만들고,
   // 주/월 경계를 넘었으면 기간을 새로 갱신한다.
   if (selfId) {
     await Promise.all(
@@ -117,44 +118,76 @@ export default async function CompetePage() {
   // 예시 대결 id는 uuid가 아니라서 DB 조회에는 실제 id만 보낸다.
   const realChallengeIds = withoutDemoIds(challengeIds);
 
-  const [
-    { data: realParticipants },
-    { data: realUsers },
-    { data: realRecords },
-    { data: draftLogs },
-  ] =
-    await Promise.all([
-      realChallengeIds.length
-        ? supabase
-            .from("challenge_participants")
-            .select("challenge_id,user_id,room_id")
-            .in("challenge_id", realChallengeIds)
-            .returns<ParticipantRow[]>()
-        : Promise.resolve({ data: [] as ParticipantRow[] }),
-      // email은 여기서 같이 안 가져온다 — anon(비로그인) 롤은 email
-      // 컬럼 권한이 없어서 같이 요청하면 쿼리 전체가 실패한다.
-      supabase.from("users").select("id,name").returns<UserRow[]>(),
-      supabase
-        .from("daily_records")
-        .select("user_id,record_date,chars,focus_minutes")
-        .returns<RecordRow[]>(),
-      selfId
-        ? supabase
-            .from("activity_logs")
-            .select("id")
-            .eq("user_id", selfId)
-            .eq("type", "draft_done")
-            .gte("created_at", kstDayRangeUtc(monthStart).startUtc)
-            .limit(1)
-        : Promise.resolve({ data: [] as { id: string }[] }),
-    ]);
+  const [{ data: realParticipants }, { data: draftLogs }] = await Promise.all([
+    realChallengeIds.length
+      ? supabase
+          .from("challenge_participants")
+          .select("challenge_id,user_id,room_id")
+          .in("challenge_id", realChallengeIds)
+          .returns<ParticipantRow[]>()
+      : Promise.resolve({ data: [] as ParticipantRow[] }),
+    selfId
+      ? supabase
+          .from("activity_logs")
+          .select("id")
+          .eq("user_id", selfId)
+          .eq("type", "draft_done")
+          .gte("created_at", kstDayRangeUtc(monthStart).startUtc)
+          .limit(1)
+      : Promise.resolve({ data: [] as { id: string }[] }),
+  ]);
+
+  // 이름/기록은 내가 참여 중인 대결·챌린지의 참가자 것만 필요하다 — 사이트 전체를 가져오면 조회 상한(1000행)에
+  // 걸려 값이 틀려진다. 기록은 그 챌린지들의 가장 이른 시작일부터만 읽는다.
+  const myChallengeIds = new Set(
+    selfId ? (realParticipants ?? []).filter((r) => r.user_id === selfId).map((r) => r.challenge_id) : []
+  );
+  const neededUserIds = Array.from(
+    new Set([
+      ...(realParticipants ?? [])
+        .filter((r) => myChallengeIds.has(r.challenge_id) && r.user_id)
+        .map((r) => r.user_id as string),
+      ...(selfId ? [selfId] : []),
+    ])
+  );
+  const recordsFrom = [
+    today,
+    ...challenges.filter((c) => myChallengeIds.has(c.id) && c.start_date).map((c) => c.start_date as string),
+  ].sort()[0];
+  const [realUsers, realRecords] = await Promise.all([
+    neededUserIds.length
+      ? fetchAllPages<UserRow>((from, to) =>
+          supabase
+            .from("users")
+            .select("id,name")
+            .in("id", neededUserIds)
+            .order("id")
+            .range(from, to)
+            .returns<UserRow[]>()
+        )
+      : Promise.resolve([] as UserRow[]),
+    neededUserIds.length
+      ? fetchAllPages<RecordRow>((from, to) =>
+          supabase
+            .from("daily_records")
+            .select("user_id,record_date,chars,focus_minutes")
+            .in("user_id", neededUserIds)
+            .gte("record_date", recordsFrom)
+            .order("record_date")
+            .order("user_id")
+            .order("room_id")
+            .range(from, to)
+            .returns<RecordRow[]>()
+        )
+      : Promise.resolve([] as RecordRow[]),
+  ]);
 
   const participants: ParticipantRow[] = [
     ...(realParticipants ?? []),
     ...(demo?.challengeParticipants ?? []),
   ];
-  const users: UserRow[] = [...(realUsers ?? []), ...(demo?.users ?? [])];
-  const records: RecordRow[] = [...(realRecords ?? []), ...(demo?.records ?? [])];
+  const users: UserRow[] = [...realUsers, ...(demo?.users ?? [])];
+  const records: RecordRow[] = [...realRecords, ...(demo?.records ?? [])];
 
   const userNameMap = new Map(users.map((u) => [u.id, u.name || t("unknownUser")]));
 
@@ -226,12 +259,17 @@ export default async function CompetePage() {
   const isEndedAdminEvent = (c: ChallengeRow) =>
     c.is_admin_event && Boolean(c.end_date && today > c.end_date);
 
-  const joinedSystemChallenges = joined.filter(
-    (c) => (c.kind !== null || c.is_admin_event) && !isEndedAdminEvent(c)
+  // 시스템 챌린지는 1천자 → 5천자 → 1만자 → 초단 완고 순으로 보여 준다(관리자 이벤트는 맨 위).
+  const kindOrder = (c: ChallengeRow) => (c.kind ? SYSTEM_CHALLENGE_KINDS.indexOf(c.kind) : -1);
+  const byKindOrder = <T extends ChallengeRow>(list: T[]) =>
+    [...list].sort((x, y) => kindOrder(x) - kindOrder(y));
+
+  const joinedSystemChallenges = byKindOrder(
+    joined.filter((c) => (c.kind !== null || c.is_admin_event) && !isEndedAdminEvent(c))
   );
   const openChallenges = sortEndedLast(openToJoin.filter((c) => !c.kind && !c.is_admin_event));
-  const openSystemChallenges = openToJoin.filter(
-    (c) => (c.kind !== null || c.is_admin_event) && !isEndedAdminEvent(c)
+  const openSystemChallenges = byKindOrder(
+    openToJoin.filter((c) => (c.kind !== null || c.is_admin_event) && !isEndedAdminEvent(c))
   );
   const endedAdminChallenges = challenges
     .filter(isEndedAdminEvent)

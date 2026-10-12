@@ -20,6 +20,10 @@
     "endedParticipants": "{count}人参加"
   },
   "systemChallengeMeta": {
+    "daily1k": {
+      "title": "毎日1千文字執筆チャレンジ",
+      "resetLabel": "毎週月曜日リセット"
+    },
     "daily5k": {
       "title": "毎日5千文字執筆チャレンジ",
       "resetLabel": "毎週月曜日リセット"
@@ -109,6 +113,7 @@
     "sessionEnd": "{name}さんがポモドーロを終了しました",
     "charsAdded": "{name}さんが{amount}文字を記録しました",
     "focusRecorded": "{name}さんが{amount}分集中しました",
+    "milestone1k": "{name}さんが{date}に1千文字執筆を達成しました🎉",
     "milestone5k": "{name}さんが{date}に5千文字執筆を達成しました🎉",
     "milestone10k": "{name}さんが{date}に1万文字執筆を達成しました🎉",
     "draftDone": "{name}さんが{month}月の初稿を完成させました。"

@@ -83,7 +83,7 @@ function NicknameSlot({
         <input
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && save()}
+          onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && save()}
           maxLength={MAX_NICKNAME_LENGTH}
           placeholder={item ? t("editPlaceholder") : t("emptyPlaceholder")}
           className="min-w-0 flex-1 rounded-md border border-neutral-200 px-3 py-2 text-sm text-neutral-900 outline-none focus:border-neutral-400 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"

@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { fetchAllPages } from "@/lib/paginate";
 import { createClient } from "@/lib/supabase/server";
 import { todayKst, kstDayRangeUtc } from "@/lib/time";
 import { SYSTEM_CHALLENGE_META, type SystemChallengeKind } from "@/lib/system-challenges";
@@ -105,13 +106,20 @@ async function computeDuelResult(
     return { error: "참여하지 않은 대결입니다." };
   }
 
-  const { data: records } = await supabase
-    .from("daily_records")
-    .select("user_id,record_date,chars,focus_minutes")
-    .in("user_id", participantIds)
-    .gte("record_date", challenge.start_date)
-    .lte("record_date", challenge.end_date)
-    .returns<{ user_id: string; record_date: string; chars: number; focus_minutes: number }[]>();
+  const records = await fetchAllPages<{ user_id: string; record_date: string; chars: number; focus_minutes: number }>(
+    (from, to) =>
+      supabase
+        .from("daily_records")
+        .select("user_id,record_date,chars,focus_minutes")
+        .in("user_id", participantIds)
+        .gte("record_date", challenge.start_date)
+        .lte("record_date", challenge.end_date)
+        .order("record_date")
+        .order("user_id")
+        .order("room_id")
+        .range(from, to)
+        .returns<{ user_id: string; record_date: string; chars: number; focus_minutes: number }[]>()
+  );
 
   const totals = new Map<string, number>();
   for (const id of participantIds) totals.set(id, 0);
@@ -261,7 +269,7 @@ export async function createFeedPost(
       meta = { challengeTitle: result.title, achieved: !!input.draftDone, kind: result.kind };
     } else {
       meta = { challengeTitle: result.title, achieved: result.achieved, kind: result.kind };
-      if (result.kind === "daily5k" || result.kind === "daily10k") {
+      if (result.kind === "daily1k" || result.kind === "daily5k" || result.kind === "daily10k") {
         // 오늘 글자수는 자동으로 이미 계산돼 있으니(달성 여부 판정에 쓴 값)
         // 그대로 재사용 — 사용자가 입력할 필요도, 별도로 입력받을 수도 없다.
         chars = result.todayChars ?? 0;

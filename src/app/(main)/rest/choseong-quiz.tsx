@@ -163,7 +163,7 @@ export function ChoseongQuiz() {
               setInput(e.target.value);
               setError(null);
             }}
-            onKeyDown={(e) => e.key === "Enter" && submit()}
+            onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && submit()}
             readOnly={pause !== null}
             autoFocus
             placeholder={pause ? t("pressEnterNext") : t("inputPlaceholder")}

@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { inRange } from "@/lib/records";
+import { fetchAllPages } from "@/lib/paginate";
 import { ChallengeCard, type ChallengeParticipant } from "../challenge-card";
 import { ChallengeRankingBars } from "../challenge-ranking-bars";
 import { AchievementRoster } from "./achievement-roster";
@@ -150,12 +151,20 @@ export default async function ChallengeDetailPage({
             .in("id", participantIds)
             .returns<UserRow[]>()
         : Promise.resolve({ data: [] as UserRow[] }),
+      // 전체 기록은 1000행 상한에 걸릴 수 있어 이 챌린지 기간 이후 것만 페이지를 나눠 읽는다.
       participantIds.length
-        ? supabase
-            .from("daily_records")
-            .select("user_id,record_date,chars,focus_minutes")
-            .in("user_id", participantIds)
-            .returns<RecordRow[]>()
+        ? fetchAllPages<RecordRow>((from, to) =>
+            supabase
+              .from("daily_records")
+              .select("user_id,record_date,chars,focus_minutes")
+              .in("user_id", participantIds)
+              .gte("record_date", challenge.start_date ?? todayKst())
+              .order("record_date")
+              .order("user_id")
+              .order("room_id")
+              .range(from, to)
+              .returns<RecordRow[]>()
+          ).then((data) => ({ data }))
         : Promise.resolve({ data: [] as RecordRow[] }),
       iAmParticipant && participantIds.length && startTs && endTs
         ? supabase
@@ -173,7 +182,7 @@ export default async function ChallengeDetailPage({
             .from("challenge_messages")
             .select("id,user_id,content,created_at")
             .eq("challenge_id", id)
-            .order("created_at", { ascending: true })
+            .order("created_at", { ascending: false })
             .limit(50)
             .returns<ChatMessageRow[]>()
         : Promise.resolve({ data: [] as ChatMessageRow[] }),
@@ -190,7 +199,7 @@ export default async function ChallengeDetailPage({
     }));
 
   const today = todayKst();
-  const isDailyKind = challenge.kind === "daily5k" || challenge.kind === "daily10k";
+  const isDailyKind = challenge.kind === "daily1k" || challenge.kind === "daily5k" || challenge.kind === "daily10k";
   const isDraftKind = challenge.kind === "monthly_draft";
   const isSystemKind = Boolean(challenge.kind);
 
@@ -245,7 +254,7 @@ export default async function ChallengeDetailPage({
     name: userNameMap.get(u.id) ?? t("unknownUser"),
     chatColor: u.chat_color,
   }));
-  const chatMessages: ChallengeChatMessage[] = (chatRows ?? []).map((m) => ({
+  const chatMessages: ChallengeChatMessage[] = [...(chatRows ?? [])].reverse().map((m) => ({
     id: m.id,
     userId: m.user_id,
     content: m.content,

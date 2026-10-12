@@ -57,7 +57,7 @@ export function TodoList({ initialTodos }: { initialTodos: Todo[] }) {
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && add()}
+          onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && add()}
           placeholder={t("todo.addPlaceholder")}
           className="flex-1 rounded-md border border-neutral-200 px-2.5 py-1.5 text-xs text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
         />
@@ -88,7 +88,7 @@ export function TodoList({ initialTodos }: { initialTodos: Todo[] }) {
                   autoFocus
                   value={editValue}
                   onChange={(e) => setEditValue(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && saveEdit()}
+                  onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && saveEdit()}
                   onBlur={saveEdit}
                   className="min-w-0 flex-1 rounded border border-neutral-200 px-1.5 py-0.5 text-xs text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
                 />

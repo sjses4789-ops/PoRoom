@@ -20,6 +20,10 @@
     "endedParticipants": "{count}人参加"
   },
   "systemChallengeMeta": {
+    "daily1k": {
+      "title": "每日1000字写作挑战",
+      "resetLabel": "每周一重置"
+    },
     "daily5k": {
       "title": "每日5000字写作挑战",
       "resetLabel": "每周一重置"
@@ -109,6 +113,7 @@
     "sessionEnd": "{name}结束了番茄钟",
     "charsAdded": "{name}记录了{amount}字",
     "focusRecorded": "{name}专注了{amount}分钟",
+    "milestone1k": "{name}在{date}完成了1000字写作🎉",
     "milestone5k": "{name}在{date}完成了5000字写作🎉",
     "milestone10k": "{name}在{date}完成了1万字写作🎉",
     "draftDone": "{name}完成了{month}月的初稿。"

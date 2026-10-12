@@ -359,7 +359,7 @@ export function MainRoomLists({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === "Enter") setAppliedSearch(searchQuery.trim());
+                if (e.key === "Enter" && !e.nativeEvent.isComposing) setAppliedSearch(searchQuery.trim());
                 else if (e.key === "Escape") closeSearch();
               }}
               placeholder={t("searchPlaceholder")}

@@ -239,7 +239,7 @@ export function FeedbackBoard({
                           onChange={(e) =>
                             setReplyDrafts((prev) => ({ ...prev, [p.id]: e.target.value }))
                           }
-                          onKeyDown={(e) => e.key === "Enter" && submitReply(p.id)}
+                          onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && submitReply(p.id)}
                           placeholder="관리자 답글"
                           className="min-w-0 flex-1 rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
                         />

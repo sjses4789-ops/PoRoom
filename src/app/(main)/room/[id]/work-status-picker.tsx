@@ -122,7 +122,7 @@ export function WorkStatusPicker({
                   value={customText}
                   onChange={(e) => setCustomText(e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter" && customText.trim()) {
+                    if (e.key === "Enter" && !e.nativeEvent.isComposing && customText.trim()) {
                       choose(customText.trim());
                     }
                   }}

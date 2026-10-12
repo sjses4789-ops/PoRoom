@@ -8,6 +8,7 @@ export type LogEntry = {
     | "session_end"
     | "chars_added"
     | "focus_recorded"
+    | "milestone_1k"
     | "milestone_5k"
     | "milestone_10k"
     | "draft_done";
@@ -29,6 +30,8 @@ function describe(entry: LogEntry, t: Awaited<ReturnType<typeof getTranslations>
       return t("charsAdded", { name: entry.userName, amount: entry.amount?.toLocaleString() ?? 0 });
     case "focus_recorded":
       return t("focusRecorded", { name: entry.userName, amount: entry.amount ?? 0 });
+    case "milestone_1k":
+      return t("milestone1k", { name: entry.userName, date });
     case "milestone_5k":
       return t("milestone5k", { name: entry.userName, date });
     case "milestone_10k":
@@ -43,6 +46,7 @@ const ICON: Record<LogEntry["type"], string> = {
   session_end: "⏸️",
   chars_added: "✍️",
   focus_recorded: "⏱️",
+  milestone_1k: "🎉",
   milestone_5k: "🎉",
   milestone_10k: "🎉",
   draft_done: "✅",

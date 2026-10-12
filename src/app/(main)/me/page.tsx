@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { fetchAllPages } from "@/lib/paginate";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { inPeriod, inRange } from "@/lib/records";
@@ -27,7 +28,7 @@ import {
   type UserChallengeRow as GlobalUserChallengeRow,
 } from "@/lib/challenge-rankings";
 
-const SYSTEM_CHALLENGE_KINDS: SystemChallengeKind[] = ["daily5k", "daily10k", "monthly_draft"];
+const SYSTEM_CHALLENGE_KINDS: SystemChallengeKind[] = ["daily1k", "daily5k", "daily10k", "monthly_draft"];
 
 type MyRoomRow = {
   room_id: string;
@@ -130,16 +131,29 @@ export default async function MePage() {
           .returns<MemberRow[]>()
       : Promise.resolve({ data: [] as MemberRow[] }),
     myRoomIds.length
-      ? supabase
-          .from("daily_records")
-          .select("room_id,user_id,record_date,chars")
-          .in("room_id", myRoomIds)
-          .returns<RecordRow[]>()
+      ? fetchAllPages<RecordRow>((from, to) =>
+          supabase
+            .from("daily_records")
+            .select("room_id,user_id,record_date,chars")
+            .in("room_id", myRoomIds)
+            .order("record_date")
+            .order("user_id")
+            .order("room_id")
+            .range(from, to)
+            .returns<RecordRow[]>()
+        ).then((data) => ({ data }))
       : Promise.resolve({ data: [] as RecordRow[] }),
-    supabase
-      .from("daily_records")
-      .select("user_id,record_date,chars,focus_minutes,break_minutes")
-      .returns<GlobalRecordRow[]>(),
+    // 전체 회원의 기록 — 조회 한 번에 1000행까지만 오므로 페이지를 나눠 끝까지 읽는다.
+    fetchAllPages<GlobalRecordRow>((from, to) =>
+      supabase
+        .from("daily_records")
+        .select("user_id,record_date,chars,focus_minutes,break_minutes")
+        .order("record_date")
+        .order("user_id")
+        .order("room_id")
+        .range(from, to)
+        .returns<GlobalRecordRow[]>()
+    ).then((data) => ({ data })),
     supabase.from("users").select("*", { count: "exact", head: true }),
     supabase
       .from("goals")
@@ -174,7 +188,7 @@ export default async function MePage() {
     supabase
       .from("activity_logs")
       .select("user_id,type")
-      .in("type", ["milestone_5k", "milestone_10k", "draft_done"])
+      .in("type", ["milestone_1k", "milestone_5k", "milestone_10k", "draft_done"])
       .returns<{ user_id: string; type: string }[]>(),
     // 뽀모도로 통계(하단 패널)의 "일별 횟수"는 뽀모도로를 (재)시작할 때마다
     // 남는 session_start 로그로 센다.
@@ -304,6 +318,7 @@ export default async function MePage() {
   ) as Record<SystemChallengeKind, boolean>;
 
   const systemChallengeSuccessCounts: Record<SystemChallengeKind, number> = {
+    daily1k: myMilestoneLogs.filter((l) => l.type === "milestone_1k").length,
     daily5k: myMilestoneLogs.filter((l) => l.type === "milestone_5k").length,
     daily10k: myMilestoneLogs.filter((l) => l.type === "milestone_10k").length,
     monthly_draft: myMilestoneLogs.filter((l) => l.type === "draft_done").length,

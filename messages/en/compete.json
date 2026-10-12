@@ -20,6 +20,10 @@
     "endedParticipants": "{count} joined"
   },
   "systemChallengeMeta": {
+    "daily1k": {
+      "title": "Daily 1,000 Characters Challenge",
+      "resetLabel": "Resets every Monday"
+    },
     "daily5k": {
       "title": "Daily 5,000 Characters Challenge",
       "resetLabel": "Resets every Monday"
@@ -109,6 +113,7 @@
     "sessionEnd": "{name} ended a pomodoro",
     "charsAdded": "{name} logged {amount} characters",
     "focusRecorded": "{name} focused for {amount} minutes",
+    "milestone1k": "{name} hit 1,000 characters on {date} 🎉",
     "milestone5k": "{name} hit 5,000 characters on {date} 🎉",
     "milestone10k": "{name} hit 10,000 characters on {date} 🎉",
     "draftDone": "{name} finished their draft for {month}."

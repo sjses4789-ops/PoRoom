@@ -30,6 +30,7 @@ import { getMyNicknames } from "@/lib/nicknames";
 import { SystemRoomLeaveGuard } from "./system-room-leave-guard";
 import { paletteDot } from "@/lib/palette";
 import { isCurrentUserAdmin } from "@/lib/admin";
+import { fetchAllPages } from "@/lib/paginate";
 
 type RecordVisibility = "shared" | "private" | "free";
 type JoinType = "invite" | "open";
@@ -257,14 +258,20 @@ export default async function RoomPage({
       .from("chat_messages")
       .select("id,user_id,content,created_at,target_user_id")
       .eq("room_id", id)
-      .order("created_at", { ascending: true })
+      .order("created_at", { ascending: false })
       .limit(50)
       .returns<ChatMessageRow[]>(),
-    supabase
-      .from("daily_records")
-      .select("user_id,record_date,chars,focus_minutes")
-      .eq("room_id", id)
-      .returns<DailyRecordRow[]>(),
+    // 기록이 쌓이면 1000행 상한을 넘을 수 있어 페이지를 나눠 끝까지 읽는다.
+    fetchAllPages<DailyRecordRow>((from, to) =>
+      supabase
+        .from("daily_records")
+        .select("user_id,record_date,chars,focus_minutes")
+        .eq("room_id", id)
+        .order("record_date")
+        .order("user_id")
+        .range(from, to)
+        .returns<DailyRecordRow[]>()
+    ).then((data) => ({ data })),
     supabase
       .from("room_events")
       .select("id,title,event_date,memo,created_by,category_id,created_at")
@@ -315,11 +322,17 @@ export default async function RoomPage({
     // 이용자 개인의 기록이라, 이 방만이 아니라 기록이 공개된 멤버가
     // 어느 방에서 남겼든 전부 가져온다(방을 나중에 나가도 유지).
     visibleUserIds.size > 0
-      ? supabase
-          .from("daily_records")
-          .select("user_id,record_date,chars,focus_minutes,room_id")
-          .in("user_id", Array.from(visibleUserIds))
-          .returns<PersonalDailyRecordRow[]>()
+      ? fetchAllPages<PersonalDailyRecordRow>((from, to) =>
+          supabase
+            .from("daily_records")
+            .select("user_id,record_date,chars,focus_minutes,room_id")
+            .in("user_id", Array.from(visibleUserIds))
+            .order("record_date")
+            .order("user_id")
+            .order("room_id")
+            .range(from, to)
+            .returns<PersonalDailyRecordRow[]>()
+        ).then((data) => ({ data }))
       : Promise.resolve({ data: [] as PersonalDailyRecordRow[] }),
     isOwner ? getBannedMembers(id) : Promise.resolve([]),
   ]);
@@ -352,7 +365,8 @@ export default async function RoomPage({
         : Promise.resolve({ data: [] as { event_id: string; user_id: string }[] }),
     ]);
 
-  const initialMessages: ChatMessage[] = (messageRows ?? []).map((m) => ({
+  // 가장 최근 50개를 오래된 순으로 보여 준다.
+  const initialMessages: ChatMessage[] = [...(messageRows ?? [])].reverse().map((m) => ({
     id: m.id,
     userId: m.user_id,
     content: m.content,

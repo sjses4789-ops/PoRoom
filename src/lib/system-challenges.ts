@@ -1,12 +1,13 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { todayKst, kstDayRangeUtc } from "@/lib/time";
 
-export type SystemChallengeKind = "daily5k" | "daily10k" | "monthly_draft";
+export type SystemChallengeKind = "daily1k" | "daily5k" | "daily10k" | "monthly_draft";
 
 export const SYSTEM_CHALLENGE_META: Record<
   SystemChallengeKind,
   { title: string; resetLabel: string; dailyTarget?: number }
 > = {
+  daily1k: { title: "매일 1천자 쓰기 챌린지", resetLabel: "매주 월요일 리셋", dailyTarget: 1000 },
   daily5k: { title: "매일 5천자 쓰기 챌린지", resetLabel: "매주 월요일 리셋", dailyTarget: 5000 },
   daily10k: { title: "매일 1만자 쓰기 챌린지", resetLabel: "매주 월요일 리셋", dailyTarget: 10000 },
   monthly_draft: { title: "매 달 초단 1완고 챌린지", resetLabel: "매 달 1일 리셋" },
@@ -17,12 +18,14 @@ export const SYSTEM_CHALLENGE_META: Record<
 // 계열을 쓰므로 여기 포함하지 않음, open/joined-system-challenge-card
 // 참고).
 export const SYSTEM_CHALLENGE_CARD_BG: Record<SystemChallengeKind, string> = {
+  daily1k: "bg-[#eaf3fb] dark:bg-[#14222f]",
   daily5k: "bg-[#fdf6e3] dark:bg-[#2a2410]",
   daily10k: "bg-[#eaf7ef] dark:bg-[#122a1c]",
   monthly_draft: "bg-[#f2effa] dark:bg-[#211c2e]",
 };
 
 const CHALLENGE_TODO_CONTENT: Record<SystemChallengeKind, string> = {
+  daily1k: "(챌린지) 1천자 쓰기",
   daily5k: "(챌린지) 5천자 쓰기",
   daily10k: "(챌린지) 1만자 쓰기",
   monthly_draft: "(챌린지) 초단 완고 치기",
@@ -211,7 +214,7 @@ async function alreadyLoggedToday(
 }
 
 /**
- * 오늘 글자수 총합이 5천자/1만자 문턱을 이번 기록으로 새로 넘겼는지 확인하고,
+ * 오늘 글자수 총합이 1천자/5천자/1만자 문턱을 이번 기록으로 새로 넘겼는지 확인하고,
  * 해당 챌린지 참여자라면 공지 피드용 activity_log를 남긴다.
  */
 export async function checkDailyMilestones(
@@ -222,6 +225,7 @@ export async function checkDailyMilestones(
   newTotal: number
 ) {
   const checks: { threshold: number; kind: SystemChallengeKind; type: string }[] = [
+    { threshold: 1000, kind: "daily1k", type: "milestone_1k" },
     { threshold: 5000, kind: "daily5k", type: "milestone_5k" },
     { threshold: 10000, kind: "daily10k", type: "milestone_10k" },
   ];

@@ -449,7 +449,7 @@ export function ChatPanel({
             setInput(e.target.value);
             onActivity?.();
           }}
-          onKeyDown={(e) => e.key === "Enter" && send()}
+          onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && send()}
           placeholder={whisperTargetId ? t("whisperInputPlaceholder") : t("inputPlaceholder")}
           className="min-w-0 flex-1 rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
         />

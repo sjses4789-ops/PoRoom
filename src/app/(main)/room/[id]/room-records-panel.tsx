@@ -509,7 +509,7 @@ export function RoomRecordsPanel({
                         setEditValues((prev) => ({ ...prev, [dateKey]: e.target.value }))
                       }
                       onBlur={() => saveEditRow(dateKey)}
-                      onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
+                      onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && e.currentTarget.blur()}
                       disabled={editBusyDate === dateKey}
                       placeholder="0"
                       className="min-w-0 flex-1 rounded-md border border-neutral-200 px-2 py-1 text-xs text-neutral-900 outline-none focus:border-neutral-400 disabled:opacity-50 dark:text-white"

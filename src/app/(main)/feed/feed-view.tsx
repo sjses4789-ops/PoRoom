@@ -308,7 +308,7 @@ export function FeedView({
     setPublisherCount("");
     setGenre("");
     setContestName("");
-    setContestMode("chars");
+    setContestMode(selfPosition === "webtoon" ? "cuts" : "chars");
     setContestChars("");
     setContestComplete(false);
     setContestRound("");
@@ -520,7 +520,7 @@ export function FeedView({
             <input
               value={mood}
               onChange={(e) => setMood(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && submit()}
+              onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && submit()}
               placeholder={t("moodPlaceholder")}
               className="min-w-0 flex-1 rounded-full border border-neutral-200 bg-white px-4 py-2.5 text-sm text-neutral-900 outline-none focus:border-neutral-400 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
             />
@@ -694,7 +694,7 @@ export function FeedView({
             )}
             {category === "challenge" &&
               challengeId &&
-              (selectedChallengeKind === "daily5k" || selectedChallengeKind === "daily10k") && (
+              (selectedChallengeKind === "daily1k" || selectedChallengeKind === "daily5k" || selectedChallengeKind === "daily10k") && (
                 <span className="rounded-full bg-white px-2.5 py-1 dark:bg-neutral-800">
                   ✍️ {t("charsLabel")} {todayChars.toLocaleString()}
                   {t("charUnit")}

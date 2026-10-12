@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { SYSTEM_CHALLENGE_META, type SystemChallengeKind } from "@/lib/system-challenges";
 
-const KINDS: SystemChallengeKind[] = ["daily5k", "daily10k", "monthly_draft"];
+const KINDS: SystemChallengeKind[] = ["daily1k", "daily5k", "daily10k", "monthly_draft"];
 
 export async function SystemChallengeRecordPanel({
   joined,

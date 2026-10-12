@@ -4,7 +4,7 @@ import { todayKst } from "@/lib/time";
 import { computeWinLossByUser, computeChallengeScoreByUser } from "@/lib/challenge-rankings";
 import { SYSTEM_CHALLENGE_META, type SystemChallengeKind } from "@/lib/system-challenges";
 
-const SYSTEM_CHALLENGE_KINDS: SystemChallengeKind[] = ["daily5k", "daily10k", "monthly_draft"];
+const SYSTEM_CHALLENGE_KINDS: SystemChallengeKind[] = ["daily1k", "daily5k", "daily10k", "monthly_draft"];
 
 type GlobalRecordRow = {
   user_id: string;
@@ -136,7 +136,7 @@ export async function buildExportBundle(): Promise<ExportBundle | { error: strin
       .from("activity_logs")
       .select("type,created_at")
       .eq("user_id", user.id)
-      .in("type", ["milestone_5k", "milestone_10k", "draft_done"])
+      .in("type", ["milestone_1k", "milestone_5k", "milestone_10k", "draft_done"])
       .returns<{ type: string; created_at: string }[]>(),
   ]);
 
@@ -354,7 +354,7 @@ export async function buildExportBundle(): Promise<ExportBundle | { error: strin
   // ---- 챌린지 기록(반복 챌린지) ----
   const myMilestoneLogs = milestoneLogs ?? [];
   const successCountFor = (kind: SystemChallengeKind) => {
-    const type = kind === "daily5k" ? "milestone_5k" : kind === "daily10k" ? "milestone_10k" : "draft_done";
+    const type = kind === "daily1k" ? "milestone_1k" : kind === "daily5k" ? "milestone_5k" : kind === "daily10k" ? "milestone_10k" : "draft_done";
     return myMilestoneLogs.filter((l) => l.type === type).length;
   };
   const systemChallenges: ExportBundle["systemChallenges"] = SYSTEM_CHALLENGE_KINDS.map((kind) => ({

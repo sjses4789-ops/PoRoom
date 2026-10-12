@@ -20,6 +20,10 @@
     "endedParticipants": "{count}명 참여"
   },
   "systemChallengeMeta": {
+    "daily1k": {
+      "title": "매일 1천자 쓰기 챌린지",
+      "resetLabel": "매주 월요일 리셋"
+    },
     "daily5k": {
       "title": "매일 5천자 쓰기 챌린지",
       "resetLabel": "매주 월요일 리셋"
@@ -109,6 +113,7 @@
     "sessionEnd": "{name}님이 뽀모도로를 종료했어요",
     "charsAdded": "{name}님이 {amount}자를 기록했어요",
     "focusRecorded": "{name}님이 {amount}분 집중했어요",
+    "milestone1k": "{name}님이 {date} 1천자 집필에 성공했습니다🎉",
     "milestone5k": "{name}님이 {date} 5천자 집필에 성공했습니다🎉",
     "milestone10k": "{name}님이 {date} 만 자 집필에 성공했습니다🎉",
     "draftDone": "{name}님이 {month}월 초단을 완성하였습니다."

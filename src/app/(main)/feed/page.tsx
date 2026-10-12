@@ -39,40 +39,43 @@ export default async function FeedPage() {
   // 쓰기 동작은 FeedView 쪽에서 selfId가 없을 때 비활성화한다.
   const selfId = user?.id ?? null;
 
-  const [
-    { data: realPostRows },
-    { data: realUsers },
-    { data: realReactionRows },
-    { data: todayRows },
-    options,
-  ] =
-    await Promise.all([
-      supabase
-        .from("feed_posts")
-        .select("id,user_id,post_type,mood,focus_minutes,chars,meta,created_at")
-        .order("created_at", { ascending: false })
-        .limit(100)
-        .returns<PostRow[]>(),
-      // email은 여기서 같이 안 가져온다 — anon(비로그인) 롤은 users
-      // 테이블에서 email 컬럼 권한이 없어서(회원 이메일이 익명 API
-      // 요청으로 새어나가지 않도록 하는 조치), 같이 요청하면 쿼리
-      // 전체가 실패한다. 어차피 닉네임이 없을 때의 대체 표시용으로만
-      // 쓰였던 필드라 unknownUser로 대체한다.
-      supabase.from("users").select("id,name,character_id,position").returns<UserRow[]>(),
-      supabase
-        .from("feed_reactions")
-        .select("id,post_id,user_id,reaction_type")
-        .returns<ReactionRow[]>(),
-      selfId
-        ? supabase
-            .from("daily_records")
-            .select("chars,focus_minutes")
-            .eq("user_id", selfId)
-            .eq("record_date", today)
-            .returns<{ chars: number; focus_minutes: number }[]>()
-        : Promise.resolve({ data: [] as { chars: number; focus_minutes: number }[] }),
-      getMyChallengeOptions(),
-    ]);
+  const [{ data: realPostRows }, { data: todayRows }, options] = await Promise.all([
+    supabase
+      .from("feed_posts")
+      .select("id,user_id,post_type,mood,focus_minutes,chars,meta,created_at")
+      .order("created_at", { ascending: false })
+      .limit(100)
+      .returns<PostRow[]>(),
+    selfId
+      ? supabase
+          .from("daily_records")
+          .select("chars,focus_minutes")
+          .eq("user_id", selfId)
+          .eq("record_date", today)
+          .returns<{ chars: number; focus_minutes: number }[]>()
+      : Promise.resolve({ data: [] as { chars: number; focus_minutes: number }[] }),
+    getMyChallengeOptions(),
+  ]);
+
+  // 작성자/반응은 보여 줄 글에 해당하는 것만 가져온다 — 전체를 가져오면 회원/반응이 1000개를 넘는 순간
+  // 조회 상한에 걸려 작성자 이름이 "알 수 없음"으로 나오고 반응 수가 틀려진다.
+  // (email은 같이 안 가져온다 — anon(비로그인) 롤은 users 테이블에서 email 컬럼 권한이 없어서(회원 이메일이
+  // 익명 API 요청으로 새어나가지 않도록 하는 조치), 같이 요청하면 쿼리 전체가 실패한다. 어차피 닉네임이 없을
+  // 때의 대체 표시용으로만 쓰였던 필드라 unknownUser로 대체한다.)
+  const postIds = (realPostRows ?? []).map((p) => p.id);
+  const authorIds = Array.from(new Set([...(realPostRows ?? []).map((p) => p.user_id), ...(selfId ? [selfId] : [])]));
+  const [{ data: realUsers }, { data: realReactionRows }] = await Promise.all([
+    authorIds.length
+      ? supabase.from("users").select("id,name,character_id,position").in("id", authorIds).returns<UserRow[]>()
+      : Promise.resolve({ data: [] as UserRow[] }),
+    postIds.length
+      ? supabase
+          .from("feed_reactions")
+          .select("id,post_id,user_id,reaction_type")
+          .in("post_id", postIds)
+          .returns<ReactionRow[]>()
+      : Promise.resolve({ data: [] as ReactionRow[] }),
+  ]);
 
   // 심사 기간 비로그인 방문자에게는 실제 글 뒤에 예시 글(과 작성자/반응)을
   // 덧붙인다 — DB에는 아무것도 쓰지 않는다(src/lib/demo-data.ts 참고).

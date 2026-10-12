@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { fetchAllPages } from "@/lib/paginate";
 import { createClient } from "@/lib/supabase/server";
 import { PageAdRail } from "@/components/page-ad-rail";
 import { computeStreakDays, attendedDatesFromLogs } from "@/lib/attendance";
@@ -89,10 +90,16 @@ export default async function MainPage() {
     // daily_records is globally readable (RLS opened up for ranking) — used
     // here to total each room's all-time/this-month char counts, and each
     // user's this-month total for the personal ranking summary.
-    supabase
-      .from("daily_records")
-      .select("room_id,user_id,record_date,chars")
-      .returns<GlobalRecordRow[]>(),
+    fetchAllPages<GlobalRecordRow>((from, to) =>
+      supabase
+        .from("daily_records")
+        .select("room_id,user_id,record_date,chars")
+        .order("record_date")
+        .order("user_id")
+        .order("room_id")
+        .range(from, to)
+        .returns<GlobalRecordRow[]>()
+    ).then((data) => ({ data })),
     selfId
       ? supabase
           .from("goals")
