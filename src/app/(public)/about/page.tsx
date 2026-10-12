@@ -102,7 +102,7 @@ export default function AboutPage() {
         <h2 className="text-lg font-semibold tracking-tight">운영과 문의</h2>
         <p className="text-[15px] leading-[1.85] text-neutral-700 dark:text-neutral-300">
           포룸은 GGOZIL이 운영하며, 현재 개발과 개선이 계속되는 베타 서비스입니다. 일부 기능이 바뀌거나 예고 없이 점검이
-          있을 수 있습니다. 문의와 제안은 <a href="mailto:sjses4789@gmail.com" className="underline">sjses4789@gmail.com</a>
+          있을 수 있습니다. 문의와 제안은 <a href="mailto:ggozzzzzil@gmail.com" className="underline">ggozzzzzil@gmail.com</a>
           으로 보내 주세요. 개인정보 처리에 관한 내용은{" "}
           <Link href="/privacy" className="underline">개인정보처리방침</Link>에서 확인할 수 있습니다.
         </p>
@@ -114,12 +114,6 @@ export default function AboutPage() {
           className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-neutral-700 dark:bg-white dark:text-neutral-900"
         >
           포룸 입장하기
-        </Link>
-        <Link
-          href="/guide"
-          className="rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium transition hover:bg-neutral-50 dark:border-neutral-600 dark:hover:bg-neutral-900"
-        >
-          작가 가이드 보기
         </Link>
       </div>
     </div>

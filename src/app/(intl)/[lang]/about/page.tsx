@@ -99,8 +99,8 @@ export default async function LocalizedAboutPage({ params }: { params: Promise<P
         <h2 className="text-lg font-semibold tracking-tight">{t.contactTitle}</h2>
         <p className="text-[15px] leading-[1.85] text-neutral-700 dark:text-neutral-300">
           {t.contactBodyBefore}
-          <a href="mailto:sjses4789@gmail.com" className="underline">
-            sjses4789@gmail.com
+          <a href="mailto:ggozzzzzil@gmail.com" className="underline">
+            ggozzzzzil@gmail.com
           </a>
           {t.contactBodyAfter}
           {t.privacyLead}
@@ -117,12 +117,6 @@ export default async function LocalizedAboutPage({ params }: { params: Promise<P
           className="rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-neutral-700 dark:bg-white dark:text-neutral-900"
         >
           {t.enter}
-        </Link>
-        <Link
-          href={`${base}/guide`}
-          className="rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium transition hover:bg-neutral-50 dark:border-neutral-600 dark:hover:bg-neutral-900"
-        >
-          {t.readGuide}
         </Link>
       </div>
     </div>
