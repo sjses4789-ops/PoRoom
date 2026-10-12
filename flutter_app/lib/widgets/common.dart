@@ -5,7 +5,13 @@ import '../l10n/app_localizations.dart';
 
 // 웹의 카드와 같은 모양(테두리 있는 사각형).
 class BorderedCard extends StatelessWidget {
-  const BorderedCard({super.key, required this.child, this.padding = const EdgeInsets.all(14), this.onTap, this.color});
+  const BorderedCard({
+    super.key,
+    required this.child,
+    this.padding = const EdgeInsets.all(14),
+    this.onTap,
+    this.color,
+  });
 
   final Widget child;
   final EdgeInsets padding;
@@ -17,10 +23,13 @@ class BorderedCard extends StatelessWidget {
     final pal = context.pal;
     return Material(
       color: color ?? pal.surface,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4), side: BorderSide(color: pal.muted)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: pal.line),
+      ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(16),
         child: Padding(padding: padding, child: child),
       ),
     );
@@ -29,7 +38,12 @@ class BorderedCard extends StatelessWidget {
 
 // 가로로 스크롤되는 알약형 선택 칩 줄.
 class ChipRow<T> extends StatelessWidget {
-  const ChipRow({super.key, required this.items, required this.selected, required this.onSelected});
+  const ChipRow({
+    super.key,
+    required this.items,
+    required this.selected,
+    required this.onSelected,
+  });
 
   final List<(T, String)> items;
   final T selected;
@@ -61,7 +75,11 @@ class ChipRow<T> extends StatelessWidget {
               ),
               child: Text(
                 label,
-                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: on ? pal.bg : pal.subtext),
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: on ? pal.bg : pal.subtext,
+                ),
               ),
             ),
           );
@@ -73,7 +91,12 @@ class ChipRow<T> extends StatelessWidget {
 
 // 불러오는 중 / 실패(다시 시도) / 결과를 한 곳에서 처리하는 FutureBuilder.
 class AsyncBody<T> extends StatelessWidget {
-  const AsyncBody({super.key, required this.future, required this.onRetry, required this.builder});
+  const AsyncBody({
+    super.key,
+    required this.future,
+    required this.onRetry,
+    required this.builder,
+  });
 
   final Future<T>? future;
   final VoidCallback onRetry;
@@ -87,18 +110,34 @@ class AsyncBody<T> extends StatelessWidget {
       future: future,
       builder: (context, snap) {
         if (snap.connectionState != ConnectionState.done) {
-          return ListView(children: [
-            const SizedBox(height: 120),
-            Center(child: Text(l10n.loading, style: TextStyle(color: pal.muted))),
-          ]);
+          return ListView(
+            children: [
+              const SizedBox(height: 120),
+              Center(
+                child: Text(l10n.loading, style: TextStyle(color: pal.muted)),
+              ),
+            ],
+          );
         }
         if (snap.hasError) {
-          return ListView(children: [
-            const SizedBox(height: 120),
-            Center(child: Text(l10n.loadFailed, style: TextStyle(color: pal.muted))),
-            const SizedBox(height: 12),
-            Center(child: OutlinedButton(onPressed: onRetry, child: Text(l10n.retry))),
-          ]);
+          return ListView(
+            children: [
+              const SizedBox(height: 120),
+              Center(
+                child: Text(
+                  l10n.loadFailed,
+                  style: TextStyle(color: pal.muted),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Center(
+                child: OutlinedButton(
+                  onPressed: onRetry,
+                  child: Text(l10n.retry),
+                ),
+              ),
+            ],
+          );
         }
         return builder(context, snap.data as T);
       },
@@ -121,7 +160,10 @@ String formatNumber(int n) {
 String stripHtml(String html) {
   var s = html
       .replaceAll(RegExp(r'<br\s*/?>', caseSensitive: false), '\n')
-      .replaceAll(RegExp(r'</(p|div|h[1-6]|li|blockquote)>', caseSensitive: false), '\n')
+      .replaceAll(
+        RegExp(r'</(p|div|h[1-6]|li|blockquote)>', caseSensitive: false),
+        '\n',
+      )
       .replaceAll(RegExp(r'<[^>]+>'), '');
   s = s
       .replaceAll('&nbsp;', ' ')

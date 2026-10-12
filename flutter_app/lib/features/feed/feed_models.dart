@@ -34,21 +34,20 @@ class FeedPostItem {
   final DateTime createdAt;
   final Map<String, FeedReaction> reactions; // heart | clap | fire
 
-  FeedPostItem withReaction(String type, FeedReaction next) =>
-      FeedPostItem(
-        id: id,
-        postType: postType,
-        authorId: authorId,
-        authorName: authorName,
-        characterId: characterId,
-        authorPosition: authorPosition,
-        mood: mood,
-        focusMinutes: focusMinutes,
-        chars: chars,
-        meta: meta,
-        createdAt: createdAt,
-        reactions: {...reactions, type: next},
-      );
+  FeedPostItem withReaction(String type, FeedReaction next) => FeedPostItem(
+    id: id,
+    postType: postType,
+    authorId: authorId,
+    authorName: authorName,
+    characterId: characterId,
+    authorPosition: authorPosition,
+    mood: mood,
+    focusMinutes: focusMinutes,
+    chars: chars,
+    meta: meta,
+    createdAt: createdAt,
+    reactions: {...reactions, type: next},
+  );
 }
 
 const reactionTypes = ['heart', 'clap', 'fire'];

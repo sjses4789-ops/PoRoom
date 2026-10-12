@@ -19,7 +19,12 @@ class _Todo {
 }
 
 class _MeData {
-  const _MeData({required this.todayChars, required this.todayMinutes, required this.monthChars, required this.todos});
+  const _MeData({
+    required this.todayChars,
+    required this.todayMinutes,
+    required this.monthChars,
+    required this.todos,
+  });
 
   final int todayChars;
   final int todayMinutes;
@@ -62,7 +67,12 @@ class _MePageState extends State<MePage> {
   Future<_MeData> _fetch() async {
     if (Env.preview) {
       _todos = const [_Todo('t1', '(챌린지) 1천자 쓰기'), _Todo('t2', '3화 퇴고하기')];
-      return _MeData(todayChars: 3420, todayMinutes: 125, monthChars: 84200, todos: _todos);
+      return _MeData(
+        todayChars: 3420,
+        todayMinutes: 125,
+        monthChars: 84200,
+        todos: _todos,
+      );
     }
     final selfId = AuthScope.of(context).userId ?? '';
     final today = todayKst();
@@ -97,7 +107,12 @@ class _MePageState extends State<MePage> {
           _Todo(t['id'] as String, t['content'] as String),
     ];
     _todos = todos;
-    return _MeData(todayChars: todayChars, todayMinutes: todayMinutes, monthChars: monthChars, todos: todos);
+    return _MeData(
+      todayChars: todayChars,
+      todayMinutes: todayMinutes,
+      monthChars: monthChars,
+      todos: todos,
+    );
   }
 
   Future<void> _addTodo() async {
@@ -105,18 +120,26 @@ class _MePageState extends State<MePage> {
     if (text.isEmpty) return;
     _todoController.clear();
     if (Env.preview) {
-      setState(() => _todos = [..._todos, _Todo('t${_todos.length + 9}', text)]);
+      setState(
+        () => _todos = [..._todos, _Todo('t${_todos.length + 9}', text)],
+      );
       return;
     }
     final result = await WebApi.rpc<Map<String, dynamic>>('createTodo', [text]);
     if (result != null && result['id'] is String) {
-      setState(() => _todos = [..._todos, _Todo(result['id'] as String, result['content'] as String? ?? text)]);
+      setState(
+        () => _todos = [
+          ..._todos,
+          _Todo(result['id'] as String, result['content'] as String? ?? text),
+        ],
+      );
     }
   }
 
   Future<void> _complete(_Todo t) async {
     setState(() => _todos = _todos.where((x) => x.id != t.id).toList());
-    if (!Env.preview) await WebApi.rpc<Object?>('setTodoCompleted', [t.id, true]);
+    if (!Env.preview)
+      await WebApi.rpc<Object?>('setTodoCompleted', [t.id, true]);
   }
 
   Future<void> _remove(_Todo t) async {
@@ -138,7 +161,8 @@ class _MePageState extends State<MePage> {
           TextButton(
             onPressed: () async {
               await auth.signOut();
-              if (context.mounted) Navigator.of(context).popUntil((r) => r.isFirst);
+              if (context.mounted)
+                Navigator.of(context).popUntil((r) => r.isFirst);
             },
             child: Text(l10n.signOut),
           ),
@@ -155,16 +179,27 @@ class _MePageState extends State<MePage> {
               BorderedCard(
                 child: Row(
                   children: [
-                    CharacterAvatar(characterId: profile?.characterId, size: 56),
+                    CharacterAvatar(
+                      characterId: profile?.characterId,
+                      size: 56,
+                    ),
                     const SizedBox(width: 14),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(profile?.name ?? '', style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
+                          Text(
+                            profile?.name ?? '',
+                            style: const TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
                           const SizedBox(height: 2),
                           Text(
-                            profile?.position == 'webtoon' ? l10n.positionWebtoon : l10n.positionNovelist,
+                            profile?.position == 'webtoon'
+                                ? l10n.positionWebtoon
+                                : l10n.positionNovelist,
                             style: TextStyle(fontSize: 12.5, color: pal.muted),
                           ),
                         ],
@@ -176,15 +211,37 @@ class _MePageState extends State<MePage> {
               const SizedBox(height: 12),
               Row(
                 children: [
-                  Expanded(child: _StatBox(label: l10n.meToday, value: '${formatNumber(data.todayChars)}$unit')),
+                  Expanded(
+                    child: _StatBox(
+                      label: l10n.meToday,
+                      value: '${formatNumber(data.todayChars)}$unit',
+                    ),
+                  ),
                   const SizedBox(width: 10),
-                  Expanded(child: _StatBox(label: l10n.pomodoroFocusLabel, value: '${formatNumber(data.todayMinutes)}${l10n.minuteUnit}')),
+                  Expanded(
+                    child: _StatBox(
+                      label: l10n.pomodoroFocusLabel,
+                      value:
+                          '${formatNumber(data.todayMinutes)}${l10n.minuteUnit}',
+                    ),
+                  ),
                   const SizedBox(width: 10),
-                  Expanded(child: _StatBox(label: l10n.meMonth, value: '${formatNumber(data.monthChars)}$unit')),
+                  Expanded(
+                    child: _StatBox(
+                      label: l10n.meMonth,
+                      value: '${formatNumber(data.monthChars)}$unit',
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 18),
-              Text(l10n.meTodos, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
+              Text(
+                l10n.meTodos,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
               const SizedBox(height: 8),
               Row(
                 children: [
@@ -195,16 +252,28 @@ class _MePageState extends State<MePage> {
                       decoration: InputDecoration(
                         hintText: l10n.meTodoHint,
                         isDense: true,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: pal.line)),
-                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: pal.line)),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: pal.line),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: pal.line),
+                        ),
                       ),
                     ),
                   ),
                   const SizedBox(width: 8),
                   FilledButton(
                     onPressed: _addTodo,
-                    style: FilledButton.styleFrom(backgroundColor: pal.lineStrong, foregroundColor: pal.bg),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: pal.lineStrong,
+                      foregroundColor: pal.bg,
+                    ),
                     child: Text(l10n.recordAdd),
                   ),
                 ],
@@ -213,13 +282,19 @@ class _MePageState extends State<MePage> {
               if (_todos.isEmpty)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 10),
-                  child: Text(l10n.meNoTodos, style: TextStyle(fontSize: 12.5, color: pal.muted)),
+                  child: Text(
+                    l10n.meNoTodos,
+                    style: TextStyle(fontSize: 12.5, color: pal.muted),
+                  ),
                 ),
               for (final t in _todos)
                 ListTile(
                   contentPadding: EdgeInsets.zero,
                   dense: true,
-                  leading: Checkbox(value: false, onChanged: (_) => _complete(t)),
+                  leading: Checkbox(
+                    value: false,
+                    onChanged: (_) => _complete(t),
+                  ),
                   title: Text(t.content, style: const TextStyle(fontSize: 14)),
                   trailing: IconButton(
                     onPressed: () => _remove(t),
@@ -228,7 +303,10 @@ class _MePageState extends State<MePage> {
                 ),
               const SizedBox(height: 18),
               OutlinedButton.icon(
-                onPressed: () => launchUrl(Uri.parse('${Env.webUrl}/me'), mode: LaunchMode.externalApplication),
+                onPressed: () => launchUrl(
+                  Uri.parse('${Env.webUrl}/me'),
+                  mode: LaunchMode.externalApplication,
+                ),
                 icon: const Icon(Icons.open_in_new_rounded, size: 18),
                 label: Text(l10n.meOpenWeb),
               ),
@@ -255,7 +333,12 @@ class _StatBox extends StatelessWidget {
         children: [
           Text(label, style: TextStyle(fontSize: 11.5, color: pal.muted)),
           const SizedBox(height: 4),
-          FittedBox(child: Text(value, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800))),
+          FittedBox(
+            child: Text(
+              value,
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+            ),
+          ),
         ],
       ),
     );

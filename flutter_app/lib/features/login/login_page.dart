@@ -40,7 +40,8 @@ class _LoginPageState extends State<LoginPage> {
     if (widget.dismissible && auth.isSignedIn) {
       // 로그인이 끝나면 이 화면을 닫고 원래 화면(이제 모든 기능 사용 가능)으로 돌아간다.
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted && Navigator.of(context).canPop()) Navigator.of(context).pop();
+        if (mounted && Navigator.of(context).canPop())
+          Navigator.of(context).pop();
       });
     }
     return Scaffold(
@@ -54,15 +55,26 @@ class _LoginPageState extends State<LoginPage> {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(24),
-                  child: Image.asset('assets/images/icon.png', width: 104, height: 104),
+                  child: Image.asset(
+                    'assets/images/icon.png',
+                    width: 104,
+                    height: 104,
+                  ),
                 ),
                 const SizedBox(height: 16),
-                const Text('PoRoom', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800)),
+                const Text(
+                  'PoRoom',
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800),
+                ),
                 const SizedBox(height: 8),
                 Text(
                   l10n.loginSubtitle,
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 15, height: 1.5, color: pal.subtext),
+                  style: TextStyle(
+                    fontSize: 15,
+                    height: 1.5,
+                    color: pal.subtext,
+                  ),
                 ),
                 const SizedBox(height: 28),
                 SizedBox(
@@ -74,17 +86,36 @@ class _LoginPageState extends State<LoginPage> {
                         ? const SizedBox(
                             width: 20,
                             height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
                           )
-                        : Text(l10n.loginGoogle, style: const TextStyle(fontSize: 15.5, fontWeight: FontWeight.w700)),
+                        : Text(
+                            l10n.loginGoogle,
+                            style: const TextStyle(
+                              fontSize: 15.5,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
                   ),
                 ),
                 if (_error != null) ...[
                   const SizedBox(height: 12),
-                  Text(_error!, style: const TextStyle(color: Color(0xFFB91C1C), fontSize: 13)),
+                  Text(
+                    _error!,
+                    style: const TextStyle(
+                      color: Color(0xFFB91C1C),
+                      fontSize: 13,
+                    ),
+                  ),
                 ],
                 const SizedBox(height: 14),
-                Text(l10n.loginNote, textAlign: TextAlign.center, style: TextStyle(fontSize: 12, color: pal.muted)),
+                Text(
+                  l10n.loginNote,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 12, color: pal.muted),
+                ),
               ],
             ),
           ),

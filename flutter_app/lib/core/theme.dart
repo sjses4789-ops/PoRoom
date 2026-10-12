@@ -92,7 +92,9 @@ extension PaletteContext on BuildContext {
 }
 
 ThemeData buildTheme(Brightness brightness) {
-  final pal = brightness == Brightness.dark ? AppPalette.dark : AppPalette.light;
+  final pal = brightness == Brightness.dark
+      ? AppPalette.dark
+      : AppPalette.light;
   final base = ThemeData(
     brightness: brightness,
     useMaterial3: true,
@@ -105,7 +107,10 @@ ThemeData buildTheme(Brightness brightness) {
     extensions: [pal],
   );
   return base.copyWith(
-    textTheme: base.textTheme.apply(bodyColor: pal.text, displayColor: pal.text),
+    textTheme: base.textTheme.apply(
+      bodyColor: pal.text,
+      displayColor: pal.text,
+    ),
     dividerColor: pal.line,
     appBarTheme: AppBarTheme(
       backgroundColor: pal.bg,
@@ -114,4 +119,13 @@ ThemeData buildTheme(Brightness brightness) {
       scrolledUnderElevation: 0,
     ),
   );
+}
+
+// 홈 화면의 부드러운 색 카드(상시 작업방, 오늘의 목표 등) 배경 — 웹과 같은 로즈 포인트에 맞춘 옅은 틴트.
+extension TintContext on BuildContext {
+  bool get _dark => Theme.of(this).brightness == Brightness.dark;
+  Color get tintRose =>
+      _dark ? const Color(0xFF2B1F20) : const Color(0xFFF8ECEC);
+  Color get tintLavender =>
+      _dark ? const Color(0xFF22232F) : const Color(0xFFF0F0F8);
 }

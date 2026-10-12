@@ -47,7 +47,8 @@ class AuthController extends ChangeNotifier {
   bool get isGuest => status == AuthStatus.signedOut;
   bool get isSignedIn => status == AuthStatus.signedIn;
 
-  String? get userId => Env.preview ? Profile.preview.id : client.auth.currentUser?.id;
+  String? get userId =>
+      Env.preview ? Profile.preview.id : client.auth.currentUser?.id;
 
   Future<void> init() async {
     if (Env.preview) {
@@ -60,7 +61,9 @@ class AuthController extends ChangeNotifier {
       notifyListeners();
       return;
     }
-    _sub = client.auth.onAuthStateChange.listen((state) => _apply(state.session));
+    _sub = client.auth.onAuthStateChange.listen(
+      (state) => _apply(state.session),
+    );
     await _apply(client.auth.currentSession);
   }
 
@@ -110,21 +113,29 @@ class AuthController extends ChangeNotifier {
     if (!_googleReady) {
       await GoogleSignIn.instance.initialize(
         serverClientId: Env.googleWebClientId,
-        clientId: defaultTargetPlatform == TargetPlatform.iOS && Env.googleIosClientId.isNotEmpty ? Env.googleIosClientId : null,
+        clientId:
+            defaultTargetPlatform == TargetPlatform.iOS &&
+                Env.googleIosClientId.isNotEmpty
+            ? Env.googleIosClientId
+            : null,
       );
       _googleReady = true;
     }
     final account = await GoogleSignIn.instance.authenticate();
     final idToken = account.authentication.idToken;
     if (idToken == null) throw StateError('구글 ID 토큰을 받지 못했어요.');
-    await client.auth.signInWithIdToken(provider: OAuthProvider.google, idToken: idToken);
+    await client.auth.signInWithIdToken(
+      provider: OAuthProvider.google,
+      idToken: idToken,
+    );
   }
 
   bool get _canUseNativeGoogle =>
       !kIsWeb &&
       Env.googleWebClientId.isNotEmpty &&
       (defaultTargetPlatform == TargetPlatform.android ||
-          (defaultTargetPlatform == TargetPlatform.iOS && Env.googleIosClientId.isNotEmpty));
+          (defaultTargetPlatform == TargetPlatform.iOS &&
+              Env.googleIosClientId.isNotEmpty));
 
   // 구글 로그인 — 시스템 브라우저로 로그인하고 poroom://auth-callback 으로 앱에 돌아온다(웹과 같은 PKCE 방식).
   // Supabase 대시보드 Redirect URLs 에 poroom://auth-callback 이 등록돼 있어야 한다(기존 Expo 앱과 같은 값).
@@ -151,7 +162,9 @@ class AuthController extends ChangeNotifier {
       await client.auth.signInWithOAuth(
         OAuthProvider.google,
         redirectTo: kIsWeb ? null : 'poroom://auth-callback',
-        authScreenLaunchMode: kIsWeb ? LaunchMode.platformDefault : LaunchMode.externalApplication,
+        authScreenLaunchMode: kIsWeb
+            ? LaunchMode.platformDefault
+            : LaunchMode.externalApplication,
       );
       return null;
     } catch (e) {
@@ -177,8 +190,11 @@ class AuthController extends ChangeNotifier {
 }
 
 class AuthScope extends InheritedNotifier<AuthController> {
-  const AuthScope({super.key, required AuthController controller, required super.child})
-      : super(notifier: controller);
+  const AuthScope({
+    super.key,
+    required AuthController controller,
+    required super.child,
+  }) : super(notifier: controller);
 
   static AuthController of(BuildContext context) {
     final scope = context.dependOnInheritedWidgetOfExactType<AuthScope>();

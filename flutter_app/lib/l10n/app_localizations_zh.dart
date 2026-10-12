@@ -555,4 +555,94 @@ class L10nZh extends L10n {
 
   @override
   String get guestViewerBanner => '仅供浏览 · 登录后可使用全部功能';
+
+  @override
+  String get homeGreeting => '今天也一起专注吧';
+
+  @override
+  String get homeGreetingSub => '和正在创作的作者们一起吧。';
+
+  @override
+  String get homeSystemRoomSub => '现在就能加入的常驻工作室';
+
+  @override
+  String get homeDawnRoom => '凌晨工作室';
+
+  @override
+  String get homeDeadlineRoom => '截稿工作室';
+
+  @override
+  String get homeEnterRoom => '进入工作室';
+
+  @override
+  String get homeRecommendedRooms => '推荐工作室';
+
+  @override
+  String get homeSeeAll => '查看全部';
+
+  @override
+  String get homeMyLife => '我的写作生活';
+
+  @override
+  String get homeLoginForDashboard => '登录后可在这里查看今天的目标和写作记录。';
+
+  @override
+  String get homeTodayGoal => '今日目标';
+
+  @override
+  String homeGoalAchieved(int percent) {
+    return '已完成目标的$percent%';
+  }
+
+  @override
+  String get homeNoGoal => '目标可在网页的[我的]中设置';
+
+  @override
+  String get homeFocusToday => '今日专注时间';
+
+  @override
+  String get homeStreak => '连续写作';
+
+  @override
+  String homeDays(int count) {
+    return '$count天';
+  }
+
+  @override
+  String homeMinutesOnly(int minutes) {
+    return '$minutes分钟';
+  }
+
+  @override
+  String homeHoursOnly(int hours) {
+    return '$hours小时';
+  }
+
+  @override
+  String homeHoursMinutes(int hours, int minutes) {
+    return '$hours小时$minutes分钟';
+  }
+
+  @override
+  String get homeChallenges => '参与中的挑战';
+
+  @override
+  String get homeSeeDetail => '查看详情';
+
+  @override
+  String get homeNoChallenge => '还没有参与的挑战。去[挑战]看看吧。';
+
+  @override
+  String get homeFeedTitle => '作者们的动态';
+
+  @override
+  String get homeCountSuffix => '人';
+
+  @override
+  String get homeChallengeDone => '已完成今日目标 🎉';
+
+  @override
+  String homeChallengeRemaining(String remaining) {
+    return '距今日目标还差$remaining';
+  }
 }

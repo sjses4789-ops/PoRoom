@@ -18,6 +18,7 @@ import { createTodo, setTodoCompleted, deleteTodo } from "@/lib/todos";
 import { submitTypingScore } from "@/lib/rest";
 import { setChatColor, setCharacter } from "@/lib/profile";
 import { blockUser, unblockUser, reportUser } from "@/lib/safety";
+import { joinSystemRoom } from "@/lib/system-rooms";
 
 // 모바일 앱이 웹의 서버 액션(src/lib/*.ts)을 그대로 부르는 통로.
 // 앱은 "Authorization: Bearer <로그인 토큰>"을 보내고, createClient()가 그 토큰의
@@ -26,6 +27,7 @@ import { blockUser, unblockUser, reportUser } from "@/lib/safety";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const ACTIONS: Record<string, (...args: any[]) => Promise<unknown>> = {
   joinOpenRoom,
+  joinSystemRoom,
   leaveRoom,
   touchLastSeen,
   setWorkStatus,

@@ -17,11 +17,15 @@ class WebApi {
     try {
       final res = await http.post(
         Uri.parse('${Env.webUrl}/api/app/rpc'),
-        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
         body: jsonEncode({'fn': fn, 'args': args}),
       );
       if (res.statusCode != 200) return null;
-      final json = jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
+      final json =
+          jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
       if (json['ok'] != true) return null;
       return json['result'] as T?;
     } catch (_) {
@@ -30,12 +34,16 @@ class WebApi {
   }
 
   // 서버가 집계해서 돌려주는 읽기 전용 데이터(/api/app/<path>) — 랭킹처럼 전체 기록이 필요한 화면에 쓴다.
-  static Future<Map<String, dynamic>?> getJson(String path, [Map<String, String>? query]) async {
+  static Future<Map<String, dynamic>?> getJson(
+    String path, [
+    Map<String, String>? query,
+  ]) async {
     if (Env.preview) return null;
     final token = Supabase.instance.client.auth.currentSession?.accessToken;
     try {
       final res = await http.get(
-        Uri.parse('${Env.webUrl}/api/app/$path').replace(queryParameters: query),
+        Uri.parse('${Env.webUrl}/api/app/$path')
+            .replace(queryParameters: query),
         headers: {if (token != null) 'Authorization': 'Bearer $token'},
       );
       if (res.statusCode != 200) return null;

@@ -31,7 +31,11 @@ const Map<String, List<int>> _hues = {
 const Set<String> _grayish = {'neutral', 'slate', 'zinc', 'stone', 'gray'};
 
 class ChatColor {
-  const ChatColor({required this.bubble, required this.border, required this.text});
+  const ChatColor({
+    required this.bubble,
+    required this.border,
+    required this.text,
+  });
 
   final Color bubble;
   final Color border;
@@ -42,7 +46,11 @@ class ChatColor {
 ChatColor? chatColorFor(String? key) {
   if (key == null || key.isEmpty) return null;
   if (key == 'black') {
-    return const ChatColor(bubble: Color(0xFF171717), border: Color(0xFF171717), text: Colors.white);
+    return const ChatColor(
+      bubble: Color(0xFF171717),
+      border: Color(0xFF171717),
+      text: Colors.white,
+    );
   }
   final deep = key.endsWith('-deep');
   final hue = _hues[deep ? key.substring(0, key.length - 5) : key];

@@ -15,7 +15,10 @@ Future<void> main() async {
     return;
   }
   if (!Env.preview) {
-    await Supabase.initialize(url: Env.supabaseUrl, publishableKey: Env.supabaseAnonKey);
+    await Supabase.initialize(
+      url: Env.supabaseUrl,
+      publishableKey: Env.supabaseAnonKey,
+    );
   }
 
   await BrowserId.init();

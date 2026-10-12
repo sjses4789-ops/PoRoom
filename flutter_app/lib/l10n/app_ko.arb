@@ -328,5 +328,76 @@
   "guestLoginButton": "로그인",
   "loginRequiredTitle": "로그인이 필요해요",
   "loginRequiredBody": "로그인하지 않으면 둘러보기만 할 수 있어요. 글쓰기·반응·방 입장 같은 기능은 로그인한 뒤에 쓸 수 있어요.",
-  "guestViewerBanner": "보기 전용 · 로그인하면 모든 기능을 쓸 수 있어요"
+  "guestViewerBanner": "보기 전용 · 로그인하면 모든 기능을 쓸 수 있어요",
+  "homeGreeting": "오늘도 함께 집중해요",
+  "homeGreetingSub": "지금 작업 중인 작가들과 함께해 보세요.",
+  "homeSystemRoomSub": "지금 참여할 수 있는 상시 작업방",
+  "homeDawnRoom": "새벽 작업방",
+  "homeDeadlineRoom": "마감 작업방",
+  "homeEnterRoom": "작업방 입장하기",
+  "homeRecommendedRooms": "추천 작업방",
+  "homeSeeAll": "전체 보기",
+  "homeMyLife": "나의 집필 생활",
+  "homeLoginForDashboard": "로그인하면 오늘의 목표와 집필 기록을 여기서 볼 수 있어요.",
+  "homeTodayGoal": "오늘의 목표",
+  "homeGoalAchieved": "목표의 {percent}% 달성",
+  "@homeGoalAchieved": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "homeNoGoal": "목표는 웹의 [개인]에서 정할 수 있어요",
+  "homeFocusToday": "오늘 집중 시간",
+  "homeStreak": "연속 집필",
+  "homeDays": "{count}일",
+  "@homeDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeMinutesOnly": "{minutes}분",
+  "@homeMinutesOnly": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "homeHoursOnly": "{hours}시간",
+  "@homeHoursOnly": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "homeHoursMinutes": "{hours}시간 {minutes}분",
+  "@homeHoursMinutes": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "homeChallenges": "참여 중인 챌린지",
+  "homeSeeDetail": "자세히 보기",
+  "homeNoChallenge": "참여 중인 챌린지가 없어요. [도전]에서 참여해 보세요.",
+  "homeFeedTitle": "작가들의 피드",
+  "homeCountSuffix": "명",
+  "homeChallengeDone": "오늘 목표를 달성했어요 🎉",
+  "homeChallengeRemaining": "오늘 목표까지 {remaining} 남았어요",
+  "@homeChallengeRemaining": {
+    "placeholders": {
+      "remaining": {
+        "type": "String"
+      }
+    }
+  }
 }

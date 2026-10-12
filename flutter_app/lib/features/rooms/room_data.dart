@@ -91,7 +91,9 @@ class RoomDataController extends ChangeNotifier {
     try {
       final roomRow = await _client
           .from('rooms')
-          .select('id,name,color,join_type,capacity,is_system,owner_id,record_visibility')
+          .select(
+            'id,name,color,join_type,capacity,is_system,owner_id,record_visibility',
+          )
           .eq('id', roomId)
           .maybeSingle();
       if (roomRow == null) {
@@ -102,8 +104,10 @@ class RoomDataController extends ChangeNotifier {
       }
       final memberRows = await _client
           .from('room_members')
-          .select('user_id,share_records,last_seen_at,is_vice,nickname,work_status,'
-              'users(name,character_id,chat_color,position)')
+          .select(
+            'user_id,share_records,last_seen_at,is_vice,nickname,work_status,'
+            'users(name,character_id,chat_color,position)',
+          )
           .eq('room_id', roomId);
 
       final visibility = roomRow['record_visibility'] as String? ?? 'shared';

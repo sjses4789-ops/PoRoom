@@ -62,10 +62,10 @@ const Map<String, Color> _statusBg = {
 };
 
 Color _phaseColor(PomodoroPhase p) => switch (p) {
-      PomodoroPhase.focus => kBrand,
-      PomodoroPhase.rest => kBreakBlue,
-      PomodoroPhase.idle => const Color(0xFF8A8A8A),
-    };
+  PomodoroPhase.focus => kBrand,
+  PomodoroPhase.rest => kBreakBlue,
+  PomodoroPhase.idle => const Color(0xFF8A8A8A),
+};
 
 class ParticipantCard extends StatelessWidget {
   const ParticipantCard({super.key, required this.data});
@@ -78,10 +78,10 @@ class ParticipantCard extends StatelessWidget {
     final label = minutes < 1
         ? l10n.justNow
         : minutes < 60
-            ? l10n.minutesAgo(minutes)
-            : minutes < 60 * 24
-                ? l10n.hoursAgo(minutes ~/ 60)
-                : l10n.daysAgo(minutes ~/ (60 * 24));
+        ? l10n.minutesAgo(minutes)
+        : minutes < 60 * 24
+        ? l10n.hoursAgo(minutes ~/ 60)
+        : l10n.daysAgo(minutes ~/ (60 * 24));
     return l10n.lastSeen(label);
   }
 
@@ -90,7 +90,9 @@ class ParticipantCard extends StatelessWidget {
     final pal = context.pal;
     final l10n = L10n.of(context);
     final offline = data.presence == PresenceStatus.offline;
-    final statusBg = data.workStatus == null ? null : _statusBg[data.workStatus];
+    final statusBg = data.workStatus == null
+        ? null
+        : _statusBg[data.workStatus];
     final onPastel = statusBg != null;
     final primary = onPastel ? const Color(0xFF171717) : pal.text;
     final secondary = onPastel ? const Color(0xFF525252) : pal.muted;
@@ -106,7 +108,7 @@ class ParticipantCard extends StatelessWidget {
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: statusBg ?? pal.surface,
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(color: data.isSelf ? pal.lineStrong : pal.line),
       ),
       child: Column(
@@ -123,22 +125,35 @@ class ParticipantCard extends StatelessWidget {
                   if (data.characterId != null)
                     ColorFiltered(
                       colorFilter: offline
-                          ? const ColorFilter.mode(Colors.grey, BlendMode.saturation)
-                          : const ColorFilter.mode(Colors.transparent, BlendMode.dst),
+                          ? const ColorFilter.mode(
+                              Colors.grey,
+                              BlendMode.saturation,
+                            )
+                          : const ColorFilter.mode(
+                              Colors.transparent,
+                              BlendMode.dst,
+                            ),
                       child: Image.network(
                         '${Env.webUrl}/characters/${data.characterId}.png',
                         fit: BoxFit.cover,
-                        errorBuilder: (_, _, _) => const Center(child: Text('🙂', style: TextStyle(fontSize: 28))),
+                        errorBuilder: (_, _, _) => const Center(
+                          child: Text('🙂', style: TextStyle(fontSize: 28)),
+                        ),
                       ),
                     )
                   else
-                    const Center(child: Text('🙂', style: TextStyle(fontSize: 28))),
+                    const Center(
+                      child: Text('🙂', style: TextStyle(fontSize: 28)),
+                    ),
                   Positioned(
                     left: 4,
                     top: 4,
                     child: Container(
                       padding: const EdgeInsets.all(2),
-                      decoration: const BoxDecoration(color: Color(0xE6FFFFFF), shape: BoxShape.circle),
+                      decoration: const BoxDecoration(
+                        color: Color(0xE6FFFFFF),
+                        shape: BoxShape.circle,
+                      ),
                       child: DonutRing(
                         progress: offline ? 0 : data.elapsedFraction,
                         color: offline ? const Color(0xFFD4D4D4) : color,
@@ -153,10 +168,17 @@ class ParticipantCard extends StatelessWidget {
                       top: 4,
                       child: Container(
                         padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(color: Color(0xE6FFFFFF), shape: BoxShape.circle),
-                        child: Icon(Icons.workspace_premium_rounded,
-                            size: data.isOwner ? 16 : 13,
-                            color: data.isOwner ? const Color(0xFFF2B705) : const Color(0xFFF472B6)),
+                        decoration: const BoxDecoration(
+                          color: Color(0xE6FFFFFF),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.workspace_premium_rounded,
+                          size: data.isOwner ? 16 : 13,
+                          color: data.isOwner
+                              ? const Color(0xFFF2B705)
+                              : const Color(0xFFF472B6),
+                        ),
                       ),
                     ),
                 ],
@@ -171,18 +193,32 @@ class ParticipantCard extends StatelessWidget {
                   data.isSelf ? '${data.name} (${l10n.selfLabel})' : data.name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600, color: primary),
+                  style: TextStyle(
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w600,
+                    color: primary,
+                  ),
                 ),
               ),
               if (data.workStatus != null && !offline) ...[
                 const SizedBox(width: 4),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 1,
+                  ),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(99),
                     border: Border.all(color: pal.line),
                   ),
-                  child: Text(data.workStatus!, style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w600, color: secondary)),
+                  child: Text(
+                    data.workStatus!,
+                    style: TextStyle(
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w600,
+                      color: secondary,
+                    ),
+                  ),
                 ),
               ],
             ],
@@ -192,7 +228,9 @@ class ParticipantCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                data.recordsVisible ? '${_fmt(data.todayChars)}$unit' : l10n.recordsPrivate,
+                data.recordsVisible
+                    ? '${_fmt(data.todayChars)}$unit'
+                    : l10n.recordsPrivate,
                 style: TextStyle(fontSize: 11.5, color: secondary),
               ),
               if (offline)
@@ -205,7 +243,14 @@ class ParticipantCard extends StatelessWidget {
                   ),
                 )
               else
-                Text(phaseLabel, style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: color)),
+                Text(
+                  phaseLabel,
+                  style: TextStyle(
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w600,
+                    color: color,
+                  ),
+                ),
             ],
           ),
         ],

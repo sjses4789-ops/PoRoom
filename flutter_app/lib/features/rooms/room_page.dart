@@ -59,7 +59,11 @@ class _RoomPageState extends State<RoomPage> {
 
     _pomo = pomo;
     _data = RoomDataController(roomId: _roomId, selfId: selfId);
-    _presence = RoomPresenceController(roomId: _roomId, selfId: selfId, selfName: selfName)..addListener(_onPresence);
+    _presence = RoomPresenceController(
+      roomId: _roomId,
+      selfId: selfId,
+      selfName: selfName,
+    )..addListener(_onPresence);
     _chat = RoomChatController(
       roomId: _roomId,
       selfId: selfId,
@@ -69,11 +73,17 @@ class _RoomPageState extends State<RoomPage> {
     );
     pomo.addListener(_pushPomodoro);
     _pushPomodoro();
-    _pomoPush = Timer.periodic(const Duration(seconds: 10), (_) => _pushPomodoro());
+    _pomoPush = Timer.periodic(
+      const Duration(seconds: 10),
+      (_) => _pushPomodoro(),
+    );
     if (!Env.preview) {
       // 접속 시각 갱신(웹의 touchLastSeen heartbeat와 같다).
       WebApi.rpc<Object?>('touchLastSeen', [_roomId]);
-      _heartbeat = Timer.periodic(const Duration(seconds: 30), (_) => WebApi.rpc<Object?>('touchLastSeen', [_roomId]));
+      _heartbeat = Timer.periodic(
+        const Duration(seconds: 30),
+        (_) => WebApi.rpc<Object?>('touchLastSeen', [_roomId]),
+      );
     }
   }
 
@@ -95,7 +105,10 @@ class _RoomPageState extends State<RoomPage> {
   void _onPresence() {
     final presence = _presence;
     final pomo = _pomo;
-    if (presence != null && pomo != null && presence.takenOver && !_wasTakenOver) {
+    if (presence != null &&
+        pomo != null &&
+        presence.takenOver &&
+        !_wasTakenOver) {
       _wasTakenOver = true;
       if (pomo.isActiveRoom(_roomId) && pomo.running) pomo.pause();
     }
@@ -122,8 +135,14 @@ class _RoomPageState extends State<RoomPage> {
         title: Text(l10n.roomLeave),
         content: Text(l10n.roomLeaveConfirmBody),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.cancel)),
-          TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l10n.roomLeave)),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l10n.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l10n.roomLeave),
+          ),
         ],
       ),
     );
@@ -147,12 +166,21 @@ class _RoomPageState extends State<RoomPage> {
               title: Text(l10n.roomMenuWeb),
               onTap: () {
                 Navigator.pop(ctx);
-                launchUrl(Uri.parse('${Env.webUrl}/room/$_roomId'), mode: LaunchMode.externalApplication);
+                launchUrl(
+                  Uri.parse('${Env.webUrl}/room/$_roomId'),
+                  mode: LaunchMode.externalApplication,
+                );
               },
             ),
             ListTile(
-              leading: const Icon(Icons.logout_rounded, color: Color(0xFFB91C1C)),
-              title: Text(l10n.roomLeave, style: const TextStyle(color: Color(0xFFB91C1C))),
+              leading: const Icon(
+                Icons.logout_rounded,
+                color: Color(0xFFB91C1C),
+              ),
+              title: Text(
+                l10n.roomLeave,
+                style: const TextStyle(color: Color(0xFFB91C1C)),
+              ),
               onTap: () {
                 Navigator.pop(ctx);
                 _confirmLeave();
@@ -183,17 +211,27 @@ class _RoomPageState extends State<RoomPage> {
         if (data.loading) {
           body = const Center(child: CircularProgressIndicator());
         } else if (data.notFound || room == null) {
-          body = Center(child: Text(l10n.roomNotFound, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)));
+          body = Center(
+            child: Text(
+              l10n.roomNotFound,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+            ),
+          );
         } else if (selfMember == null) {
           body = _NotJoined(room: room, onJoined: data.load);
         } else {
           body = _buildRoom(context, room, selfMember, selfId);
         }
 
-        final active = room != null && pomo.isActiveRoom(room.id) && pomo.started;
+        final active =
+            room != null && pomo.isActiveRoom(room.id) && pomo.started;
         return Scaffold(
           appBar: AppBar(
-            title: Text(room?.name ?? widget.room.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+            title: Text(
+              room?.name ?? widget.room.name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
             actions: [
               if (active)
                 Padding(
@@ -204,13 +242,19 @@ class _RoomPageState extends State<RoomPage> {
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
-                        color: pomo.phase == PomodoroPhase.rest ? kBreakBlue : kBrand,
+                        color: pomo.phase == PomodoroPhase.rest
+                            ? kBreakBlue
+                            : kBrand,
                         fontFeatures: const [FontFeature.tabularFigures()],
                       ),
                     ),
                   ),
                 ),
-              IconButton(onPressed: _openMenu, tooltip: l10n.roomLeave, icon: const Icon(Icons.more_horiz_rounded)),
+              IconButton(
+                onPressed: _openMenu,
+                tooltip: l10n.roomLeave,
+                icon: const Icon(Icons.more_horiz_rounded),
+              ),
             ],
             bottom: PreferredSize(
               preferredSize: const Size.fromHeight(1),
@@ -233,7 +277,12 @@ class _RoomPageState extends State<RoomPage> {
     );
   }
 
-  Widget _buildRoom(BuildContext context, RoomInfo room, RoomMember selfMember, String selfId) {
+  Widget _buildRoom(
+    BuildContext context,
+    RoomInfo room,
+    RoomMember selfMember,
+    String selfId,
+  ) {
     final l10n = L10n.of(context);
     final pal = context.pal;
     final data = _data!;
@@ -247,10 +296,15 @@ class _RoomPageState extends State<RoomPage> {
         () {
           final isSelf = m.id == selfId;
           final p = isSelf
-              ? PomodoroView(isActive ? pomo.phase : PomodoroPhase.idle, isActive ? pomo.elapsedFraction : 0)
+              ? PomodoroView(
+                  isActive ? pomo.phase : PomodoroPhase.idle,
+                  isActive ? pomo.elapsedFraction : 0,
+                )
               : presence.pomodoroOf(m.id);
           final status = isSelf
-              ? (presence.statusOf(m.id) == PresenceStatus.typing ? PresenceStatus.typing : PresenceStatus.idle)
+              ? (presence.statusOf(m.id) == PresenceStatus.typing
+                    ? PresenceStatus.typing
+                    : PresenceStatus.idle)
               : presence.statusOf(m.id);
           return ParticipantData(
             id: m.id,
@@ -273,11 +327,15 @@ class _RoomPageState extends State<RoomPage> {
     // "나"는 항상 맨 앞, 나머지는 접속 중인 사람이 먼저, 그다음 이름순(웹과 같다).
     final others = participants.where((p) => !p.isSelf).toList()
       ..sort((a, b) {
-        final byPresence = (a.presence == PresenceStatus.offline ? 1 : 0) - (b.presence == PresenceStatus.offline ? 1 : 0);
+        final byPresence =
+            (a.presence == PresenceStatus.offline ? 1 : 0) -
+            (b.presence == PresenceStatus.offline ? 1 : 0);
         return byPresence != 0 ? byPresence : a.name.compareTo(b.name);
       });
     final ordered = [...participants.where((p) => p.isSelf), ...others];
-    final online = ordered.where((p) => p.presence != PresenceStatus.offline).length;
+    final online = ordered
+        .where((p) => p.presence != PresenceStatus.offline)
+        .length;
 
     final tabs = [
       (_RoomTab.members, l10n.roomTabMembers, 0),
@@ -299,11 +357,20 @@ class _RoomPageState extends State<RoomPage> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     decoration: BoxDecoration(
-                      border: Border(bottom: BorderSide(color: _tab == tab ? pal.lineStrong : Colors.transparent, width: 2)),
+                      border: Border(
+                        bottom: BorderSide(
+                          color: _tab == tab
+                              ? pal.lineStrong
+                              : Colors.transparent,
+                          width: 2,
+                        ),
+                      ),
                     ),
                     child: Center(
                       child: Text(
-                        badge > 0 ? '$label  ${badge > 99 ? '99+' : badge}' : label,
+                        badge > 0
+                            ? '$label  ${badge > 99 ? '99+' : badge}'
+                            : label,
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
@@ -328,7 +395,11 @@ class _RoomPageState extends State<RoomPage> {
                   const SizedBox(height: 12),
                   Text(
                     room.capacity != null
-                        ? l10n.participantsLineCap(data.members.length, room.capacity!, online)
+                        ? l10n.participantsLineCap(
+                            data.members.length,
+                            room.capacity!,
+                            online,
+                          )
                         : l10n.participantsLine(data.members.length, online),
                     style: TextStyle(fontSize: 12, color: pal.subtext),
                   ),
@@ -340,7 +411,9 @@ class _RoomPageState extends State<RoomPage> {
                     mainAxisSpacing: 10,
                     crossAxisSpacing: 10,
                     childAspectRatio: 0.98,
-                    children: [for (final p in ordered) ParticipantCard(data: p)],
+                    children: [
+                      for (final p in ordered) ParticipantCard(data: p),
+                    ],
                   ),
                 ],
               ),
@@ -389,10 +462,15 @@ class _NotJoined extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(room.name, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
+            Text(
+              room.name,
+              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+            ),
             const SizedBox(height: 8),
             Text(
-              room.joinType == 'open' ? l10n.roomNotJoined : l10n.roomInviteOnly,
+              room.joinType == 'open'
+                  ? l10n.roomNotJoined
+                  : l10n.roomInviteOnly,
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 14, color: pal.subtext),
             ),

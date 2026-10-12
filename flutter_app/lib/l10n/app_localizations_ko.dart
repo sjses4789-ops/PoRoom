@@ -559,4 +559,94 @@ class L10nKo extends L10n {
 
   @override
   String get guestViewerBanner => '보기 전용 · 로그인하면 모든 기능을 쓸 수 있어요';
+
+  @override
+  String get homeGreeting => '오늘도 함께 집중해요';
+
+  @override
+  String get homeGreetingSub => '지금 작업 중인 작가들과 함께해 보세요.';
+
+  @override
+  String get homeSystemRoomSub => '지금 참여할 수 있는 상시 작업방';
+
+  @override
+  String get homeDawnRoom => '새벽 작업방';
+
+  @override
+  String get homeDeadlineRoom => '마감 작업방';
+
+  @override
+  String get homeEnterRoom => '작업방 입장하기';
+
+  @override
+  String get homeRecommendedRooms => '추천 작업방';
+
+  @override
+  String get homeSeeAll => '전체 보기';
+
+  @override
+  String get homeMyLife => '나의 집필 생활';
+
+  @override
+  String get homeLoginForDashboard => '로그인하면 오늘의 목표와 집필 기록을 여기서 볼 수 있어요.';
+
+  @override
+  String get homeTodayGoal => '오늘의 목표';
+
+  @override
+  String homeGoalAchieved(int percent) {
+    return '목표의 $percent% 달성';
+  }
+
+  @override
+  String get homeNoGoal => '목표는 웹의 [개인]에서 정할 수 있어요';
+
+  @override
+  String get homeFocusToday => '오늘 집중 시간';
+
+  @override
+  String get homeStreak => '연속 집필';
+
+  @override
+  String homeDays(int count) {
+    return '$count일';
+  }
+
+  @override
+  String homeMinutesOnly(int minutes) {
+    return '$minutes분';
+  }
+
+  @override
+  String homeHoursOnly(int hours) {
+    return '$hours시간';
+  }
+
+  @override
+  String homeHoursMinutes(int hours, int minutes) {
+    return '$hours시간 $minutes분';
+  }
+
+  @override
+  String get homeChallenges => '참여 중인 챌린지';
+
+  @override
+  String get homeSeeDetail => '자세히 보기';
+
+  @override
+  String get homeNoChallenge => '참여 중인 챌린지가 없어요. [도전]에서 참여해 보세요.';
+
+  @override
+  String get homeFeedTitle => '작가들의 피드';
+
+  @override
+  String get homeCountSuffix => '명';
+
+  @override
+  String get homeChallengeDone => '오늘 목표를 달성했어요 🎉';
+
+  @override
+  String homeChallengeRemaining(String remaining) {
+    return '오늘 목표까지 $remaining 남았어요';
+  }
 }

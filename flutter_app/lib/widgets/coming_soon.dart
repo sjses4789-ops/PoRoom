@@ -21,7 +21,10 @@ class ComingSoon extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(l10n.comingSoon, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+            Text(
+              l10n.comingSoon,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+            ),
             const SizedBox(height: 8),
             Text(
               l10n.comingSoonBody,
@@ -30,7 +33,10 @@ class ComingSoon extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             OutlinedButton(
-              onPressed: () => launchUrl(Uri.parse('${Env.webUrl}$webPath'), mode: LaunchMode.externalApplication),
+              onPressed: () => launchUrl(
+                Uri.parse('${Env.webUrl}$webPath'),
+                mode: LaunchMode.externalApplication,
+              ),
               child: Text(l10n.openOnWeb),
             ),
           ],

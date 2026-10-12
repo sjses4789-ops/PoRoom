@@ -60,8 +60,14 @@ class _ChatViewState extends State<ChatView> {
         title: Text(l10n.chatDeleteTitle),
         content: Text(l10n.chatDeleteBody),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.cancel)),
-          TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l10n.delete)),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l10n.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l10n.delete),
+          ),
         ],
       ),
     );
@@ -80,14 +86,24 @@ class _ChatViewState extends State<ChatView> {
         if (messages.length != _lastCount) {
           _lastCount = messages.length;
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (_scroll.hasClients) _scroll.animateTo(_scroll.position.maxScrollExtent, duration: const Duration(milliseconds: 150), curve: Curves.easeOut);
+            if (_scroll.hasClients)
+              _scroll.animateTo(
+                _scroll.position.maxScrollExtent,
+                duration: const Duration(milliseconds: 150),
+                curve: Curves.easeOut,
+              );
           });
         }
         return Column(
           children: [
             Expanded(
               child: messages.isEmpty
-                  ? Center(child: Text(l10n.chatEmpty, style: TextStyle(fontSize: 13, color: pal.muted)))
+                  ? Center(
+                      child: Text(
+                        l10n.chatEmpty,
+                        style: TextStyle(fontSize: 13, color: pal.muted),
+                      ),
+                    )
                   : ListView.separated(
                       controller: _scroll,
                       padding: const EdgeInsets.all(12),
@@ -100,29 +116,51 @@ class _ChatViewState extends State<ChatView> {
                         final color = chatColorFor(sender?.chatColor);
                         final canDelete = mine || widget.canModerate;
                         return GestureDetector(
-                          onLongPress: canDelete ? () => _confirmDelete(m.id) : null,
+                          onLongPress: canDelete
+                              ? () => _confirmDelete(m.id)
+                              : null,
                           child: Row(
-                            mainAxisAlignment: mine ? MainAxisAlignment.end : MainAxisAlignment.start,
+                            mainAxisAlignment: mine
+                                ? MainAxisAlignment.end
+                                : MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.end,
-                            textDirection: mine ? TextDirection.rtl : TextDirection.ltr,
+                            textDirection: mine
+                                ? TextDirection.rtl
+                                : TextDirection.ltr,
                             children: [
-                              CharacterAvatar(characterId: sender?.characterId, size: 30, borderColor: color?.border),
+                              CharacterAvatar(
+                                characterId: sender?.characterId,
+                                size: 30,
+                                borderColor: color?.border,
+                              ),
                               const SizedBox(width: 8),
                               Flexible(
                                 child: Column(
-                                  crossAxisAlignment: mine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                                  crossAxisAlignment: mine
+                                      ? CrossAxisAlignment.end
+                                      : CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       '${mine ? l10n.selfLabel : (sender?.name ?? l10n.unknownUser)}'
                                       '${m.targetUserId != null ? '  🤫 ${l10n.whisperTag}' : ''}',
-                                      style: TextStyle(fontSize: 11, color: pal.muted),
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: pal.muted,
+                                      ),
                                     ),
                                     const SizedBox(height: 2),
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 8,
+                                      ),
                                       decoration: BoxDecoration(
                                         // 색을 안 골랐으면 웹처럼 내 말풍선은 어둡게, 남의 말풍선은 연한 회색.
-                                        color: color?.bubble ?? (mine ? const Color(0xFF171717) : const Color(0xFFF5F5F5)),
+                                        color:
+                                            color?.bubble ??
+                                            (mine
+                                                ? const Color(0xFF171717)
+                                                : const Color(0xFFF5F5F5)),
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: Text(
@@ -131,7 +169,11 @@ class _ChatViewState extends State<ChatView> {
                                         style: TextStyle(
                                           fontSize: 14,
                                           height: 1.4,
-                                          color: color?.text ?? (mine ? Colors.white : const Color(0xFF262626)),
+                                          color:
+                                              color?.text ??
+                                              (mine
+                                                  ? Colors.white
+                                                  : const Color(0xFF262626)),
                                         ),
                                       ),
                                     ),
@@ -146,7 +188,10 @@ class _ChatViewState extends State<ChatView> {
             ),
             Container(
               padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
-              decoration: BoxDecoration(color: pal.bg, border: Border(top: BorderSide(color: pal.line))),
+              decoration: BoxDecoration(
+                color: pal.bg,
+                border: Border(top: BorderSide(color: pal.line)),
+              ),
               child: Row(
                 children: [
                   Expanded(
@@ -161,16 +206,28 @@ class _ChatViewState extends State<ChatView> {
                         hintText: l10n.chatInputHint,
                         counterText: '',
                         isDense: true,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: pal.line)),
-                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: pal.line)),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: pal.line),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: pal.line),
+                        ),
                       ),
                     ),
                   ),
                   const SizedBox(width: 8),
                   FilledButton(
                     onPressed: _sending ? null : _submit,
-                    style: FilledButton.styleFrom(backgroundColor: pal.lineStrong, foregroundColor: pal.bg),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: pal.lineStrong,
+                      foregroundColor: pal.bg,
+                    ),
                     child: Text(l10n.chatSend),
                   ),
                 ],

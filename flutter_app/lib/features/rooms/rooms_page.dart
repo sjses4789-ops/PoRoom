@@ -38,7 +38,8 @@ class _RoomsPageState extends State<RoomsPage> {
   Future<void> _open(RoomSummary room) async {
     if (!await requireLogin(context)) return;
     if (!mounted) return;
-    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => RoomPage(room: room)));
+    await Navigator.of(context)
+        .push(MaterialPageRoute(builder: (_) => RoomPage(room: room)));
     if (mounted) _reload();
   }
 
@@ -51,7 +52,8 @@ class _RoomsPageState extends State<RoomsPage> {
     if (!mounted) return;
     setState(() => _joiningId = null);
     if (!ok) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.joinFailed)));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(l10n.joinFailed)));
       return;
     }
     await _reload();
@@ -70,18 +72,34 @@ class _RoomsPageState extends State<RoomsPage> {
         future: _future,
         builder: (context, snap) {
           if (snap.connectionState != ConnectionState.done) {
-            return ListView(children: [
-              const SizedBox(height: 120),
-              Center(child: Text(l10n.loading, style: TextStyle(color: pal.muted))),
-            ]);
+            return ListView(
+              children: [
+                const SizedBox(height: 120),
+                Center(
+                  child: Text(l10n.loading, style: TextStyle(color: pal.muted)),
+                ),
+              ],
+            );
           }
           if (snap.hasError) {
-            return ListView(children: [
-              const SizedBox(height: 120),
-              Center(child: Text(l10n.loadFailed, style: TextStyle(color: pal.muted))),
-              const SizedBox(height: 12),
-              Center(child: OutlinedButton(onPressed: _reload, child: Text(l10n.retry))),
-            ]);
+            return ListView(
+              children: [
+                const SizedBox(height: 120),
+                Center(
+                  child: Text(
+                    l10n.loadFailed,
+                    style: TextStyle(color: pal.muted),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Center(
+                  child: OutlinedButton(
+                    onPressed: _reload,
+                    child: Text(l10n.retry),
+                  ),
+                ),
+              ],
+            );
           }
           final rooms = snap.data ?? const [];
           final mine = rooms.where((r) => r.isMember).toList();
@@ -102,9 +120,15 @@ class _RoomsPageState extends State<RoomsPage> {
                     height: 32,
                     child: FilledButton(
                       onPressed: _joiningId == null ? () => _join(r) : null,
-                      style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 14)),
+                      style: FilledButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
+                      ),
                       child: _joiningId == r.id
-                          ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2))
+                          ? const SizedBox(
+                              width: 14,
+                              height: 14,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
                           : Text(l10n.joinRoom),
                     ),
                   ),
@@ -123,9 +147,12 @@ class _SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(bottom: 10),
-        child: Text(text, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
-      );
+    padding: const EdgeInsets.only(bottom: 10),
+    child: Text(
+      text,
+      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+    ),
+  );
 }
 
 class _EmptyHint extends StatelessWidget {
@@ -134,9 +161,12 @@ class _EmptyHint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Text(text, style: TextStyle(fontSize: 12.5, color: context.pal.muted)),
-      );
+    padding: const EdgeInsets.symmetric(vertical: 8),
+    child: Text(
+      text,
+      style: TextStyle(fontSize: 12.5, color: context.pal.muted),
+    ),
+  );
 }
 
 class _RoomCard extends StatelessWidget {
@@ -167,7 +197,10 @@ class _RoomCard extends StatelessWidget {
               Container(
                 width: 10,
                 height: 10,
-                decoration: BoxDecoration(color: roomColor(room.color), shape: BoxShape.circle),
+                decoration: BoxDecoration(
+                  color: roomColor(room.color),
+                  shape: BoxShape.circle,
+                ),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -178,7 +211,10 @@ class _RoomCard extends StatelessWidget {
                       room.name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w700),
+                      style: const TextStyle(
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                     const SizedBox(height: 3),
                     Text(
@@ -202,6 +238,19 @@ class _RoomCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+// 홈의 "전체 보기" — 내 방과 열린 방을 모두 보는 화면.
+class AllRoomsPage extends StatelessWidget {
+  const AllRoomsPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(L10n.of(context).homeRecommendedRooms)),
+      body: const RoomsPage(),
     );
   }
 }

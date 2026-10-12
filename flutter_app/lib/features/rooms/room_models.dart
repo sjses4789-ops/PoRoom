@@ -57,7 +57,8 @@ const Map<String, Color> _base = {
 
 Color roomColor(String key) {
   final deep = key.endsWith('-deep');
-  final base = _base[deep ? key.substring(0, key.length - 5) : key] ?? _base['neutral']!;
+  final base =
+      _base[deep ? key.substring(0, key.length - 5) : key] ?? _base['neutral']!;
   if (!deep) return base;
   return Color.alphaBlend(const Color(0x55000000), base);
 }

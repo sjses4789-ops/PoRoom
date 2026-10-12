@@ -328,5 +328,76 @@
   "guestLoginButton": "Log in",
   "loginRequiredTitle": "Please log in",
   "loginRequiredBody": "Without logging in you can only look around. Writing, reacting and joining rooms need you to log in first.",
-  "guestViewerBanner": "View only · Log in to use every feature"
+  "guestViewerBanner": "View only · Log in to use every feature",
+  "homeGreeting": "Let's focus together today",
+  "homeGreetingSub": "Join the writers who are working right now.",
+  "homeSystemRoomSub": "An always-open room you can join now",
+  "homeDawnRoom": "Dawn room",
+  "homeDeadlineRoom": "Deadline room",
+  "homeEnterRoom": "Enter the room",
+  "homeRecommendedRooms": "Recommended rooms",
+  "homeSeeAll": "See all",
+  "homeMyLife": "My writing life",
+  "homeLoginForDashboard": "Log in to see today's goal and your writing record here.",
+  "homeTodayGoal": "Today's goal",
+  "homeGoalAchieved": "{percent}% of your goal",
+  "@homeGoalAchieved": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "homeNoGoal": "Set a goal in Me on the web",
+  "homeFocusToday": "Focus today",
+  "homeStreak": "Writing streak",
+  "homeDays": "{count} days",
+  "@homeDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeMinutesOnly": "{minutes} min",
+  "@homeMinutesOnly": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "homeHoursOnly": "{hours} hr",
+  "@homeHoursOnly": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "homeHoursMinutes": "{hours} hr {minutes} min",
+  "@homeHoursMinutes": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "homeChallenges": "Your challenges",
+  "homeSeeDetail": "Details",
+  "homeNoChallenge": "You haven't joined a challenge. Try one in Compete.",
+  "homeFeedTitle": "Writers' feed",
+  "homeCountSuffix": "",
+  "homeChallengeDone": "You reached today's goal 🎉",
+  "homeChallengeRemaining": "{remaining} left for today's goal",
+  "@homeChallengeRemaining": {
+    "placeholders": {
+      "remaining": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -8,7 +8,13 @@ import '../../l10n/app_localizations.dart';
 import '../../widgets/common.dart';
 
 class _RankRow {
-  const _RankRow(this.rank, this.name, this.value, {this.sub, this.isSelf = false});
+  const _RankRow(
+    this.rank,
+    this.name,
+    this.value, {
+    this.sub,
+    this.isSelf = false,
+  });
 
   final int rank;
   final String name;
@@ -74,14 +80,19 @@ class _RankingPageState extends State<RankingPage> {
       'position': ?_position,
     });
     if (json == null) throw Exception('ranking');
-    List<Map<String, dynamic>> list(String k) => [for (final e in (json[k] as List? ?? const [])) Map<String, dynamic>.from(e as Map)];
+    List<Map<String, dynamic>> list(String k) => [
+      for (final e in (json[k] as List? ?? const []))
+        Map<String, dynamic>.from(e as Map),
+    ];
     return _RankingData(
       overall: list('overall'),
       typing: list('typing'),
       challenge: list('challenge'),
       position: json['position'] as String? ?? 'novelist',
       today: json['today'] as String? ?? todayKst(),
-      me: json['me'] == null ? null : Map<String, dynamic>.from(json['me'] as Map),
+      me: json['me'] == null
+          ? null
+          : Map<String, dynamic>.from(json['me'] as Map),
       selfId: json['selfId'] as String?,
     );
   }
@@ -112,7 +123,11 @@ class _RankingPageState extends State<RankingPage> {
       children: [
         const SizedBox(height: 10),
         ChipRow<String>(
-          items: [('chars', l10n.rankTabChars), ('challenge', l10n.rankTabChallenge), ('typing', l10n.rankTabTyping)],
+          items: [
+            ('chars', l10n.rankTabChars),
+            ('challenge', l10n.rankTabChallenge),
+            ('typing', l10n.rankTabTyping),
+          ],
           selected: _tab,
           onSelected: (v) => setState(() => _tab = v),
         ),
@@ -138,23 +153,34 @@ class _RankingPageState extends State<RankingPage> {
 
     final rows = switch (_tab) {
       'challenge' => [
-          for (final r in data.challenge)
-            _RankRow(r['rank'] as int, r['name'] as String, l10n.rankScoreValue(_num(r['score'])), isSelf: r['key'] == data.selfId),
-        ],
+        for (final r in data.challenge)
+          _RankRow(
+            r['rank'] as int,
+            r['name'] as String,
+            l10n.rankScoreValue(_num(r['score'])),
+            isSelf: r['key'] == data.selfId,
+          ),
+      ],
       'typing' => [
-          for (final r in data.typing)
-            _RankRow(r['rank'] as int, r['name'] as String, l10n.rankCpmValue((r['cpm'] as num).round()), isSelf: r['key'] == data.selfId),
-        ],
+        for (final r in data.typing)
+          _RankRow(
+            r['rank'] as int,
+            r['name'] as String,
+            l10n.rankCpmValue((r['cpm'] as num).round()),
+            isSelf: r['key'] == data.selfId,
+          ),
+      ],
       _ => [
-          for (final r in data.overall)
-            _RankRow(
-              r['rank'] as int,
-              r['name'] as String,
-              '${formatNumber((r['chars'] as num).toInt())}$unit',
-              sub: '${formatNumber((r['minutes'] as num).toInt())}${l10n.minuteUnit}',
-              isSelf: _scope == 'user' && r['key'] == data.selfId,
-            ),
-        ],
+        for (final r in data.overall)
+          _RankRow(
+            r['rank'] as int,
+            r['name'] as String,
+            '${formatNumber((r['chars'] as num).toInt())}$unit',
+            sub:
+                '${formatNumber((r['minutes'] as num).toInt())}${l10n.minuteUnit}',
+            isSelf: _scope == 'user' && r['key'] == data.selfId,
+          ),
+      ],
     };
 
     final dateParts = _date.split('-').map(int.parse).toList();
@@ -163,8 +189,14 @@ class _RankingPageState extends State<RankingPage> {
       'month' => l10n.rankDateMonth(dateParts[0], dateParts[1]),
       _ => l10n.rankDateYear(dateParts[0]),
     };
-    final refLen = _period == 'day' ? 10 : _period == 'month' ? 7 : 4;
-    final atLatest = _date.substring(0, refLen).compareTo(data.today.substring(0, refLen)) >= 0;
+    final refLen = _period == 'day'
+        ? 10
+        : _period == 'month'
+        ? 7
+        : 4;
+    final atLatest =
+        _date.substring(0, refLen).compareTo(data.today.substring(0, refLen)) >=
+        0;
 
     return Stack(
       children: [
@@ -175,7 +207,10 @@ class _RankingPageState extends State<RankingPage> {
             Row(
               children: [
                 _MiniToggle(
-                  items: [('novelist', l10n.positionNovelist), ('webtoon', l10n.positionWebtoon)],
+                  items: [
+                    ('novelist', l10n.positionNovelist),
+                    ('webtoon', l10n.positionWebtoon),
+                  ],
                   selected: data.position,
                   onSelected: (v) {
                     _position = v;
@@ -189,7 +224,10 @@ class _RankingPageState extends State<RankingPage> {
               Row(
                 children: [
                   _MiniToggle(
-                    items: [('user', l10n.rankScopeUser), ('room', l10n.rankScopeRoom)],
+                    items: [
+                      ('user', l10n.rankScopeUser),
+                      ('room', l10n.rankScopeRoom),
+                    ],
                     selected: _scope,
                     onSelected: (v) {
                       _scope = v;
@@ -198,7 +236,11 @@ class _RankingPageState extends State<RankingPage> {
                   ),
                   const SizedBox(width: 10),
                   _MiniToggle(
-                    items: [('day', l10n.rankPeriodDay), ('month', l10n.rankPeriodMonth), ('year', l10n.rankPeriodYear)],
+                    items: [
+                      ('day', l10n.rankPeriodDay),
+                      ('month', l10n.rankPeriodMonth),
+                      ('year', l10n.rankPeriodYear),
+                    ],
                     selected: _period,
                     onSelected: (v) {
                       _period = v;
@@ -211,8 +253,17 @@ class _RankingPageState extends State<RankingPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  IconButton(onPressed: () => _shift(-1, data.today), icon: const Icon(Icons.chevron_left_rounded)),
-                  Text(dateLabel, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
+                  IconButton(
+                    onPressed: () => _shift(-1, data.today),
+                    icon: const Icon(Icons.chevron_left_rounded),
+                  ),
+                  Text(
+                    dateLabel,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
                   IconButton(
                     onPressed: atLatest ? null : () => _shift(1, data.today),
                     icon: const Icon(Icons.chevron_right_rounded),
@@ -223,13 +274,21 @@ class _RankingPageState extends State<RankingPage> {
             if (_tab == 'challenge')
               Padding(
                 padding: const EdgeInsets.only(top: 10),
-                child: Text(l10n.rankChallengeHint, style: TextStyle(fontSize: 11.5, color: pal.muted)),
+                child: Text(
+                  l10n.rankChallengeHint,
+                  style: TextStyle(fontSize: 11.5, color: pal.muted),
+                ),
               ),
             const SizedBox(height: 6),
             if (rows.isEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 40),
-                child: Center(child: Text(l10n.rankEmpty, style: TextStyle(fontSize: 13, color: pal.muted))),
+                child: Center(
+                  child: Text(
+                    l10n.rankEmpty,
+                    style: TextStyle(fontSize: 13, color: pal.muted),
+                  ),
+                ),
               ),
             for (final r in rows) _RankTile(row: r),
           ],
@@ -246,9 +305,17 @@ class _RankingPageState extends State<RankingPage> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                l10n.rankMyRank(data.me!['rank'] as int, data.me!['total'] as int, '${formatNumber((data.me!['chars'] as num).toInt())}$unit'),
+                l10n.rankMyRank(
+                  data.me!['rank'] as int,
+                  data.me!['total'] as int,
+                  '${formatNumber((data.me!['chars'] as num).toInt())}$unit',
+                ),
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: pal.bg),
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: pal.bg,
+                ),
               ),
             ),
           ),
@@ -263,7 +330,11 @@ class _RankingPageState extends State<RankingPage> {
 }
 
 class _MiniToggle extends StatelessWidget {
-  const _MiniToggle({required this.items, required this.selected, required this.onSelected});
+  const _MiniToggle({
+    required this.items,
+    required this.selected,
+    required this.onSelected,
+  });
 
   final List<(String, String)> items;
   final String selected;
@@ -273,7 +344,10 @@ class _MiniToggle extends StatelessWidget {
   Widget build(BuildContext context) {
     final pal = context.pal;
     return Container(
-      decoration: BoxDecoration(border: Border.all(color: pal.line), borderRadius: BorderRadius.circular(8)),
+      decoration: BoxDecoration(
+        border: Border.all(color: pal.line),
+        borderRadius: BorderRadius.circular(8),
+      ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -282,14 +356,23 @@ class _MiniToggle extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               onTap: () => onSelected(value),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 7,
+                ),
                 decoration: BoxDecoration(
-                  color: value == selected ? pal.lineStrong : Colors.transparent,
+                  color: value == selected
+                      ? pal.lineStrong
+                      : Colors.transparent,
                   borderRadius: BorderRadius.circular(7),
                 ),
                 child: Text(
                   label,
-                  style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: value == selected ? pal.bg : pal.subtext),
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w700,
+                    color: value == selected ? pal.bg : pal.subtext,
+                  ),
                 ),
               ),
             ),
@@ -307,7 +390,12 @@ class _RankTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final pal = context.pal;
-    final medal = switch (row.rank) { 1 => '🥇', 2 => '🥈', 3 => '🥉', _ => null };
+    final medal = switch (row.rank) {
+      1 => '🥇',
+      2 => '🥈',
+      3 => '🥉',
+      _ => null,
+    };
     return Container(
       margin: const EdgeInsets.only(bottom: 6),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
@@ -322,16 +410,38 @@ class _RankTile extends StatelessWidget {
             width: 34,
             child: medal != null
                 ? Text(medal, style: const TextStyle(fontSize: 18))
-                : Text('${row.rank}', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: pal.muted)),
+                : Text(
+                    '${row.rank}',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: pal.muted,
+                    ),
+                  ),
           ),
           Expanded(
-            child: Text(row.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+            child: Text(
+              row.name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+            ),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(row.value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800)),
-              if (row.sub != null) Text(row.sub!, style: TextStyle(fontSize: 11, color: pal.muted)),
+              Text(
+                row.value,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              if (row.sub != null)
+                Text(
+                  row.sub!,
+                  style: TextStyle(fontSize: 11, color: pal.muted),
+                ),
             ],
           ),
         ],
@@ -345,13 +455,21 @@ _RankingData _previewData() {
   return _RankingData(
     overall: [
       for (var i = 0; i < names.length; i++)
-        {'rank': i + 1, 'key': 'u$i', 'name': names[i], 'chars': 52000 - i * 6200, 'minutes': 1800 - i * 200},
+        {
+          'rank': i + 1,
+          'key': 'u$i',
+          'name': names[i],
+          'chars': 52000 - i * 6200,
+          'minutes': 1800 - i * 200,
+        },
     ],
     typing: [
-      for (var i = 0; i < 5; i++) {'rank': i + 1, 'key': 'u$i', 'name': names[i], 'cpm': 540 - i * 40},
+      for (var i = 0; i < 5; i++)
+        {'rank': i + 1, 'key': 'u$i', 'name': names[i], 'cpm': 540 - i * 40},
     ],
     challenge: [
-      for (var i = 0; i < 5; i++) {'rank': i + 1, 'key': 'u$i', 'name': names[i], 'score': 24 - i * 4},
+      for (var i = 0; i < 5; i++)
+        {'rank': i + 1, 'key': 'u$i', 'name': names[i], 'score': 24 - i * 4},
     ],
     position: 'novelist',
     today: todayKst(),

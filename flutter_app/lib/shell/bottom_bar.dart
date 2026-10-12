@@ -8,7 +8,11 @@ enum AppTab { feed, compete, home, ranking, rest }
 // 첨부된 시안 스타일의 하단 바 — 가로선 위에 "피드 도전 · (포룸 원) · 랭킹 휴식"이 놓이고, 가운데 "포룸"은
 // 선에 걸쳐 위로 솟아오른 큰 원이다.
 class AppBottomBar extends StatelessWidget {
-  const AppBottomBar({super.key, required this.selected, required this.onSelect});
+  const AppBottomBar({
+    super.key,
+    required this.selected,
+    required this.onSelect,
+  });
 
   final AppTab selected;
   final ValueChanged<AppTab> onSelect;
@@ -41,7 +45,9 @@ class AppBottomBar extends StatelessWidget {
               padding: EdgeInsets.only(bottom: bottomInset),
               decoration: BoxDecoration(
                 color: pal.bg,
-                border: Border(top: BorderSide(color: pal.lineStrong, width: 2)),
+                border: Border(
+                  top: BorderSide(color: pal.lineStrong, width: 2),
+                ),
               ),
               child: Row(
                 children: [
@@ -123,7 +129,11 @@ class AppBottomBar extends StatelessWidget {
 }
 
 class _TabLabel extends StatelessWidget {
-  const _TabLabel({required this.label, required this.selected, required this.onTap});
+  const _TabLabel({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
 
   final String label;
   final bool selected;

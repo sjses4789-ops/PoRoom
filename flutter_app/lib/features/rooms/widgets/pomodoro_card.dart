@@ -36,8 +36,8 @@ class PomodoroCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: pal.surface,
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: pal.muted),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: pal.line),
       ),
       child: Column(
         children: [
@@ -52,12 +52,22 @@ class PomodoroCard extends StatelessWidget {
               children: [
                 Text(
                   formatClock(remaining),
-                  style: const TextStyle(fontSize: 34, fontWeight: FontWeight.w800, fontFeatures: [FontFeature.tabularFigures()]),
+                  style: const TextStyle(
+                    fontSize: 34,
+                    fontWeight: FontWeight.w800,
+                    fontFeatures: [FontFeature.tabularFigures()],
+                  ),
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  started ? '$phaseLabel · ${l10n.pomodoroSessions(pomo.focusSessionCount)}' : phaseLabel,
-                  style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: started ? color : pal.muted),
+                  started
+                      ? '$phaseLabel · ${l10n.pomodoroSessions(pomo.focusSessionCount)}'
+                      : phaseLabel,
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w600,
+                    color: started ? color : pal.muted,
+                  ),
                 ),
               ],
             ),
@@ -74,11 +84,13 @@ class PomodoroCard extends StatelessWidget {
                     pomo.start(ActiveRoom(id: room.id, name: room.name));
                   }
                 },
-                child: Text(running
-                    ? l10n.pomodoroPause
-                    : started
-                        ? l10n.pomodoroResume
-                        : l10n.pomodoroStart),
+                child: Text(
+                  running
+                      ? l10n.pomodoroPause
+                      : started
+                      ? l10n.pomodoroResume
+                      : l10n.pomodoroStart,
+                ),
               ),
               const SizedBox(width: 10),
               OutlinedButton(
@@ -141,12 +153,21 @@ class _Stepper extends StatelessWidget {
       children: [
         Text(label, style: TextStyle(fontSize: 12, color: pal.muted)),
         const SizedBox(width: 6),
-        _RoundBtn(icon: Icons.remove, onTap: enabled ? () => onChanged(value - step) : null),
+        _RoundBtn(
+          icon: Icons.remove,
+          onTap: enabled ? () => onChanged(value - step) : null,
+        ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Text('$value$unit', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
+          child: Text(
+            '$value$unit',
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+          ),
         ),
-        _RoundBtn(icon: Icons.add, onTap: enabled ? () => onChanged(value + step) : null),
+        _RoundBtn(
+          icon: Icons.add,
+          onTap: enabled ? () => onChanged(value + step) : null,
+        ),
       ],
     );
   }
@@ -167,8 +188,15 @@ class _RoundBtn extends StatelessWidget {
       child: Container(
         width: 24,
         height: 24,
-        decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: onTap == null ? pal.line : pal.muted)),
-        child: Icon(icon, size: 14, color: onTap == null ? pal.line : pal.subtext),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: onTap == null ? pal.line : pal.muted),
+        ),
+        child: Icon(
+          icon,
+          size: 14,
+          color: onTap == null ? pal.line : pal.subtext,
+        ),
       ),
     );
   }

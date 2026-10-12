@@ -19,7 +19,11 @@ class PomodoroView {
 // 웹(use-room-presence.ts)과 같은 방식 — 방 접속 채널(room-presence:방id, 비공개)에 내 상태를 track()하고,
 // 다른 참여자의 접속/타이핑/뽀모도로 진행을 받아 온다. 웹 사용자와 앱 사용자가 한 방에서 서로 보인다.
 class RoomPresenceController extends ChangeNotifier {
-  RoomPresenceController({required this.roomId, required this.selfId, required this.selfName}) {
+  RoomPresenceController({
+    required this.roomId,
+    required this.selfId,
+    required this.selfName,
+  }) {
     if (Env.preview) {
       _previewOnline = {'u2', 'u4'};
       return;
@@ -73,21 +77,21 @@ class RoomPresenceController extends ChangeNotifier {
   SupabaseClient get _client => Supabase.instance.client;
 
   Map<String, dynamic> _payload() => {
-        'sessionId': _sessionId,
-        'browserId': BrowserId.value,
-        'joinedAt': _joinedAt,
-        'name': selfName,
-        'lastTypedAt': _lastTypedAt,
-        'pomodoroPhase': switch (_phase) {
-          PomodoroPhase.idle => 'idle',
-          PomodoroPhase.focus => 'focus',
-          PomodoroPhase.rest => 'break',
-        },
-        'pomodoroProgressing': _progressing,
-        'pomodoroElapsedFraction': _elapsedFraction,
-        'pomodoroSnapshotAt': _snapshotAt,
-        'pomodoroDurationSeconds': _durationSeconds,
-      };
+    'sessionId': _sessionId,
+    'browserId': BrowserId.value,
+    'joinedAt': _joinedAt,
+    'name': selfName,
+    'lastTypedAt': _lastTypedAt,
+    'pomodoroPhase': switch (_phase) {
+      PomodoroPhase.idle => 'idle',
+      PomodoroPhase.focus => 'focus',
+      PomodoroPhase.rest => 'break',
+    },
+    'pomodoroProgressing': _progressing,
+    'pomodoroElapsedFraction': _elapsedFraction,
+    'pomodoroSnapshotAt': _snapshotAt,
+    'pomodoroDurationSeconds': _durationSeconds,
+  };
 
   void _connect() {
     if (_disposed) return;
@@ -102,7 +106,10 @@ class RoomPresenceController extends ChangeNotifier {
       ..onPresenceJoin((_) => _syncFromState())
       ..onPresenceLeave((_) => _syncFromState())
       ..onBroadcast(event: 'presence-left', callback: (p) => _onLeft(_inner(p)))
-      ..onBroadcast(event: 'session-takeover', callback: (p) => _onTakeover(_inner(p)))
+      ..onBroadcast(
+        event: 'session-takeover',
+        callback: (p) => _onTakeover(_inner(p)),
+      )
       ..subscribe((status, error) async {
         if (_disposed || channel != _channel) return;
         if (status == RealtimeSubscribeStatus.subscribed) {
@@ -164,11 +171,18 @@ class RoomPresenceController extends ChangeNotifier {
     final mine = state.where((s) => s.key == selfId).expand((s) => s.presences);
     final others = mine.where((p) {
       final b = p.payload['browserId'] as String?;
-      return p.payload['sessionId'] != _sessionId && b != null && b != BrowserId.value;
+      return p.payload['sessionId'] != _sessionId &&
+          b != null &&
+          b != BrowserId.value;
     }).toList();
     final iAmNewest = others.every((p) {
       final j = (p.payload['joinedAt'] as num?)?.toInt() ?? 0;
-      return j < _joinedAt || (j == _joinedAt && ((p.payload['sessionId'] as String?) ?? '').compareTo(_sessionId) < 0);
+      return j < _joinedAt ||
+          (j == _joinedAt &&
+              ((p.payload['sessionId'] as String?) ?? '').compareTo(
+                    _sessionId,
+                  ) <
+                  0);
     });
     duplicateSession = others.isNotEmpty && iAmNewest && !_claimed;
     _notify();
@@ -178,7 +192,12 @@ class RoomPresenceController extends ChangeNotifier {
     final userId = p['userId'] as String?;
     if (userId == null) return;
     // 같은 사용자가 다른 탭/기기에서도 접속 중이면(presence 항목이 2개 이상) 나간 게 아니다.
-    final metas = _channel?.presenceState().where((s) => s.key == userId).expand((s) => s.presences) ?? const [];
+    final metas =
+        _channel
+            ?.presenceState()
+            .where((s) => s.key == userId)
+            .expand((s) => s.presences) ??
+        const [];
     if (metas.length > 1) return;
     _left[userId] = p['sessionId'] as String?;
     _lastSeenAt.remove(userId);
@@ -220,7 +239,12 @@ class RoomPresenceController extends ChangeNotifier {
 
   // 내 뽀모도로 진행 상태를 다른 참여자에게 알린다 — 진행률 값 대신 "스냅샷 시점 진행률 + 시각 + 구간 길이"를
   // 보내서, 보는 쪽이 이후 흐른 시간을 스스로 계산한다(웹과 같은 payload).
-  void setPomodoroState(PomodoroPhase phase, double elapsedFraction, bool progressing, int durationSeconds) {
+  void setPomodoroState(
+    PomodoroPhase phase,
+    double elapsedFraction,
+    bool progressing,
+    int durationSeconds,
+  ) {
     _phase = phase;
     _elapsedFraction = elapsedFraction;
     _progressing = progressing;
@@ -234,36 +258,50 @@ class RoomPresenceController extends ChangeNotifier {
       final leftSession = _left[userId];
       final live = _live[userId];
       final sid = live?['sessionId'] as String?;
-      if (!(leftSession != null && sid != null && sid != leftSession)) return null;
+      if (!(leftSession != null && sid != null && sid != leftSession))
+        return null;
     }
     final live = _live[userId];
     if (live != null) return live;
     final seen = _lastSeenAt[userId];
-    if (seen != null && DateTime.now().millisecondsSinceEpoch - seen < _graceMs) return _lastKnown[userId];
+    if (seen != null && DateTime.now().millisecondsSinceEpoch - seen < _graceMs)
+      return _lastKnown[userId];
     return null;
   }
 
   PresenceStatus statusOf(String userId) {
-    if (Env.preview) return _previewOnline.contains(userId) || userId == selfId ? PresenceStatus.idle : PresenceStatus.offline;
+    if (Env.preview)
+      return _previewOnline.contains(userId) || userId == selfId
+          ? PresenceStatus.idle
+          : PresenceStatus.offline;
     final p = _effective(userId);
     if (p == null) return PresenceStatus.offline;
     final typed = (p['lastTypedAt'] as num?)?.toInt();
-    if (typed != null && DateTime.now().millisecondsSinceEpoch - typed < _typingWindowMs) return PresenceStatus.typing;
+    if (typed != null &&
+        DateTime.now().millisecondsSinceEpoch - typed < _typingWindowMs)
+      return PresenceStatus.typing;
     return PresenceStatus.idle;
   }
 
   PomodoroView pomodoroOf(String userId) {
     if (Env.preview) {
-      return userId == 'u2' ? const PomodoroView(PomodoroPhase.focus, 0.4) : const PomodoroView(PomodoroPhase.idle, 0);
+      return userId == 'u2'
+          ? const PomodoroView(PomodoroPhase.focus, 0.4)
+          : const PomodoroView(PomodoroPhase.idle, 0);
     }
     final p = _effective(userId);
     final phaseName = p?['pomodoroPhase'] as String?;
-    if (p == null || phaseName == null || phaseName == 'idle') return const PomodoroView(PomodoroPhase.idle, 0);
+    if (p == null || phaseName == null || phaseName == 'idle')
+      return const PomodoroView(PomodoroPhase.idle, 0);
     final progressing = p['pomodoroProgressing'] == true;
-    final duration = ((p['pomodoroDurationSeconds'] as num?) ?? 1).toDouble().clamp(1, double.infinity);
+    final duration = ((p['pomodoroDurationSeconds'] as num?) ?? 1)
+        .toDouble()
+        .clamp(1, double.infinity);
     final snapshotAt = (p['pomodoroSnapshotAt'] as num?)?.toInt() ?? 0;
     final base = ((p['pomodoroElapsedFraction'] as num?) ?? 0).toDouble();
-    final extra = progressing ? (DateTime.now().millisecondsSinceEpoch - snapshotAt) / 1000 / duration : 0;
+    final extra = progressing
+        ? (DateTime.now().millisecondsSinceEpoch - snapshotAt) / 1000 / duration
+        : 0;
     return PomodoroView(
       phaseName == 'break' ? PomodoroPhase.rest : PomodoroPhase.focus,
       (base + extra).clamp(0, 1).toDouble(),
@@ -285,7 +323,10 @@ class RoomPresenceController extends ChangeNotifier {
       // 페이지를 나갈 때 다른 참여자에게 "나갔다"고 직접 알린다(유예 시간 동안 접속 중으로 보이지 않도록).
       if (_subscribed) {
         channel
-            .sendBroadcastMessage(event: 'presence-left', payload: {'userId': selfId, 'sessionId': _sessionId})
+            .sendBroadcastMessage(
+              event: 'presence-left',
+              payload: {'userId': selfId, 'sessionId': _sessionId},
+            )
             .catchError((_) => ChannelResponse.error)
             .whenComplete(() => _client.removeChannel(channel));
       } else {

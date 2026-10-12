@@ -328,5 +328,76 @@
   "guestLoginButton": "ログイン",
   "loginRequiredTitle": "ログインが必要です",
   "loginRequiredBody": "ログインしないと閲覧のみできます。投稿・リアクション・ルームへの入室などはログイン後に使えます。",
-  "guestViewerBanner": "閲覧専用 · ログインするとすべての機能が使えます"
+  "guestViewerBanner": "閲覧専用 · ログインするとすべての機能が使えます",
+  "homeGreeting": "今日もいっしょに集中しましょう",
+  "homeGreetingSub": "今作業中の作家たちと過ごしてみましょう。",
+  "homeSystemRoomSub": "今参加できる常設の作業部屋",
+  "homeDawnRoom": "明け方の作業部屋",
+  "homeDeadlineRoom": "締め切りの作業部屋",
+  "homeEnterRoom": "作業部屋に入る",
+  "homeRecommendedRooms": "おすすめの作業部屋",
+  "homeSeeAll": "すべて見る",
+  "homeMyLife": "わたしの執筆生活",
+  "homeLoginForDashboard": "ログインすると、今日の目標と執筆記録がここで見られます。",
+  "homeTodayGoal": "今日の目標",
+  "homeGoalAchieved": "目標の{percent}%を達成",
+  "@homeGoalAchieved": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "homeNoGoal": "目標はウェブの[マイ]で決められます",
+  "homeFocusToday": "今日の集中時間",
+  "homeStreak": "連続執筆",
+  "homeDays": "{count}日",
+  "@homeDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeMinutesOnly": "{minutes}分",
+  "@homeMinutesOnly": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "homeHoursOnly": "{hours}時間",
+  "@homeHoursOnly": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "homeHoursMinutes": "{hours}時間{minutes}分",
+  "@homeHoursMinutes": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "homeChallenges": "参加中のチャレンジ",
+  "homeSeeDetail": "詳しく見る",
+  "homeNoChallenge": "参加中のチャレンジはありません。[挑戦]で参加してみましょう。",
+  "homeFeedTitle": "作家たちのフィード",
+  "homeCountSuffix": "人",
+  "homeChallengeDone": "今日の目標を達成しました 🎉",
+  "homeChallengeRemaining": "今日の目標まであと{remaining}",
+  "@homeChallengeRemaining": {
+    "placeholders": {
+      "remaining": {
+        "type": "String"
+      }
+    }
+  }
 }

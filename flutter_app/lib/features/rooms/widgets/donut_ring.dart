@@ -27,7 +27,12 @@ class DonutRing extends StatelessWidget {
       width: size,
       height: size,
       child: CustomPaint(
-        painter: _DonutPainter(progress.clamp(0, 1).toDouble(), color, strokeWidth, trackColor),
+        painter: _DonutPainter(
+          progress.clamp(0, 1).toDouble(),
+          color,
+          strokeWidth,
+          trackColor,
+        ),
         child: child == null ? null : Center(child: child),
       ),
     );
@@ -44,7 +49,12 @@ class _DonutPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final rect = Rect.fromLTWH(strokeWidth / 2, strokeWidth / 2, size.width - strokeWidth, size.height - strokeWidth);
+    final rect = Rect.fromLTWH(
+      strokeWidth / 2,
+      strokeWidth / 2,
+      size.width - strokeWidth,
+      size.height - strokeWidth,
+    );
     final track = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth
@@ -61,5 +71,8 @@ class _DonutPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_DonutPainter old) =>
-      old.progress != progress || old.color != color || old.strokeWidth != strokeWidth || old.trackColor != trackColor;
+      old.progress != progress ||
+      old.color != color ||
+      old.strokeWidth != strokeWidth ||
+      old.trackColor != trackColor;
 }

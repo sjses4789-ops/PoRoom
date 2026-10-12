@@ -13,18 +13,21 @@ class FeedRepository {
 
   // 최근 글 100개 + 작성자 + 반응 — 웹 피드 페이지(feed/page.tsx)와 같은 조회(RLS 동일 적용).
   // 작성자/반응은 보여 줄 글에 해당하는 것만 가져온다(전체를 가져오면 조회 상한에 걸린다).
-  Future<List<FeedPostItem>> fetch() async {
-    if (Env.preview) return _preview();
+  Future<List<FeedPostItem>> fetch({int limit = 100}) async {
+    if (Env.preview) return _preview().take(limit).toList();
     final posts = await _client
         .from('feed_posts')
         .select('id,user_id,post_type,mood,focus_minutes,chars,meta,created_at')
         .order('created_at', ascending: false)
-        .limit(100);
+        .limit(limit);
     if (posts.isEmpty) return const [];
 
     final postIds = [for (final p in posts) p['id'] as String];
     final authorIds = {for (final p in posts) p['user_id'] as String};
-    final users = await _client.from('users').select('id,name,character_id,position').inFilter('id', authorIds.toList());
+    final users = await _client
+        .from('users')
+        .select('id,name,character_id,position')
+        .inFilter('id', authorIds.toList());
     final reactions = await _client
         .from('feed_reactions')
         .select('post_id,user_id,reaction_type')
@@ -47,7 +50,9 @@ class FeedRepository {
             authorId: p['user_id'] as String,
             authorName: (u?['name'] as String?) ?? '',
             characterId: u?['character_id'] as String?,
-            authorPosition: u?['position'] == 'webtoon' ? 'webtoon' : 'novelist',
+            authorPosition: u?['position'] == 'webtoon'
+                ? 'webtoon'
+                : 'novelist',
             mood: p['mood'] as String? ?? '',
             focusMinutes: p['focus_minutes'] as int? ?? 0,
             chars: p['chars'] as int? ?? 0,
@@ -57,7 +62,9 @@ class FeedRepository {
               for (final type in reactionTypes)
                 type: FeedReaction(
                   list.where((r) => r['reaction_type'] == type).length,
-                  list.any((r) => r['reaction_type'] == type && r['user_id'] == selfId),
+                  list.any(
+                    (r) => r['reaction_type'] == type && r['user_id'] == selfId,
+                  ),
                 ),
             },
           );
@@ -125,7 +132,12 @@ List<FeedPostItem> _preview() {
       mood: '이번 대결은 아쉽게 졌네요… 다음엔 이긴다!',
       focusMinutes: 0,
       chars: 0,
-      meta: const {'challengeTitle': '주말 글자수 대결', 'result': 'loss', 'rank': 2, 'participantCount': 3},
+      meta: const {
+        'challengeTitle': '주말 글자수 대결',
+        'result': 'loss',
+        'rank': 2,
+        'participantCount': 3,
+      },
       createdAt: now.subtract(const Duration(days: 1)),
       reactions: {'heart': r(1), 'clap': r(0), 'fire': r(0)},
     ),

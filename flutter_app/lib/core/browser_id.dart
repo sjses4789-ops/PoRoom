@@ -24,7 +24,10 @@ class BrowserId {
 
   static String _random() {
     final rng = Random.secure();
-    return List.generate(16, (_) => rng.nextInt(256).toRadixString(16).padLeft(2, '0')).join();
+    return List.generate(
+      16,
+      (_) => rng.nextInt(256).toRadixString(16).padLeft(2, '0'),
+    ).join();
   }
 
   // 접속(화면) 하나를 구분하는 값.

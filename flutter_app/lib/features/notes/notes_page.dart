@@ -28,15 +28,15 @@ class NoteItem {
   final String? roomId;
 
   NoteItem asRead() => NoteItem(
-        id: id,
-        senderId: senderId,
-        senderName: senderName,
-        content: content,
-        createdAt: createdAt,
-        read: true,
-        roomName: roomName,
-        roomId: roomId,
-      );
+    id: id,
+    senderId: senderId,
+    senderName: senderName,
+    content: content,
+    createdAt: createdAt,
+    read: true,
+    roomName: roomName,
+    roomId: roomId,
+  );
 }
 
 Future<List<NoteItem>> fetchInbox() async {
@@ -90,7 +90,10 @@ class _NotesPageState extends State<NotesPage> {
   Future<void> _open(NoteItem note) async {
     final l10n = L10n.of(context);
     if (!note.read) {
-      setState(() => _notes = [for (final n in _notes) n.id == note.id ? n.asRead() : n]);
+      setState(
+        () =>
+            _notes = [for (final n in _notes) n.id == note.id ? n.asRead() : n],
+      );
       if (!Env.preview) WebApi.rpc<Object?>('markNoteRead', [note.id]);
     }
     final action = await showModalBottomSheet<String>(
@@ -104,21 +107,35 @@ class _NotesPageState extends State<NotesPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              [note.senderName, if (note.roomName != null) note.roomName!].join(' · '),
+              [
+                note.senderName,
+                if (note.roomName != null) note.roomName!,
+              ].join(' · '),
               style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 4),
-            Text(_stamp(note.createdAt), style: TextStyle(fontSize: 11.5, color: ctx.pal.muted)),
+            Text(
+              _stamp(note.createdAt),
+              style: TextStyle(fontSize: 11.5, color: ctx.pal.muted),
+            ),
             const SizedBox(height: 14),
-            SelectableText(note.content, style: const TextStyle(fontSize: 14.5, height: 1.55)),
+            SelectableText(
+              note.content,
+              style: const TextStyle(fontSize: 14.5, height: 1.55),
+            ),
             const SizedBox(height: 18),
             Row(
               children: [
-                FilledButton(onPressed: () => Navigator.pop(ctx, 'reply'), child: Text(l10n.notesReply)),
+                FilledButton(
+                  onPressed: () => Navigator.pop(ctx, 'reply'),
+                  child: Text(l10n.notesReply),
+                ),
                 const SizedBox(width: 8),
                 OutlinedButton(
                   onPressed: () => Navigator.pop(ctx, 'delete'),
-                  style: OutlinedButton.styleFrom(foregroundColor: const Color(0xFFB91C1C)),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFFB91C1C),
+                  ),
                   child: Text(l10n.delete),
                 ),
               ],
@@ -151,17 +168,37 @@ class _NotesPageState extends State<NotesPage> {
           decoration: InputDecoration(hintText: l10n.notesPlaceholder),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(l10n.cancel)),
-          FilledButton(onPressed: () => Navigator.pop(ctx, controller.text.trim()), child: Text(l10n.notesSend)),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, controller.text.trim()),
+            child: Text(l10n.notesSend),
+          ),
         ],
       ),
     );
     controller.dispose();
     if (text == null || text.isEmpty || !mounted) return;
     final messenger = ScaffoldMessenger.of(context);
-    final result = Env.preview ? {'ok': true} : await WebApi.rpc<Map<String, dynamic>>('sendNote', [note.senderId, note.roomId, text]);
+    final result = Env.preview
+        ? {'ok': true}
+        : await WebApi.rpc<Map<String, dynamic>>('sendNote', [
+            note.senderId,
+            note.roomId,
+            text,
+          ]);
     final failed = result == null || result.containsKey('error');
-    messenger.showSnackBar(SnackBar(content: Text(failed ? ((result?['error'] as String?) ?? l10n.loadFailed) : l10n.notesSent)));
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(
+          failed
+              ? ((result?['error'] as String?) ?? l10n.loadFailed)
+              : l10n.notesSent,
+        ),
+      ),
+    );
   }
 
   String _stamp(DateTime d) {
@@ -183,13 +220,21 @@ class _NotesPageState extends State<NotesPage> {
           future: _future,
           onRetry: _load,
           builder: (context, _) => _notes.isEmpty
-              ? ListView(children: [
-                  const SizedBox(height: 120),
-                  Center(child: Text(l10n.notesEmpty, style: TextStyle(fontSize: 13, color: pal.muted))),
-                ])
+              ? ListView(
+                  children: [
+                    const SizedBox(height: 120),
+                    Center(
+                      child: Text(
+                        l10n.notesEmpty,
+                        style: TextStyle(fontSize: 13, color: pal.muted),
+                      ),
+                    ),
+                  ],
+                )
               : ListView.separated(
                   itemCount: _notes.length,
-                  separatorBuilder: (_, _) => Divider(height: 1, color: pal.line),
+                  separatorBuilder: (_, _) =>
+                      Divider(height: 1, color: pal.line),
                   itemBuilder: (context, i) {
                     final n = _notes[i];
                     return ListTile(
@@ -197,14 +242,31 @@ class _NotesPageState extends State<NotesPage> {
                       leading: Container(
                         width: 8,
                         height: 8,
-                        decoration: BoxDecoration(color: n.read ? Colors.transparent : const Color(0xFFF87171), shape: BoxShape.circle),
+                        decoration: BoxDecoration(
+                          color: n.read
+                              ? Colors.transparent
+                              : const Color(0xFFF87171),
+                          shape: BoxShape.circle,
+                        ),
                       ),
                       title: Text(
                         n.senderName,
-                        style: TextStyle(fontSize: 14, fontWeight: n.read ? FontWeight.w500 : FontWeight.w800),
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: n.read
+                              ? FontWeight.w500
+                              : FontWeight.w800,
+                        ),
                       ),
-                      subtitle: Text(n.content, maxLines: 1, overflow: TextOverflow.ellipsis),
-                      trailing: Text(_stamp(n.createdAt).substring(5, 10), style: TextStyle(fontSize: 11, color: pal.muted)),
+                      subtitle: Text(
+                        n.content,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      trailing: Text(
+                        _stamp(n.createdAt).substring(5, 10),
+                        style: TextStyle(fontSize: 11, color: pal.muted),
+                      ),
                     );
                   },
                 ),

@@ -48,13 +48,22 @@ class _CharInputCardState extends State<CharInputCard> {
     setState(() => _busy = true);
     if (!Env.preview) {
       // 23시 이후에 시작한 작업은 새벽 1시까지 시작한 날의 기록으로 남긴다(웹과 같은 규칙).
-      await WebApi.rpc<Object?>('recordChars', [widget.roomId, n, effectiveRecordDate(_mountedAt)]);
+      await WebApi.rpc<Object?>('recordChars', [
+        widget.roomId,
+        n,
+        effectiveRecordDate(_mountedAt),
+      ]);
     }
     if (!mounted) return;
     setState(() => _busy = false);
     _controller.clear();
     widget.onAdded(n);
-    messenger.showSnackBar(SnackBar(content: Text(l10n.recordAdded), duration: const Duration(seconds: 1)));
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(l10n.recordAdded),
+        duration: const Duration(seconds: 1),
+      ),
+    );
   }
 
   @override
@@ -66,36 +75,55 @@ class _CharInputCardState extends State<CharInputCard> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: pal.surface,
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: pal.muted),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: pal.line),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(l10n.recordToday(widget.todayChars, unit), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+          Text(
+            l10n.recordToday(widget.todayChars, unit),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+          ),
           const SizedBox(height: 12),
           Row(
             children: [
               Expanded(
                 child: TextField(
                   controller: _controller,
-                  keyboardType: const TextInputType.numberWithOptions(signed: true),
-                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d{0,7}'))],
+                  keyboardType: const TextInputType.numberWithOptions(
+                    signed: true,
+                  ),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'^-?\d{0,7}')),
+                  ],
                   onChanged: (_) => widget.onActivity(),
                   onSubmitted: (_) => _add(),
                   decoration: InputDecoration(
                     hintText: l10n.recordInputHint,
                     isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: pal.line)),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: pal.line)),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: pal.line),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: pal.line),
+                    ),
                   ),
                 ),
               ),
               const SizedBox(width: 8),
               FilledButton(
                 onPressed: _busy ? null : _add,
-                style: FilledButton.styleFrom(backgroundColor: pal.lineStrong, foregroundColor: pal.bg),
+                style: FilledButton.styleFrom(
+                  backgroundColor: pal.lineStrong,
+                  foregroundColor: pal.bg,
+                ),
                 child: Text(l10n.recordAdd),
               ),
             ],

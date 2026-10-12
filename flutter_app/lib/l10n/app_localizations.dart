@@ -1114,6 +1114,162 @@ abstract class L10n {
   /// In ko, this message translates to:
   /// **'보기 전용 · 로그인하면 모든 기능을 쓸 수 있어요'**
   String get guestViewerBanner;
+
+  /// No description provided for @homeGreeting.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘도 함께 집중해요'**
+  String get homeGreeting;
+
+  /// No description provided for @homeGreetingSub.
+  ///
+  /// In ko, this message translates to:
+  /// **'지금 작업 중인 작가들과 함께해 보세요.'**
+  String get homeGreetingSub;
+
+  /// No description provided for @homeSystemRoomSub.
+  ///
+  /// In ko, this message translates to:
+  /// **'지금 참여할 수 있는 상시 작업방'**
+  String get homeSystemRoomSub;
+
+  /// No description provided for @homeDawnRoom.
+  ///
+  /// In ko, this message translates to:
+  /// **'새벽 작업방'**
+  String get homeDawnRoom;
+
+  /// No description provided for @homeDeadlineRoom.
+  ///
+  /// In ko, this message translates to:
+  /// **'마감 작업방'**
+  String get homeDeadlineRoom;
+
+  /// No description provided for @homeEnterRoom.
+  ///
+  /// In ko, this message translates to:
+  /// **'작업방 입장하기'**
+  String get homeEnterRoom;
+
+  /// No description provided for @homeRecommendedRooms.
+  ///
+  /// In ko, this message translates to:
+  /// **'추천 작업방'**
+  String get homeRecommendedRooms;
+
+  /// No description provided for @homeSeeAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체 보기'**
+  String get homeSeeAll;
+
+  /// No description provided for @homeMyLife.
+  ///
+  /// In ko, this message translates to:
+  /// **'나의 집필 생활'**
+  String get homeMyLife;
+
+  /// No description provided for @homeLoginForDashboard.
+  ///
+  /// In ko, this message translates to:
+  /// **'로그인하면 오늘의 목표와 집필 기록을 여기서 볼 수 있어요.'**
+  String get homeLoginForDashboard;
+
+  /// No description provided for @homeTodayGoal.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘의 목표'**
+  String get homeTodayGoal;
+
+  /// No description provided for @homeGoalAchieved.
+  ///
+  /// In ko, this message translates to:
+  /// **'목표의 {percent}% 달성'**
+  String homeGoalAchieved(int percent);
+
+  /// No description provided for @homeNoGoal.
+  ///
+  /// In ko, this message translates to:
+  /// **'목표는 웹의 [개인]에서 정할 수 있어요'**
+  String get homeNoGoal;
+
+  /// No description provided for @homeFocusToday.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘 집중 시간'**
+  String get homeFocusToday;
+
+  /// No description provided for @homeStreak.
+  ///
+  /// In ko, this message translates to:
+  /// **'연속 집필'**
+  String get homeStreak;
+
+  /// No description provided for @homeDays.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}일'**
+  String homeDays(int count);
+
+  /// No description provided for @homeMinutesOnly.
+  ///
+  /// In ko, this message translates to:
+  /// **'{minutes}분'**
+  String homeMinutesOnly(int minutes);
+
+  /// No description provided for @homeHoursOnly.
+  ///
+  /// In ko, this message translates to:
+  /// **'{hours}시간'**
+  String homeHoursOnly(int hours);
+
+  /// No description provided for @homeHoursMinutes.
+  ///
+  /// In ko, this message translates to:
+  /// **'{hours}시간 {minutes}분'**
+  String homeHoursMinutes(int hours, int minutes);
+
+  /// No description provided for @homeChallenges.
+  ///
+  /// In ko, this message translates to:
+  /// **'참여 중인 챌린지'**
+  String get homeChallenges;
+
+  /// No description provided for @homeSeeDetail.
+  ///
+  /// In ko, this message translates to:
+  /// **'자세히 보기'**
+  String get homeSeeDetail;
+
+  /// No description provided for @homeNoChallenge.
+  ///
+  /// In ko, this message translates to:
+  /// **'참여 중인 챌린지가 없어요. [도전]에서 참여해 보세요.'**
+  String get homeNoChallenge;
+
+  /// No description provided for @homeFeedTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'작가들의 피드'**
+  String get homeFeedTitle;
+
+  /// No description provided for @homeCountSuffix.
+  ///
+  /// In ko, this message translates to:
+  /// **'명'**
+  String get homeCountSuffix;
+
+  /// No description provided for @homeChallengeDone.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘 목표를 달성했어요 🎉'**
+  String get homeChallengeDone;
+
+  /// No description provided for @homeChallengeRemaining.
+  ///
+  /// In ko, this message translates to:
+  /// **'오늘 목표까지 {remaining} 남았어요'**
+  String homeChallengeRemaining(String remaining);
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

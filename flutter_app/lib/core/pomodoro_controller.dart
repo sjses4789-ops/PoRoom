@@ -41,8 +41,11 @@ class PomodoroController extends ChangeNotifier with WidgetsBindingObserver {
 
   int get phaseDurationSeconds => (_inFocus ? focusMinutes : breakMinutes) * 60;
   int get remainingSeconds => started ? _tickingSeconds : phaseDurationSeconds;
-  double get elapsedFraction => started ? 1 - _tickingSeconds / phaseDurationSeconds : 0;
-  PomodoroPhase get phase => !started ? PomodoroPhase.idle : (_inFocus ? PomodoroPhase.focus : PomodoroPhase.rest);
+  double get elapsedFraction =>
+      started ? 1 - _tickingSeconds / phaseDurationSeconds : 0;
+  PomodoroPhase get phase => !started
+      ? PomodoroPhase.idle
+      : (_inFocus ? PomodoroPhase.focus : PomodoroPhase.rest);
 
   bool isActiveRoom(String roomId) => activeRoom?.id == roomId;
 
@@ -204,8 +207,11 @@ class PomodoroController extends ChangeNotifier with WidgetsBindingObserver {
 }
 
 class PomodoroScope extends InheritedNotifier<PomodoroController> {
-  const PomodoroScope({super.key, required PomodoroController controller, required super.child})
-      : super(notifier: controller);
+  const PomodoroScope({
+    super.key,
+    required PomodoroController controller,
+    required super.child,
+  }) : super(notifier: controller);
 
   static PomodoroController of(BuildContext context) {
     final scope = context.dependOnInheritedWidgetOfExactType<PomodoroScope>();

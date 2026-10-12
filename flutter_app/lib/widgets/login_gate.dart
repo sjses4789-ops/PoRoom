@@ -16,8 +16,14 @@ Future<bool> requireLogin(BuildContext context) async {
       title: Text(l10n.loginRequiredTitle),
       content: Text(l10n.loginRequiredBody),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.cancel)),
-        FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l10n.guestLoginButton)),
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, false),
+          child: Text(l10n.cancel),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.pop(ctx, true),
+          child: Text(l10n.guestLoginButton),
+        ),
       ],
     ),
   );
@@ -26,5 +32,7 @@ Future<bool> requireLogin(BuildContext context) async {
 }
 
 void openLogin(BuildContext context) {
-  Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const LoginPage(dismissible: true)));
+  Navigator.of(context).push(
+    MaterialPageRoute<void>(builder: (_) => const LoginPage(dismissible: true)),
+  );
 }

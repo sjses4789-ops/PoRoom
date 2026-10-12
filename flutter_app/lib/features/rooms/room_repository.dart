@@ -17,7 +17,9 @@ class RoomRepository {
 
     final rows = await _client
         .from('rooms')
-        .select('id,name,color,tags,join_type,target_position,is_system,capacity,created_at')
+        .select(
+          'id,name,color,tags,join_type,target_position,is_system,capacity,created_at',
+        )
         .order('created_at', ascending: false)
         .limit(200);
 
@@ -27,7 +29,12 @@ class RoomRepository {
     List<Map<String, dynamic>> members = <Map<String, dynamic>>[];
     if (ids.isNotEmpty) {
       try {
-        members = List<Map<String, dynamic>>.from(await _client.from('room_members').select('room_id,user_id').inFilter('room_id', ids));
+        members = List<Map<String, dynamic>>.from(
+          await _client
+              .from('room_members')
+              .select('room_id,user_id')
+              .inFilter('room_id', ids),
+        );
       } catch (_) {}
     }
     final countByRoom = <String, int>{};
@@ -53,6 +60,15 @@ class RoomRepository {
           isMember: mine.contains(r['id']),
         ),
     ];
+  }
+
+  // 마감방/새벽방 같은 상시 방에 입장(없으면 만들고 입장) — 웹의 joinSystemRoom을 그대로 부른다. 방 id를 돌려준다.
+  Future<String?> joinSystemRoom(String kind) async {
+    if (Env.preview) return null;
+    final result = await WebApi.rpc<Map<String, dynamic>>('joinSystemRoom', [
+      kind,
+    ]);
+    return result?['roomId'] as String?;
   }
 
   // 열린 방에 입장 — 웹의 joinOpenRoom 서버 액션을 그대로 부른다(차단·직업 제한 검사 포함).

@@ -12,7 +12,7 @@ import '../l10n/app_localizations.dart';
 import '../widgets/character_avatar.dart';
 import '../widgets/login_gate.dart';
 
-// 상단 바: 왼쪽에 로고, 오른쪽에 우편함 아이콘(안 읽은 쪽지 수 뱃지)과 닉네임(누르면 [개인] 화면).
+// 상단 바: 왼쪽에 로고, 오른쪽에 우편함 아이콘(안 읽은 쪽지 수 뱃지)과 프로필 사진(누르면 [개인] 화면).
 // 우편함/닉네임 위치는 아직 확정 전이라 여기 한 곳만 고치면 바뀐다.
 class AppTopBar extends StatelessWidget {
   const AppTopBar({super.key});
@@ -22,7 +22,6 @@ class AppTopBar extends StatelessWidget {
     final pal = context.pal;
     final l10n = L10n.of(context);
     final auth = AuthScope.of(context);
-    final name = auth.profile?.name ?? '';
 
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 8, 12, 8),
@@ -36,14 +35,15 @@ class AppTopBar extends StatelessWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Image.asset('assets/images/icon.png', width: 24, height: 24),
-              const SizedBox(width: 6),
+              Image.asset('assets/images/icon.png', width: 28, height: 28),
+              const SizedBox(width: 8),
               Text(
                 l10n.appTitle,
                 style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.2,
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.5,
+                  color: kBrand,
                 ),
               ),
             ],
@@ -76,20 +76,7 @@ class AppTopBar extends StatelessWidget {
                   children: [
                     CharacterAvatar(
                       characterId: auth.profile?.characterId,
-                      size: 26,
-                    ),
-                    const SizedBox(width: 6),
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 110),
-                      child: Text(
-                        name.isEmpty ? l10n.myPage : name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 13.5,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
+                      size: 34,
                     ),
                   ],
                 ),

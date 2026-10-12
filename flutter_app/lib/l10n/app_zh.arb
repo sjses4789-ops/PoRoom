@@ -328,5 +328,76 @@
   "guestLoginButton": "登录",
   "loginRequiredTitle": "需要登录",
   "loginRequiredBody": "未登录时只能浏览。发帖、点赞、加入房间等功能需要先登录。",
-  "guestViewerBanner": "仅供浏览 · 登录后可使用全部功能"
+  "guestViewerBanner": "仅供浏览 · 登录后可使用全部功能",
+  "homeGreeting": "今天也一起专注吧",
+  "homeGreetingSub": "和正在创作的作者们一起吧。",
+  "homeSystemRoomSub": "现在就能加入的常驻工作室",
+  "homeDawnRoom": "凌晨工作室",
+  "homeDeadlineRoom": "截稿工作室",
+  "homeEnterRoom": "进入工作室",
+  "homeRecommendedRooms": "推荐工作室",
+  "homeSeeAll": "查看全部",
+  "homeMyLife": "我的写作生活",
+  "homeLoginForDashboard": "登录后可在这里查看今天的目标和写作记录。",
+  "homeTodayGoal": "今日目标",
+  "homeGoalAchieved": "已完成目标的{percent}%",
+  "@homeGoalAchieved": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "homeNoGoal": "目标可在网页的[我的]中设置",
+  "homeFocusToday": "今日专注时间",
+  "homeStreak": "连续写作",
+  "homeDays": "{count}天",
+  "@homeDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeMinutesOnly": "{minutes}分钟",
+  "@homeMinutesOnly": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "homeHoursOnly": "{hours}小时",
+  "@homeHoursOnly": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "homeHoursMinutes": "{hours}小时{minutes}分钟",
+  "@homeHoursMinutes": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "homeChallenges": "参与中的挑战",
+  "homeSeeDetail": "查看详情",
+  "homeNoChallenge": "还没有参与的挑战。去[挑战]看看吧。",
+  "homeFeedTitle": "作者们的动态",
+  "homeCountSuffix": "人",
+  "homeChallengeDone": "已完成今日目标 🎉",
+  "homeChallengeRemaining": "距今日目标还差{remaining}",
+  "@homeChallengeRemaining": {
+    "placeholders": {
+      "remaining": {
+        "type": "String"
+      }
+    }
+  }
 }

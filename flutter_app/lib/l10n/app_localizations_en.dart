@@ -566,4 +566,96 @@ class L10nEn extends L10n {
 
   @override
   String get guestViewerBanner => 'View only · Log in to use every feature';
+
+  @override
+  String get homeGreeting => 'Let\'s focus together today';
+
+  @override
+  String get homeGreetingSub => 'Join the writers who are working right now.';
+
+  @override
+  String get homeSystemRoomSub => 'An always-open room you can join now';
+
+  @override
+  String get homeDawnRoom => 'Dawn room';
+
+  @override
+  String get homeDeadlineRoom => 'Deadline room';
+
+  @override
+  String get homeEnterRoom => 'Enter the room';
+
+  @override
+  String get homeRecommendedRooms => 'Recommended rooms';
+
+  @override
+  String get homeSeeAll => 'See all';
+
+  @override
+  String get homeMyLife => 'My writing life';
+
+  @override
+  String get homeLoginForDashboard =>
+      'Log in to see today\'s goal and your writing record here.';
+
+  @override
+  String get homeTodayGoal => 'Today\'s goal';
+
+  @override
+  String homeGoalAchieved(int percent) {
+    return '$percent% of your goal';
+  }
+
+  @override
+  String get homeNoGoal => 'Set a goal in Me on the web';
+
+  @override
+  String get homeFocusToday => 'Focus today';
+
+  @override
+  String get homeStreak => 'Writing streak';
+
+  @override
+  String homeDays(int count) {
+    return '$count days';
+  }
+
+  @override
+  String homeMinutesOnly(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String homeHoursOnly(int hours) {
+    return '$hours hr';
+  }
+
+  @override
+  String homeHoursMinutes(int hours, int minutes) {
+    return '$hours hr $minutes min';
+  }
+
+  @override
+  String get homeChallenges => 'Your challenges';
+
+  @override
+  String get homeSeeDetail => 'Details';
+
+  @override
+  String get homeNoChallenge =>
+      'You haven\'t joined a challenge. Try one in Compete.';
+
+  @override
+  String get homeFeedTitle => 'Writers\' feed';
+
+  @override
+  String get homeCountSuffix => '';
+
+  @override
+  String get homeChallengeDone => 'You reached today\'s goal 🎉';
+
+  @override
+  String homeChallengeRemaining(String remaining) {
+    return '$remaining left for today\'s goal';
+  }
 }

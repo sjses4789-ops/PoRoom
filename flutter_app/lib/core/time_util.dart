@@ -2,12 +2,14 @@
 // 시작한 날의 기록으로 남긴다. "오늘"(랭킹·집계)은 항상 한국 시간(KST) 기준이다.
 String pad2(int n) => n.toString().padLeft(2, '0');
 
-String toLocalDateKey(DateTime d) => '${d.year}-${pad2(d.month)}-${pad2(d.day)}';
+String toLocalDateKey(DateTime d) =>
+    '${d.year}-${pad2(d.month)}-${pad2(d.day)}';
 
 String effectiveRecordDate(DateTime sessionStart, [DateTime? nowArg]) {
   final now = nowArg ?? DateTime.now();
   if (now.hour < 1) {
-    final startedYesterday = toLocalDateKey(sessionStart) != toLocalDateKey(now);
+    final startedYesterday =
+        toLocalDateKey(sessionStart) != toLocalDateKey(now);
     if (startedYesterday && sessionStart.hour >= 23) {
       return toLocalDateKey(sessionStart);
     }
