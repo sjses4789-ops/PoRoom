@@ -59,26 +59,62 @@ export function useRoomChat(roomId: string, selfId: string, onIncoming?: () => v
     const add = (msg: ChatMessage) =>
       setMessages((prev) => (prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]));
 
+    // 실시간 신호는 방 참여자 누구나 보낼 수 있어 내용을 믿을 수 없다(웹과 같은 이유) — 신호에는 메시지 id만
+    // 실려 오고, DB(RLS로 보호됨)에서 그 메시지를 직접 읽어 확인한 것만 화면에 반영한다.
+    const acceptSignal = async (payload: unknown): Promise<ChatMessage | null> => {
+      const id = (payload as { id?: unknown } | null)?.id;
+      if (typeof id !== "string") return null;
+      const { data } = await supabase
+        .from("chat_messages")
+        .select("id,user_id,content,created_at,target_user_id")
+        .eq("id", id)
+        .maybeSingle<MessageRow>();
+      if (!data) return null;
+      const msg = toMessage(data);
+      add(msg);
+      return msg;
+    };
+
     const roomChannel = supabase
       .channel(`room-chat:${roomId}`, { config: { private: true } })
       .on("broadcast", { event: "message" }, ({ payload }) => {
-        const msg = payload as ChatMessage;
-        add(msg);
-        if (msg.userId !== selfId) onIncomingRef.current?.();
+        acceptSignal(payload).then((msg) => {
+          if (msg && msg.userId !== selfId) onIncomingRef.current?.();
+        });
       })
       .on("broadcast", { event: "delete" }, ({ payload }) => {
-        const { id } = payload as { id: string };
-        setMessages((prev) => prev.filter((m) => m.id !== id));
+        // DB에서 정말 지워진 메시지일 때만 화면에서 뺀다.
+        const id = (payload as { id?: unknown } | null)?.id;
+        if (typeof id !== "string") return;
+        supabase
+          .from("chat_messages")
+          .select("id")
+          .eq("id", id)
+          .maybeSingle()
+          .then(({ data }) => {
+            if (!data) setMessages((prev) => prev.filter((m) => m.id !== id));
+          });
       })
-      .on("broadcast", { event: "clear" }, () => setMessages([]))
+      .on("broadcast", { event: "clear" }, () => {
+        // 방장이 채팅을 초기화했다 — 신호만 믿지 않고 DB 기준으로 다시 불러온다.
+        supabase
+          .from("chat_messages")
+          .select("id,user_id,content,created_at,target_user_id")
+          .eq("room_id", roomId)
+          .order("created_at", { ascending: false })
+          .limit(50)
+          .returns<MessageRow[]>()
+          .then(({ data }) => setMessages((data ?? []).map(toMessage).reverse()));
+      })
       .subscribe();
     channelRef.current = roomChannel;
 
     const inboxChannel = supabase
       .channel(`whisper-inbox:${roomId}:${selfId}`, { config: { private: true } })
       .on("broadcast", { event: "whisper" }, ({ payload }) => {
-        add(payload as ChatMessage);
-        onIncomingRef.current?.();
+        acceptSignal(payload).then((msg) => {
+          if (msg) onIncomingRef.current?.();
+        });
       })
       .subscribe();
 
@@ -102,7 +138,7 @@ export function useRoomChat(roomId: string, selfId: string, onIncoming?: () => v
       if (error || !data) return false;
       const message = toMessage(data);
       setMessages((prev) => (prev.some((m) => m.id === message.id) ? prev : [...prev, message]));
-      channelRef.current?.send({ type: "broadcast", event: "message", payload: message });
+      channelRef.current?.send({ type: "broadcast", event: "message", payload: { id: message.id } });
       return true;
     },
     [roomId, selfId]
