@@ -24,11 +24,144 @@
   "noMyRooms": "参加中のルームがありません。下の公開ルームに入ってみましょう。",
   "noOpenRooms": "今入れる公開ルームはありません。",
   "memberCount": "{count}人",
-  "@memberCount": { "placeholders": { "count": { "type": "int" } } },
+  "@memberCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "joinRoom": "入室",
   "joinFailed": "入室できませんでした。",
   "systemRoomLabel": "システムルーム",
   "comingSoon": "準備中です",
   "comingSoonBody": "この画面はまもなくアプリに追加されます。今はウェブ(poroom.kr)をご利用ください。",
-  "openOnWeb": "ウェブで開く"
+  "openOnWeb": "ウェブで開く",
+  "back": "戻る",
+  "cancel": "キャンセル",
+  "close": "閉じる",
+  "confirm": "OK",
+  "delete": "削除",
+  "roomTabMembers": "参加者",
+  "roomTabChat": "チャット",
+  "roomTabRecord": "記録",
+  "roomMenuWeb": "予定・投票・掲示板・記録（ウェブ）",
+  "roomLeave": "ルームを出る",
+  "roomLeaveConfirmBody": "このルームを出ますか？",
+  "roomNotFound": "ルームが見つかりません",
+  "roomNotJoined": "まだこのルームに入室していません。",
+  "roomInviteOnly": "招待コードで入室できるルームです。",
+  "roomEnter": "入室する",
+  "participantsLine": "参加者 {count}人 · オンライン {online}人",
+  "@participantsLine": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "online": {
+        "type": "int"
+      }
+    }
+  },
+  "participantsLineCap": "参加者 {count}/{capacity}人 · オンライン {online}人",
+  "@participantsLineCap": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "capacity": {
+        "type": "int"
+      },
+      "online": {
+        "type": "int"
+      }
+    }
+  },
+  "phaseFocus": "集中",
+  "phaseBreak": "休憩",
+  "phaseIdle": "待機",
+  "lastSeen": "{label}にオンライン",
+  "@lastSeen": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "neverSeen": "接続履歴なし",
+  "justNow": "たった今",
+  "minutesAgo": "{count}分前",
+  "@minutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "hoursAgo": "{count}時間前",
+  "@hoursAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "daysAgo": "{count}日前",
+  "@daysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "charUnit": "字",
+  "cutUnit": "コマ",
+  "recordsPrivate": "非公開",
+  "pomodoroStart": "開始",
+  "pomodoroPause": "一時停止",
+  "pomodoroResume": "再開",
+  "pomodoroReset": "リセット",
+  "pomodoroFocusLabel": "集中",
+  "pomodoroBreakLabel": "休憩",
+  "minuteUnit": "分",
+  "pomodoroSessions": "{count}回目",
+  "@pomodoroSessions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatEmpty": "まだ会話がありません。最初のあいさつをどうぞ 👋",
+  "chatInputHint": "メッセージを入力",
+  "chatSend": "送信",
+  "chatDeleteTitle": "メッセージを削除",
+  "chatDeleteBody": "このメッセージを削除しますか？",
+  "whisperTag": "ささやき",
+  "selfLabel": "自分",
+  "unknownUser": "不明",
+  "recordToday": "今日 {count}{unit}",
+  "@recordToday": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "recordAdd": "追加",
+  "recordInputHint": "追加する文字数（コマ数）",
+  "recordAdded": "記録しました",
+  "recordFailed": "記録できませんでした。",
+  "sessionTakenOver": "別のブラウザまたは端末でこのルームの続きを使い始めたため、この画面のポモドーロを停止しました。",
+  "sessionGuardDuplicateTitle": "すでに別の場所で接続中です",
+  "sessionGuardDuplicateBody": "同じアカウントが別のブラウザまたは端末からこのルームに接続しています。両方で同時に使うと、ポモドーロ時間や文字数の記録が重複して加算されることがあります。",
+  "sessionGuardContinueHere": "この画面で続ける",
+  "sessionGuardContinueHint": "もう一方の接続は終了し、そちらのポモドーロは停止します。",
+  "sessionGuardLeave": "PoRoomに戻る",
+  "sessionGuardTakenOverTitle": "別の場所でこのルームを続けています",
+  "sessionGuardTakenOverBody": "同じアカウントが別のブラウザまたは端末でこのルームに接続し、続きを使い始めました。記録が重複しないよう、この画面のポモドーロは停止しました。",
+  "sessionGuardOk": "PoRoomへ移動"
 }

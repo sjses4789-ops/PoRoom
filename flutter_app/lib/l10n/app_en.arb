@@ -24,11 +24,144 @@
   "noMyRooms": "You haven't joined any rooms. Try an open room below.",
   "noOpenRooms": "No open rooms to join right now.",
   "memberCount": "{count} people",
-  "@memberCount": { "placeholders": { "count": { "type": "int" } } },
+  "@memberCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "joinRoom": "Join",
   "joinFailed": "Couldn't join the room.",
   "systemRoomLabel": "System room",
   "comingSoon": "Coming soon",
   "comingSoonBody": "This screen is coming to the app soon. For now, please use the web (poroom.kr).",
-  "openOnWeb": "Open on the web"
+  "openOnWeb": "Open on the web",
+  "back": "Back",
+  "cancel": "Cancel",
+  "close": "Close",
+  "confirm": "OK",
+  "delete": "Delete",
+  "roomTabMembers": "Members",
+  "roomTabChat": "Chat",
+  "roomTabRecord": "Record",
+  "roomMenuWeb": "Events, polls, board & records (web)",
+  "roomLeave": "Leave room",
+  "roomLeaveConfirmBody": "Leave this room?",
+  "roomNotFound": "Room not found",
+  "roomNotJoined": "You haven't joined this room yet.",
+  "roomInviteOnly": "This room is join-by-invite-code only.",
+  "roomEnter": "Join",
+  "participantsLine": "{count} members · {online} online",
+  "@participantsLine": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "online": {
+        "type": "int"
+      }
+    }
+  },
+  "participantsLineCap": "{count}/{capacity} members · {online} online",
+  "@participantsLineCap": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "capacity": {
+        "type": "int"
+      },
+      "online": {
+        "type": "int"
+      }
+    }
+  },
+  "phaseFocus": "Focus",
+  "phaseBreak": "Break",
+  "phaseIdle": "Idle",
+  "lastSeen": "Seen {label}",
+  "@lastSeen": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "neverSeen": "Never seen",
+  "justNow": "just now",
+  "minutesAgo": "{count} min ago",
+  "@minutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "hoursAgo": "{count} hr ago",
+  "@hoursAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "daysAgo": "{count} d ago",
+  "@daysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "charUnit": " chars",
+  "cutUnit": " cuts",
+  "recordsPrivate": "Private",
+  "pomodoroStart": "Start",
+  "pomodoroPause": "Pause",
+  "pomodoroResume": "Resume",
+  "pomodoroReset": "Reset",
+  "pomodoroFocusLabel": "Focus",
+  "pomodoroBreakLabel": "Break",
+  "minuteUnit": " min",
+  "pomodoroSessions": "Round {count}",
+  "@pomodoroSessions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatEmpty": "No messages yet. Say hi 👋",
+  "chatInputHint": "Type a message",
+  "chatSend": "Send",
+  "chatDeleteTitle": "Delete message",
+  "chatDeleteBody": "Delete this message?",
+  "whisperTag": "Whisper",
+  "selfLabel": "Me",
+  "unknownUser": "Unknown",
+  "recordToday": "Today {count}{unit}",
+  "@recordToday": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "recordAdd": "Add",
+  "recordInputHint": "Characters (cuts) to add",
+  "recordAdded": "Saved",
+  "recordFailed": "Couldn't save.",
+  "sessionTakenOver": "You continued this room in another browser or device, so the Pomodoro on this screen was stopped.",
+  "sessionGuardDuplicateTitle": "You are already connected elsewhere",
+  "sessionGuardDuplicateBody": "This account is already in this room from another browser or device. Using both at once can double-count your Pomodoro time and character records.",
+  "sessionGuardContinueHere": "Continue on this screen",
+  "sessionGuardContinueHint": "The other connection will end and its Pomodoro will stop.",
+  "sessionGuardLeave": "Back to PoRoom",
+  "sessionGuardTakenOverTitle": "You continued this room somewhere else",
+  "sessionGuardTakenOverBody": "This account joined this room from another browser or device and took over. Your Pomodoro on this screen was stopped so records do not overlap.",
+  "sessionGuardOk": "Go to PoRoom"
 }

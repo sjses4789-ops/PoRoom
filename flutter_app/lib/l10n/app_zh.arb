@@ -24,11 +24,144 @@
   "noMyRooms": "您还没有加入任何房间。试试下面的公开房间吧。",
   "noOpenRooms": "目前没有可加入的公开房间。",
   "memberCount": "{count}人",
-  "@memberCount": { "placeholders": { "count": { "type": "int" } } },
+  "@memberCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "joinRoom": "加入",
   "joinFailed": "加入房间失败。",
   "systemRoomLabel": "系统房间",
   "comingSoon": "敬请期待",
   "comingSoonBody": "此页面即将上线。目前请先使用网页(poroom.kr)。",
-  "openOnWeb": "在网页中打开"
+  "openOnWeb": "在网页中打开",
+  "back": "返回",
+  "cancel": "取消",
+  "close": "关闭",
+  "confirm": "确定",
+  "delete": "删除",
+  "roomTabMembers": "成员",
+  "roomTabChat": "聊天",
+  "roomTabRecord": "记录",
+  "roomMenuWeb": "日程·投票·公告栏·记录（网页）",
+  "roomLeave": "离开房间",
+  "roomLeaveConfirmBody": "要离开这个房间吗？",
+  "roomNotFound": "找不到房间",
+  "roomNotJoined": "您还没有加入这个房间。",
+  "roomInviteOnly": "这个房间需要邀请码才能加入。",
+  "roomEnter": "加入",
+  "participantsLine": "成员 {count}人 · 在线 {online}人",
+  "@participantsLine": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "online": {
+        "type": "int"
+      }
+    }
+  },
+  "participantsLineCap": "成员 {count}/{capacity}人 · 在线 {online}人",
+  "@participantsLineCap": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "capacity": {
+        "type": "int"
+      },
+      "online": {
+        "type": "int"
+      }
+    }
+  },
+  "phaseFocus": "专注",
+  "phaseBreak": "休息",
+  "phaseIdle": "待机",
+  "lastSeen": "{label}在线",
+  "@lastSeen": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "neverSeen": "无在线记录",
+  "justNow": "刚刚",
+  "minutesAgo": "{count}分钟前",
+  "@minutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "hoursAgo": "{count}小时前",
+  "@hoursAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "daysAgo": "{count}天前",
+  "@daysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "charUnit": "字",
+  "cutUnit": "格",
+  "recordsPrivate": "不公开",
+  "pomodoroStart": "开始",
+  "pomodoroPause": "暂停",
+  "pomodoroResume": "继续",
+  "pomodoroReset": "重置",
+  "pomodoroFocusLabel": "专注",
+  "pomodoroBreakLabel": "休息",
+  "minuteUnit": "分钟",
+  "pomodoroSessions": "第{count}轮",
+  "@pomodoroSessions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatEmpty": "还没有消息。打个招呼吧 👋",
+  "chatInputHint": "输入消息",
+  "chatSend": "发送",
+  "chatDeleteTitle": "删除消息",
+  "chatDeleteBody": "要删除这条消息吗？",
+  "whisperTag": "悄悄话",
+  "selfLabel": "我",
+  "unknownUser": "未知",
+  "recordToday": "今天 {count}{unit}",
+  "@recordToday": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "recordAdd": "添加",
+  "recordInputHint": "要添加的字数（格数）",
+  "recordAdded": "已记录",
+  "recordFailed": "记录失败。",
+  "sessionTakenOver": "您在另一个浏览器或设备上继续使用了此房间，因此此屏幕的番茄钟已停止。",
+  "sessionGuardDuplicateTitle": "您已在其他地方连接",
+  "sessionGuardDuplicateBody": "同一账号已在另一个浏览器或设备上进入此房间。同时使用两处可能会让番茄钟时间和字数记录重复累计。",
+  "sessionGuardContinueHere": "在此屏幕继续使用",
+  "sessionGuardContinueHint": "另一处的连接将结束，那边的番茄钟会停止。",
+  "sessionGuardLeave": "返回PoRoom",
+  "sessionGuardTakenOverTitle": "您已在其他地方继续使用此房间",
+  "sessionGuardTakenOverBody": "同一账号在另一个浏览器或设备上进入此房间并接管了使用。为避免记录重叠，此屏幕的番茄钟已停止。",
+  "sessionGuardOk": "前往PoRoom"
 }

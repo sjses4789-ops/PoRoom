@@ -104,4 +104,203 @@ class L10nEn extends L10n {
 
   @override
   String get openOnWeb => 'Open on the web';
+
+  @override
+  String get back => 'Back';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get close => 'Close';
+
+  @override
+  String get confirm => 'OK';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get roomTabMembers => 'Members';
+
+  @override
+  String get roomTabChat => 'Chat';
+
+  @override
+  String get roomTabRecord => 'Record';
+
+  @override
+  String get roomMenuWeb => 'Events, polls, board & records (web)';
+
+  @override
+  String get roomLeave => 'Leave room';
+
+  @override
+  String get roomLeaveConfirmBody => 'Leave this room?';
+
+  @override
+  String get roomNotFound => 'Room not found';
+
+  @override
+  String get roomNotJoined => 'You haven\'t joined this room yet.';
+
+  @override
+  String get roomInviteOnly => 'This room is join-by-invite-code only.';
+
+  @override
+  String get roomEnter => 'Join';
+
+  @override
+  String participantsLine(int count, int online) {
+    return '$count members · $online online';
+  }
+
+  @override
+  String participantsLineCap(int count, int capacity, int online) {
+    return '$count/$capacity members · $online online';
+  }
+
+  @override
+  String get phaseFocus => 'Focus';
+
+  @override
+  String get phaseBreak => 'Break';
+
+  @override
+  String get phaseIdle => 'Idle';
+
+  @override
+  String lastSeen(String label) {
+    return 'Seen $label';
+  }
+
+  @override
+  String get neverSeen => 'Never seen';
+
+  @override
+  String get justNow => 'just now';
+
+  @override
+  String minutesAgo(int count) {
+    return '$count min ago';
+  }
+
+  @override
+  String hoursAgo(int count) {
+    return '$count hr ago';
+  }
+
+  @override
+  String daysAgo(int count) {
+    return '$count d ago';
+  }
+
+  @override
+  String get charUnit => ' chars';
+
+  @override
+  String get cutUnit => ' cuts';
+
+  @override
+  String get recordsPrivate => 'Private';
+
+  @override
+  String get pomodoroStart => 'Start';
+
+  @override
+  String get pomodoroPause => 'Pause';
+
+  @override
+  String get pomodoroResume => 'Resume';
+
+  @override
+  String get pomodoroReset => 'Reset';
+
+  @override
+  String get pomodoroFocusLabel => 'Focus';
+
+  @override
+  String get pomodoroBreakLabel => 'Break';
+
+  @override
+  String get minuteUnit => ' min';
+
+  @override
+  String pomodoroSessions(int count) {
+    return 'Round $count';
+  }
+
+  @override
+  String get chatEmpty => 'No messages yet. Say hi 👋';
+
+  @override
+  String get chatInputHint => 'Type a message';
+
+  @override
+  String get chatSend => 'Send';
+
+  @override
+  String get chatDeleteTitle => 'Delete message';
+
+  @override
+  String get chatDeleteBody => 'Delete this message?';
+
+  @override
+  String get whisperTag => 'Whisper';
+
+  @override
+  String get selfLabel => 'Me';
+
+  @override
+  String get unknownUser => 'Unknown';
+
+  @override
+  String recordToday(int count, String unit) {
+    return 'Today $count$unit';
+  }
+
+  @override
+  String get recordAdd => 'Add';
+
+  @override
+  String get recordInputHint => 'Characters (cuts) to add';
+
+  @override
+  String get recordAdded => 'Saved';
+
+  @override
+  String get recordFailed => 'Couldn\'t save.';
+
+  @override
+  String get sessionTakenOver =>
+      'You continued this room in another browser or device, so the Pomodoro on this screen was stopped.';
+
+  @override
+  String get sessionGuardDuplicateTitle =>
+      'You are already connected elsewhere';
+
+  @override
+  String get sessionGuardDuplicateBody =>
+      'This account is already in this room from another browser or device. Using both at once can double-count your Pomodoro time and character records.';
+
+  @override
+  String get sessionGuardContinueHere => 'Continue on this screen';
+
+  @override
+  String get sessionGuardContinueHint =>
+      'The other connection will end and its Pomodoro will stop.';
+
+  @override
+  String get sessionGuardLeave => 'Back to PoRoom';
+
+  @override
+  String get sessionGuardTakenOverTitle =>
+      'You continued this room somewhere else';
+
+  @override
+  String get sessionGuardTakenOverBody =>
+      'This account joined this room from another browser or device and took over. Your Pomodoro on this screen was stopped so records do not overlap.';
+
+  @override
+  String get sessionGuardOk => 'Go to PoRoom';
 }

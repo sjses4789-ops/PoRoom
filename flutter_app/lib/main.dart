@@ -3,7 +3,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'app.dart';
 import 'core/auth_controller.dart';
+import 'core/browser_id.dart';
 import 'core/env.dart';
+import 'core/pomodoro_controller.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,9 +18,10 @@ Future<void> main() async {
     await Supabase.initialize(url: Env.supabaseUrl, publishableKey: Env.supabaseAnonKey);
   }
 
+  await BrowserId.init();
   final auth = AuthController();
   await auth.init();
-  runApp(PoRoomApp(auth: auth));
+  runApp(PoRoomApp(auth: auth, pomodoro: PomodoroController()));
 }
 
 // 개발 중 env.json 없이 실행했을 때 안내만 띄운다.
