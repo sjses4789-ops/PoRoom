@@ -10,17 +10,20 @@ export function AdminEventEditButton({
   currentTitle,
   currentStartDate,
   currentEndDate,
+  currentMetric,
 }: {
   challengeId: string;
   currentTitle: string;
   currentStartDate: string | null;
   currentEndDate: string | null;
+  currentMetric: "chars" | "minutes" | "achievement";
 }) {
   const t = useTranslations("admin");
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [metric, setMetric] = useState(currentMetric);
   const titleRef = useRef<HTMLInputElement>(null);
   const startRef = useRef<HTMLInputElement>(null);
   const endRef = useRef<HTMLInputElement>(null);
@@ -34,6 +37,7 @@ export function AdminEventEditButton({
     formData.set("title", titleRef.current?.value ?? "");
     formData.set("startDate", startRef.current?.value ?? "");
     formData.set("endDate", endRef.current?.value ?? "");
+    formData.set("metric", metric);
     const poster = posterRef.current?.files?.[0];
     if (poster) formData.set("posterImage", poster);
 
@@ -75,6 +79,20 @@ export function AdminEventEditButton({
               placeholder={t("eventNamePlaceholder")}
               className="rounded-md border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 dark:text-white outline-none focus:border-neutral-400"
             />
+            <div className="flex gap-3">
+              {(["chars", "minutes", "achievement"] as const).map((m) => (
+                <label key={m} className="flex items-center gap-1.5 text-xs text-neutral-700 dark:text-neutral-300">
+                  <input
+                    type="radio"
+                    name={`metric-${challengeId}`}
+                    checked={metric === m}
+                    onChange={() => setMetric(m)}
+                    className="accent-neutral-900"
+                  />
+                  {m === "chars" ? t("metricChars") : m === "minutes" ? t("metricMinutes") : t("metricAchievement")}
+                </label>
+              ))}
+            </div>
             <div className="flex gap-2">
               <input
                 ref={startRef}

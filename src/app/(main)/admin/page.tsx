@@ -20,6 +20,7 @@ type EventRow = {
   title: string;
   start_date: string | null;
   end_date: string | null;
+  metric: "chars" | "minutes" | "achievement";
 };
 type UserRow = {
   id: string;
@@ -61,7 +62,7 @@ export default async function AdminPage() {
       supabase.from("room_members").select("room_id").returns<MemberRow[]>(),
       supabase
         .from("challenges")
-        .select("id,title,start_date,end_date")
+        .select("id,title,start_date,end_date,metric")
         .eq("is_admin_event", true)
         .order("created_at", { ascending: false })
         .returns<EventRow[]>(),
@@ -215,6 +216,7 @@ export default async function AdminPage() {
                     currentTitle={e.title}
                     currentStartDate={e.start_date}
                     currentEndDate={e.end_date}
+                    currentMetric={e.metric}
                   />
                   <AdminEventDeleteButton challengeId={e.id} />
                 </div>

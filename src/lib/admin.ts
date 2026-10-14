@@ -85,9 +85,11 @@ export async function createAdminChallengeEvent(
   return null;
 }
 
-// 관리자가 만든 이벤트(공모전 등)의 이름/기간/공고 이미지를 나중에 고칠
+// 관리자가 만든 이벤트(공모전 등)의 이름/기간/측정 방식(글자수·작업시간·달성 여부)/공고 이미지를 나중에 고칠
 // 수 있게 한다 — 이전엔 생성 후 수정 방법이 없어 오탈자 하나에도 삭제 후
 // 재생성해야 했다.
+const METRICS = ["chars", "minutes", "achievement"];
+
 export async function adminUpdateChallengeEvent(
   _prevState: ActionResult,
   formData: FormData
@@ -102,13 +104,15 @@ export async function adminUpdateChallengeEvent(
   const title = String(formData.get("title") ?? "").trim();
   const startDate = String(formData.get("startDate") ?? "");
   const endDate = String(formData.get("endDate") ?? "");
+  const metric = String(formData.get("metric") ?? "");
 
   if (!challengeId) return { error: await err("invalidRequest") };
   if (!title) return { error: await err("eventNameRequired") };
   if (!startDate || !endDate) return { error: await err("periodRequired") };
   if (endDate < startDate) return { error: await err("endBeforeStart") };
+  if (!METRICS.includes(metric)) return { error: await err("invalidMetric") };
 
-  const patch: Record<string, unknown> = { title, start_date: startDate, end_date: endDate };
+  const patch: Record<string, unknown> = { title, start_date: startDate, end_date: endDate, metric };
 
   const posterImage = formData.get("posterImage");
   if (posterImage instanceof File && posterImage.size > 0) {
