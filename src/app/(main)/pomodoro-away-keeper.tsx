@@ -31,7 +31,9 @@ export function PomodoroAwayKeeper() {
   // 접속 중으로 보이는 경우: (1) 그 방 페이지에 있을 때(방 화면이 직접 접속을 맡는다), (2) 그 방에서 뽀모도로를
   // "실행 중"이면서 poroom의 다른 페이지에 있을 때(이 컴포넌트가 대신 붙어 있는다). 일시정지·정지 상태로
   // 방을 떠나면 비접속이다.
-  const active = !!roomId && pomodoro.started && pomodoro.running;
+  // 마감방/새벽방은 멤버가 유지되는 방이 아니라서(떠나면 참여자 목록에서도 빠진다 — SystemRoomLeaveGuard) 방을 떠난 뒤
+  // 대신 접속해 있거나 "자리 비움/휴식 중"으로 바꾸지 않는다.
+  const active = !!roomId && !pomodoro.activeRoomIsSystem && pomodoro.started && pomodoro.running;
   const awayRoomId = active && pathname !== `/room/${roomId}` ? roomId : null;
   const statusKey: "away" | "resting" =
     pomodoro.running && pomodoro.phase === "focus" ? "away" : "resting";
