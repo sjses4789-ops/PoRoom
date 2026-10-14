@@ -92,7 +92,9 @@ export default async function CompetePage() {
       .from("challenges")
       .select(CHALLENGE_SELECT)
       .is("kind", null)
-      .order("created_at", { ascending: false })
+      // 비로그인(anon) 롤은 created_at 컬럼을 읽을 권한이 없어서 이 컬럼으로 정렬하면 쿼리 전체가 실패한다
+      // (이벤트 챌린지 목록이 통째로 비어 보이던 원인) — 비로그인일 땐 읽을 수 있는 시작일로 정렬한다.
+      .order(selfId ? "created_at" : "start_date", { ascending: false, nullsFirst: true })
       .limit(40)
       .returns<ChallengeRow[]>(),
     supabase
