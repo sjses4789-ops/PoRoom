@@ -528,10 +528,8 @@ export function ChatPanel({
           const canDelete = isSelf || canModerate;
           const avatarSrc = characterSrc(characterIdOf(m.userId));
           return (
-            <div
-              key={m.id}
-              className={`group flex items-end gap-1.5 text-sm ${isSelf ? "flex-row-reverse" : "flex-row"}`}
-            >
+            <div key={m.id} className="group">
+            <div className={`flex items-end gap-1.5 text-sm ${isSelf ? "flex-row-reverse" : "flex-row"}`}>
               <div
                 // 고른 말풍선 색이 프로필 사진 테두리색이 된다(안 골랐으면 기본 회색 테두리).
                 onContextMenu={(e) => {
@@ -622,41 +620,42 @@ export function ChatPanel({
                     </button>
                   )}
                 </div>
-                {/* 메시지 아래의 반응 개수 — 내가 누른 반응은 강조하고, 누르면 취소/추가된다. 차단한 사람의 반응은 세지 않는다. */}
-                {(() => {
-                  const counts = new Map<string, { n: number; mine: boolean }>();
-                  for (const r of reactions[m.id] ?? []) {
-                    if (blockedIds.includes(r.userId)) continue;
-                    const c = counts.get(r.emoji) ?? { n: 0, mine: false };
-                    c.n += 1;
-                    if (r.userId === selfId) c.mine = true;
-                    counts.set(r.emoji, c);
-                  }
-                  if (counts.size === 0) return null;
-                  return (
-                    <div className={`mt-1 flex flex-wrap gap-1 ${isSelf ? "justify-end" : "justify-start"}`}>
-                      {REACTIONS.filter((r) => counts.has(r.key)).map((r) => {
-                        const c = counts.get(r.key)!;
-                        return (
-                          <button
-                            key={r.key}
-                            type="button"
-                            onClick={() => void toggleReaction(m.id, r.key)}
-                            className={`flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[11px] leading-none transition ${
-                              c.mine
-                                ? "border-rose-300 bg-rose-50 text-rose-700 dark:border-rose-500/50 dark:bg-rose-500/10 dark:text-rose-300"
-                                : "border-neutral-200 text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
-                            }`}
-                          >
-                            <span>{REACTION_EMOJI[r.key]}</span>
-                            <span className="tabular-nums">{c.n}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  );
-                })()}
               </div>
+            </div>
+              {/* 메시지 아래의 반응 개수 — 내가 누른 반응은 강조하고, 누르면 취소/추가된다. 차단한 사람의 반응은 세지 않는다. */}
+              {(() => {
+                const counts = new Map<string, { n: number; mine: boolean }>();
+                for (const r of reactions[m.id] ?? []) {
+                  if (blockedIds.includes(r.userId)) continue;
+                  const c = counts.get(r.emoji) ?? { n: 0, mine: false };
+                  c.n += 1;
+                  if (r.userId === selfId) c.mine = true;
+                  counts.set(r.emoji, c);
+                }
+                if (counts.size === 0) return null;
+                return (
+                  <div className={`mt-1 flex flex-wrap gap-1 ${isSelf ? "justify-end pr-[34px]" : "justify-start pl-[34px]"}`}>
+                    {REACTIONS.filter((r) => counts.has(r.key)).map((r) => {
+                      const c = counts.get(r.key)!;
+                      return (
+                        <button
+                          key={r.key}
+                          type="button"
+                          onClick={() => void toggleReaction(m.id, r.key)}
+                          className={`flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[11px] leading-none transition ${
+                            c.mine
+                              ? "border-rose-300 bg-rose-50 text-rose-700 dark:border-rose-500/50 dark:bg-rose-500/10 dark:text-rose-300"
+                              : "border-neutral-200 text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+                          }`}
+                        >
+                          <span>{REACTION_EMOJI[r.key]}</span>
+                          <span className="tabular-nums">{c.n}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
             </div>
           );
         })}
