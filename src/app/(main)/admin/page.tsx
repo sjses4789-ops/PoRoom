@@ -200,13 +200,6 @@ export default async function AdminPage() {
           />
         </section>
       </div>
-      <section className="flex flex-col gap-3 rounded-md border border-neutral-200 p-4 dark:border-neutral-700">
-        <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">참여자 신고</h2>
-        <p className="text-xs text-neutral-400">
-          방 참여자 카드에서 접수된 신고예요. 신고 대상의 계정 차단은 위 회원 목록에서 할 수 있어요.
-        </p>
-        <AdminReportList reports={reports} />
-      </section>
     </>
   );
 
@@ -253,6 +246,13 @@ export default async function AdminPage() {
 
   const manageTab = (
     <>
+      <section className="flex flex-col gap-3 rounded-md border border-neutral-200 p-4 dark:border-neutral-700">
+        <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">참여자 신고</h2>
+        <p className="text-xs text-neutral-400">
+          방 참여자 카드에서 접수된 신고예요. 신고 대상의 계정 차단은 [방 & 회원] 탭의 회원 목록에서 할 수 있어요.
+        </p>
+        <AdminReportList reports={reports} />
+      </section>
       <section className="flex flex-col gap-3 rounded-md border border-neutral-200 p-4 dark:border-neutral-700">
         <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
           {t("fullBackupHeading")}
@@ -323,9 +323,9 @@ export default async function AdminPage() {
       </h1>
       <AdminTabs
         tabs={[
-          { key: "rooms", label: "방 & 회원", badge: pendingReports, content: roomsAndMembers },
+          { key: "rooms", label: "방 & 회원", content: roomsAndMembers },
           { key: "challenge", label: "챌린지", content: challengeTab },
-          { key: "manage", label: "관리", content: manageTab },
+          { key: "manage", label: "관리", badge: pendingReports, content: manageTab },
         ]}
       />
     </div>
