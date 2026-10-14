@@ -28,6 +28,7 @@
   "loginGate": {
     "title": "需要登录",
     "body": "未登录时只能浏览。加入房间、发帖、点赞、参与等功能需要先用 Google 账号登录。",
+    "roomBody": "进入房间需要先登录。请先用 Google 账号登录后再进入。",
     "google": "使用 Google 账号登录",
     "close": "关闭"
   }

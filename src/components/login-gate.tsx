@@ -7,7 +7,7 @@ import { GoogleSignInButton } from "./google-sign-in-button";
 type LoginGate = {
   isGuest: boolean;
   // 로그인돼 있으면 true. 아니면 로그인 안내 팝업을 띄우고 false — 로그인이 필요한 동작 맨 앞에서 부른다.
-  requireLogin: () => boolean;
+  requireLogin: (reason?: "room") => boolean;
 };
 
 const LoginGateContext = createContext<LoginGate>({ isGuest: false, requireLogin: () => true });
@@ -19,11 +19,11 @@ export function useLoginGate() {
 // 비로그인(보기 전용) 방문자가 방 입장·글쓰기·반응·참여 같은 동작을 하려 할 때, 구글 계정 로그인으로 이끄는 팝업.
 export function LoginGateProvider({ isGuest, children }: { isGuest: boolean; children: React.ReactNode }) {
   const t = useTranslations("layout.loginGate");
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState<false | "default" | "room">(false);
 
-  const requireLogin = useCallback(() => {
+  const requireLogin = useCallback((reason?: "room") => {
     if (!isGuest) return true;
-    setOpen(true);
+    setOpen(reason ?? "default");
     return false;
   }, [isGuest]);
 
@@ -53,7 +53,7 @@ export function LoginGateProvider({ isGuest, children }: { isGuest: boolean; chi
             <p id="login-gate-title" className="text-base font-semibold text-neutral-900 dark:text-white">
               {t("title")}
             </p>
-            <p className="text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">{t("body")}</p>
+            <p className="text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">{open === "room" ? t("roomBody") : t("body")}</p>
             <GoogleSignInButton
               label={t("google")}
               next={typeof window !== "undefined" ? window.location.pathname + window.location.search : undefined}

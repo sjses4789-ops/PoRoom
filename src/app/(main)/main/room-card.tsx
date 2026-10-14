@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { joinOpenRoom } from "@/lib/rooms";
+import { useLoginGate } from "@/components/login-gate";
 import { useNicknameChooser } from "@/components/use-nickname-chooser";
 import { isDemoId } from "@/lib/demo-id";
 import { paletteDot, paletteCard } from "@/lib/palette";
@@ -93,6 +94,7 @@ export default function RoomCard({
   const t = useTranslations("main.roomCard");
   const [joining, setJoining] = useState(false);
   const chooser = useNicknameChooser();
+  const gate = useLoginGate();
   const mismatched = room.targetPosition !== null && room.targetPosition !== selfPosition;
 
   // 애드센스 심사용 예시 방은 누구나(비로그인 포함) 방 화면을 구경할 수
@@ -109,6 +111,35 @@ export default function RoomCard({
           }
         />
       </Link>
+    );
+  }
+
+  // 비로그인(둘러보기) 상태에서는 카드를 누르면 입장 대신 로그인 안내 팝업을 띄운다.
+  if (gate.isGuest) {
+    return (
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={() => gate.requireLogin("room")}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            gate.requireLogin("room");
+          }
+        }}
+        className="cursor-pointer"
+      >
+        <RoomCardBody
+          room={room}
+          joinSlot={
+            room.joinType === "open" ? (
+              <span className="shrink-0 rounded-md bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white">
+                {t("join")}
+              </span>
+            ) : undefined
+          }
+        />
+      </div>
     );
   }
 
