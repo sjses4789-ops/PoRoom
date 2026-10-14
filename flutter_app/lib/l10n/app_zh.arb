@@ -399,5 +399,149 @@
         "type": "String"
       }
     }
+  },
+  "notifTitle": "通知",
+  "notifEmpty": "没有新通知。",
+  "notifMarkAll": "全部已读",
+  "notifWhisper": "{from} 给你发了悄悄话",
+  "@notifWhisper": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      }
+    }
+  },
+  "notifWhisperRoom": "房间: {room}",
+  "@notifWhisperRoom": {
+    "placeholders": {
+      "room": {
+        "type": "String"
+      }
+    }
+  },
+  "notifReportResolved": "你提交的举报已处理。",
+  "notifReportResolvedMessage": "你举报的消息(照片)已处理。",
+  "notifDuelWin": "你赢得了对决“{title}”！{total}人中第1名 · 记录 {value}",
+  "@notifDuelWin": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "total": {
+        "type": "int"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "notifDuelEnd": "对决“{title}”已结束。{total}人中第{rank}名 · 记录 {value}",
+  "@notifDuelEnd": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "total": {
+        "type": "int"
+      },
+      "rank": {
+        "type": "int"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "notifEventDone": "恭喜完成“{title}”！{total}人中第{rank}名 · 记录 {value}",
+  "@notifEventDone": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "total": {
+        "type": "int"
+      },
+      "rank": {
+        "type": "int"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "notifEventEnd": "“{title}”已结束。{total}人中第{rank}名 · 记录 {value}",
+  "@notifEventEnd": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "total": {
+        "type": "int"
+      },
+      "rank": {
+        "type": "int"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "notifAchievementDone": "恭喜达成“{title}”！",
+  "@notifAchievementDone": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "notifAchievementMiss": "“{title}”已结束。这次没有达成。",
+  "@notifAchievementMiss": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "notifUnitChars": "{n}字",
+  "@notifUnitChars": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "notifUnitCuts": "{n}格",
+  "@notifUnitCuts": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "notifUnitMinutes": "{n}分钟",
+  "@notifUnitMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "weeklyTitle": "上周写作报告",
+  "weeklyBody": "{chars}字 · 专注{minutes}分钟 · 记录{days}天 · 连续{streak}天",
+  "@weeklyBody": {
+    "placeholders": {
+      "chars": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      },
+      "streak": {
+        "type": "int"
+      }
+    }
   }
 }

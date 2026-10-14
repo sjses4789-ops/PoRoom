@@ -645,4 +645,82 @@ class L10nZh extends L10n {
   String homeChallengeRemaining(String remaining) {
     return '距今日目标还差$remaining';
   }
+
+  @override
+  String get notifTitle => '通知';
+
+  @override
+  String get notifEmpty => '没有新通知。';
+
+  @override
+  String get notifMarkAll => '全部已读';
+
+  @override
+  String notifWhisper(String from) {
+    return '$from 给你发了悄悄话';
+  }
+
+  @override
+  String notifWhisperRoom(String room) {
+    return '房间: $room';
+  }
+
+  @override
+  String get notifReportResolved => '你提交的举报已处理。';
+
+  @override
+  String get notifReportResolvedMessage => '你举报的消息(照片)已处理。';
+
+  @override
+  String notifDuelWin(String title, int total, String value) {
+    return '你赢得了对决“$title”！$total人中第1名 · 记录 $value';
+  }
+
+  @override
+  String notifDuelEnd(String title, int total, int rank, String value) {
+    return '对决“$title”已结束。$total人中第$rank名 · 记录 $value';
+  }
+
+  @override
+  String notifEventDone(String title, int total, int rank, String value) {
+    return '恭喜完成“$title”！$total人中第$rank名 · 记录 $value';
+  }
+
+  @override
+  String notifEventEnd(String title, int total, int rank, String value) {
+    return '“$title”已结束。$total人中第$rank名 · 记录 $value';
+  }
+
+  @override
+  String notifAchievementDone(String title) {
+    return '恭喜达成“$title”！';
+  }
+
+  @override
+  String notifAchievementMiss(String title) {
+    return '“$title”已结束。这次没有达成。';
+  }
+
+  @override
+  String notifUnitChars(String n) {
+    return '$n字';
+  }
+
+  @override
+  String notifUnitCuts(String n) {
+    return '$n格';
+  }
+
+  @override
+  String notifUnitMinutes(String n) {
+    return '$n分钟';
+  }
+
+  @override
+  String get weeklyTitle => '上周写作报告';
+
+  @override
+  String weeklyBody(String chars, String minutes, int days, int streak) {
+    return '$chars字 · 专注$minutes分钟 · 记录$days天 · 连续$streak天';
+  }
 }

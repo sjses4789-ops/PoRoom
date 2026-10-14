@@ -648,4 +648,82 @@ class L10nJa extends L10n {
   String homeChallengeRemaining(String remaining) {
     return '今日の目標まであと$remaining';
   }
+
+  @override
+  String get notifTitle => '通知';
+
+  @override
+  String get notifEmpty => '新しい通知はありません。';
+
+  @override
+  String get notifMarkAll => 'すべて既読';
+
+  @override
+  String notifWhisper(String from) {
+    return '$fromさんからささやきが届きました';
+  }
+
+  @override
+  String notifWhisperRoom(String room) {
+    return 'ルーム: $room';
+  }
+
+  @override
+  String get notifReportResolved => '通報した内容が処理されました。';
+
+  @override
+  String get notifReportResolvedMessage => '通報したメッセージ(写真)が処理されました。';
+
+  @override
+  String notifDuelWin(String title, int total, String value) {
+    return '対決「$title」で勝利しました！$total人中1位 · 記録 $value';
+  }
+
+  @override
+  String notifDuelEnd(String title, int total, int rank, String value) {
+    return '対決「$title」が終了しました。$total人中$rank位 · 記録 $value';
+  }
+
+  @override
+  String notifEventDone(String title, int total, int rank, String value) {
+    return '「$title」の完走おめでとう！$total人中$rank位 · 記録 $value';
+  }
+
+  @override
+  String notifEventEnd(String title, int total, int rank, String value) {
+    return '「$title」が終了しました。$total人中$rank位 · 記録 $value';
+  }
+
+  @override
+  String notifAchievementDone(String title) {
+    return '「$title」の達成おめでとう！';
+  }
+
+  @override
+  String notifAchievementMiss(String title) {
+    return '「$title」が終了しました。今回は達成できませんでした。';
+  }
+
+  @override
+  String notifUnitChars(String n) {
+    return '$n文字';
+  }
+
+  @override
+  String notifUnitCuts(String n) {
+    return '$nカット';
+  }
+
+  @override
+  String notifUnitMinutes(String n) {
+    return '$n分';
+  }
+
+  @override
+  String get weeklyTitle => '先週の執筆レポート';
+
+  @override
+  String weeklyBody(String chars, String minutes, int days, int streak) {
+    return '$chars文字 · 集中$minutes分 · 記録した日$days日 · 連続$streak日';
+  }
 }

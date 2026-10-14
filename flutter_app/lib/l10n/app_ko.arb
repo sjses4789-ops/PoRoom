@@ -399,5 +399,149 @@
         "type": "String"
       }
     }
+  },
+  "notifTitle": "알림",
+  "notifEmpty": "새 알림이 없어요.",
+  "notifMarkAll": "모두 읽음",
+  "notifWhisper": "{from}님이 귓속말을 보냈어요",
+  "@notifWhisper": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      }
+    }
+  },
+  "notifWhisperRoom": "방: {room}",
+  "@notifWhisperRoom": {
+    "placeholders": {
+      "room": {
+        "type": "String"
+      }
+    }
+  },
+  "notifReportResolved": "신고하신 내용이 처리되었어요.",
+  "notifReportResolvedMessage": "신고하신 메시지(사진)가 처리되었어요.",
+  "notifDuelWin": "대결 ‘{title}’에서 승리했어요! {total}명 중 1위 · 내 기록 {value}",
+  "@notifDuelWin": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "total": {
+        "type": "int"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "notifDuelEnd": "대결 ‘{title}’이 끝났어요. {total}명 중 {rank}위 · 내 기록 {value}",
+  "@notifDuelEnd": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "total": {
+        "type": "int"
+      },
+      "rank": {
+        "type": "int"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "notifEventDone": "‘{title}’ 완주를 축하해요! {total}명 중 {rank}위 · 내 기록 {value}",
+  "@notifEventDone": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "total": {
+        "type": "int"
+      },
+      "rank": {
+        "type": "int"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "notifEventEnd": "‘{title}’이 끝났어요. {total}명 중 {rank}위 · 내 기록 {value}",
+  "@notifEventEnd": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "total": {
+        "type": "int"
+      },
+      "rank": {
+        "type": "int"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "notifAchievementDone": "‘{title}’ 달성을 축하해요!",
+  "@notifAchievementDone": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "notifAchievementMiss": "‘{title}’이 끝났어요. 이번에는 달성하지 못했어요.",
+  "@notifAchievementMiss": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "notifUnitChars": "{n}자",
+  "@notifUnitChars": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "notifUnitCuts": "{n}컷",
+  "@notifUnitCuts": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "notifUnitMinutes": "{n}분",
+  "@notifUnitMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "weeklyTitle": "지난주 집필 리포트",
+  "weeklyBody": "{chars}자 · 집중 {minutes}분 · 기록한 날 {days}일 · 연속 {streak}일",
+  "@weeklyBody": {
+    "placeholders": {
+      "chars": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      },
+      "streak": {
+        "type": "int"
+      }
+    }
   }
 }

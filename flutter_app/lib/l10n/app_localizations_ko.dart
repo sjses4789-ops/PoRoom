@@ -649,4 +649,82 @@ class L10nKo extends L10n {
   String homeChallengeRemaining(String remaining) {
     return '오늘 목표까지 $remaining 남았어요';
   }
+
+  @override
+  String get notifTitle => '알림';
+
+  @override
+  String get notifEmpty => '새 알림이 없어요.';
+
+  @override
+  String get notifMarkAll => '모두 읽음';
+
+  @override
+  String notifWhisper(String from) {
+    return '$from님이 귓속말을 보냈어요';
+  }
+
+  @override
+  String notifWhisperRoom(String room) {
+    return '방: $room';
+  }
+
+  @override
+  String get notifReportResolved => '신고하신 내용이 처리되었어요.';
+
+  @override
+  String get notifReportResolvedMessage => '신고하신 메시지(사진)가 처리되었어요.';
+
+  @override
+  String notifDuelWin(String title, int total, String value) {
+    return '대결 ‘$title’에서 승리했어요! $total명 중 1위 · 내 기록 $value';
+  }
+
+  @override
+  String notifDuelEnd(String title, int total, int rank, String value) {
+    return '대결 ‘$title’이 끝났어요. $total명 중 $rank위 · 내 기록 $value';
+  }
+
+  @override
+  String notifEventDone(String title, int total, int rank, String value) {
+    return '‘$title’ 완주를 축하해요! $total명 중 $rank위 · 내 기록 $value';
+  }
+
+  @override
+  String notifEventEnd(String title, int total, int rank, String value) {
+    return '‘$title’이 끝났어요. $total명 중 $rank위 · 내 기록 $value';
+  }
+
+  @override
+  String notifAchievementDone(String title) {
+    return '‘$title’ 달성을 축하해요!';
+  }
+
+  @override
+  String notifAchievementMiss(String title) {
+    return '‘$title’이 끝났어요. 이번에는 달성하지 못했어요.';
+  }
+
+  @override
+  String notifUnitChars(String n) {
+    return '$n자';
+  }
+
+  @override
+  String notifUnitCuts(String n) {
+    return '$n컷';
+  }
+
+  @override
+  String notifUnitMinutes(String n) {
+    return '$n분';
+  }
+
+  @override
+  String get weeklyTitle => '지난주 집필 리포트';
+
+  @override
+  String weeklyBody(String chars, String minutes, int days, int streak) {
+    return '$chars자 · 집중 $minutes분 · 기록한 날 $days일 · 연속 $streak일';
+  }
 }

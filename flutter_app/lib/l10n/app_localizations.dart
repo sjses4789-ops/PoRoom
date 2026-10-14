@@ -1270,6 +1270,114 @@ abstract class L10n {
   /// In ko, this message translates to:
   /// **'오늘 목표까지 {remaining} 남았어요'**
   String homeChallengeRemaining(String remaining);
+
+  /// No description provided for @notifTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'알림'**
+  String get notifTitle;
+
+  /// No description provided for @notifEmpty.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 알림이 없어요.'**
+  String get notifEmpty;
+
+  /// No description provided for @notifMarkAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'모두 읽음'**
+  String get notifMarkAll;
+
+  /// No description provided for @notifWhisper.
+  ///
+  /// In ko, this message translates to:
+  /// **'{from}님이 귓속말을 보냈어요'**
+  String notifWhisper(String from);
+
+  /// No description provided for @notifWhisperRoom.
+  ///
+  /// In ko, this message translates to:
+  /// **'방: {room}'**
+  String notifWhisperRoom(String room);
+
+  /// No description provided for @notifReportResolved.
+  ///
+  /// In ko, this message translates to:
+  /// **'신고하신 내용이 처리되었어요.'**
+  String get notifReportResolved;
+
+  /// No description provided for @notifReportResolvedMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'신고하신 메시지(사진)가 처리되었어요.'**
+  String get notifReportResolvedMessage;
+
+  /// No description provided for @notifDuelWin.
+  ///
+  /// In ko, this message translates to:
+  /// **'대결 ‘{title}’에서 승리했어요! {total}명 중 1위 · 내 기록 {value}'**
+  String notifDuelWin(String title, int total, String value);
+
+  /// No description provided for @notifDuelEnd.
+  ///
+  /// In ko, this message translates to:
+  /// **'대결 ‘{title}’이 끝났어요. {total}명 중 {rank}위 · 내 기록 {value}'**
+  String notifDuelEnd(String title, int total, int rank, String value);
+
+  /// No description provided for @notifEventDone.
+  ///
+  /// In ko, this message translates to:
+  /// **'‘{title}’ 완주를 축하해요! {total}명 중 {rank}위 · 내 기록 {value}'**
+  String notifEventDone(String title, int total, int rank, String value);
+
+  /// No description provided for @notifEventEnd.
+  ///
+  /// In ko, this message translates to:
+  /// **'‘{title}’이 끝났어요. {total}명 중 {rank}위 · 내 기록 {value}'**
+  String notifEventEnd(String title, int total, int rank, String value);
+
+  /// No description provided for @notifAchievementDone.
+  ///
+  /// In ko, this message translates to:
+  /// **'‘{title}’ 달성을 축하해요!'**
+  String notifAchievementDone(String title);
+
+  /// No description provided for @notifAchievementMiss.
+  ///
+  /// In ko, this message translates to:
+  /// **'‘{title}’이 끝났어요. 이번에는 달성하지 못했어요.'**
+  String notifAchievementMiss(String title);
+
+  /// No description provided for @notifUnitChars.
+  ///
+  /// In ko, this message translates to:
+  /// **'{n}자'**
+  String notifUnitChars(String n);
+
+  /// No description provided for @notifUnitCuts.
+  ///
+  /// In ko, this message translates to:
+  /// **'{n}컷'**
+  String notifUnitCuts(String n);
+
+  /// No description provided for @notifUnitMinutes.
+  ///
+  /// In ko, this message translates to:
+  /// **'{n}분'**
+  String notifUnitMinutes(String n);
+
+  /// No description provided for @weeklyTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'지난주 집필 리포트'**
+  String get weeklyTitle;
+
+  /// No description provided for @weeklyBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'{chars}자 · 집중 {minutes}분 · 기록한 날 {days}일 · 연속 {streak}일'**
+  String weeklyBody(String chars, String minutes, int days, int streak);
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

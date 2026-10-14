@@ -399,5 +399,149 @@
         "type": "String"
       }
     }
+  },
+  "notifTitle": "Notifications",
+  "notifEmpty": "No new notifications.",
+  "notifMarkAll": "Mark all read",
+  "notifWhisper": "{from} sent you a whisper",
+  "@notifWhisper": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      }
+    }
+  },
+  "notifWhisperRoom": "Room: {room}",
+  "@notifWhisperRoom": {
+    "placeholders": {
+      "room": {
+        "type": "String"
+      }
+    }
+  },
+  "notifReportResolved": "The report you filed has been handled.",
+  "notifReportResolvedMessage": "The message (photo) you reported has been handled.",
+  "notifDuelWin": "You won the duel \"{title}\"! 1st of {total} · your record {value}",
+  "@notifDuelWin": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "total": {
+        "type": "int"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "notifDuelEnd": "The duel \"{title}\" has ended. Rank {rank} of {total} · your record {value}",
+  "@notifDuelEnd": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "total": {
+        "type": "int"
+      },
+      "rank": {
+        "type": "int"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "notifEventDone": "Congrats on finishing \"{title}\"! Rank {rank} of {total} · your record {value}",
+  "@notifEventDone": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "total": {
+        "type": "int"
+      },
+      "rank": {
+        "type": "int"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "notifEventEnd": "\"{title}\" has ended. Rank {rank} of {total} · your record {value}",
+  "@notifEventEnd": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "total": {
+        "type": "int"
+      },
+      "rank": {
+        "type": "int"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "notifAchievementDone": "Congrats on achieving \"{title}\"!",
+  "@notifAchievementDone": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "notifAchievementMiss": "\"{title}\" has ended. You did not achieve it this time.",
+  "@notifAchievementMiss": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "notifUnitChars": "{n} chars",
+  "@notifUnitChars": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "notifUnitCuts": "{n} cuts",
+  "@notifUnitCuts": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "notifUnitMinutes": "{n} min",
+  "@notifUnitMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "weeklyTitle": "Last week's writing report",
+  "weeklyBody": "{chars} chars · {minutes} min focus · {days} active days · {streak}-day streak",
+  "@weeklyBody": {
+    "placeholders": {
+      "chars": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      },
+      "streak": {
+        "type": "int"
+      }
+    }
   }
 }

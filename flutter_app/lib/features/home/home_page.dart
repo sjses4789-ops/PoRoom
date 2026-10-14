@@ -9,6 +9,7 @@ import '../../widgets/character_avatar.dart';
 import '../../widgets/common.dart';
 import '../../widgets/login_gate.dart';
 import '../feed/feed_models.dart';
+import '../notifications/notifications_page.dart';
 import '../rooms/room_models.dart';
 import '../rooms/room_page.dart';
 import '../rooms/room_repository.dart';
@@ -364,6 +365,8 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
+            const SizedBox(height: 12),
+            const _WeeklyReportCard(),
             const SizedBox(height: 22),
             _SectionHeader(
               title: l10n.homeChallenges,
@@ -418,6 +421,78 @@ class _HomePageState extends State<HomePage> {
     return m == 0
         ? l10n.homeHoursOnly(minutes ~/ 60)
         : l10n.homeHoursMinutes(minutes ~/ 60, m);
+  }
+}
+
+// 지난주 집필 리포트 — 웹과 같은 알림(주간 리포트)에서 가장 최근 것을 보여 준다. 아직 없으면 아무것도 그리지 않는다.
+class _WeeklyReportCard extends StatefulWidget {
+  const _WeeklyReportCard();
+
+  @override
+  State<_WeeklyReportCard> createState() => _WeeklyReportCardState();
+}
+
+class _WeeklyReportCardState extends State<_WeeklyReportCard> {
+  late final Future<AppNotification?> _future = _load();
+
+  Future<AppNotification?> _load() async {
+    try {
+      await syncNotificationsOnce();
+      final list = await fetchNotifications();
+      for (final n in list) {
+        if (n.kind == 'weekly_report') return n;
+      }
+    } catch (_) {
+      // 리포트를 못 불러와도 홈은 그대로 보인다.
+    }
+    return null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
+    final pal = context.pal;
+    return FutureBuilder<AppNotification?>(
+      future: _future,
+      builder: (context, snap) {
+        final n = snap.data;
+        if (n == null) return const SizedBox.shrink();
+        return BorderedCard(
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(builder: (_) => const NotificationsPage()),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.insights_outlined, color: pal.subtext, size: 22),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.weeklyTitle,
+                      style: const TextStyle(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      n.weeklyBody(l10n),
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        height: 1.4,
+                        color: pal.subtext,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
 

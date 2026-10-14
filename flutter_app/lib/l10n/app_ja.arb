@@ -399,5 +399,149 @@
         "type": "String"
       }
     }
+  },
+  "notifTitle": "通知",
+  "notifEmpty": "新しい通知はありません。",
+  "notifMarkAll": "すべて既読",
+  "notifWhisper": "{from}さんからささやきが届きました",
+  "@notifWhisper": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      }
+    }
+  },
+  "notifWhisperRoom": "ルーム: {room}",
+  "@notifWhisperRoom": {
+    "placeholders": {
+      "room": {
+        "type": "String"
+      }
+    }
+  },
+  "notifReportResolved": "通報した内容が処理されました。",
+  "notifReportResolvedMessage": "通報したメッセージ(写真)が処理されました。",
+  "notifDuelWin": "対決「{title}」で勝利しました！{total}人中1位 · 記録 {value}",
+  "@notifDuelWin": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "total": {
+        "type": "int"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "notifDuelEnd": "対決「{title}」が終了しました。{total}人中{rank}位 · 記録 {value}",
+  "@notifDuelEnd": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "total": {
+        "type": "int"
+      },
+      "rank": {
+        "type": "int"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "notifEventDone": "「{title}」の完走おめでとう！{total}人中{rank}位 · 記録 {value}",
+  "@notifEventDone": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "total": {
+        "type": "int"
+      },
+      "rank": {
+        "type": "int"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "notifEventEnd": "「{title}」が終了しました。{total}人中{rank}位 · 記録 {value}",
+  "@notifEventEnd": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "total": {
+        "type": "int"
+      },
+      "rank": {
+        "type": "int"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "notifAchievementDone": "「{title}」の達成おめでとう！",
+  "@notifAchievementDone": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "notifAchievementMiss": "「{title}」が終了しました。今回は達成できませんでした。",
+  "@notifAchievementMiss": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "notifUnitChars": "{n}文字",
+  "@notifUnitChars": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "notifUnitCuts": "{n}カット",
+  "@notifUnitCuts": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "notifUnitMinutes": "{n}分",
+  "@notifUnitMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "weeklyTitle": "先週の執筆レポート",
+  "weeklyBody": "{chars}文字 · 集中{minutes}分 · 記録した日{days}日 · 連続{streak}日",
+  "@weeklyBody": {
+    "placeholders": {
+      "chars": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      },
+      "streak": {
+        "type": "int"
+      }
+    }
   }
 }

@@ -658,4 +658,83 @@ class L10nEn extends L10n {
   String homeChallengeRemaining(String remaining) {
     return '$remaining left for today\'s goal';
   }
+
+  @override
+  String get notifTitle => 'Notifications';
+
+  @override
+  String get notifEmpty => 'No new notifications.';
+
+  @override
+  String get notifMarkAll => 'Mark all read';
+
+  @override
+  String notifWhisper(String from) {
+    return '$from sent you a whisper';
+  }
+
+  @override
+  String notifWhisperRoom(String room) {
+    return 'Room: $room';
+  }
+
+  @override
+  String get notifReportResolved => 'The report you filed has been handled.';
+
+  @override
+  String get notifReportResolvedMessage =>
+      'The message (photo) you reported has been handled.';
+
+  @override
+  String notifDuelWin(String title, int total, String value) {
+    return 'You won the duel \"$title\"! 1st of $total · your record $value';
+  }
+
+  @override
+  String notifDuelEnd(String title, int total, int rank, String value) {
+    return 'The duel \"$title\" has ended. Rank $rank of $total · your record $value';
+  }
+
+  @override
+  String notifEventDone(String title, int total, int rank, String value) {
+    return 'Congrats on finishing \"$title\"! Rank $rank of $total · your record $value';
+  }
+
+  @override
+  String notifEventEnd(String title, int total, int rank, String value) {
+    return '\"$title\" has ended. Rank $rank of $total · your record $value';
+  }
+
+  @override
+  String notifAchievementDone(String title) {
+    return 'Congrats on achieving \"$title\"!';
+  }
+
+  @override
+  String notifAchievementMiss(String title) {
+    return '\"$title\" has ended. You did not achieve it this time.';
+  }
+
+  @override
+  String notifUnitChars(String n) {
+    return '$n chars';
+  }
+
+  @override
+  String notifUnitCuts(String n) {
+    return '$n cuts';
+  }
+
+  @override
+  String notifUnitMinutes(String n) {
+    return '$n min';
+  }
+
+  @override
+  String get weeklyTitle => 'Last week\'s writing report';
+
+  @override
+  String weeklyBody(String chars, String minutes, int days, int streak) {
+    return '$chars chars · $minutes min focus · $days active days · $streak-day streak';
+  }
 }
