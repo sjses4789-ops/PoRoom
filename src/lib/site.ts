@@ -2,6 +2,8 @@
 // 쓰는 사이트 기본 정보 — 도메인이 바뀌면 여기만 고치면 된다.
 export const SITE_URL = "https://poroom.kr";
 export const SITE_NAME = "PoRoom";
+// 한국어 검색결과에 "PoRoom(포룸) - 가상 작업실"로 보이도록 하는 표기 — 검색창에 "포룸"을 쳐도 걸리게 한다.
+export const SITE_TITLE_KO = "PoRoom(포룸) - 가상 작업실";
 
 // 홈페이지는 언어별로 별도 URL(/en, /ja, /zh)을 두어 구글이 각 언어권
 // 검색결과에 따로 색인·노출할 수 있게 한다(쿠키 기반 언어 전환만으로는
@@ -27,7 +29,7 @@ export const HOME_META: Record<
   { title: string; description: string; ogLocale: string }
 > = {
   ko: {
-    title: "포룸 | 함께 집중하는 온라인 뽀모도로 작업실",
+    title: SITE_TITLE_KO,
     description:
       "웹소설·웹툰 작가를 위한 온라인 뽀모도로 작업실 포룸. 화상회의 없이 함께 집중하고, 랭킹과 챌린지로 꾸준히 쓰는 습관을 만드세요.",
     ogLocale: "ko_KR",

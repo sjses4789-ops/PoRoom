@@ -7,7 +7,7 @@ import { DisableRightClickAndDrag } from "@/components/disable-right-click-drag"
 import { PwaRegister } from "@/components/pwa-register";
 import { isAppRequest } from "@/lib/app-mode";
 import { ADS_VISIBLE, ADSENSE_REVIEW_MODE } from "@/lib/adsense-review-mode";
-import { SITE_URL, SITE_NAME, SITE_KEYWORDS } from "@/lib/site";
+import { SITE_URL, SITE_NAME, SITE_TITLE_KO, SITE_KEYWORDS } from "@/lib/site";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -25,7 +25,7 @@ const DEFAULT_DESCRIPTION = "화상회의 없이 함께 집중하는 온라인 �
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: SITE_NAME,
+    default: SITE_TITLE_KO,
     template: `%s | ${SITE_NAME}`,
   },
   description: DEFAULT_DESCRIPTION,
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
     locale: "ko_KR",
     url: SITE_URL,
     siteName: SITE_NAME,
-    title: SITE_NAME,
+    title: SITE_TITLE_KO,
     description: DEFAULT_DESCRIPTION,
     images: [
       {
@@ -66,7 +66,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: SITE_NAME,
+    title: SITE_TITLE_KO,
     description: DEFAULT_DESCRIPTION,
     images: ["/poroom-room-preview.png"],
   },
@@ -82,7 +82,7 @@ const structuredData = {
       "@type": "Organization",
       "@id": `${SITE_URL}/#organization`,
       name: SITE_NAME,
-      alternateName: ["포룸", "ポルーム", "PoRoom Pomodoro"],
+      alternateName: ["포룸", "PoRoom(포룸)", "ポルーム", "PoRoom Pomodoro"],
       url: SITE_URL,
       logo: `${SITE_URL}/poroom-icon.png`,
     },
@@ -90,6 +90,7 @@ const structuredData = {
       "@type": "WebSite",
       "@id": `${SITE_URL}/#website`,
       name: SITE_NAME,
+      alternateName: ["포룸", "PoRoom(포룸)", SITE_TITLE_KO],
       url: SITE_URL,
       publisher: { "@id": `${SITE_URL}/#organization` },
       inLanguage: ["ko", "en", "ja", "zh"],
