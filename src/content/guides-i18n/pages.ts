@@ -199,7 +199,7 @@ export const FAQ: Record<GuideLang, FaqText> = {
       },
       {
         q: "Can I share photos?",
-        a: "Photo sharing isn't available yet.",
+        a: "Yes. You can send photos in room chat (the 'Attach photo' menu next to the whisper list, or Ctrl+V). Only room members can see them, and they are deleted automatically after 30 days.",
       },
       {
         q: "What information do you collect when I sign in with Google?",
@@ -250,7 +250,7 @@ export const FAQ: Record<GuideLang, FaqText> = {
       },
       {
         q: "写真の共有はできますか?",
-        a: "写真共有機能は、まだ実装できていません。",
+        a: "はい、ルームのチャットで写真を送れます(ささやきボタンの「写真を添付」またはCtrl+V)。写真はルームの参加者だけが見られ、30日後に自動的に削除されます。",
       },
       {
         q: "Googleアカウントでログインすると、どんな情報を収集しますか?",

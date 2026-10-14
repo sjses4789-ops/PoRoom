@@ -145,7 +145,7 @@
       },
       {
         "q": "Can't I share photos?",
-        "a": "Not yet — unfortunately, photo sharing hasn't been built yet."
+        "a": "Yes. You can send photos in room chat — use the 'Attach photo' menu next to the whisper list, or paste with Ctrl+V in the message box. Only room members can see them, and they are deleted automatically after 30 days."
       },
       {
         "q": "Does it support video?",

@@ -117,7 +117,7 @@ const CLAUSES_EN: Clause[] = [
             ["Profile", "Nickname, character/pet appearance settings, chat bubble color, status message"],
             ["Study rooms", "Rooms created or joined, participant lists, online/offline status"],
             ["Records", "Character count, focus time, and break time logs; work list and per-work character records; attendance days"],
-            ["Communication", "Chat messages, whispers, board posts (Free / Info / Recruiting)"],
+            ["Communication", "Chat messages, whispers, photos attached to chat (private to room members, automatically deleted after 30 days), board posts (Free / Info / Recruiting)"],
             ["Schedule & activity", "Calendar events, polls and responses, ranking / duel / challenge participation, typing-practice scores"],
             ["Collected automatically", "Cookies, access logs, device/browser information (OS, screen size, etc.), usage records"],
           ]}
@@ -428,7 +428,7 @@ const CLAUSES_KO: Clause[] = [
             ["프로필", "닉네임, 캐릭터·펫 이미지 설정, 채팅 말풍선 색상, 상태 메시지"],
             ["스터디룸", "방 생성·참여 기록, 참여자 목록, 접속 상태(온라인 여부)"],
             ["기록", "글자수·집중시간·휴식시간 기록, 작품 목록 및 작품별 글자수 기록, 출석일"],
-            ["소통", "채팅 메시지, 귓속말, 게시판(자유·정보·인원 모집) 게시글"],
+            ["소통", "채팅 메시지, 귓속말, 채팅에 첨부한 사진(방 참여자에게만 공개, 올린 지 30일 후 자동 삭제), 게시판(자유·정보·인원 모집) 게시글"],
             ["일정·활동", "캘린더 일정, 투표 생성 및 응답, 랭킹·대결·챌린지 참여 기록, 타자 연습 기록"],
             ["자동 수집", "쿠키, 접속 로그, 기기·브라우저 정보(OS, 화면 크기 등), 서비스 이용 기록"],
           ]}
