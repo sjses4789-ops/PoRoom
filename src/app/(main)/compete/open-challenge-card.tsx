@@ -37,7 +37,10 @@ export function OpenChallengeCard({
         : t("metricAchievement");
 
   return (
-    <div className="flex flex-col gap-2 overflow-hidden rounded-lg border border-neutral-200 p-4">
+    <div
+      onClick={gate.isGuest ? () => gate.requireLogin() : undefined}
+      className={`flex flex-col gap-2 overflow-hidden rounded-lg border border-neutral-200 p-4 ${gate.isGuest ? "cursor-pointer" : ""}`}
+    >
       <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
         <span className="min-w-0 truncate text-sm font-medium text-neutral-900 dark:text-white">
           {title}

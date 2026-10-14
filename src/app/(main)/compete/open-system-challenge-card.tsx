@@ -35,7 +35,8 @@ export function OpenSystemChallengeCard({
 
   return (
     <div
-      className={`flex flex-col gap-2 overflow-hidden rounded-lg border p-4 ${
+      onClick={gate.isGuest ? () => gate.requireLogin() : undefined}
+      className={`flex flex-col gap-2 overflow-hidden rounded-lg border p-4 ${gate.isGuest ? "cursor-pointer" : ""} ${
         isAdminEvent ? "border-red-200/60 dark:border-red-900/60" : "border-neutral-200/60 dark:border-neutral-700"
       } ${bgClass}`}
     >
