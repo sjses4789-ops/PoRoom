@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { usePomodoroContext } from "../../pomodoro-context";
 import { useRoomPresence } from "./use-room-presence";
 import { useScreenShare } from "./use-screen-share";
-import { useLiveMembers } from "./use-live-members";
+import { useLiveMembers, MEMBER_UPDATED_EVENT } from "./use-live-members";
 import { ParticipantCard, type ParticipantData } from "./participant-card";
 import { SessionGuardDialog } from "./session-guard-dialog";
 import { ParticipantContextMenu, ReportDialog, type MenuTarget } from "./participant-menu";
@@ -146,6 +146,7 @@ export function RoomView({
     getPomodoroState,
     broadcastScreenFrame,
     stopScreenShareBroadcast,
+    setScreenSharing,
     getScreenFrame,
     duplicateSession,
     takenOver,
@@ -162,6 +163,10 @@ export function RoomView({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [takenOver]);
   const screenShare = useScreenShare(broadcastScreenFrame, stopScreenShareBroadcast);
+  // 화면 공유 켜짐/꺼짐은 presence에도 바로 실어 다른 참여자 카드에 즉시 반영한다.
+  useEffect(() => {
+    setScreenSharing(screenShare.isSharing);
+  }, [screenShare.isSharing, setScreenSharing]);
 
   // "상태설정"은 presence(그 방 세션 동안만 사는 실시간 상태)가 아니라 이 방의
   // room_members.work_status에 저장한다 — 방을 나갔다 들어와도 그 방의 상태는 유지되고, 다른
@@ -169,7 +174,7 @@ export function RoomView({
   // 에게는 useLiveMembers의 room_members 실시간 구독/폴링으로 전파된다).
   const handleChangeWorkStatus = (status: string | null) => {
     updateSelfWorkStatus(status);
-    setWorkStatus(roomId, status);
+    void setWorkStatus(roomId, status).then(() => window.dispatchEvent(new Event(MEMBER_UPDATED_EVENT)));
   };
 
   // 뽀모도로를 켜 둔 채 다른 페이지에 있는 동안 자동으로 "자리 비움/휴식 중"으로 바뀌었다면(PomodoroAwayKeeper),

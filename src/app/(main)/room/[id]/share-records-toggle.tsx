@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { updateShareRecords } from "@/lib/rooms";
+import { MEMBER_UPDATED_EVENT } from "./use-live-members";
 
 export function ShareRecordsToggle({
   roomId,
@@ -20,6 +21,7 @@ export function ShareRecordsToggle({
     setShare(next);
     setPending(true);
     await updateShareRecords(roomId, next);
+    window.dispatchEvent(new Event(MEMBER_UPDATED_EVENT));
     setPending(false);
   };
 

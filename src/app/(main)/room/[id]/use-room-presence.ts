@@ -44,6 +44,8 @@ export type PresencePayload = {
   browserId?: string;
   joinedAt?: number;
   proxy?: boolean;
+  // 화면 공유 중인지 — 프레임 도착 여부에 기대지 않고 켜고 끄는 순간이 상대 카드에 바로 반영되게 한다.
+  screenSharing?: boolean;
   name: string;
   lastTypedAt: number | null;
   pomodoroPhase: PomodoroPhase;
@@ -66,7 +68,8 @@ export type PresenceStatus = "offline" | "typing" | "idle";
 // 화면 공유 프레임은 브로드캐스트로 오가는데, "공유 중지" 신호를 놓치는
 // 경우(탭이 갑자기 닫히는 등)에 대비해 이 시간 동안 새 프레임이 안 오면
 // 자동으로 공유가 끊긴 것으로 보고 지운다.
-const SCREEN_FRAME_STALE_MS = 30000;
+const SCREEN_FRAME_STALE_MS = 90000;
+const SCREEN_ACTIVITY_GRACE_MS = 15000;
 const SCREEN_FRAME_STALE_CHECK_MS = 3000;
 
 export function useRoomPresence(
@@ -82,6 +85,8 @@ export function useRoomPresence(
   const channelRef = useRef<RealtimeChannel | null>(null);
   // 효과 안의 hardReconnect를 밖(화면 프레임 전송)에서도 부를 수 있게 담아 둔다.
   const reconnectRef = useRef<(() => void) | null>(null);
+  // 마지막으로 화면 공유 프레임을 보내거나 받은 시각.
+  const screenActivityAtRef = useRef(0);
   const frameSendFailuresRef = useRef(0);
   // SUBSCRIBED 상태일 때만 track()을 보낼 수 있다 — 구독이 끊기거나
   // 재연결 중일 때 track()을 부르면 조용히 무시되거나 에러가 나서,
@@ -239,6 +244,7 @@ export function useRoomPresence(
           const { userId, dataUrl } = payload as { userId: string; dataUrl: string };
           if (!userId || !dataUrl) return;
           screenFrameSeenAtRef.current.set(userId, Date.now());
+          screenActivityAtRef.current = Date.now();
           setScreenFrames((prev) => ({ ...prev, [userId]: dataUrl }));
         })
         .on("broadcast", { event: "screen-share-stop" }, ({ payload }) => {
@@ -269,10 +275,26 @@ export function useRoomPresence(
             subscribedRef.current = false;
             if (retrySubscribeId) clearTimeout(retrySubscribeId);
             retrySubscribeId = setTimeout(() => {
-              supabase.removeChannel(channel);
-              setup();
+              leaveThen(channel, setup);
             }, 2000);
           }
+        });
+    };
+    // 같은 주제의 옛 채널을 버리자마자 새 채널을 열면, 서버가 옛 채널의 "나감"을 새 구독에 적용해 새 구독이 닫히는
+    // 경주가 생길 수 있다(공유 화면이 꺼졌다 켜졌다 하던 원인 후보) — 나감이 끝난 뒤(최대 1.5초) 새로 구독한다.
+    const leaveThen = (old: RealtimeChannel, next: () => void) => {
+      let done = false;
+      const go = () => {
+        if (done) return;
+        done = true;
+        if (!cancelled) next();
+      };
+      const timer = setTimeout(go, 1500);
+      Promise.resolve(supabase.removeChannel(old))
+        .catch(() => {})
+        .finally(() => {
+          clearTimeout(timer);
+          go();
         });
     };
     setup();
@@ -285,12 +307,15 @@ export function useRoomPresence(
         clearTimeout(retrySubscribeId);
         retrySubscribeId = null;
       }
-      if (currentChannel) {
-        supabase.removeChannel(currentChannel);
-        currentChannel = null;
-      }
       lastSyncEventAt = Date.now();
-      setup();
+      subscribedRef.current = false;
+      if (currentChannel) {
+        const old = currentChannel;
+        currentChannel = null;
+        leaveThen(old, setup);
+      } else {
+        setup();
+      }
     };
 
     reconnectRef.current = hardReconnect;
@@ -316,6 +341,8 @@ export function useRoomPresence(
     // 이상 징후 여부와 무관하게 일정 주기마다 무조건 재연결해서 최대
     // 정체 시간을 보장한다.
     const forceReconnectId = setInterval(() => {
+      // 화면 공유 프레임이 오가는 중이면 연결이 멀쩡하다는 뜻이라 굳이 끊지 않는다(재연결하는 몇 초 동안 공유 화면이 끊긴다).
+      if (Date.now() - screenActivityAtRef.current < SCREEN_ACTIVITY_GRACE_MS) return;
       hardReconnect();
     }, FORCE_RECONNECT_INTERVAL_MS);
 
@@ -503,6 +530,7 @@ export function useRoomPresence(
         .then((status) => {
           if (status === "ok") {
             frameSendFailuresRef.current = 0;
+            screenActivityAtRef.current = Date.now();
             return;
           }
           frameSendFailuresRef.current += 1;
@@ -538,9 +566,22 @@ export function useRoomPresence(
       .catch(() => {});
   }, [selfId]);
 
+  // 화면 공유를 켜고 끄는 순간 presence로 바로 알린다(꺼졌다는 방송을 놓쳐도 상대 카드가 바로 정리된다).
+  const setScreenSharing = useCallback(
+    (on: boolean) => {
+      selfPayloadRef.current = { ...selfPayloadRef.current, name: selfName, screenSharing: on };
+      trackSafely(selfPayloadRef.current);
+    },
+    [selfName, trackSafely]
+  );
+
   const getScreenFrame = useCallback(
-    (userId: string): string | null => screenFrames[userId] ?? null,
-    [screenFrames]
+    (userId: string): string | null => {
+      // 상대가 공유를 껐다고 presence로 알렸으면 남은 프레임이 있어도 보여 주지 않는다.
+      if (presenceMap[userId]?.screenSharing === false) return null;
+      return screenFrames[userId] ?? null;
+    },
+    [screenFrames, presenceMap]
   );
 
   return {
@@ -550,6 +591,7 @@ export function useRoomPresence(
     getPomodoroState,
     broadcastScreenFrame,
     stopScreenShareBroadcast,
+    setScreenSharing,
     getScreenFrame,
     duplicateSession,
     takenOver,

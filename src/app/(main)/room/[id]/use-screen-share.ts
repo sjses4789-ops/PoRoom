@@ -229,6 +229,8 @@ export function useScreenShare(onFrame: (dataUrl: string) => void, onStop: () =>
         const dataUrl = canvas.toDataURL("image/png");
         setPreviewUrl(dataUrl);
         onFrameRef.current(dataUrl);
+      } catch {
+        // 프레임을 읽는 순간 트랙이 새 프레임으로 바뀌어 닫혔을 수 있다 — 이번 박자만 건너뛰고 다음 박자에 다시 한다.
       } finally {
         capturing = false;
       }

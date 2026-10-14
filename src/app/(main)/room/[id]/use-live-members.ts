@@ -32,6 +32,8 @@ const LONG_HIDDEN_MS = 10 * 1000;
 // 일정 주기마다 무조건 다시 읽어와 "상태설정"·입장·퇴장이 화면에
 // 반영되기까지 걸리는 최대 시간을 보장한다.
 const POLL_INTERVAL_MS = 5 * 1000;
+// 내 카드 내용(상태설정·닉네임·기록 공개)을 바꾼 컴포넌트가 이 이벤트를 쏘면 다른 참여자에게 바로 알린다.
+export const MEMBER_UPDATED_EVENT = "poroom:member-updated";
 
 export function useLiveMembers(
   roomId: string,
@@ -57,6 +59,7 @@ export function useLiveMembers(
   // update triggers a revalidation), pick that up too — adjust state
   // during render rather than in an effect, per React's guidance for
   // resetting state when a prop changes.
+  const channelRef = useRef<ReturnType<ReturnType<typeof createClient>["channel"]> | null>(null);
   const [syncedInitialMembers, setSyncedInitialMembers] = useState(initialMembers);
   if (initialMembers !== syncedInitialMembers) {
     setSyncedInitialMembers(initialMembers);
@@ -208,6 +211,10 @@ export function useLiveMembers(
         .on("broadcast", { event: "vice-changed" }, () => {
           refetchAll();
         })
+        // 신호 내용은 믿지 않고 "다시 읽어라"는 알림으로만 쓴다(값은 DB에서 읽는다).
+        .on("broadcast", { event: "member-updated" }, () => {
+          refetchAll();
+        })
         // 이 방 참여자의 닉네임·상태설정 변경(방별로 저장되므로 users가 아니라 room_members를 본다).
         .on(
           "postgres_changes",
@@ -274,6 +281,7 @@ export function useLiveMembers(
           }
         });
       currentChannel = channel;
+      channelRef.current = channel;
     };
     setup();
 
@@ -306,6 +314,12 @@ export function useLiveMembers(
     const onInactive = () => {
       hiddenSince = Date.now();
     };
+    // 내 상태설정·닉네임·기록 공개 같은 카드 내용을 바꾼 직후(MEMBER_UPDATED_EVENT) 다른 참여자가 5초 폴링·DB 변경 알림을
+    // 기다리지 않고 바로 다시 읽게 알린다.
+    const announceMemberUpdate = () => {
+      channelRef.current?.send({ type: "broadcast", event: "member-updated", payload: { userId: selfId } }).catch(() => {});
+    };
+    window.addEventListener(MEMBER_UPDATED_EVENT, announceMemberUpdate);
     document.addEventListener("visibilitychange", onVisibilityChange);
     window.addEventListener("focus", onActive);
     window.addEventListener("blur", onInactive);
@@ -314,6 +328,7 @@ export function useLiveMembers(
       cancelled = true;
       if (retrySubscribeId) clearTimeout(retrySubscribeId);
       clearInterval(pollId);
+      window.removeEventListener(MEMBER_UPDATED_EVENT, announceMemberUpdate);
       document.removeEventListener("visibilitychange", onVisibilityChange);
       window.removeEventListener("focus", onActive);
       window.removeEventListener("blur", onInactive);

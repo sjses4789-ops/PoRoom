@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { NicknamePicker } from "@/components/nickname-picker";
 import { setRoomNickname, type NicknameItem } from "@/lib/nicknames";
+import { MEMBER_UPDATED_EVENT } from "./use-live-members";
 
 // 방 안에서 이 방의 닉네임을 바꾸는 버튼 + 안내창. 정상적으로는 방에 입장하기 전에 닉네임을 고르지만
 // (use-nickname-chooser), 선택 없이 입장한 경우(모바일 앱 등)에는 nicknameSet=false라서 입장 직후
@@ -50,6 +51,7 @@ export function RoomNickname({
             const result = await setRoomNickname(roomId, nicknameId);
             if ("error" in result) return result.error;
             setCurrent(result.nickname);
+            window.dispatchEvent(new Event(MEMBER_UPDATED_EVENT));
             setOpen(false);
             setForced(false);
             router.refresh();
