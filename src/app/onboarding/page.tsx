@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
@@ -21,7 +22,12 @@ export default async function OnboardingPage() {
   // 붙잡지 않는다. 기존 사용자는 마이그레이션에서 position이 이미
   // 'novelist'로 채워져 있어 여기 걸리지 않는다 — 새로 가입한 사용자만
   // position이 NULL이라 이 화면을 보게 된다.
-  if (profile?.name && profile?.position) redirect("/main");
+  // 초대 링크를 열고 가입한 사람이면(초대 페이지가 심어 둔 쿠키), 온보딩이 끝난 뒤 그 초대로 돌아가 자동으로 입장한다.
+  const pendingInvite = (await cookies()).get("poroom-invite")?.value ?? "";
+  const inviteMatch = /^(room|duel):([A-Za-z0-9]{1,12})$/.exec(pendingInvite);
+  const afterPath = inviteMatch ? `/invite/${inviteMatch[1]}/${inviteMatch[2].toUpperCase()}` : "/main";
+
+  if (profile?.name && profile?.position) redirect(afterPath);
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-white px-6 py-10 dark:bg-neutral-950">
@@ -32,6 +38,7 @@ export default async function OnboardingPage() {
         <p className="max-w-xs text-sm text-neutral-500">{t("description")}</p>
       </div>
       <OnboardingForm
+        redirectTo={afterPath}
         defaultNickname={profile?.name ?? ""}
         initialCharacterId={profile?.character_id ?? null}
       />

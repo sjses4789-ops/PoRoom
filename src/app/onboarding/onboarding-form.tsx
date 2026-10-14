@@ -11,7 +11,9 @@ const POSITIONS: ProfilePosition[] = ["novelist", "webtoon"];
 export function OnboardingForm({
   defaultNickname,
   initialCharacterId,
+  redirectTo = "/main",
 }: {
+  redirectTo?: string;
   defaultNickname: string;
   initialCharacterId: string | null;
 }) {
@@ -25,7 +27,7 @@ export function OnboardingForm({
 
   return (
     <form action={formAction} className="flex w-full max-w-sm flex-col gap-6">
-      <input type="hidden" name="redirectTo" value="/main" />
+      <input type="hidden" name="redirectTo" value={redirectTo} />
       <input type="hidden" name="position" value={position ?? ""} />
 
       <div className="flex flex-col gap-2">

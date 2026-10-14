@@ -78,6 +78,8 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/.well-known/") ||
     // 모바일 앱 전용 API — 로그인 리다이렉트(HTML) 대신 각 라우트가 직접 401을 돌려준다.
     request.nextUrl.pathname.startsWith("/api/app/") ||
+    // Vercel Cron이 부르는 정기 작업 — 로그인 없이 오고, 자체 비밀값(CRON_SECRET)으로 확인한다.
+    request.nextUrl.pathname.startsWith("/api/cron/") ||
     isGoogleVerificationFile;
 
   // ADSENSE_REVIEW_MODE 동안은 "/"와 같은 논리로, 로그인 리다이렉트를

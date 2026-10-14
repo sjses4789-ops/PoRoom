@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
@@ -37,6 +37,19 @@ export type LatestNotice = {
   content: string;
   authorName: string;
 };
+
+// 메시지 반응 — DB에는 이름(heart 등)을 저장하고 화면에서 이모지로 그린다(0072 마이그레이션의 허용 목록과 같다).
+const REACTIONS = [
+  { key: "heart", emoji: "❤️" },
+  { key: "smile", emoji: "😄" },
+  { key: "party", emoji: "🎉" },
+  { key: "thumbs", emoji: "👍" },
+  { key: "sad", emoji: "😢" },
+  { key: "wow", emoji: "😮" },
+] as const;
+type ReactionKey = (typeof REACTIONS)[number]["key"];
+type Reaction = { userId: string; emoji: ReactionKey };
+const REACTION_EMOJI: Record<string, string> = Object.fromEntries(REACTIONS.map((r) => [r.key, r.emoji]));
 
 const CHAT_FONT_SIZE_STORAGE_KEY = "poroom:chat-font-size";
 const DEFAULT_CHAT_FONT_SIZE = 14;
@@ -159,6 +172,23 @@ export function ChatPanel({
     messagesRef.current = messages;
   }, [messages]);
 
+  // 메시지 반응 — { 메시지 id: [{ 누른 사람, 종류 }] }. 신호(broadcast)에는 메시지 id만 싣고, 받는 쪽이 DB에서 다시 읽는다.
+  const [reactions, setReactions] = useState<Record<string, Reaction[]>>({});
+  const loadReactions = useCallback(async (ids: string[]) => {
+    if (ids.length === 0) return;
+    const supabase = createClient();
+    const grouped: Record<string, Reaction[]> = Object.fromEntries(ids.map((id) => [id, [] as Reaction[]]));
+    for (let i = 0; i < ids.length; i += 100) {
+      const { data } = await supabase
+        .from("chat_message_reactions")
+        .select("message_id,user_id,emoji")
+        .in("message_id", ids.slice(i, i + 100))
+        .returns<{ message_id: string; user_id: string; emoji: ReactionKey }[]>();
+      for (const r of data ?? []) grouped[r.message_id]?.push({ userId: r.user_id, emoji: r.emoji });
+    }
+    setReactions((prev) => ({ ...prev, ...grouped }));
+  }, []);
+
   useEffect(() => {
     const supabase = createClient();
     const rowToMessage = (r: {
@@ -204,6 +234,7 @@ export function ChatPanel({
         .order("created_at", { ascending: false })
         .limit(50);
       setMessages([...(data ?? [])].reverse().map(rowToMessage));
+      setReactions({});
       setUnreadCount(0);
     };
     const roomChannel = supabase
@@ -216,12 +247,18 @@ export function ChatPanel({
       .on("broadcast", { event: "delete" }, ({ payload }) => {
         void confirmDeleted(payload);
       })
+      .on("broadcast", { event: "reaction" }, ({ payload }) => {
+        const id = (payload as { id?: unknown } | null)?.id;
+        if (typeof id === "string" && messagesRef.current.some((m) => m.id === id)) void loadReactions([id]);
+      })
       .on("broadcast", { event: "clear" }, () => {
         // 방장이 채팅을 초기화하면 DB의 메시지가 지워진다 — 신호만 믿지 않고 DB 기준으로 다시 불러온다.
         void reloadAfterClear();
       })
       .subscribe();
     channelRef.current = roomChannel;
+    // 처음 불러온 메시지들의 반응.
+    void loadReactions(messagesRef.current.map((m) => m.id));
 
     const inboxChannel = supabase
       .channel(`whisper-inbox:${roomId}:${selfId}`, { config: { private: true } })
@@ -235,7 +272,33 @@ export function ChatPanel({
       supabase.removeChannel(roomChannel);
       supabase.removeChannel(inboxChannel);
     };
-  }, [roomId, selfId]);
+  }, [roomId, selfId, loadReactions]);
+
+  // 반응 누르기/취소 — 먼저 화면에 반영하고 DB에 저장한 뒤, 방 사람들에게 "이 메시지 반응이 바뀌었어요" 신호를 보낸다.
+  const toggleReaction = async (messageId: string, key: ReactionKey) => {
+    const mine = (reactions[messageId] ?? []).some((r) => r.userId === selfId && r.emoji === key);
+    setReactions((prev) => {
+      const list = prev[messageId] ?? [];
+      return {
+        ...prev,
+        [messageId]: mine
+          ? list.filter((r) => !(r.userId === selfId && r.emoji === key))
+          : [...list, { userId: selfId, emoji: key }],
+      };
+    });
+    const supabase = createClient();
+    const { error } = mine
+      ? await supabase
+          .from("chat_message_reactions")
+          .delete()
+          .match({ message_id: messageId, user_id: selfId, emoji: key })
+      : await supabase.from("chat_message_reactions").insert({ message_id: messageId, user_id: selfId, emoji: key });
+    if (error) {
+      void loadReactions([messageId]);
+      return;
+    }
+    channelRef.current?.send({ type: "broadcast", event: "reaction", payload: { id: messageId } });
+  };
 
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight });
@@ -521,6 +584,22 @@ export function ChatPanel({
                   >
                     {m.imagePath ? <ChatImage path={m.imagePath} createdAt={m.createdAt} /> : m.content}
                   </span>
+                  {!m.targetUserId && (
+                    <span className="ml-1 inline-flex items-center gap-0.5 align-middle opacity-0 transition group-hover:opacity-100 focus-within:opacity-100">
+                      {REACTIONS.map((r) => (
+                        <button
+                          key={r.key}
+                          type="button"
+                          onClick={() => void toggleReaction(m.id, r.key)}
+                          title={r.emoji}
+                          aria-label={r.emoji}
+                          className="rounded px-0.5 text-[13px] leading-none transition hover:scale-125"
+                        >
+                          {r.emoji}
+                        </button>
+                      ))}
+                    </span>
+                  )}
                   {!isSelf && onReportMessage && (
                     <button
                       type="button"
@@ -543,6 +622,40 @@ export function ChatPanel({
                     </button>
                   )}
                 </div>
+                {/* 메시지 아래의 반응 개수 — 내가 누른 반응은 강조하고, 누르면 취소/추가된다. 차단한 사람의 반응은 세지 않는다. */}
+                {(() => {
+                  const counts = new Map<string, { n: number; mine: boolean }>();
+                  for (const r of reactions[m.id] ?? []) {
+                    if (blockedIds.includes(r.userId)) continue;
+                    const c = counts.get(r.emoji) ?? { n: 0, mine: false };
+                    c.n += 1;
+                    if (r.userId === selfId) c.mine = true;
+                    counts.set(r.emoji, c);
+                  }
+                  if (counts.size === 0) return null;
+                  return (
+                    <div className={`mt-1 flex flex-wrap gap-1 ${isSelf ? "justify-end" : "justify-start"}`}>
+                      {REACTIONS.filter((r) => counts.has(r.key)).map((r) => {
+                        const c = counts.get(r.key)!;
+                        return (
+                          <button
+                            key={r.key}
+                            type="button"
+                            onClick={() => void toggleReaction(m.id, r.key)}
+                            className={`flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[11px] leading-none transition ${
+                              c.mine
+                                ? "border-rose-300 bg-rose-50 text-rose-700 dark:border-rose-500/50 dark:bg-rose-500/10 dark:text-rose-300"
+                                : "border-neutral-200 text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+                            }`}
+                          >
+                            <span>{REACTION_EMOJI[r.key]}</span>
+                            <span className="tabular-nums">{c.n}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
               </div>
             </div>
           );

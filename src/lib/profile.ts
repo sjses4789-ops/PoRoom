@@ -6,6 +6,11 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionResult } from "@/lib/rooms";
 
+// 폼으로 받은 돌아갈 주소는 이 사이트 안의 경로("/..."로 시작, "//"나 "/\" 제외)만 허용한다 — 바깥 주소로 보내는 데 쓰이지 못하게.
+function safeRedirectPath(path: string): string {
+  return path.startsWith("/") && !path.startsWith("//") && !path.startsWith("/\\") ? path : "/main";
+}
+
 export async function setNickname(
   _prevState: ActionResult,
   formData: FormData
@@ -17,7 +22,7 @@ export async function setNickname(
   if (!user) return { error: await err("loginRequired") };
 
   const nickname = String(formData.get("nickname") ?? "").trim();
-  const redirectTo = String(formData.get("redirectTo") ?? "/main");
+  const redirectTo = safeRedirectPath(String(formData.get("redirectTo") ?? "/main"));
 
   if (!nickname) return { error: await err("nicknameRequired") };
   if (nickname.length > 20) return { error: await err("nickname20") };
@@ -87,7 +92,7 @@ export async function completeOnboarding(
 
   const nickname = String(formData.get("nickname") ?? "").trim();
   const position = String(formData.get("position") ?? "");
-  const redirectTo = String(formData.get("redirectTo") ?? "/main");
+  const redirectTo = safeRedirectPath(String(formData.get("redirectTo") ?? "/main"));
 
   if (!nickname) return { error: await err("nicknameRequired") };
   if (nickname.length > 20) return { error: await err("nickname20") };
