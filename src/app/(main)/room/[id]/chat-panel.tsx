@@ -50,6 +50,33 @@ const REACTIONS = [
 type ReactionKey = (typeof REACTIONS)[number]["key"];
 type Reaction = { userId: string; emoji: ReactionKey };
 const REACTION_EMOJI: Record<string, string> = Object.fromEntries(REACTIONS.map((r) => [r.key, r.emoji]));
+// 반응 칩 색(종류마다 다르게). base는 평소, mine은 내가 누른 반응(조금 더 진하게).
+const REACTION_CHIP: Record<ReactionKey, { base: string; mine: string }> = {
+  heart: {
+    base: "border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300",
+    mine: "border-rose-400 bg-rose-100 font-semibold text-rose-800 dark:border-rose-400/70 dark:bg-rose-500/25 dark:text-rose-200",
+  },
+  smile: {
+    base: "border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300",
+    mine: "border-amber-400 bg-amber-100 font-semibold text-amber-800 dark:border-amber-400/70 dark:bg-amber-500/25 dark:text-amber-200",
+  },
+  party: {
+    base: "border-fuchsia-200 bg-fuchsia-50 text-fuchsia-700 hover:bg-fuchsia-100 dark:border-fuchsia-500/30 dark:bg-fuchsia-500/10 dark:text-fuchsia-300",
+    mine: "border-fuchsia-400 bg-fuchsia-100 font-semibold text-fuchsia-800 dark:border-fuchsia-400/70 dark:bg-fuchsia-500/25 dark:text-fuchsia-200",
+  },
+  thumbs: {
+    base: "border-sky-200 bg-sky-50 text-sky-700 hover:bg-sky-100 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-300",
+    mine: "border-sky-400 bg-sky-100 font-semibold text-sky-800 dark:border-sky-400/70 dark:bg-sky-500/25 dark:text-sky-200",
+  },
+  sad: {
+    base: "border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-300",
+    mine: "border-indigo-400 bg-indigo-100 font-semibold text-indigo-800 dark:border-indigo-400/70 dark:bg-indigo-500/25 dark:text-indigo-200",
+  },
+  wow: {
+    base: "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300",
+    mine: "border-emerald-400 bg-emerald-100 font-semibold text-emerald-800 dark:border-emerald-400/70 dark:bg-emerald-500/25 dark:text-emerald-200",
+  },
+};
 
 const CHAT_FONT_SIZE_STORAGE_KEY = "poroom:chat-font-size";
 const DEFAULT_CHAT_FONT_SIZE = 14;
@@ -520,7 +547,7 @@ export function ChatPanel({
           <ChatColorPicker current={selfColor} onChange={setSelfColorOverride} />
         </div>
       </div>
-      <div ref={listRef} className="chat-scroll flex-1 space-y-3 overflow-y-auto px-4 py-3">
+      <div ref={listRef} className="chat-scroll flex-1 space-y-3 overflow-y-auto px-4 pb-3 pt-9">
         {messages
           .filter((m) => !blockedIds.includes(m.userId))
           .map((m) => {
@@ -575,29 +602,36 @@ export function ChatPanel({
                 <div className={isSelf ? "text-right" : "text-left"}>
                   <span
                     style={{ fontSize: chatFontSize }}
-                    className={`mt-0.5 inline-block max-w-[85%] break-words rounded-lg px-3 py-1.5 text-left ${chatBubbleClass(
+                    className={`group/bubble relative mt-0.5 inline-block max-w-[85%] break-words rounded-lg px-3 py-1.5 text-left ${chatBubbleClass(
                       colorOf(m.userId),
                       isSelf
                     )}`}
                   >
                     {m.imagePath ? <ChatImage path={m.imagePath} createdAt={m.createdAt} /> : m.content}
+                    {!m.targetUserId && (
+                      // 말풍선 위로 뜨는 반응 팝업 — pb-1은 말풍선과 팝업 사이 빈틈에서도 마우스가 벗어나지 않게 잇는 여백이다.
+                      <span
+                        className={`invisible absolute bottom-full z-20 pb-1 opacity-0 transition group-hover/bubble:visible group-hover/bubble:opacity-100 group-focus-within/bubble:visible group-focus-within/bubble:opacity-100 ${
+                          isSelf ? "right-0" : "left-0"
+                        }`}
+                      >
+                        <span className="flex items-center gap-0.5 whitespace-nowrap rounded-full border border-neutral-200 bg-white px-1.5 py-1 shadow-md dark:border-neutral-700 dark:bg-neutral-900">
+                          {REACTIONS.map((r) => (
+                            <button
+                              key={r.key}
+                              type="button"
+                              onClick={() => void toggleReaction(m.id, r.key)}
+                              title={r.emoji}
+                              aria-label={r.emoji}
+                              className="rounded-full px-1 text-[16px] leading-none transition hover:scale-125 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                            >
+                              {r.emoji}
+                            </button>
+                          ))}
+                        </span>
+                      </span>
+                    )}
                   </span>
-                  {!m.targetUserId && (
-                    <span className="ml-1 inline-flex items-center gap-0.5 align-middle opacity-0 transition group-hover:opacity-100 focus-within:opacity-100">
-                      {REACTIONS.map((r) => (
-                        <button
-                          key={r.key}
-                          type="button"
-                          onClick={() => void toggleReaction(m.id, r.key)}
-                          title={r.emoji}
-                          aria-label={r.emoji}
-                          className="rounded px-0.5 text-[13px] leading-none transition hover:scale-125"
-                        >
-                          {r.emoji}
-                        </button>
-                      ))}
-                    </span>
-                  )}
                   {!isSelf && onReportMessage && (
                     <button
                       type="button"
@@ -643,9 +677,7 @@ export function ChatPanel({
                           type="button"
                           onClick={() => void toggleReaction(m.id, r.key)}
                           className={`flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[11px] leading-none transition ${
-                            c.mine
-                              ? "border-rose-300 bg-rose-50 text-rose-700 dark:border-rose-500/50 dark:bg-rose-500/10 dark:text-rose-300"
-                              : "border-neutral-200 text-neutral-600 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+                            c.mine ? REACTION_CHIP[r.key].mine : REACTION_CHIP[r.key].base
                           }`}
                         >
                           <span>{REACTION_EMOJI[r.key]}</span>
