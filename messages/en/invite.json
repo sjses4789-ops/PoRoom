@@ -1,0 +1,19 @@
+{
+  "copyLink": "Copy invite link",
+  "copied": "Copied!",
+  "roomTitle": "Room invitation",
+  "duelTitle": "Duel invitation",
+  "roomIntro": "You've been invited to a PoRoom workroom.",
+  "duelIntro": "You've been invited to a PoRoom duel.",
+  "guestBody": "Log in to join right away. Please log in with your Google account.",
+  "loginButton": "Log in and join",
+  "foundRoom": "Room: {name}",
+  "foundDuel": "Duel: {name}",
+  "memberCount": "{count} members",
+  "join": "Join room",
+  "joinDuel": "Join duel",
+  "joining": "Joining...",
+  "invalid": "This invite link is invalid or can no longer be used.",
+  "goMain": "Go to PoRoom",
+  "goCompete": "Go to Challenges"
+}

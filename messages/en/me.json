@@ -146,5 +146,15 @@
     "prevMonth": "Previous month",
     "nextMonth": "Next month",
     "sessionCountTooltip": "{count}"
+  },
+  "badges": {
+    "title": "Badges",
+    "subtitle": "Your achievements in challenges and duels collect here.",
+    "successCount": "{count} successes",
+    "notYet": "Not yet",
+    "eventHeading": "Completed event challenges ({count})",
+    "eventEmpty": "No completed event challenges yet.",
+    "duelHeading": "Duel wins ({count})",
+    "duelEmpty": "No duel wins yet."
   }
 }

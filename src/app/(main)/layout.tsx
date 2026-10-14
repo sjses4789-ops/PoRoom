@@ -8,6 +8,7 @@ import { isAppRequest } from "@/lib/app-mode";
 import NavTabs from "./nav-tabs";
 import LogoutButton from "./logout-button";
 import { NotesInbox } from "./notes-inbox";
+import { NotificationsBell } from "./notifications-bell";
 import { SiteFooter } from "./site-footer";
 import { PomodoroProvider } from "./pomodoro-context";
 import { GUEST_BROWSING } from "@/lib/guest-mode";
@@ -97,6 +98,7 @@ export default async function MainLayout({
             {profile ? (
               <>
                 {TIER_BADGE_VISIBLE && <TierBadgeButton isPremium={profile.is_premium} />}
+                {user && <NotificationsBell userId={user.id} />}
                 {user && <NotesInbox userId={user.id} />}
                 <Link
                   href="/me"
@@ -123,7 +125,8 @@ export default async function MainLayout({
           {profile ? (
             <>
               {TIER_BADGE_VISIBLE && <TierBadgeButton isPremium={profile.is_premium} />}
-              {user && <NotesInbox userId={user.id} />}
+              {user && <NotificationsBell userId={user.id} />}
+                {user && <NotesInbox userId={user.id} />}
               <Link
                 href="/me"
                 className="max-w-[160px] truncate font-bold text-neutral-900 hover:underline dark:text-white"

@@ -5,6 +5,7 @@ import { err } from "@/lib/errors";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionResult } from "@/lib/rooms";
 import { uploadPostImage } from "@/lib/uploads";
+import { purgeExpiredChatImages, purgeRoomChatImages } from "@/lib/chat-image-purge";
 
 // 관리자 여부는 항상 서버에서(클라이언트 번들에 노출되지 않는 곳에서)
 // DB의 users.is_admin 플래그로 판단한다 — 이메일을 코드에 하드코딩해
@@ -141,6 +142,8 @@ export async function adminDeleteChallenge(challengeId: string) {
 
 export async function adminDeleteRoom(roomId: string) {
   const supabase = await createClient();
+  // 방이 사라지면 채팅 사진 파일도 함께 지운다(관리자 권한으로).
+  await purgeRoomChatImages(supabase, roomId).catch(() => 0);
   await supabase.from("rooms").delete().eq("id", roomId);
   revalidatePath("/admin");
   revalidatePath("/main");
@@ -174,4 +177,13 @@ export async function setChallengeAchieved(challengeId: string, achieved: boolea
     .eq("user_id", user.id);
 
   revalidatePath(`/compete/${challengeId}`);
+}
+
+// 보관 기간(30일)이 지난 채팅 사진 파일을 한 번에 지운다 — 관리자 권한이라 방 구분 없이 전부 지운다
+// (미처리 신고에 걸린 사진은 증거라서 남긴다). 한 번에 최대 200개씩이라 개수가 많으면 여러 번 누른다.
+export async function adminPurgeExpiredChatImages(): Promise<{ removed: number } | { error: string }> {
+  if (!(await isCurrentUserAdmin())) return { error: await err("adminOnly") };
+  const supabase = await createClient();
+  const removed = await purgeExpiredChatImages(supabase, 200);
+  return { removed };
 }

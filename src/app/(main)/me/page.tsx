@@ -17,6 +17,8 @@ import { DeleteAccountButton } from "./delete-account-button";
 import { AttendanceCalendar } from "./attendance-calendar";
 import { ChallengeRecordPanel } from "./challenge-record-panel";
 import { SystemChallengeRecordPanel } from "./system-challenge-record-panel";
+import { BadgeCollection } from "./badge-collection";
+import { getMyChallengeResults } from "@/lib/challenge-results";
 import { WorkAmountChart } from "./work-amount-chart";
 import { RankingStatusPanel } from "./ranking-status-panel";
 import { PomodoroStatsPanel } from "./pomodoro-stats-panel";
@@ -69,6 +71,9 @@ export default async function MePage() {
   if (!user) {
     redirect("/login");
   }
+
+  // 끝난 대결·이벤트 챌린지에서 거둔 성과 — 아래 "완주 뱃지"에 쓴다.
+  const myChallengeResults = await getMyChallengeResults(supabase, user.id);
 
   // 서로 의존하지 않는 조회는 한 번에 병렬로 보내서 왕복 횟수를 줄인다 —
   // [개인] 페이지 전환이 느리다는 피드백의 대부분은 이 페이지가 필요한
@@ -546,6 +551,18 @@ export default async function MePage() {
             />
           </div>
         </div>
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <BadgeCollection
+          systemSuccessCounts={systemChallengeSuccessCounts}
+          events={myChallengeResults
+            .filter((r) => r.kind === "event" && r.success)
+            .map((r) => ({ id: r.id, title: r.title, endDate: r.endDate }))}
+          duelWins={myChallengeResults
+            .filter((r) => r.kind === "duel" && r.success)
+            .map((r) => ({ id: r.id, title: r.title, endDate: r.endDate }))}
+        />
       </section>
 
       <section className="flex flex-col gap-3">

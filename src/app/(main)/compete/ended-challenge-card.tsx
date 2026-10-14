@@ -10,6 +10,8 @@ export function EndedChallengeCard({
   participantsLabel,
   endedBadge,
   joinedBadge,
+  resultLine,
+  resultBadge,
   bgClass,
 }: {
   href?: string;
@@ -21,6 +23,10 @@ export function EndedChallengeCard({
   endedBadge: string;
   /** 내가 참여했던 챌린지이면 배지 문구를, 아니면 null */
   joinedBadge: string | null;
+  /** 내 결과 요약("최종 2위 / 5명 · 내 기록 12,300자") — 참여하지 않은 챌린지에는 없다. */
+  resultLine?: string | null;
+  /** 완주/승리 같은 결과 배지. good이면 초록색으로 강조한다. */
+  resultBadge?: { label: string; good: boolean } | null;
   bgClass: string;
 }) {
   const card = (
@@ -39,6 +45,22 @@ export function EndedChallengeCard({
       <p className="text-[12px] text-neutral-400">
         {startDate} ~ {endDate} · {subLabel}
       </p>
+      {(resultLine || resultBadge) && (
+        <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-neutral-600 dark:text-neutral-300">
+          {resultBadge && (
+            <span
+              className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${
+                resultBadge.good
+                  ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  : "bg-neutral-200 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300"
+              }`}
+            >
+              {resultBadge.label}
+            </span>
+          )}
+          {resultLine}
+        </p>
+      )}
       {joinedBadge && (
         <span className="self-start rounded-full border border-neutral-300 px-2 py-0.5 text-[11px] text-neutral-500 dark:border-neutral-600 dark:text-neutral-400">
           {joinedBadge}

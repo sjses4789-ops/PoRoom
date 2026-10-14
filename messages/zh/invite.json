@@ -1,0 +1,19 @@
+{
+  "copyLink": "复制邀请链接",
+  "copied": "已复制！",
+  "roomTitle": "房间邀请",
+  "duelTitle": "对决邀请",
+  "roomIntro": "你被邀请加入 PoRoom 的工作房间。",
+  "duelIntro": "你被邀请参加 PoRoom 的对决。",
+  "guestBody": "登录后即可加入。请使用 Google 账号登录。",
+  "loginButton": "登录并加入",
+  "foundRoom": "房间名称: {name}",
+  "foundDuel": "对决名称: {name}",
+  "memberCount": "{count}人参与中",
+  "join": "进入房间",
+  "joinDuel": "参加对决",
+  "joining": "加入中...",
+  "invalid": "邀请链接无效或已无法使用。",
+  "goMain": "前往 PoRoom",
+  "goCompete": "前往挑战"
+}

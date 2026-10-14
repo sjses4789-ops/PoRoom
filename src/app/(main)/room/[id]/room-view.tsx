@@ -11,7 +11,7 @@ import { ParticipantCard, type ParticipantData } from "./participant-card";
 import { SessionGuardDialog } from "./session-guard-dialog";
 import { ParticipantContextMenu, ReportDialog, type MenuTarget } from "./participant-menu";
 import { banMember } from "@/lib/room-admin";
-import { blockUser, getBlockerIds, reportUser, unblockUser } from "@/lib/safety";
+import { blockUser, getBlockerIds, reportMessage, reportUser, unblockUser } from "@/lib/safety";
 import { BlockedListDialog } from "./blocked-list-dialog";
 import { NoteDialog } from "@/components/note-dialog";
 import { sendNote } from "@/lib/notes";
@@ -117,7 +117,7 @@ export function RoomView({
     return () => clearInterval(id);
   }, []);
   const [menu, setMenu] = useState<MenuTarget | null>(null);
-  const [reportTarget, setReportTarget] = useState<{ id: string; name: string } | null>(null);
+  const [reportTarget, setReportTarget] = useState<{ id: string; name: string; messageId?: string } | null>(null);
   const [noteTarget, setNoteTarget] = useState<{ id: string; name: string } | null>(null);
   const { toast: celebrationToast, celebrate } = useCelebrationToast();
   // 이번 달 글자수는 화면에 직접 렌더링하지 않고 목표 달성 감지에만
@@ -456,6 +456,7 @@ export function RoomView({
             isOwner={ownerId === selfId}
             blockedIds={[...blockedIds, ...blockedByIds]}
             onAvatarContextMenu={(userId, name, x, y) => setMenu({ id: userId, name, x, y })}
+            onReportMessage={(messageId, userId, name) => setReportTarget({ id: userId, name, messageId })}
             onActivity={reportTyping}
             collapsed={chatCollapsed}
             onToggleCollapsed={() => setChatCollapsed((v) => !v)}
@@ -640,9 +641,12 @@ export function RoomView({
           {reportTarget && (
             <ReportDialog
               targetName={reportTarget.name}
+              isMessage={Boolean(reportTarget.messageId)}
               onClose={() => setReportTarget(null)}
               onSubmit={async (reason) => {
-                const result = await reportUser(reportTarget.id, roomId, reason);
+                const result = reportTarget.messageId
+                  ? await reportMessage(reportTarget.messageId, roomId, reason)
+                  : await reportUser(reportTarget.id, roomId, reason);
                 return "error" in result ? result.error : null;
               }}
             />

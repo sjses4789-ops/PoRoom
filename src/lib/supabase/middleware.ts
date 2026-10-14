@@ -58,6 +58,8 @@ export async function updateSession(request: NextRequest) {
     // 않고 robots.ts에서도 색인을 막아둔다.
     request.nextUrl.pathname.startsWith("/qa-x7f3") ||
     request.nextUrl.pathname.startsWith("/login") ||
+    // 초대 링크 — 비로그인으로 열어도 페이지 안에서 로그인 안내 팝업을 띄운다.
+    request.nextUrl.pathname.startsWith("/invite/") ||
     request.nextUrl.pathname.startsWith("/auth") ||
     request.nextUrl.pathname.startsWith("/privacy") ||
     // 로그인 없이 읽는 공개 정보 페이지(작가 가이드·서비스 소개·자주 묻는 질문)

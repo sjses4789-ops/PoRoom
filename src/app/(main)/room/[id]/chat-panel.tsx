@@ -52,6 +52,7 @@ export function ChatPanel({
   isOwner,
   blockedIds,
   onAvatarContextMenu,
+  onReportMessage,
   onActivity,
   collapsed,
   onToggleCollapsed,
@@ -67,6 +68,8 @@ export function ChatPanel({
   blockedIds: string[];
   // 채팅의 프로필 사진을 우클릭했을 때(참여자 카드 우클릭 메뉴와 같은 메뉴를 띄우기 위해 방 화면이 처리한다).
   onAvatarContextMenu?: (userId: string, name: string, x: number, y: number) => void;
+  // 메시지(사진) 단위 신고 — 다른 사람의 메시지 옆 깃발 버튼. 신고 창은 방 화면이 띄운다.
+  onReportMessage?: (messageId: string, userId: string, name: string) => void;
   onActivity?: () => void;
   collapsed: boolean;
   onToggleCollapsed: () => void;
@@ -516,8 +519,19 @@ export function ChatPanel({
                       isSelf
                     )}`}
                   >
-                    {m.imagePath ? <ChatImage path={m.imagePath} /> : m.content}
+                    {m.imagePath ? <ChatImage path={m.imagePath} createdAt={m.createdAt} /> : m.content}
                   </span>
+                  {!isSelf && onReportMessage && (
+                    <button
+                      type="button"
+                      onClick={() => onReportMessage(m.id, m.userId, nameOf(m.userId))}
+                      title={t("reportMessage")}
+                      aria-label={t("reportMessage")}
+                      className="ml-1 align-middle text-[11px] text-neutral-300 opacity-0 transition hover:text-red-500 group-hover:opacity-100 focus:opacity-100 dark:text-neutral-600"
+                    >
+                      🚩
+                    </button>
+                  )}
                   {canDelete && (
                     <button
                       type="button"

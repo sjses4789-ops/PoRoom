@@ -28,6 +28,7 @@ import { LeaveRoomButton } from "./leave-room-button";
 import { RoomNickname } from "./room-nickname";
 import { getMyNicknames } from "@/lib/nicknames";
 import { SystemRoomLeaveGuard } from "./system-room-leave-guard";
+import { InviteLinkButton } from "@/components/invite-link-button";
 import { paletteDot } from "@/lib/palette";
 import { isCurrentUserAdmin } from "@/lib/admin";
 import { fetchAllPages } from "@/lib/paginate";
@@ -540,7 +541,8 @@ export default async function RoomPage({
               {t("inviteCode")}{" "}
               <span className="font-mono text-neutral-900 dark:text-white">
                 {room.invite_code}
-              </span>
+              </span>{" "}
+              <InviteLinkButton kind="room" code={room.invite_code} />
             </div>
           )}
           {isOwner && (

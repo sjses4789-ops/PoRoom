@@ -146,5 +146,15 @@
     "prevMonth": "前の月",
     "nextMonth": "次の月",
     "sessionCountTooltip": "{count}回"
+  },
+  "badges": {
+    "title": "完走バッジ",
+    "subtitle": "チャレンジと対決での成果がバッジとして貯まります。",
+    "successCount": "{count}回成功",
+    "notYet": "まだありません",
+    "eventHeading": "イベントチャレンジ完走 ({count})",
+    "eventEmpty": "完走したイベントチャレンジはまだありません。",
+    "duelHeading": "対決の勝利 ({count})",
+    "duelEmpty": "勝利した対決はまだありません。"
   }
 }

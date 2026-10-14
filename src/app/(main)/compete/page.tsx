@@ -10,6 +10,7 @@ import { OpenChallengeCard } from "./open-challenge-card";
 import { OpenSystemChallengeCard } from "./open-system-challenge-card";
 import { JoinedSystemChallengeCard } from "./joined-system-challenge-card";
 import { EndedChallengeCard } from "./ended-challenge-card";
+import { getMyChallengeResults, type ChallengeResult } from "@/lib/challenge-results";
 import {
   ensureSystemChallenge,
   SYSTEM_CHALLENGE_META,
@@ -304,6 +305,33 @@ export default async function CompetePage() {
 
   const draftDoneThisMonth = (draftLogs ?? []).length > 0;
 
+  // 종료된 대결·이벤트 챌린지에서 "내" 결과(최종 순위·내 기록·완주 여부) — 내가 참여했던 것에만 붙는다.
+  const myResults = selfId ? await getMyChallengeResults(supabase, selfId) : [];
+  const resultById = new Map(myResults.map((r) => [r.id, r]));
+  const resultText = (r: ChallengeResult | undefined) => {
+    if (!r) return { line: null, badge: null };
+    const unit = (n: number) =>
+      r.metric === "minutes"
+        ? t("unitMinutes", { n: n.toLocaleString() })
+        : r.targetPosition === "webtoon"
+          ? t("unitCuts", { n: n.toLocaleString() })
+          : t("unitChars", { n: n.toLocaleString() });
+    if (r.metric === "achievement") {
+      return {
+        line: t("endedResultAchievers", { count: r.achievedCount, total: r.total }),
+        badge: { label: r.success ? t("endedBadgeAchieved") : t("endedBadgeNotAchieved"), good: r.success },
+      };
+    }
+    const label =
+      r.kind === "duel"
+        ? r.success ? t("endedBadgeWin") : t("endedBadgeLose")
+        : r.success ? t("endedBadgeDone") : t("endedBadgeNotDone");
+    return {
+      line: `${t("endedResultRank", { rank: r.rank ?? 0, total: r.total })} · ${t("endedResultValue", { value: unit(r.value) })}`,
+      badge: { label, good: r.success },
+    };
+  };
+
   return (
     <PageAdRail>
     <div className="flex flex-col gap-8">
@@ -413,6 +441,8 @@ export default async function CompetePage() {
                       participantsLabel={t("endedParticipants", { count: c.participantCount })}
                       endedBadge={t("endedBadge")}
                       joinedBadge={c.iJoined ? t("endedJoinedBadge") : null}
+                      resultLine={resultText(resultById.get(c.id)).line}
+                      resultBadge={resultText(resultById.get(c.id)).badge}
                       bgClass="bg-white dark:bg-neutral-900"
                     />
                   ))}
@@ -506,6 +536,8 @@ export default async function CompetePage() {
                       participantsLabel={t("endedParticipants", { count: c.participantCount })}
                       endedBadge={t("endedBadge")}
                       joinedBadge={c.iJoined ? t("endedJoinedBadge") : null}
+                      resultLine={resultText(resultById.get(c.id)).line}
+                      resultBadge={resultText(resultById.get(c.id)).badge}
                       bgClass={ADMIN_EVENT_CARD_BG}
                     />
                   ))}

@@ -103,10 +103,13 @@ export function ParticipantContextMenu({
 // 신고 안내창 — 신고 이유를 적어 보낸다. onSubmit이 오류 문구를 돌려주면 그대로 보여 준다.
 export function ReportDialog({
   targetName,
+  isMessage = false,
   onSubmit,
   onClose,
 }: {
   targetName: string;
+  /** 메시지·사진 단위 신고이면 그 글이 함께 전달된다는 안내를 보여 준다. */
+  isMessage?: boolean;
   onSubmit: (reason: string) => Promise<string | null>;
   onClose: () => void;
 }) {
@@ -160,6 +163,7 @@ export function ReportDialog({
         ) : (
           <>
             <p className="text-[12px] text-neutral-400">{t("hint")}</p>
+            {isMessage && <p className="text-[12px] text-amber-600 dark:text-amber-400">{t("messageNote")}</p>}
             <textarea
               autoFocus
               value={reason}

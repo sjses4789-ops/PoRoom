@@ -19,7 +19,19 @@
     "endedEmpty": "还没有已结束的挑战。",
     "endedBadge": "已结束",
     "endedJoinedBadge": "你参加过",
-    "endedParticipants": "{count}人参加"
+    "endedParticipants": "{count}人参加",
+    "endedResultRank": "最终第{rank}名 / {total}人",
+    "endedResultAchievers": "达成 {count}人 / {total}人",
+    "endedResultValue": "我的记录 {value}",
+    "endedBadgeWin": "获胜",
+    "endedBadgeLose": "落败",
+    "endedBadgeDone": "完成",
+    "endedBadgeNotDone": "未完成",
+    "endedBadgeAchieved": "已达成",
+    "endedBadgeNotAchieved": "未达成",
+    "unitChars": "{n}字",
+    "unitCuts": "{n}格",
+    "unitMinutes": "{n}分钟"
   },
   "systemChallengeMeta": {
     "daily1k": {

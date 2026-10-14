@@ -19,7 +19,19 @@
     "endedEmpty": "No challenges have ended yet.",
     "endedBadge": "Ended",
     "endedJoinedBadge": "You joined",
-    "endedParticipants": "{count} joined"
+    "endedParticipants": "{count} joined",
+    "endedResultRank": "Final rank {rank} of {total}",
+    "endedResultAchievers": "{count} of {total} achieved",
+    "endedResultValue": "My record {value}",
+    "endedBadgeWin": "Won",
+    "endedBadgeLose": "Lost",
+    "endedBadgeDone": "Completed",
+    "endedBadgeNotDone": "Not completed",
+    "endedBadgeAchieved": "Achieved",
+    "endedBadgeNotAchieved": "Not achieved",
+    "unitChars": "{n} chars",
+    "unitCuts": "{n} cuts",
+    "unitMinutes": "{n} min"
   },
   "systemChallengeMeta": {
     "daily1k": {

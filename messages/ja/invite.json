@@ -1,0 +1,19 @@
+{
+  "copyLink": "招待リンクをコピー",
+  "copied": "コピーしました！",
+  "roomTitle": "ルームの招待",
+  "duelTitle": "対決の招待",
+  "roomIntro": "ポルームの作業ルームに招待されました。",
+  "duelIntro": "ポルームの対決に招待されました。",
+  "guestBody": "ログインするとすぐに入れます。Googleアカウントでログインしてください。",
+  "loginButton": "ログインして参加",
+  "foundRoom": "ルーム名: {name}",
+  "foundDuel": "対決名: {name}",
+  "memberCount": "{count}人参加中",
+  "join": "入室する",
+  "joinDuel": "対決に参加",
+  "joining": "参加中...",
+  "invalid": "招待リンクが正しくないか、利用できなくなりました。",
+  "goMain": "ポルームへ",
+  "goCompete": "チャレンジへ"
+}

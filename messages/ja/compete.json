@@ -19,7 +19,19 @@
     "endedEmpty": "まだ終了したチャレンジはありません。",
     "endedBadge": "終了",
     "endedJoinedBadge": "参加しました",
-    "endedParticipants": "{count}人参加"
+    "endedParticipants": "{count}人参加",
+    "endedResultRank": "最終{rank}位 / {total}人",
+    "endedResultAchievers": "達成者 {count}人 / {total}人",
+    "endedResultValue": "記録 {value}",
+    "endedBadgeWin": "勝利",
+    "endedBadgeLose": "敗北",
+    "endedBadgeDone": "完走",
+    "endedBadgeNotDone": "未完走",
+    "endedBadgeAchieved": "達成",
+    "endedBadgeNotAchieved": "未達成",
+    "unitChars": "{n}文字",
+    "unitCuts": "{n}カット",
+    "unitMinutes": "{n}分"
   },
   "systemChallengeMeta": {
     "daily1k": {

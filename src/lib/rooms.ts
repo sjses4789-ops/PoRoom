@@ -9,6 +9,7 @@ import { isRoomTag } from "@/lib/room-tags";
 import { checkDailyMilestones } from "@/lib/system-challenges";
 import { resolveJoinNickname } from "@/lib/nickname-join";
 import { todayKst } from "@/lib/time";
+import { purgeRoomChatImages } from "@/lib/chat-image-purge";
 
 const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
@@ -225,6 +226,15 @@ export async function leaveRoom(roomId: string) {
     .select("owner_id,is_system")
     .eq("id", roomId)
     .maybeSingle<{ owner_id: string; is_system: boolean }>();
+
+  // 내가 마지막 참여자라 방이 사라질 거라면, 방이 있는 동안(참여자일 때만 목록을 볼 수 있다) 채팅 사진 파일을 먼저 지운다.
+  if (room && !room.is_system) {
+    const { count } = await supabase
+      .from("room_members")
+      .select("user_id", { count: "exact", head: true })
+      .eq("room_id", roomId);
+    if (count === 1) await purgeRoomChatImages(supabase, roomId).catch(() => 0);
+  }
 
   await supabase
     .from("room_members")

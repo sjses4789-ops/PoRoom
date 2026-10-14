@@ -11,6 +11,11 @@ export type AdminReport = {
   reason: string;
   createdAt: string;
   resolved: boolean;
+  /** 메시지·사진 신고이면 신고 당시의 글 — 아니면 null. */
+  messageContent: string | null;
+  imageUrl: string | null;
+  /** 사진이 있었는데 이미 지워져(보관 기간 지남 등) 못 보는 경우. */
+  hadImage: boolean;
 };
 
 // 참여자 신고 목록 — 처리 완료 표시와 삭제를 할 수 있다. 계정 차단은 아래 "회원 목록"에서 한다.
@@ -65,6 +70,18 @@ export function AdminReportList({ reports: initial }: { reports: AdminReport[] }
               <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-neutral-700 dark:text-neutral-300">
                 {r.reason}
               </p>
+              {(r.messageContent || r.hadImage) && (
+                <div className="flex flex-col gap-1.5 rounded-md bg-neutral-50 px-2.5 py-2 text-[12px] text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
+                  <span className="text-[11px] font-medium text-neutral-400">신고된 메시지</span>
+                  {r.messageContent && <span className="whitespace-pre-wrap">{r.messageContent}</span>}
+                  {r.imageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={r.imageUrl} alt="신고된 사진" className="max-h-48 max-w-full rounded object-contain" />
+                  ) : (
+                    r.hadImage && <span className="text-neutral-400">사진을 더 이상 볼 수 없어요(삭제됨).</span>
+                  )}
+                </div>
+              )}
               <div className="flex gap-2">
                 <button
                   type="button"

@@ -5,6 +5,7 @@ import { err } from "@/lib/errors";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionResult, RecordVisibility, JoinType } from "@/lib/rooms";
 import { isRoomTag } from "@/lib/room-tags";
+import { purgeRoomChatImages } from "@/lib/chat-image-purge";
 
 export async function updateRoomSettings(
   _prevState: ActionResult,
@@ -53,6 +54,16 @@ export async function deleteRoom(roomId: string) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: await err("loginRequired") };
+
+  // 방장이 방을 지우기 전에 채팅 사진 파일도 함께 지운다.
+  const { data: owned } = await supabase
+    .from("rooms")
+    .select("id")
+    .eq("id", roomId)
+    .eq("owner_id", user.id)
+    .eq("is_system", false)
+    .maybeSingle();
+  if (owned) await purgeRoomChatImages(supabase, roomId).catch(() => 0);
 
   const { error } = await supabase
     .from("rooms")

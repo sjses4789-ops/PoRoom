@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { todayKst } from "@/lib/time";
 import { paletteCard } from "@/lib/palette";
+import { InviteLinkButton } from "@/components/invite-link-button";
 import { ChallengeRankingBars } from "./challenge-ranking-bars";
 
 export type ChallengeParticipant = {
@@ -91,8 +92,13 @@ export async function ChallengeCard({
             {visibility === "open" ? t("visibilityOpen") : t("visibilityPrivate")}
           </span>
           {visibility === "private" && inviteCode && (
-            <span className="font-mono text-[11px] text-neutral-400">
+            <span className="flex items-center gap-1.5 font-mono text-[11px] text-neutral-400">
               {t("inviteCode", { code: inviteCode })}
+              <InviteLinkButton
+                kind="duel"
+                code={inviteCode}
+                className="rounded border border-neutral-200 px-1.5 py-0.5 font-sans text-[11px] text-neutral-500 transition hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+              />
             </span>
           )}
         </div>

@@ -1,0 +1,19 @@
+{
+  "copyLink": "초대 링크 복사",
+  "copied": "복사됨!",
+  "roomTitle": "방 초대장",
+  "duelTitle": "대결 초대장",
+  "roomIntro": "포룸 작업방에 초대받았어요.",
+  "duelIntro": "포룸 대결에 초대받았어요.",
+  "guestBody": "로그인하면 바로 입장할 수 있어요. 구글 계정으로 로그인해 주세요.",
+  "loginButton": "로그인하고 입장하기",
+  "foundRoom": "방 이름: {name}",
+  "foundDuel": "대결 이름: {name}",
+  "memberCount": "{count}명 참여 중",
+  "join": "입장하기",
+  "joinDuel": "대결 참여하기",
+  "joining": "입장하는 중...",
+  "invalid": "초대 링크가 올바르지 않거나 더 이상 쓸 수 없어요.",
+  "goMain": "포룸으로 가기",
+  "goCompete": "도전 페이지로 가기"
+}

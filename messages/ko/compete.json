@@ -19,7 +19,19 @@
     "endedEmpty": "아직 종료된 챌린지가 없습니다.",
     "endedBadge": "종료",
     "endedJoinedBadge": "참여했어요",
-    "endedParticipants": "{count}명 참여"
+    "endedParticipants": "{count}명 참여",
+    "endedResultRank": "최종 {rank}위 / {total}명",
+    "endedResultAchievers": "달성자 {count}명 / {total}명",
+    "endedResultValue": "내 기록 {value}",
+    "endedBadgeWin": "승리",
+    "endedBadgeLose": "패배",
+    "endedBadgeDone": "완주",
+    "endedBadgeNotDone": "미완주",
+    "endedBadgeAchieved": "달성",
+    "endedBadgeNotAchieved": "미달성",
+    "unitChars": "{n}자",
+    "unitCuts": "{n}컷",
+    "unitMinutes": "{n}분"
   },
   "systemChallengeMeta": {
     "daily1k": {

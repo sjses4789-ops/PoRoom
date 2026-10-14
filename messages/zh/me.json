@@ -146,5 +146,15 @@
     "prevMonth": "上个月",
     "nextMonth": "下个月",
     "sessionCountTooltip": "{count}次"
+  },
+  "badges": {
+    "title": "完成徽章",
+    "subtitle": "挑战和对决中的成果会以徽章的形式积累。",
+    "successCount": "成功 {count} 次",
+    "notYet": "还没有",
+    "eventHeading": "完成的活动挑战 ({count})",
+    "eventEmpty": "还没有完成的活动挑战。",
+    "duelHeading": "对决获胜 ({count})",
+    "duelEmpty": "还没有获胜的对决。"
   }
 }

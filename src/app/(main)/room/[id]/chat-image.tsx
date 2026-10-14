@@ -7,20 +7,28 @@ import { createClient } from "@/lib/supabase/client";
 export const CHAT_IMAGE_BUCKET = "chat-images";
 export const CHAT_IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif"];
 export const CHAT_IMAGE_MAX_BYTES = 5 * 1024 * 1024;
+// 사진 보관 기간 — 0071 마이그레이션의 읽기 정책과 같은 값. 지나면 열리지 않고 파일도 지워진다.
+export const CHAT_IMAGE_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
 
 // 서명된 주소(1시간 유효)를 한 번 받아 두고 같은 사진은 다시 요청하지 않는다.
 const SIGNED_URL_TTL_SECONDS = 60 * 60;
 const urlCache = new Map<string, { url: string; expiresAt: number }>();
 
 // 채팅에 첨부된 사진 — 비공개 버킷이라 로그인한 방 참여자만 서명된 임시 주소로 볼 수 있다. 누르면 크게 열린다.
-export function ChatImage({ path }: { path: string }) {
+export function ChatImage({ path, createdAt }: { path: string; createdAt?: string }) {
   const t = useTranslations("room.chatPanel");
   const [url, setUrl] = useState<string | null>(null);
   const [failed, setFailed] = useState(false);
   const [open, setOpen] = useState(false);
+  // 렌더 중 Date.now()를 쓸 수 없어서 마운트 때 한 번 계산한다.
+  const [expired, setExpired] = useState(false);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (createdAt && Date.now() - new Date(createdAt).getTime() > CHAT_IMAGE_RETENTION_MS) setExpired(true);
+  }, [createdAt]);
 
   useEffect(() => {
-    if (url) return;
+    if (expired || url) return;
     const cached = urlCache.get(path);
     if (cached && cached.expiresAt > Date.now()) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -43,7 +51,7 @@ export function ChatImage({ path }: { path: string }) {
     return () => {
       cancelled = true;
     };
-  }, [path, url]);
+  }, [path, url, expired]);
 
   useEffect(() => {
     if (!open) return;
@@ -54,6 +62,9 @@ export function ChatImage({ path }: { path: string }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
+  if (expired) {
+    return <span className="text-xs text-neutral-400">{t("imageExpired")}</span>;
+  }
   if (failed) {
     return <span className="text-xs text-neutral-400">{t("imageLoadFailed")}</span>;
   }
@@ -117,6 +128,7 @@ export function ChatImageConfirm({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={previewUrl} alt={t("imageAlt")} className="max-h-[50vh] max-w-full rounded object-contain" />
         </div>
+        <p className="text-[11px] text-neutral-400">{t("imageRetentionHint")}</p>
         {whisperName && (
           <p className="text-xs text-amber-600 dark:text-amber-400">🤫 {t("imageConfirmWhisper", { name: whisperName })}</p>
         )}

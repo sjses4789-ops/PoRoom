@@ -71,6 +71,45 @@ export async function reportUser(
   return { ok: true };
 }
 
+// 메시지·사진 신고 — 신고하는 순간의 글과 사진 경로를 함께 보관해서, 나중에 메시지가 지워져도 관리자가 확인할 수 있다.
+export async function reportMessage(
+  messageId: string,
+  roomId: string,
+  reason: string
+): Promise<{ error: string } | { ok: true }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: await err("loginRequired") };
+
+  const text = reason.trim();
+  if (text.length < REPORT_MIN_LENGTH) return { error: await err("reportReasonRequired") };
+  if (text.length > REPORT_MAX_LENGTH) return { error: await err("reportTooLong", { max: REPORT_MAX_LENGTH }) };
+
+  // 내가 읽을 수 있는 메시지(내 방의 전체 채팅, 나에게 온 귓속말)만 신고할 수 있다.
+  const { data: message } = await supabase
+    .from("chat_messages")
+    .select("id,user_id,room_id,content,image_path")
+    .eq("id", messageId)
+    .eq("room_id", roomId)
+    .maybeSingle<{ id: string; user_id: string; room_id: string; content: string; image_path: string | null }>();
+  if (!message) return { error: await err("reportFailed") };
+  if (message.user_id === user.id) return { error: await err("reportSelf") };
+
+  const { error } = await supabase.from("user_reports").insert({
+    reporter_id: user.id,
+    reported_id: message.user_id,
+    room_id: roomId,
+    reason: text,
+    message_id: message.id,
+    message_content: message.content,
+    message_image_path: message.image_path,
+  });
+  if (error) return { error: await err("reportFailed") };
+  return { ok: true };
+}
+
 export async function setReportResolved(id: string, resolved: boolean): Promise<void> {
   if (!(await isCurrentUserAdmin())) return;
   const supabase = await createClient();

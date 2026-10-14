@@ -146,5 +146,15 @@
     "prevMonth": "이전 달",
     "nextMonth": "다음 달",
     "sessionCountTooltip": "{count}회"
+  },
+  "badges": {
+    "title": "완주 뱃지",
+    "subtitle": "챌린지와 대결에서 거둔 성과가 뱃지로 쌓여요.",
+    "successCount": "{count}회 성공",
+    "notYet": "아직 없어요",
+    "eventHeading": "이벤트 챌린지 완주 ({count})",
+    "eventEmpty": "아직 완주한 이벤트 챌린지가 없어요.",
+    "duelHeading": "대결 승리 ({count})",
+    "duelEmpty": "아직 승리한 대결이 없어요."
   }
 }

@@ -5,6 +5,7 @@ import { isCurrentUserAdmin } from "@/lib/admin";
 import { AdminEventForm } from "./admin-event-form";
 import { AdminEventDeleteButton } from "./admin-event-delete-button";
 import { AdminEventEditButton } from "./admin-event-edit-button";
+import { AdminPurgePhotosButton } from "./admin-purge-photos-button";
 import { AdminRoomDeleteButton } from "./admin-room-delete-button";
 import { AdminMemberList, type AdminUserRow } from "./admin-member-list";
 import { DownloadLink } from "@/components/download-link";
@@ -21,6 +22,18 @@ type EventRow = {
   start_date: string | null;
   end_date: string | null;
   metric: "chars" | "minutes" | "achievement";
+};
+type ReportRow = {
+  id: string;
+  reporter_id: string;
+  reported_id: string;
+  room_id: string | null;
+  reason: string;
+  resolved: boolean;
+  created_at: string;
+  message_id?: string | null;
+  message_content?: string | null;
+  message_image_path?: string | null;
 };
 type UserRow = {
   id: string;
@@ -50,7 +63,7 @@ export default async function AdminPage() {
     { data: events },
     { data: users },
     { data: nicknameRows },
-    { data: reportRows },
+    { data: reportRowsFull, error: reportError },
     { data: feedbackRows },
   ] =
     await Promise.all([
@@ -80,19 +93,9 @@ export default async function AdminPage() {
       // 참여자 신고(0065) — 관리자만 읽을 수 있다. 테이블이 없으면 빈 목록으로 보인다.
       supabase
         .from("user_reports")
-        .select("id,reporter_id,reported_id,room_id,reason,resolved,created_at")
+        .select("id,reporter_id,reported_id,room_id,reason,resolved,created_at,message_id,message_content,message_image_path")
         .order("created_at", { ascending: false })
-        .returns<
-          {
-            id: string;
-            reporter_id: string;
-            reported_id: string;
-            room_id: string | null;
-            reason: string;
-            resolved: boolean;
-            created_at: string;
-          }[]
-        >(),
+        .returns<ReportRow[]>(),
       // [기능 제안 & 버그 신고] 글 — 비밀글이라 관리자(와 작성자)만 읽는다(0064).
       supabase
         .from("feedback_posts")
@@ -106,7 +109,27 @@ export default async function AdminPage() {
 
   const displayName = new Map((users ?? []).map((u) => [u.id, u.name || u.email]));
   const roomName = new Map((rooms ?? []).map((r) => [r.id, r.name]));
+  // 메시지 신고 열(0071)이 아직 없으면 위 조회가 실패하므로, 예전 열만으로 다시 읽는다.
+  let reportRows: ReportRow[] | null = reportRowsFull;
+  if (reportError) {
+    const { data } = await supabase
+      .from("user_reports")
+      .select("id,reporter_id,reported_id,room_id,reason,resolved,created_at")
+      .order("created_at", { ascending: false })
+      .returns<ReportRow[]>();
+    reportRows = data;
+  }
+  // 신고된 사진은 관리자만 열 수 있는 임시 주소(1시간)로 보여 준다.
+  const reportImageUrls = new Map<string, string>();
+  for (const r of reportRows ?? []) {
+    if (!r.message_image_path) continue;
+    const { data: signed } = await supabase.storage.from("chat-images").createSignedUrl(r.message_image_path, 3600);
+    if (signed?.signedUrl) reportImageUrls.set(r.id, signed.signedUrl);
+  }
   const reports: AdminReport[] = (reportRows ?? []).map((r) => ({
+    messageContent: r.message_content ?? null,
+    imageUrl: reportImageUrls.get(r.id) ?? null,
+    hadImage: Boolean(r.message_image_path),
     id: r.id,
     reportedName: displayName.get(r.reported_id) ?? "알 수 없음",
     reporterName: displayName.get(r.reporter_id) ?? "알 수 없음",
@@ -241,6 +264,13 @@ export default async function AdminPage() {
         >
           {t("fullBackupButton")}
         </DownloadLink>
+      </section>
+      <section className="flex flex-col gap-3 rounded-md border border-neutral-200 p-4 dark:border-neutral-700">
+        <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">채팅 사진 보관 정리</h2>
+        <p className="text-xs text-neutral-400">
+          채팅 사진은 올린 지 30일이 지나면 열리지 않고, 올린 본인·방장·부방장이 접속할 때 실제 파일이 지워져요. 접속하지 않는 사람의 사진은 이 버튼으로 한꺼번에 지울 수 있어요.
+        </p>
+        <AdminPurgePhotosButton />
       </section>
       <section className="flex flex-col gap-3 rounded-md border border-neutral-200 p-4 dark:border-neutral-700">
         <div className="flex items-center justify-between gap-3">

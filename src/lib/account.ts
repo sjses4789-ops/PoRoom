@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { err } from "@/lib/errors";
 import { leaveRoom } from "@/lib/rooms";
+import { purgeMyChatImages } from "@/lib/chat-image-purge";
 
 // 계정 탈퇴: 참여 중인 모든 방에서 먼저 정상적으로 나가게 한다(leaveRoom과
 // 동일한 로직 재사용 — 방장이면 다른 참여자에게 방장을 넘기거나, 혼자면
@@ -28,6 +29,9 @@ export async function deleteAccount(): Promise<{ error: string } | null> {
     .select("room_id")
     .eq("user_id", user.id)
     .returns<{ room_id: string }[]>();
+
+  // 내가 올린 채팅 사진 파일을 먼저 지운다(계정이 지워지면 사진을 찾을 방법이 없어진다).
+  await purgeMyChatImages(supabase).catch(() => 0);
 
   for (const m of memberships ?? []) {
     await leaveRoom(m.room_id);
