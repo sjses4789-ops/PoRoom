@@ -103,5 +103,6 @@
     "minutesAgo": "{count}분 전",
     "hoursAgo": "{count}시간 전"
   },
-  "selfLabel": "나"
+  "selfLabel": "나",
+  "profileSaveFailed": "프로필을 저장하지 못했어요. 잠시 뒤 다시 시도해 주세요."
 }

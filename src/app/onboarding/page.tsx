@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
+import { ensureMyProfile } from "@/lib/ensure-profile";
 import { OnboardingForm } from "./onboarding-form";
 
 export default async function OnboardingPage() {
@@ -11,6 +12,9 @@ export default async function OnboardingPage() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
+
+  // 프로필 행이 없는 계정(탈퇴 뒤 같은 구글 계정으로 재가입)도 이 화면에서 저장할 수 있게 먼저 만든다.
+  await ensureMyProfile(supabase);
 
   const { data: profile } = await supabase
     .from("users")

@@ -103,5 +103,6 @@
     "minutesAgo": "{count} min ago",
     "hoursAgo": "{count} hr ago"
   },
-  "selfLabel": "Me"
+  "selfLabel": "Me",
+  "profileSaveFailed": "Could not save your profile. Please try again in a moment."
 }

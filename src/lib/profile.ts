@@ -5,6 +5,7 @@ import { err } from "@/lib/errors";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionResult } from "@/lib/rooms";
+import { ensureMyProfile } from "@/lib/ensure-profile";
 
 // 폼으로 받은 돌아갈 주소는 이 사이트 안의 경로("/..."로 시작, "//"나 "/\" 제외)만 허용한다 — 바깥 주소로 보내는 데 쓰이지 못하게.
 function safeRedirectPath(path: string): string {
@@ -100,12 +101,16 @@ export async function completeOnboarding(
     return { error: await err("positionSelect") };
   }
 
-  const { error } = await supabase
+  // 프로필 행이 없는 계정(탈퇴 뒤 재가입)이면 먼저 만든다 — 없으면 아래 저장이 0건이어도 오류 없이 지나가 화면만 새로 고쳐진다.
+  await ensureMyProfile(supabase);
+  const { data: saved, error } = await supabase
     .from("users")
     .update({ name: nickname, position })
-    .eq("id", user.id);
+    .eq("id", user.id)
+    .select("id");
 
   if (error) return { error: error.message };
+  if (!saved || saved.length === 0) return { error: await err("profileSaveFailed") };
 
   revalidatePath("/", "layout");
   redirect(redirectTo);

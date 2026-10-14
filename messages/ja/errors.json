@@ -103,5 +103,6 @@
     "minutesAgo": "{count}分前",
     "hoursAgo": "{count}時間前"
   },
-  "selfLabel": "自分"
+  "selfLabel": "自分",
+  "profileSaveFailed": "プロフィールを保存できませんでした。しばらくしてからもう一度お試しください。"
 }

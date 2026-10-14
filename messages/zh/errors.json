@@ -103,5 +103,6 @@
     "minutesAgo": "{count}分钟前",
     "hoursAgo": "{count}小时前"
   },
-  "selfLabel": "我"
+  "selfLabel": "我",
+  "profileSaveFailed": "无法保存个人资料，请稍后重试。"
 }
