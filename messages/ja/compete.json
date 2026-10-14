@@ -13,6 +13,8 @@
     "resetHint": "チャレンジルームは韓国時間基準でリセットされます。",
     "adminEventLabel": "運営イベント",
     "unknownUser": "不明",
+    "endedDuelHeading": "終了した対決",
+    "endedDuelEmpty": "終了した対決はまだありません。",
     "endedHeading": "終了したチャレンジ",
     "endedEmpty": "まだ終了したチャレンジはありません。",
     "endedBadge": "終了",

@@ -65,6 +65,7 @@ const CHALLENGE_SELECT =
 export default async function CompetePage() {
   const t = await getTranslations("compete.page");
   const tMeta = await getTranslations("compete.systemChallengeMeta");
+  const tDuel = await getTranslations("compete.openChallengeCard");
   const supabase = await createClient();
   const {
     data: { user },
@@ -252,10 +253,9 @@ export default async function CompetePage() {
   // 관리자 세션에서 전체 challenges 테이블을 지워버리는 사고로 이어져
   // 제거했다) 기간이 끝난 대결은 그냥 목록 맨 아래로 밀어낸다.
   const isEnded = (c: ChallengeRow) => Boolean(c.end_date && today > c.end_date);
-  const sortEndedLast = <T extends ChallengeRow>(list: T[]) =>
-    [...list].sort((a, b) => Number(isEnded(a)) - Number(isEnded(b)));
 
-  const joinedChallenges = sortEndedLast(joined.filter((c) => !c.kind && !c.is_admin_event));
+  // 기간이 지난 대결은 "참여 중/참여 가능" 목록에서 빼고 맨 아래 "종료된 대결 목록"에 모은다.
+  const joinedChallenges = joined.filter((c) => !c.kind && !c.is_admin_event && !isEnded(c));
   // 기간이 지난 관리자 챌린지(이벤트)는 진행 중 목록에서 빼고 맨 아래 "종료된 챌린지 목록"에 모은다.
   // 반복형 시스템 챌린지(kind)는 주/월마다 기간이 갱신되므로 여기에 해당하지 않는다.
   const isEndedAdminEvent = (c: ChallengeRow) =>
@@ -269,7 +269,18 @@ export default async function CompetePage() {
   const joinedSystemChallenges = byKindOrder(
     joined.filter((c) => (c.kind !== null || c.is_admin_event) && !isEndedAdminEvent(c))
   );
-  const openChallenges = sortEndedLast(openToJoin.filter((c) => !c.kind && !c.is_admin_event));
+  const openChallenges = openToJoin.filter((c) => !c.kind && !c.is_admin_event && !isEnded(c));
+  const endedDuels = challenges
+    .filter((c) => !c.kind && !c.is_admin_event && isEnded(c))
+    .map((c) => {
+      const rows = participantsByChallenge.get(c.id) ?? [];
+      return {
+        ...c,
+        participantCount: rows.length,
+        iJoined: selfId ? rows.some((r) => r.user_id === selfId) : false,
+      };
+    })
+    .sort((a, b) => (b.end_date ?? "").localeCompare(a.end_date ?? ""));
   const openSystemChallenges = byKindOrder(
     openToJoin.filter((c) => (c.kind !== null || c.is_admin_event) && !isEndedAdminEvent(c))
   );
@@ -369,6 +380,40 @@ export default async function CompetePage() {
                       startDate={c.start_date}
                       endDate={c.end_date}
                       participantCount={c.participantCount}
+                    />
+                  ))}
+                </div>
+              )}
+            </section>
+
+            <section className="flex flex-col gap-4">
+              <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">
+                {t("endedDuelHeading")}
+              </h3>
+              {endedDuels.length === 0 ? (
+                <p className="text-xs text-neutral-400">{t("endedDuelEmpty")}</p>
+              ) : (
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  {endedDuels.map((c) => (
+                    <EndedChallengeCard
+                      key={c.id}
+                      href={c.iJoined ? `/compete/${c.id}` : undefined}
+                      title={c.title}
+                      subLabel={
+                        c.metric === "chars"
+                          ? c.target_position === "webtoon"
+                            ? tDuel("metricCuts")
+                            : tDuel("metricChars")
+                          : c.metric === "minutes"
+                            ? tDuel("metricMinutes")
+                            : tDuel("metricAchievement")
+                      }
+                      startDate={c.start_date ?? ""}
+                      endDate={c.end_date ?? ""}
+                      participantsLabel={t("endedParticipants", { count: c.participantCount })}
+                      endedBadge={t("endedBadge")}
+                      joinedBadge={c.iJoined ? t("endedJoinedBadge") : null}
+                      bgClass="bg-white dark:bg-neutral-900"
                     />
                   ))}
                 </div>

@@ -13,6 +13,8 @@
     "resetHint": "챌린지방은 한국 시간 기준으로 리셋됩니다.",
     "adminEventLabel": "관리자 지정 이벤트",
     "unknownUser": "알 수 없음",
+    "endedDuelHeading": "종료된 대결 목록",
+    "endedDuelEmpty": "아직 종료된 대결이 없습니다.",
     "endedHeading": "종료된 챌린지 목록",
     "endedEmpty": "아직 종료된 챌린지가 없습니다.",
     "endedBadge": "종료",

@@ -1,5 +1,8 @@
-// 기간이 끝난 관리자 챌린지(이벤트) 카드 — 참여 버튼 없이 기록만 보여 준다.
+import Link from "next/link";
+
+// 기간이 끝난 관리자 챌린지(이벤트)·대결 카드 — 참여 버튼 없이 기록만 보여 준다. href가 있으면 카드를 누르면 상세로 간다.
 export function EndedChallengeCard({
+  href,
   title,
   subLabel,
   startDate,
@@ -9,6 +12,7 @@ export function EndedChallengeCard({
   joinedBadge,
   bgClass,
 }: {
+  href?: string;
   title: string;
   subLabel: string;
   startDate: string;
@@ -19,7 +23,7 @@ export function EndedChallengeCard({
   joinedBadge: string | null;
   bgClass: string;
 }) {
-  return (
+  const card = (
     <div
       className={`flex flex-col gap-2 overflow-hidden rounded-lg border border-neutral-200/60 p-4 opacity-75 dark:border-neutral-700 ${bgClass}`}
     >
@@ -42,4 +46,5 @@ export function EndedChallengeCard({
       )}
     </div>
   );
+  return href ? <Link href={href}>{card}</Link> : card;
 }

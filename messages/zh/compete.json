@@ -13,6 +13,8 @@
     "resetHint": "挑战房按韩国时间重置。",
     "adminEventLabel": "官方活动",
     "unknownUser": "未知用户",
+    "endedDuelHeading": "已结束的对决",
+    "endedDuelEmpty": "还没有已结束的对决。",
     "endedHeading": "已结束的挑战",
     "endedEmpty": "还没有已结束的挑战。",
     "endedBadge": "已结束",
