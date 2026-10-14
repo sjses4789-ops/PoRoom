@@ -80,6 +80,9 @@ export function useRoomPresence(
   const [screenFrames, setScreenFrames] = useState<Record<string, string>>({});
   const screenFrameSeenAtRef = useRef<Map<string, number>>(new Map());
   const channelRef = useRef<RealtimeChannel | null>(null);
+  // 효과 안의 hardReconnect를 밖(화면 프레임 전송)에서도 부를 수 있게 담아 둔다.
+  const reconnectRef = useRef<(() => void) | null>(null);
+  const frameSendFailuresRef = useRef(0);
   // SUBSCRIBED 상태일 때만 track()을 보낼 수 있다 — 구독이 끊기거나
   // 재연결 중일 때 track()을 부르면 조용히 무시되거나 에러가 나서,
   // 다시 SUBSCRIBED가 될 때까지는 시도조차 하지 않는다.
@@ -290,6 +293,7 @@ export function useRoomPresence(
       setup();
     };
 
+    reconnectRef.current = hardReconnect;
     const tickId = setInterval(() => setTick((t) => t + 1), 1000);
     // track() 하나가 유실돼도 다른 참여자 화면이 오래(다음 상태 변경
     // 전까지) 어긋난 채로 남지 않도록, 주기적으로 현재 상태를 다시
@@ -488,11 +492,26 @@ export function useRoomPresence(
   const broadcastScreenFrame = useCallback(
     (dataUrl: string) => {
       if (!subscribedRef.current || !channelRef.current) return;
-      channelRef.current.send({
-        type: "broadcast",
-        event: "screen-frame",
-        payload: { userId: selfId, dataUrl },
-      });
+      // 연결이 조용히 죽어 있으면 send가 "ok"가 아닌 결과로 끝난다 — 연달아 실패하면 채널을 새로 구독해
+      // 공유 화면이 계속 나가게 한다(그냥 두면 상대 화면은 처음 장면에서 멈춘 채 남는다).
+      channelRef.current
+        .send({
+          type: "broadcast",
+          event: "screen-frame",
+          payload: { userId: selfId, dataUrl },
+        })
+        .then((status) => {
+          if (status === "ok") {
+            frameSendFailuresRef.current = 0;
+            return;
+          }
+          frameSendFailuresRef.current += 1;
+          if (frameSendFailuresRef.current >= 3) {
+            frameSendFailuresRef.current = 0;
+            reconnectRef.current?.();
+          }
+        })
+        .catch(() => {});
     },
     [selfId]
   );
