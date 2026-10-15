@@ -12,7 +12,6 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QPushButton,
     QScrollArea,
-    QSpinBox,
     QVBoxLayout,
     QWidget,
 )
@@ -22,7 +21,7 @@ from ..models import ChatMessage, Presence, RoomInfo, RoomMember
 from ..palette import BRAND, BREAK_BLUE, room_color, tint
 from ..realtime import latest_meta
 from . import theme
-from .widgets import Avatar, DonutRing, StatusDot, run_async
+from .widgets import Avatar, DonutRing, StatusDot, Stepper, run_async
 
 TYPING_WINDOW_MS = 5000
 RETRACK_SECONDS = 8
@@ -276,18 +275,13 @@ class RoomPage(QWidget):
         mins = QHBoxLayout()
         mins.setSpacing(8)
         mins.addWidget(QLabel("집중"))
-        self._focus_spin = QSpinBox()
-        self._focus_spin.setRange(1, 180)
-        self._focus_spin.setValue(self._ctx.pomodoro.focus_minutes)
-        self._focus_spin.setSuffix(" 분")
-        self._focus_spin.valueChanged.connect(self._ctx.pomodoro.set_focus_minutes)
+        self._focus_spin = Stepper(self._ctx.pomodoro.focus_minutes, 1, 180, " 분")
+        self._focus_spin.value_changed.connect(self._ctx.pomodoro.set_focus_minutes)
         mins.addWidget(self._focus_spin)
+        mins.addSpacing(8)
         mins.addWidget(QLabel("휴식"))
-        self._break_spin = QSpinBox()
-        self._break_spin.setRange(1, 60)
-        self._break_spin.setValue(self._ctx.pomodoro.break_minutes)
-        self._break_spin.setSuffix(" 분")
-        self._break_spin.valueChanged.connect(self._ctx.pomodoro.set_break_minutes)
+        self._break_spin = Stepper(self._ctx.pomodoro.break_minutes, 1, 60, " 분")
+        self._break_spin.value_changed.connect(self._ctx.pomodoro.set_break_minutes)
         mins.addWidget(self._break_spin)
         mins.addStretch(1)
         lay.addLayout(mins)

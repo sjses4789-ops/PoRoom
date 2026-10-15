@@ -6,7 +6,7 @@ from typing import Callable
 
 from PySide6.QtCore import QObject, QPointF, QRectF, QSize, Qt, Signal
 from PySide6.QtGui import QBrush, QColor, QFont, QPainter, QPainterPath, QPen, QPixmap
-from PySide6.QtWidgets import QLabel, QWidget
+from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QWidget
 
 from . import theme
 
@@ -154,3 +154,47 @@ class StatusDot(QWidget):
 
 def elide(label: QLabel, text: str, width: int) -> None:
     label.setText(label.fontMetrics().elidedText(text, Qt.ElideRight, width))
+
+
+class Stepper(QWidget):
+    """[−] 값 [+] — 분 단위 설정처럼 작은 숫자를 올리고 내리는 부품(윈도우 기본 스핀박스는 웹 모양과 어울리지 않아 직접 만들었다)."""
+
+    value_changed = Signal(int)
+
+    def __init__(self, value: int, minimum: int, maximum: int, suffix: str = "", parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self._min, self._max, self._value, self._suffix = minimum, maximum, value, suffix
+        lay = QHBoxLayout(self)
+        lay.setContentsMargins(0, 0, 0, 0)
+        lay.setSpacing(4)
+        self._minus = QPushButton("−")
+        self._plus = QPushButton("+")
+        for btn in (self._minus, self._plus):
+            btn.setFixedSize(26, 26)
+            btn.setStyleSheet("padding: 0; font-size: 15px;")
+            btn.setCursor(Qt.PointingHandCursor)
+        self._label = QLabel()
+        self._label.setAlignment(Qt.AlignCenter)
+        self._label.setMinimumWidth(46)
+        self._minus.clicked.connect(lambda: self.set_value(self._value - 1))
+        self._plus.clicked.connect(lambda: self.set_value(self._value + 1))
+        lay.addWidget(self._minus)
+        lay.addWidget(self._label)
+        lay.addWidget(self._plus)
+        self._render()
+
+    def value(self) -> int:
+        return self._value
+
+    def set_value(self, value: int) -> None:
+        value = max(self._min, min(self._max, value))
+        if value == self._value:
+            return
+        self._value = value
+        self._render()
+        self.value_changed.emit(value)
+
+    def _render(self) -> None:
+        self._label.setText(f"{self._value}{self._suffix}")
+        self._minus.setEnabled(self._value > self._min)
+        self._plus.setEnabled(self._value < self._max)

@@ -9,6 +9,8 @@ if (-not (Test-Path "env.json")) { & .\.venv\Scripts\python.exe tools\gen_env.py
 
 & .\.venv\Scripts\python.exe -m PyInstaller --noconfirm --clean --windowed --name PoRoom `
     --collect-submodules websockets `
+    --icon assetsporoom.ico `
+    --add-data "assets;assets" `
     run.py
 Copy-Item env.json dist\PoRoom\env.json -Force
 Write-Host "완료: dist\PoRoom\PoRoom.exe"

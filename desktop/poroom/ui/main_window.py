@@ -1,4 +1,4 @@
-"""메인 창 — 왼쪽 메뉴([포룸] [피드] [도전] [랭킹] [휴식] [개인]) + 위 줄 + 화면 전환."""
+"""메인 창 — 웹 PoRoom의 헤더처럼: 로고 · 메뉴 탭([포룸][피드][도전][랭킹][휴식]) · 알림/우편함 · 내 이름 · 창 버튼."""
 from __future__ import annotations
 
 import webbrowser
@@ -6,7 +6,6 @@ import webbrowser
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QButtonGroup,
-    QFrame,
     QHBoxLayout,
     QLabel,
     QMainWindow,
@@ -17,18 +16,17 @@ from PySide6.QtWidgets import (
 )
 
 from ..context import AppContext
-from . import theme
+from .chrome import ChromeRoot, TitleBar, app_icon
 from .home_page import HomePage
 from .room_page import RoomPage
 from .widgets import Avatar, run_async
 
 NAV = [
-    ("home", "🏠  포룸", ""),
-    ("feed", "📰  피드", "/feed"),
-    ("compete", "🏆  도전", "/compete"),
-    ("ranking", "📊  랭킹", "/ranking"),
-    ("rest", "☕  휴식", "/rest"),
-    ("me", "🙂  개인", "/me"),
+    ("home", "포룸", ""),
+    ("feed", "피드", "/feed"),
+    ("compete", "도전", "/compete"),
+    ("ranking", "랭킹", "/ranking"),
+    ("rest", "휴식", "/rest"),
 ]
 
 
@@ -55,96 +53,79 @@ class ComingSoon(QWidget):
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, ctx: AppContext, on_sign_out) -> None:
+    def __init__(self, ctx: AppContext, on_sign_out, on_closed) -> None:
         super().__init__()
         self._ctx = ctx
         self._on_sign_out = on_sign_out
+        self._on_closed = on_closed
         self._room_page: RoomPage | None = None
+        self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
         self.setWindowTitle("PoRoom(포룸)")
-        self.resize(1180, 760)
-        self.setMinimumSize(900, 600)
+        self.setWindowIcon(app_icon())
+        self.resize(1180, 780)
+        self.setMinimumSize(940, 620)
 
-        root = QWidget()
-        root.setObjectName("root")
-        self.setCentralWidget(root)
-        outer = QHBoxLayout(root)
-        outer.setContentsMargins(0, 0, 0, 0)
-        outer.setSpacing(0)
+        self._chrome = ChromeRoot()
+        self.setCentralWidget(self._chrome)
+        self._title_bar = TitleBar(self)
+        self._build_header()
+        self._chrome.body.addWidget(self._title_bar)
 
-        outer.addWidget(self._build_sidebar())
-
-        right = QVBoxLayout()
-        right.setContentsMargins(0, 0, 0, 0)
-        right.setSpacing(0)
-        right.addWidget(self._build_topbar())
         self._stack = QStackedWidget()
-        right.addWidget(self._stack, 1)
-        wrap = QWidget()
-        wrap.setLayout(right)
-        outer.addWidget(wrap, 1)
+        self._chrome.body.addWidget(self._stack, 1)
 
         self._pages: dict[str, QWidget] = {}
         home = HomePage(ctx)
         home.open_room.connect(self.open_room)
         self._add_page("home", home)
         for key, label, path in NAV[1:]:
-            title = label.split("  ")[1]
-            self._add_page(key, ComingSoon(title, f"{ctx.config.web_url}{path}"))
+            self._add_page(key, ComingSoon(label, f"{ctx.config.web_url}{path}"))
         self._nav_buttons["home"].setChecked(True)
         self._stack.setCurrentWidget(self._pages["home"])
 
     # ── 구성 ───────────────────────────────────────────────────
-    def _build_sidebar(self) -> QWidget:
-        side = QWidget()
-        side.setObjectName("sidebar")
-        side.setFixedWidth(190)
-        lay = QVBoxLayout(side)
-        lay.setContentsMargins(14, 18, 14, 18)
-        lay.setSpacing(4)
-        logo = QLabel("PoRoom")
-        logo.setStyleSheet(f"font-size: 22px; font-weight: 800; color: {theme.BRAND}; padding: 0 6px 12px 6px;")
-        lay.addWidget(logo)
+    def _build_header(self) -> None:
+        bar = self._title_bar
         self._nav_group = QButtonGroup(self)
         self._nav_group.setExclusive(True)
         self._nav_buttons: dict[str, QPushButton] = {}
         for key, label, _path in NAV:
             btn = QPushButton(label)
-            btn.setObjectName("nav")
+            btn.setObjectName("tab")
             btn.setCheckable(True)
             btn.setCursor(Qt.PointingHandCursor)
             btn.clicked.connect(lambda _checked, k=key: self.show_page(k))
             self._nav_group.addButton(btn)
             self._nav_buttons[key] = btn
-            lay.addWidget(btn)
-        lay.addStretch(1)
-        out = QPushButton("로그아웃")
-        out.clicked.connect(self._on_sign_out)
-        lay.addWidget(out)
-        return side
+            bar.layout_.addWidget(btn)
+        bar.layout_.addStretch(1)  # 빈 곳은 끌어서 창을 옮긴다
 
-    def _build_topbar(self) -> QWidget:
-        bar = QWidget()
-        bar.setObjectName("topbar")
-        bar.setFixedHeight(56)
-        lay = QHBoxLayout(bar)
-        lay.setContentsMargins(20, 0, 16, 0)
-        lay.addStretch(1)
-        for icon, tip in (("🔔", "알림"), ("✉️", "우편함")):
+        for icon, tip in (("🔔", "알림"), ("✉", "우편함")):
             btn = QPushButton(icon)
             btn.setObjectName("icon")
             btn.setToolTip(f"{tip}은 곧 만들어져요")
             btn.setEnabled(False)
-            lay.addWidget(btn)
-        name = QLabel(self._ctx.profile.name or "")
-        name.setStyleSheet("font-weight: 700;")
-        avatar = Avatar(34)
-        lay.addWidget(name)
-        lay.addWidget(avatar)
+            bar.layout_.addWidget(btn)
+
+        self._name = QPushButton(self._ctx.profile.name or "")
+        self._name.setObjectName("userlink")
+        self._name.setCursor(Qt.PointingHandCursor)
+        self._name.clicked.connect(lambda: webbrowser.open(f"{self._ctx.config.web_url}/me"))
+        self._name.setToolTip("[개인] 화면은 곧 만들어져요 — 지금은 웹에서 열려요")
+        avatar = Avatar(30)
+        bar.layout_.addWidget(avatar)
+        bar.layout_.addWidget(self._name)
+        logout = QPushButton("로그아웃")
+        logout.setObjectName("textbtn")
+        logout.setCursor(Qt.PointingHandCursor)
+        logout.clicked.connect(self._on_sign_out)
+        bar.layout_.addWidget(logout)
+        bar.finish()
+
         cid = self._ctx.profile.character_id
         if cid:
             repo = self._ctx.repo
             run_async(self, lambda: repo.character_bytes(cid), lambda data, err: avatar.set_png(data if isinstance(data, bytes) else None))
-        return bar
 
     def _add_page(self, key: str, page: QWidget) -> None:
         self._pages[key] = page
@@ -152,10 +133,13 @@ class MainWindow(QMainWindow):
 
     # ── 화면 전환 ──────────────────────────────────────────────
     def show_page(self, key: str) -> None:
-        if self._room_page is not None and key == "home":
+        if self._room_page is not None:
             self._close_room()
         self._nav_buttons[key].setChecked(True)
         self._stack.setCurrentWidget(self._pages[key])
+        page = self._pages[key]
+        if isinstance(page, HomePage):
+            page.refresh()
 
     def open_room(self, room_id: str) -> None:
         if self._room_page is not None:
@@ -169,10 +153,7 @@ class MainWindow(QMainWindow):
 
     def _on_room_back(self) -> None:
         self._close_room()
-        self._stack.setCurrentWidget(self._pages["home"])
-        home = self._pages["home"]
-        if isinstance(home, HomePage):
-            home.refresh()
+        self.show_page("home")
 
     def _close_room(self) -> None:
         page = self._room_page
@@ -183,10 +164,16 @@ class MainWindow(QMainWindow):
         page.deleteLater()
         self._room_page = None
 
+    # ── 창 상태 ────────────────────────────────────────────────
+    def changeEvent(self, event) -> None:  # noqa: N802
+        super().changeEvent(event)
+        # 창이 만들어지는 도중(아직 _chrome이 없을 때)에도 이 이벤트가 온다.
+        chrome = getattr(self, "_chrome", None)
+        if chrome is not None:
+            chrome.set_maximized(self.isMaximized())
+
     def closeEvent(self, event) -> None:  # noqa: N802
         self._close_room()
         self._ctx.pomodoro.flush_pending()
         super().closeEvent(event)
-
-
-__all__ = ["MainWindow", "QFrame"]
+        self._on_closed()

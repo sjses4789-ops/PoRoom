@@ -11,6 +11,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from PySide6.QtCore import QTimer  # noqa: E402
 
 from poroom.app import PoRoomApp  # noqa: E402
+from poroom.ui.login_window import LoginWindow  # noqa: E402
 
 
 def main() -> int:
@@ -26,6 +27,9 @@ def main() -> int:
 
     def step1() -> None:
         shot("home")
+        login = LoginWindow(app.auth, on_closed=lambda: None)
+        login.show()
+        QTimer.singleShot(300, lambda: (login.grab().save(str(out / "login.png")), login.close()))
         win.open_room("p1")
         QTimer.singleShot(700, step2)
 
