@@ -4,7 +4,7 @@ import { DownloadLink } from "@/components/download-link";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { inPeriod, inRange } from "@/lib/records";
-import { computeStreakDays, attendedDatesFromLogs } from "@/lib/attendance";
+import { computeStreakDays, getMyAttendedDates } from "@/lib/attendance";
 import { todayKst, dateInTimezone } from "@/lib/time";
 import { NicknameForm } from "@/components/nickname-form";
 import { getMyNicknames } from "@/lib/nicknames";
@@ -125,7 +125,6 @@ export default async function MePage() {
     { data: globalMilestoneLogs },
     { data: pomodoroSessionLogs },
     { data: siteTimeRows },
-    { data: myAttendanceLogs },
     { data: dailyGoalRows },
     myNicknames,
   ] = await Promise.all([
@@ -209,14 +208,6 @@ export default async function MePage() {
       .select("record_date,seconds")
       .eq("user_id", user.id)
       .returns<{ record_date: string; seconds: number }[]>(),
-    // 출석일은 나라별 자정 기준으로 계산해야 해서, KST로 이미 고정된
-    // daily_records 대신 실제 시각이 남는 activity_logs를 쓴다.
-    supabase
-      .from("activity_logs")
-      .select("type,created_at")
-      .eq("user_id", user.id)
-      .in("type", ["chars_added", "focus_recorded"])
-      .returns<{ type: string; created_at: string }[]>(),
     // "오늘" 목표 현황 탭에서 과거 날짜를 넘겨봐도 그 날짜에 실제로
     // 적용되던 목표치를 보여주기 위해, 전체 이력을 한 번에 가져와
     // 클라이언트에서 날짜별로 계산한다.
@@ -282,7 +273,8 @@ export default async function MePage() {
         .returns<ChallengeParticipantRow[]>()
     : Promise.resolve({ data: [] as ChallengeParticipantRow[] });
 
-  const attendedDates = attendedDatesFromLogs(myAttendanceLogs ?? [], userTimezone);
+  // 출석일 — 각자 시간대의 자정 기준(DB가 날짜 목록만 계산해 준다, 0074). 로그를 통째로 가져오면 1000행에서 잘려 최근 날이 빠진다.
+  const attendedDates = await getMyAttendedDates(supabase, user.id, userTimezone);
   const streakDays = computeStreakDays(attendedDates, userToday);
 
   // 종료된 개인 간(1:1 이상) 대결의 승/패/무를 집계한다 — 기간 내 값이

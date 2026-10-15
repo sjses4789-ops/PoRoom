@@ -106,13 +106,33 @@ class HomeRepository {
       }
     }
 
-    // 연속 집필 일수 — 오늘 기록이 없으면 어제부터 이어진 날을 센다.
-    var streak = 0;
-    var cursor = base;
+    // 연속 집필 일수 — 오늘 기록이 없으면 어제부터 이어진 날을 센다. 출석 날짜는 웹과 같이 각자 시간대의 자정 기준으로
+    // DB가 계산해 준다(my_attendance_dates, 0074). 그 함수가 없으면(0074 실행 전) 예전처럼 일별 기록으로 센다.
     String key(DateTime d) => '${d.year}-${pad2(d.month)}-${pad2(d.day)}';
-    if (!activeDays.contains(key(cursor)))
+    var attended = activeDays;
+    var cursor = base;
+    try {
+      final profile = await _client
+          .from('users')
+          .select('timezone')
+          .eq('id', selfId)
+          .maybeSingle();
+      final tz = (profile?['timezone'] as String?) ?? 'Asia/Seoul';
+      final dates = await _client.rpc('my_attendance_dates', params: {'p_tz': tz});
+      if (dates is List) {
+        attended = {for (final d in dates) d.toString().substring(0, 10)};
+        // 이 기기의 날짜가 곧 사용자의 "오늘"이다(기기는 사용자가 있는 나라의 시간을 쓴다).
+        final now = DateTime.now();
+        cursor = DateTime.utc(now.year, now.month, now.day);
+      }
+    } catch (_) {
+      // 함수가 없거나 실패하면 일별 기록으로 계산한다.
+    }
+    var streak = 0;
+    if (!attended.contains(key(cursor))) {
       cursor = cursor.subtract(const Duration(days: 1));
-    while (activeDays.contains(key(cursor))) {
+    }
+    while (attended.contains(key(cursor))) {
       streak += 1;
       cursor = cursor.subtract(const Duration(days: 1));
     }

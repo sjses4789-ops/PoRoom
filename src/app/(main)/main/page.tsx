@@ -2,7 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { fetchAllPages } from "@/lib/paginate";
 import { createClient } from "@/lib/supabase/server";
 import { PageAdRail } from "@/components/page-ad-rail";
-import { computeStreakDays, attendedDatesFromLogs } from "@/lib/attendance";
+import { computeStreakDays, getMyAttendedDates } from "@/lib/attendance";
 import { todayKst, dateInTimezone } from "@/lib/time";
 import { ensureChallengeTodos, isTodoRowActive } from "@/lib/system-challenges";
 import { getDemoData, shouldShowDemoData, withoutDemoIds } from "@/lib/demo-data";
@@ -65,7 +65,6 @@ export default async function MainPage() {
     { data: myGoalRows },
     { data: realUserPositions },
     { data: myProfile },
-    { data: myAttendanceLogs },
   ] = await Promise.all([
     // invite_code는 여기서 같이 안 가져온다 — 이 컬럼은 anon(비로그인)
     // 롤에는 아예 권한이 없어서(다른 사람 방의 비공개 초대코드가 익명
@@ -119,16 +118,6 @@ export default async function MainPage() {
           .eq("id", selfId)
           .maybeSingle<{ timezone: string | null; position: string | null }>()
       : Promise.resolve({ data: null }),
-    // 출석일은 나라별 자정 기준으로 계산해야 해서, KST로 이미 고정된
-    // daily_records 대신 실제 시각이 남는 activity_logs를 쓴다.
-    selfId
-      ? supabase
-          .from("activity_logs")
-          .select("type,created_at")
-          .eq("user_id", selfId)
-          .in("type", ["chars_added", "focus_recorded"])
-          .returns<{ type: string; created_at: string }[]>()
-      : Promise.resolve({ data: [] as { type: string; created_at: string }[] }),
   ]);
 
   const rooms: RoomRow[] = [...(realRooms ?? []), ...(demo?.rooms ?? [])];
@@ -225,7 +214,8 @@ export default async function MainPage() {
   const userTimezone = myProfile?.timezone ?? null;
   const userToday = dateInTimezone(new Date(), userTimezone);
   const [userTodayYear, userTodayMonth] = userToday.split("-").map(Number);
-  const allAttendedDates = attendedDatesFromLogs(myAttendanceLogs ?? [], userTimezone);
+  // 출석일 — 각자 시간대의 자정 기준(DB가 날짜 목록만 계산해 준다, 0074). 로그를 통째로 가져오면 1000행에서 잘려 최근 날이 빠진다.
+  const allAttendedDates = selfId ? await getMyAttendedDates(supabase, selfId, userTimezone) : new Set<string>();
   const userMonthPrefix = userToday.slice(0, 7);
   const selfAttendedDates = new Set(
     Array.from(allAttendedDates).filter((d) => d.startsWith(userMonthPrefix))
