@@ -28,6 +28,8 @@ import httpx
 from .config import LOGIN_CALLBACK_PORT, LOGIN_CALLBACK_URL, Config, data_dir
 
 SESSION_FILE = "session.json"
+GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth"
+GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
 REFRESH_MARGIN_SECONDS = 90
 
 
@@ -191,10 +193,8 @@ class AuthManager:
             pass
 
     # ── 구글 로그인 ────────────────────────────────────────────
-    def sign_in_with_google(self, timeout_seconds: int = 180) -> Session:
-        """기본 브라우저를 열어 구글 로그인을 하고, 끝나면 세션을 돌려준다(이 함수는 끝날 때까지 기다린다)."""
-        verifier, challenge = _pkce_pair()
-
+    def _wait_for_callback(self, url: str, timeout_seconds: int) -> dict:
+        """작은 로컬 서버를 열고 브라우저로 url을 연 뒤, 로그인이 끝나 돌아오는 요청의 쿼리를 받아 돌려준다."""
         _CallbackHandler.result = {}
         _CallbackHandler.done = threading.Event()
         try:
@@ -202,22 +202,83 @@ class AuthManager:
         except OSError as exc:
             raise AuthError("port-in-use") from exc
         server.timeout = 1
-
-        url = (
-            f"{self._config.supabase_url}/auth/v1/authorize"
-            f"?provider=google&redirect_to={quote(LOGIN_CALLBACK_URL, safe='')}"
-            f"&code_challenge={challenge}&code_challenge_method=s256"
-        )
         webbrowser.open(url)
-
         deadline = time.time() + timeout_seconds
         try:
             while not _CallbackHandler.done.is_set() and time.time() < deadline:
                 server.handle_request()
         finally:
             server.server_close()
+        return _CallbackHandler.result
 
-        result = _CallbackHandler.result
+    def sign_in_with_google(self, timeout_seconds: int = 180) -> Session:
+        """기본 브라우저를 열어 구글 로그인을 하고, 끝나면 세션을 돌려준다(이 함수는 끝날 때까지 기다린다).
+
+        구글 "데스크톱 앱" 클라이언트(ID+보안 비밀)가 설정돼 있으면 구글에 직접 로그인하고, 아니면 Supabase를 거친다.
+        """
+        if self._config.google_desktop_client_id and self._config.google_desktop_client_secret:
+            return self._sign_in_direct_google(timeout_seconds)
+        return self._sign_in_via_supabase(timeout_seconds)
+
+    def _sign_in_direct_google(self, timeout_seconds: int) -> Session:
+        """구글 데스크톱 클라이언트로 직접 로그인 → 받은 ID 토큰을 Supabase에 넘겨 같은 계정의 세션을 만든다.
+
+        구글 쪽에 redirect 주소를 따로 등록할 필요가 없다(데스크톱 클라이언트는 127.0.0.1 로컬 주소를 그냥 허용한다).
+        Supabase 대시보드 Google 설정의 "Authorized Client IDs"에 이 데스크톱 클라이언트 ID를 넣어야 한다.
+        """
+        verifier, challenge = _pkce_pair()
+        state = secrets.token_urlsafe(16)
+        nonce_raw = secrets.token_urlsafe(32)
+        nonce_hash = hashlib.sha256(nonce_raw.encode("ascii")).hexdigest()
+        url = (
+            f"{GOOGLE_AUTH_URL}?client_id={quote(self._config.google_desktop_client_id, safe='')}"
+            f"&redirect_uri={quote(LOGIN_CALLBACK_URL, safe='')}&response_type=code"
+            f"&scope={quote('openid email profile', safe='')}"
+            f"&code_challenge={challenge}&code_challenge_method=S256"
+            f"&nonce={nonce_hash}&state={state}&prompt=select_account"
+        )
+        result = self._wait_for_callback(url, timeout_seconds)
+        code = result.get("code")
+        if not code or result.get("state") != state:
+            raise AuthError(result.get("error") or "timeout")
+        try:
+            token = httpx.post(
+                GOOGLE_TOKEN_URL,
+                data={
+                    "code": code,
+                    "client_id": self._config.google_desktop_client_id,
+                    "client_secret": self._config.google_desktop_client_secret,
+                    "code_verifier": verifier,
+                    "redirect_uri": LOGIN_CALLBACK_URL,
+                    "grant_type": "authorization_code",
+                },
+                timeout=20,
+            )
+            if token.status_code != 200 or "id_token" not in token.json():
+                raise AuthError("exchange-failed")
+            res = httpx.post(
+                f"{self._config.supabase_url}/auth/v1/token",
+                params={"grant_type": "id_token"},
+                headers={"apikey": self._config.supabase_anon_key},
+                json={"provider": "google", "id_token": token.json()["id_token"], "nonce": nonce_raw},
+                timeout=20,
+            )
+        except httpx.HTTPError as exc:
+            raise AuthError("network") from exc
+        if res.status_code != 200:
+            raise AuthError("exchange-failed")
+        self.session = Session.from_token_response(res.json())
+        self._save()
+        return self.session
+
+    def _sign_in_via_supabase(self, timeout_seconds: int) -> Session:
+        verifier, challenge = _pkce_pair()
+        url = (
+            f"{self._config.supabase_url}/auth/v1/authorize"
+            f"?provider=google&redirect_to={quote(LOGIN_CALLBACK_URL, safe='')}"
+            f"&code_challenge={challenge}&code_challenge_method=s256"
+        )
+        result = self._wait_for_callback(url, timeout_seconds)
         code = result.get("code")
         if not code:
             raise AuthError(result.get("error_description") or result.get("error") or "timeout")

@@ -29,6 +29,9 @@ class Config:
     supabase_anon_key: str
     web_url: str
     preview: bool
+    # 구글 "데스크톱 앱" 클라이언트(선택) — 둘 다 있으면 Supabase를 거치지 않고 구글에 직접 로그인한 뒤 그 토큰을 Supabase에 넘긴다.
+    google_desktop_client_id: str = ""
+    google_desktop_client_secret: str = ""
 
     @property
     def has_backend(self) -> bool:
@@ -53,4 +56,6 @@ def load_config(preview: bool = False) -> Config:
         supabase_anon_key=os.environ.get("SUPABASE_ANON_KEY") or values.get("SUPABASE_ANON_KEY", ""),
         web_url=(os.environ.get("POROOM_WEB_URL") or values.get("WEB_URL") or "https://poroom.kr").rstrip("/"),
         preview=preview or os.environ.get("POROOM_PREVIEW") == "1",
+        google_desktop_client_id=os.environ.get("GOOGLE_DESKTOP_CLIENT_ID") or values.get("GOOGLE_DESKTOP_CLIENT_ID", ""),
+        google_desktop_client_secret=os.environ.get("GOOGLE_DESKTOP_CLIENT_SECRET") or values.get("GOOGLE_DESKTOP_CLIENT_SECRET", ""),
     )

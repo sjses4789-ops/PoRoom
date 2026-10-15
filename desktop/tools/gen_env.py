@@ -18,6 +18,10 @@ WANTED = {"NEXT_PUBLIC_SUPABASE_URL": "SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_ANON
 
 def main() -> int:
     out = {"WEB_URL": os.environ.get("POROOM_WEB_URL", "https://poroom.kr")}
+    # 구글 "데스크톱 앱" 클라이언트(선택). ID는 공개 값이지만, 보안 비밀은 이 PC의 env.json에만 둔다(git에 올라가지 않는다).
+    for key in ("GOOGLE_DESKTOP_CLIENT_ID", "GOOGLE_DESKTOP_CLIENT_SECRET"):
+        if os.environ.get(key):
+            out[key] = os.environ[key]
     for line in ENV_FILE.read_text(encoding="utf-8").splitlines():
         m = re.match(r"^([A-Z0-9_]+)=(.*)$", line.strip())
         if m and m.group(1) in WANTED:

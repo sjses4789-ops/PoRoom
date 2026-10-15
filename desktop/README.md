@@ -23,6 +23,20 @@ Supabase 대시보드 → **Authentication → URL Configuration → Redirect UR
 http://127.0.0.1:53682/callback
 ```
 
+### (선택) 구글 "데스크톱 앱" 클라이언트로 로그인
+구글 클라우드 콘솔에서 만든 **데스크톱 앱** 클라이언트가 있으면, Supabase를 거치지 않고 구글에 직접 로그인할 수 있습니다
+(위 Redirect URL 등록이 필요 없습니다 — 데스크톱 클라이언트는 127.0.0.1 로컬 주소를 그냥 허용합니다).
+
+1. Supabase 대시보드 → **Authentication → Providers → Google → Authorized Client IDs**에 데스크톱 클라이언트 ID를 추가합니다
+   (이미 있는 웹 클라이언트 ID 뒤에 쉼표로 이어 붙입니다).
+2. 클라이언트 ID와 **보안 비밀(client secret)** 을 이 PC의 `env.json`에만 넣습니다(`env.json`은 git에 올라가지 않습니다):
+   ```powershell
+   $env:GOOGLE_DESKTOP_CLIENT_ID="…apps.googleusercontent.com"
+   $env:GOOGLE_DESKTOP_CLIENT_SECRET="…"
+   python tools/gen_env.py
+   ```
+둘 다 있을 때만 이 방식을 쓰고, 하나라도 없으면 위의 Supabase 방식으로 로그인합니다.
+
 ## exe 만들기
 
 ```bash
@@ -40,7 +54,7 @@ powershell -ExecutionPolicy Bypass -File tools/build_exe.ps1
 | `poroom/repo.py` | 화면용 데이터 조회/기록(웹과 같은 쿼리), 미리보기용 예시 데이터 |
 | `poroom/pomodoro.py` | 웹·앱과 같은 방식의 뽀모도로(진짜 시계로 따라잡기, 1분마다 기록) |
 | `poroom/ui/*` | 메인 창, 로그인, [포룸] 홈, 방 화면 |
-| `tests/` | 가짜 서버로 하는 로그인·실시간 시험 |
+| `tests/` | 가짜 서버로 하는 로그인(Supabase 방식·구글 직접 방식)·실시간 시험 |
 
 ## 진행 상황
 
