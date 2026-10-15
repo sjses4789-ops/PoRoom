@@ -16,7 +16,7 @@ import { createFeedPost, deleteFeedPost, toggleFeedReaction, getFeedPostById, ge
 import { joinChallenge, leaveChallenge } from "@/lib/challenges";
 import { createTodo, setTodoCompleted, deleteTodo } from "@/lib/todos";
 import { submitTypingScore } from "@/lib/rest";
-import { setChatColor, setCharacter } from "@/lib/profile";
+import { setChatColor, setCharacter, markAttendanceToday } from "@/lib/profile";
 import { blockUser, unblockUser, reportUser } from "@/lib/safety";
 import { joinSystemRoom } from "@/lib/system-rooms";
 import {
@@ -77,6 +77,7 @@ const ACTIONS: Record<string, (...args: any[]) => Promise<unknown>> = {
   // 프로필 / 안전
   setChatColor,
   setCharacter,
+  markAttendanceToday,
   blockUser,
   unblockUser,
   reportUser,

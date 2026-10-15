@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionResult } from "@/lib/rooms";
 import { ensureMyProfile } from "@/lib/ensure-profile";
+import { dateInTimezone } from "@/lib/time";
 
 // 폼으로 받은 돌아갈 주소는 이 사이트 안의 경로("/..."로 시작, "//"나 "/\" 제외)만 허용한다 — 바깥 주소로 보내는 데 쓰이지 못하게.
 function safeRedirectPath(path: string): string {
@@ -57,6 +58,35 @@ export async function syncTimezone(timezone: string) {
   if (existing?.timezone === timezone) return;
 
   await supabase.from("users").update({ timezone }).eq("id", user.id);
+}
+
+// poroom에 들어와 있으면 그날 출석 — 날짜는 각자 시간대의 자정 기준이다(timezone은 브라우저가 알려 주고, 없으면 저장된 값,
+// 그것도 없으면 한국 시간). 같은 날 여러 번 불러도 한 줄만 남는다. 테이블(0075)이 없으면 조용히 넘어간다.
+export async function markAttendanceToday(timezone?: string | null): Promise<void> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return;
+
+  let tz = timezone && isValidTimezone(timezone) ? timezone : null;
+  if (!tz) {
+    const { data } = await supabase.from("users").select("timezone").eq("id", user.id).maybeSingle<{ timezone: string | null }>();
+    tz = data?.timezone ?? null;
+  }
+  const day = dateInTimezone(new Date(), tz);
+  await supabase
+    .from("attendance_days")
+    .upsert({ user_id: user.id, day }, { onConflict: "user_id,day", ignoreDuplicates: true });
+}
+
+function isValidTimezone(tz: string): boolean {
+  try {
+    new Intl.DateTimeFormat("en-CA", { timeZone: tz });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export type ProfilePosition = "novelist" | "webtoon";

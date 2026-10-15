@@ -58,5 +58,13 @@ export async function getMyAttendedDates(
       .range(from, to)
       .returns<{ type: string; created_at: string }[]>()
   );
-  return attendedDatesFromLogs(logs, timezone);
+  const dates = attendedDatesFromLogs(logs, timezone);
+  // 접속해서 남긴 출석(0075)도 합친다 — 테이블이 없으면 빈 결과다.
+  const { data: visits } = await supabase
+    .from("attendance_days")
+    .select("day")
+    .eq("user_id", userId)
+    .returns<{ day: string }[]>();
+  for (const v of visits ?? []) dates.add(String(v.day).slice(0, 10));
+  return dates;
 }

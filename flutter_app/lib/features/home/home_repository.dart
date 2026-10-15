@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../core/env.dart';
+import '../../core/web_api.dart';
 import '../../core/time_util.dart';
 import '../feed/feed_models.dart';
 import '../feed/feed_repository.dart';
@@ -128,6 +131,9 @@ class HomeRepository {
     } catch (_) {
       // 함수가 없거나 실패하면 일별 기록으로 계산한다.
     }
+    // 앱에 들어와 있는 것 자체가 오늘 출석이다 — 서버에도 남기고(웹과 같은 기록), 지금 보는 오늘은 바로 포함한다.
+    unawaited(WebApi.rpc<Object?>('markAttendanceToday', [null]));
+    attended = {...attended, key(cursor)};
     var streak = 0;
     if (!attended.contains(key(cursor))) {
       cursor = cursor.subtract(const Duration(days: 1));

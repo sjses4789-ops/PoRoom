@@ -275,6 +275,8 @@ export default async function MePage() {
 
   // 출석일 — 각자 시간대의 자정 기준(DB가 날짜 목록만 계산해 준다, 0074). 로그를 통째로 가져오면 1000행에서 잘려 최근 날이 빠진다.
   const attendedDates = await getMyAttendedDates(supabase, user.id, userTimezone);
+  // poroom에 들어와 있는 것 자체가 오늘 출석이다(접속 기록은 화면이 뜬 뒤 남으므로, 지금 보는 오늘은 바로 포함한다).
+  attendedDates.add(userToday);
   const streakDays = computeStreakDays(attendedDates, userToday);
 
   // 종료된 개인 간(1:1 이상) 대결의 승/패/무를 집계한다 — 기간 내 값이

@@ -216,6 +216,8 @@ export default async function MainPage() {
   const [userTodayYear, userTodayMonth] = userToday.split("-").map(Number);
   // 출석일 — 각자 시간대의 자정 기준(DB가 날짜 목록만 계산해 준다, 0074). 로그를 통째로 가져오면 1000행에서 잘려 최근 날이 빠진다.
   const allAttendedDates = selfId ? await getMyAttendedDates(supabase, selfId, userTimezone) : new Set<string>();
+  // poroom에 들어와 있는 것 자체가 오늘 출석이다(접속 기록은 화면이 뜬 뒤 남으므로, 지금 보는 오늘은 바로 포함한다).
+  if (selfId) allAttendedDates.add(userToday);
   const userMonthPrefix = userToday.slice(0, 7);
   const selfAttendedDates = new Set(
     Array.from(allAttendedDates).filter((d) => d.startsWith(userMonthPrefix))
