@@ -25,8 +25,21 @@ def main() -> int:
     def shot(name: str) -> None:
         win.grab().save(str(out / f"{name}.png"))
 
+    def dialogs() -> None:
+        from poroom.ui.dialogs import CreateRoomDialog, NicknameDialog
+        from poroom.models import NicknameContext
+
+        d = CreateRoomDialog(win)
+        d.show()
+        QTimer.singleShot(300, lambda: (d.grab().save(str(out / "create_room.png")), d.close()))
+        n = NicknameDialog(win, NicknameContext("미리보기", [("n1", "새벽글쟁이")]), win._ctx.repo)  # noqa: SLF001
+        n.show()
+        QTimer.singleShot(500, lambda: (n.grab().save(str(out / "nickname.png")), n.close()))
+
     def step1() -> None:
+        win.resize(1280, 1100)
         shot("home")
+        dialogs()
         login = LoginWindow(app.auth, on_closed=lambda: None)
         login.show()
         QTimer.singleShot(300, lambda: (login.grab().save(str(out / "login.png")), login.close()))
@@ -41,7 +54,7 @@ def main() -> int:
         shot("room")
         app.qt.quit()
 
-    QTimer.singleShot(900, step1)
+    QTimer.singleShot(1500, step1)
     app.qt.exec()
     return 0
 

@@ -1,12 +1,13 @@
-"""[포룸] 홈 — 인사, 지금 들어갈 수 있는 상시 작업방, 내 방, 열린 방."""
+"""[포룸] 홈 — 웹 [포룸] 페이지와 같은 구성: 내 현황(대시보드) · 마감방/새벽방 · 내가 입장한 방 · 전체/추천 방(필터·검색·정렬)."""
 from __future__ import annotations
 
 from PySide6.QtCore import QTimer, Qt, Signal
 from PySide6.QtWidgets import (
     QFrame,
-    QGridLayout,
     QHBoxLayout,
     QLabel,
+    QLineEdit,
+    QMessageBox,
     QPushButton,
     QScrollArea,
     QVBoxLayout,
@@ -14,69 +15,55 @@ from PySide6.QtWidgets import (
 )
 
 from ..context import AppContext
-from ..models import RoomSummary
-from ..palette import room_color, tint
-from . import theme
+from ..models import HomeData, RoomItem
+from ..tags import ROOM_TAGS
+from .dashboard import DashboardPanel
+from .dialogs import Chip, CreateRoomDialog, InviteCodeDialog, NicknameDialog
+from .layouts import FlowLayout, MasonryColumns
+from .room_cards import MyRoomCard, RoomCard
 from .widgets import run_async
 
+SORT_OPTIONS = [("chars", "누적 글자순"), ("members", "모임 인원순"), ("created", "생성 날짜순")]
 
-class RoomCard(QFrame):
-    clicked = Signal(object)
 
-    def __init__(self, room: RoomSummary, action_text: str | None, parent: QWidget | None = None) -> None:
+class SystemRoomCard(QFrame):
+    """마감방/새벽방 카드 — 웹의 systemRoomSection 두 칸."""
+
+    clicked = Signal(str)
+
+    def __init__(self, kind: str, label: str, emoji: str, bg: str, button_bg: str, hover_bg: str, parent: QWidget | None = None) -> None:
         super().__init__(parent)
-        self._room = room
-        self.setObjectName("card")
-        color = room_color(room.color)
-        self.setStyleSheet(
-            f"QFrame#card {{ background: {tint(color, 0.07)}; border: 1px solid {tint(color, 0.35)}; border-radius: 14px; }}"
-            f"QFrame#card:hover {{ border: 1px solid {color}; }}"
-        )
-        self.setCursor(Qt.PointingHandCursor)
+        self._kind = kind
+        self._label_text = label
+        self._emoji = emoji
+        self.setStyleSheet(f"SystemRoomCard {{ background: {bg}; border: 1px solid rgba(229,229,229,0.6); border-radius: 8px; }}")
         lay = QVBoxLayout(self)
-        lay.setContentsMargins(16, 14, 16, 14)
-        lay.setSpacing(8)
+        lay.setContentsMargins(12, 14, 12, 14)
+        lay.setSpacing(10)
+        title = QLabel(label)
+        title.setAlignment(Qt.AlignCenter)
+        title.setStyleSheet("font-size: 13px; font-weight: 500; border: none; background: transparent;")
+        self._hint = QLabel()
+        self._hint.setAlignment(Qt.AlignCenter)
+        self._hint.setStyleSheet("color: #737373; font-size: 11px; border: none; background: transparent;")
+        lay.addWidget(title)
+        lay.addWidget(self._hint)
+        self._button = QPushButton()
+        self._button.setCursor(Qt.PointingHandCursor)
+        self._button.setStyleSheet(
+            f"QPushButton {{ background: {button_bg}; color: white; border: none; border-radius: 6px; padding: 8px 10px; font-size: 13px; font-weight: 500; }}"
+            f"QPushButton:hover {{ background: {hover_bg}; }} QPushButton:disabled {{ background: {button_bg}; color: rgba(255,255,255,0.6); }}"
+        )
+        self._button.clicked.connect(lambda: self.clicked.emit(self._kind))
+        lay.addWidget(self._button)
+        self.set_count(0, 50)
 
-        head = QHBoxLayout()
-        dot = QLabel("●")
-        dot.setStyleSheet(f"color: {color}; font-size: 11px; border: none; background: transparent;")
-        name = QLabel(room.name)
-        name.setStyleSheet("font-weight: 700; font-size: 14px; border: none; background: transparent;")
-        count_text = f"{room.member_count}명" + (f" / {room.capacity}" if room.capacity else "")
-        count = QLabel(count_text)
-        count.setStyleSheet(f"color: {theme.MUTED}; font-size: 12px; border: none; background: transparent;")
-        head.addWidget(dot)
-        head.addWidget(name, 1)
-        head.addWidget(count)
-        lay.addLayout(head)
+    def set_count(self, count: int, capacity: int) -> None:
+        self._hint.setText(f"정원 {capacity}명 · 상시 오픈방")
+        self._button.setText(f"{self._emoji} {self._label_text} 입장   {count}/{capacity}")
 
-        chips = QHBoxLayout()
-        chips.setSpacing(6)
-        join_label = "열린 방" if room.is_open else "초대 전용"
-        for text in [join_label, *room.tags[:3]]:
-            chip = QLabel(text)
-            chip.setStyleSheet(
-                f"color: {theme.SUBTEXT}; font-size: 11px; padding: 2px 8px; border: 1px solid {theme.LINE};"
-                "border-radius: 9px; background: rgba(255,255,255,0.7);"
-            )
-            chips.addWidget(chip)
-        chips.addStretch(1)
-        lay.addLayout(chips)
-
-        if action_text:
-            row = QHBoxLayout()
-            row.addStretch(1)
-            btn = QPushButton(action_text)
-            btn.setObjectName("dark")
-            btn.setCursor(Qt.PointingHandCursor)
-            btn.clicked.connect(lambda: self.clicked.emit(self._room))
-            row.addWidget(btn)
-            lay.addLayout(row)
-
-    def mouseReleaseEvent(self, event) -> None:  # noqa: N802
-        if event.button() == Qt.LeftButton:
-            self.clicked.emit(self._room)
-        super().mouseReleaseEvent(event)
+    def set_pending(self, pending: bool) -> None:
+        self._button.setEnabled(not pending)
 
 
 class HomePage(QWidget):
@@ -86,8 +73,17 @@ class HomePage(QWidget):
         super().__init__(parent)
         self.setObjectName("page")
         self._ctx = ctx
-        self._rooms: list[RoomSummary] = []
+        self._data: HomeData | None = None
         self._busy = False
+        self._first_render = True
+        # 필터/정렬/검색 상태(웹의 MainRoomLists와 같다)
+        self._join_filter: str | None = None
+        self._target_filter: str | None = None
+        self._tag_filter: set[str] = set()
+        self._search_open = False
+        self._applied_search = ""
+        self._sort_mode = "chars"
+        self._sort_desc = True
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
@@ -97,121 +93,414 @@ class HomePage(QWidget):
         body = QWidget()
         body.setObjectName("page")
         scroll.setWidget(body)
-        self._lay = QVBoxLayout(body)
-        self._lay.setContentsMargins(28, 24, 28, 28)
-        self._lay.setSpacing(16)
+        self._root = QVBoxLayout(body)
+        self._root.setContentsMargins(32, 24, 32, 32)
+        self._root.setSpacing(36)
 
-        self._greeting = QLabel()
-        self._greeting.setObjectName("title")
-        self._lay.addWidget(self._greeting)
-        self._sub = QLabel("오늘도 함께 집중해 봐요.")
-        self._sub.setObjectName("sub")
-        self._lay.addWidget(self._sub)
+        # 위: 내 현황 | 마감방·새벽방(고정 폭 220)
+        self._top = QHBoxLayout()
+        self._top.setSpacing(24)
+        self._dashboard_slot = QVBoxLayout()
+        self._dashboard_slot.setContentsMargins(0, 0, 0, 0)
+        self._top.addLayout(self._dashboard_slot, 1)
+        sys_col = QVBoxLayout()
+        sys_col.setSpacing(12)
+        self._deadline = SystemRoomCard("deadline", "마감방", "🔥", "#FAF3F3", "#A86363", "#966161")
+        self._dawn = SystemRoomCard("dawn", "새벽방", "🌛", "#F2F3F9", "#5F6D97", "#556087")
+        self._deadline.clicked.connect(self._enter_system)
+        self._dawn.clicked.connect(self._enter_system)
+        sys_col.addWidget(self._deadline)
+        sys_col.addWidget(self._dawn)
+        sys_col.addStretch(1)
+        sys_host = QWidget()
+        sys_host.setFixedWidth(220)
+        sys_host.setLayout(sys_col)
+        sys_col.setContentsMargins(0, 0, 0, 0)
+        self._top.addWidget(sys_host, 0, Qt.AlignTop)
+        self._root.addLayout(self._top)
 
-        self._system_row = QHBoxLayout()
-        self._system_row.setSpacing(12)
-        self._lay.addLayout(self._system_row)
-        for kind, label, hint in (("deadline", "마감방", "마감이 코앞일 때 모여요"), ("dawn", "새벽방", "새벽에 함께 써요")):
-            self._system_row.addWidget(self._system_button(kind, label, hint))
+        # 아래: 내가 입장한 방(260) | 전체/추천 방
+        bottom = QHBoxLayout()
+        bottom.setSpacing(24)
+        bottom.setAlignment(Qt.AlignTop)
+        bottom.addWidget(self._build_my_rooms(), 0, Qt.AlignTop)
+        bottom.addWidget(self._build_all_rooms(), 1, Qt.AlignTop)
+        self._root.addLayout(bottom)
+        self._root.addStretch(1)
 
-        self._my_header = self._section_header("내 방")
-        self._my_grid = QGridLayout()
-        self._my_grid.setSpacing(12)
-        self._open_header = self._section_header("열린 방")
-        self._open_grid = QGridLayout()
-        self._open_grid.setSpacing(12)
-        self._lay.addWidget(self._my_header)
-        self._lay.addLayout(self._my_grid)
-        self._lay.addWidget(self._open_header)
-        self._lay.addLayout(self._open_grid)
-        self._empty = QLabel()
-        self._empty.setObjectName("muted")
-        self._lay.addWidget(self._empty)
-        self._lay.addStretch(1)
+        self._status = QLabel("불러오는 중...")
+        self._status.setObjectName("muted")
+        self._root.insertWidget(0, self._status)
 
-        self._refresh_greeting()
         self.refresh()
         self._timer = QTimer(self)
         self._timer.setInterval(30_000)
         self._timer.timeout.connect(self.refresh)
         self._timer.start()
 
-    # ── 부품 ───────────────────────────────────────────────────
-    def _section_header(self, text: str) -> QLabel:
-        label = QLabel(text)
-        label.setObjectName("heading")
-        return label
+    # ── 구성 ───────────────────────────────────────────────────
+    def _build_my_rooms(self) -> QWidget:
+        host = QWidget()
+        host.setFixedWidth(260)
+        lay = QVBoxLayout(host)
+        lay.setContentsMargins(0, 0, 0, 0)
+        lay.setSpacing(12)
+        heading = QLabel("내가 입장한 방")
+        heading.setStyleSheet("font-size: 13px; font-weight: 600;")
+        lay.addWidget(heading)
+        buttons = QHBoxLayout()
+        buttons.setSpacing(6)
+        for text, slot in (("새 방 만들기", self._create_room), ("초대코드로 입장", self._join_by_code)):
+            btn = QPushButton(text)
+            btn.setCursor(Qt.PointingHandCursor)
+            btn.setStyleSheet(
+                "QPushButton { border: 1px solid #E5E5E5; border-radius: 6px; padding: 6px 10px; font-size: 12px; font-weight: 500; color: #404040; }"
+                "QPushButton:hover { background: #FAFAFA; }"
+            )
+            btn.clicked.connect(slot)
+            buttons.addWidget(btn)
+        buttons.addStretch(1)
+        lay.addLayout(buttons)
+        self._my_list = QVBoxLayout()
+        self._my_list.setSpacing(8)
+        lay.addLayout(self._my_list)
+        lay.addStretch(1)
+        return host
 
-    def _system_button(self, kind: str, label: str, hint: str) -> QWidget:
-        box = QFrame()
-        box.setObjectName("card")
-        box.setCursor(Qt.PointingHandCursor)
-        lay = QVBoxLayout(box)
-        lay.setContentsMargins(18, 14, 18, 14)
-        title = QLabel(label)
-        title.setStyleSheet("font-size: 16px; font-weight: 800; border: none; background: transparent;")
-        sub = QLabel(hint)
-        sub.setObjectName("muted")
-        sub.setStyleSheet(f"color: {theme.MUTED}; border: none; background: transparent;")
-        lay.addWidget(title)
-        lay.addWidget(sub)
-        box.mouseReleaseEvent = lambda _e, k=kind: self._enter_system(k)  # type: ignore[method-assign]
-        return box
+    def _build_all_rooms(self) -> QWidget:
+        host = QWidget()
+        lay = QVBoxLayout(host)
+        lay.setContentsMargins(0, 0, 0, 0)
+        lay.setSpacing(12)
 
-    def _refresh_greeting(self) -> None:
-        name = self._ctx.profile.name or "작가"
-        self._greeting.setText(f"{name}님, 안녕하세요")
+        self._filter_host = QWidget()
+        self._filter_flow = FlowLayout(self._filter_host, 6, 6)
+        lay.addWidget(self._filter_host)
+        self._build_filters()
 
-    # ── 동작 ───────────────────────────────────────────────────
+        header = QHBoxLayout()
+        header.setSpacing(6)
+        heading = QLabel("전체 / 추천 방")
+        heading.setStyleSheet("font-size: 13px; font-weight: 600;")
+        header.addWidget(heading)
+        self._search_btn = QPushButton("🔍")
+        self._search_btn.setFixedSize(22, 22)
+        self._search_btn.setCursor(Qt.PointingHandCursor)
+        self._search_btn.setToolTip("방 이름 검색")
+        self._search_btn.clicked.connect(self._toggle_search)
+        header.addWidget(self._search_btn)
+        self._search = QLineEdit()
+        self._search.setPlaceholderText("방 이름 검색 후 Enter")
+        self._search.setFixedWidth(190)
+        self._search.setStyleSheet("border-radius: 11px; padding: 3px 10px; font-size: 12px;")
+        self._search.returnPressed.connect(self._apply_search)
+        self._search.hide()
+        header.addWidget(self._search)
+        header.addStretch(1)
+        self._sort_buttons: dict[str, QPushButton] = {}
+        for key, label in SORT_OPTIONS:
+            btn = QPushButton(label)
+            btn.setCursor(Qt.PointingHandCursor)
+            btn.clicked.connect(lambda _c=False, k=key: self._sort_clicked(k))
+            self._sort_buttons[key] = btn
+            header.addWidget(btn)
+        lay.addLayout(header)
+        self._style_sort_and_search()
+
+        self._empty = QLabel()
+        self._empty.setStyleSheet("color: #A3A3A3; font-size: 12px;")
+        lay.addWidget(self._empty)
+        self._grid = MasonryColumns()
+        lay.addWidget(self._grid)
+        lay.addStretch(1)
+        return host
+
+    def _build_filters(self) -> None:
+        while self._filter_flow.count():
+            item = self._filter_flow.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+        if self._join_filter or self._target_filter or self._tag_filter or self._applied_search:
+            reset = QPushButton("초기화")
+            reset.setCursor(Qt.PointingHandCursor)
+            reset.setStyleSheet(
+                "QPushButton { border: 1px solid #D4D4D4; border-radius: 10px; padding: 2px 9px; font-size: 12px; background: #E5E5E5; color: #525252; }"
+                "QPushButton:hover { background: #D4D4D4; }"
+            )
+            reset.clicked.connect(self._reset_filters)
+            self._filter_flow.addWidget(reset)
+        for value, label in (("open", "공개방"), ("invite", "비공개방")):
+            chip = Chip(label)
+            chip.setChecked(self._join_filter == value)
+            chip.clicked.connect(lambda _c=False, v=value: self._set_join_filter(v))
+            self._filter_flow.addWidget(chip)
+        for value, label in (("novelist", "웹소설 작가만"), ("webtoon", "웹툰 작가만")):
+            chip = Chip(label)
+            chip.setChecked(self._target_filter == value)
+            chip.clicked.connect(lambda _c=False, v=value: self._set_target_filter(v))
+            self._filter_flow.addWidget(chip)
+        for tag in ROOM_TAGS:
+            chip = Chip(tag)
+            chip.setChecked(tag in self._tag_filter)
+            chip.clicked.connect(lambda _c=False, t=tag: self._toggle_tag(t))
+            self._filter_flow.addWidget(chip)
+        self._filter_host.updateGeometry()
+
+    def _style_sort_and_search(self) -> None:
+        for key, btn in self._sort_buttons.items():
+            label = dict(SORT_OPTIONS)[key]
+            active = key == self._sort_mode
+            btn.setText(label + ((" ▼" if self._sort_desc else " ▲") if active else ""))
+            btn.setStyleSheet(
+                "QPushButton { background: #171717; color: white; border: none; border-radius: 6px; padding: 4px 8px; font-size: 12px; font-weight: 500; }"
+                if active
+                else "QPushButton { background: transparent; color: #A3A3A3; border: none; border-radius: 6px; padding: 4px 8px; font-size: 12px; font-weight: 500; }"
+                "QPushButton:hover { background: #F5F5F5; }"
+            )
+        self._search_btn.setStyleSheet(
+            "QPushButton { background: #171717; color: white; border: none; border-radius: 11px; font-size: 11px; padding: 0; }"
+            if self._search_open
+            else "QPushButton { background: transparent; color: #A3A3A3; border: none; border-radius: 11px; font-size: 11px; padding: 0; }"
+            "QPushButton:hover { background: #F5F5F5; }"
+        )
+
+    # ── 필터·정렬·검색 ─────────────────────────────────────────
+    def _set_join_filter(self, value: str) -> None:
+        self._join_filter = None if self._join_filter == value else value
+        self._refilter()
+
+    def _set_target_filter(self, value: str) -> None:
+        self._target_filter = None if self._target_filter == value else value
+        self._refilter()
+
+    def _toggle_tag(self, tag: str) -> None:
+        if tag in self._tag_filter:
+            self._tag_filter.discard(tag)
+        else:
+            self._tag_filter.add(tag)
+        self._refilter()
+
+    def _reset_filters(self) -> None:
+        self._join_filter = self._target_filter = None
+        self._tag_filter = set()
+        self._close_search()
+        self._refilter()
+
+    def _toggle_search(self) -> None:
+        if self._search_open:
+            self._close_search()
+            self._refilter()
+        else:
+            self._search_open = True
+            self._search.show()
+            self._search.setFocus()
+            self._style_sort_and_search()
+
+    def _close_search(self) -> None:
+        self._search_open = False
+        self._search.hide()
+        self._search.clear()
+        self._applied_search = ""
+        self._style_sort_and_search()
+
+    def _apply_search(self) -> None:
+        self._applied_search = self._search.text().strip()
+        self._refilter()
+
+    def _sort_clicked(self, key: str) -> None:
+        if self._sort_mode == key:
+            self._sort_desc = not self._sort_desc
+        else:
+            self._sort_mode = key
+            self._sort_desc = False  # 웹과 같이 다른 정렬을 고르면 오름차순부터
+        self._style_sort_and_search()
+        self._render_all_rooms()
+
+    def _refilter(self) -> None:
+        self._build_filters()
+        self._render_all_rooms()
+
+    # ── 데이터 ─────────────────────────────────────────────────
     def refresh(self) -> None:
         if self._busy:
             return
         self._busy = True
-        run_async(self, self._ctx.repo.fetch_rooms, self._on_rooms)
+        run_async(self, self._ctx.repo.fetch_home, self._on_home)
 
-    def _on_rooms(self, result: object, error: Exception | None) -> None:
+    def _on_home(self, result: object, error: Exception | None) -> None:
         self._busy = False
-        if error is not None or not isinstance(result, list):
-            self._empty.setText("방 목록을 불러오지 못했어요. 잠시 뒤 다시 시도해 주세요.")
+        if error is not None or not isinstance(result, HomeData):
+            if self._data is None:
+                self._status.setText("불러오지 못했어요. 잠시 뒤 다시 시도해 주세요.")
             return
-        self._rooms = result
-        self._render()
+        self._status.hide()
+        first = self._data is None
+        self._data = result
+        if first:
+            self._render_dashboard()
+        self._deadline.set_count(result.deadline_count, result.system_capacity)
+        self._dawn.set_count(result.dawn_count, result.system_capacity)
+        self._render_my_rooms()
+        self._render_all_rooms()
 
-    def _clear(self, grid: QGridLayout) -> None:
-        while grid.count():
-            item = grid.takeAt(0)
-            if item and item.widget():
+    def _render_dashboard(self) -> None:
+        assert self._data is not None
+        while self._dashboard_slot.count():
+            item = self._dashboard_slot.takeAt(0)
+            if item.widget():
                 item.widget().deleteLater()
+        self._dashboard_slot.addWidget(DashboardPanel(self._ctx.repo, self._data.dashboard, self._data.position), 0, Qt.AlignTop)
 
-    def _render(self) -> None:
-        self._clear(self._my_grid)
-        self._clear(self._open_grid)
-        mine = [r for r in self._rooms if r.is_member and not r.is_system]
-        others = [r for r in self._rooms if not r.is_member and not r.is_system and r.is_open]
-        for grid, rooms, action in ((self._my_grid, mine, None), (self._open_grid, others, "입장하기")):
-            for i, room in enumerate(rooms):
-                card = RoomCard(room, action)
-                card.clicked.connect(self._on_room_clicked)
-                grid.addWidget(card, i // 2, i % 2)
-        self._my_header.setVisible(bool(mine))
-        self._open_header.setVisible(bool(others))
-        self._empty.setText("" if (mine or others) else "참여할 수 있는 방이 아직 없어요.")
-
-    def _on_room_clicked(self, room: RoomSummary) -> None:
-        if room.is_member:
-            self.open_room.emit(room.id)
+    def _render_my_rooms(self) -> None:
+        assert self._data is not None
+        while self._my_list.count():
+            item = self._my_list.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+        mine = sorted((r for r in self._data.rooms if r.is_member), key=lambda r: not r.is_favorite)
+        if not mine:
+            empty = QLabel("아직 입장한 방이 없습니다. 새 방을 만들거나 초대코드로 입장해보세요.")
+            empty.setWordWrap(True)
+            empty.setStyleSheet("color: #A3A3A3; font-size: 12px;")
+            self._my_list.addWidget(empty)
             return
-        run_async(
-            self,
-            lambda: self._ctx.repo.join_open_room(room.id),
-            lambda ok, err: self.open_room.emit(room.id) if ok and err is None else self._empty.setText("입장하지 못했어요."),
-        )
+        for room in mine:
+            card = MyRoomCard(room)
+            card.open_room.connect(lambda r: self.open_room.emit(r.id))
+            card.toggle_favorite.connect(self._favorite)
+            self._my_list.addWidget(card)
+
+    def _filtered_rooms(self) -> list[RoomItem]:
+        assert self._data is not None
+        query = self._applied_search.strip().lower()
+        rooms = [
+            r
+            for r in self._data.rooms
+            if all(t in r.tags for t in self._tag_filter)
+            and (self._join_filter is None or r.join_type == self._join_filter)
+            and (self._target_filter is None or r.target_position == self._target_filter)
+            and (not query or query in r.name.lower())
+        ]
+        mul = -1 if self._sort_desc else 1
+        if self._sort_mode == "members":
+            rooms.sort(key=lambda r: mul * r.member_count)
+        elif self._sort_mode == "created":
+            rooms.sort(key=lambda r: r.created_at, reverse=self._sort_desc)
+        else:
+            rooms.sort(key=lambda r: mul * r.all_time_chars)
+        return rooms
+
+    def _render_all_rooms(self) -> None:
+        if self._data is None:
+            return
+        rooms = self._filtered_rooms()
+        filtering = bool(self._join_filter or self._target_filter or self._tag_filter or self._applied_search)
+        self._empty.setText("" if rooms else ("조건과 일치하는 방이 없습니다." if filtering else "아직 생성된 방이 없습니다."))
+        cards: list[QWidget] = []
+        for room in rooms:
+            card = RoomCard(room)
+            card.open_room.connect(lambda r: self.open_room.emit(r.id))
+            card.join_room.connect(self._join_open)
+            cards.append(card)
+        self._grid.set_cards(cards)
+
+    # ── 동작 ───────────────────────────────────────────────────
+    def _favorite(self, room: RoomItem, favorite: bool) -> None:
+        room.is_favorite = favorite
+        self._render_my_rooms()
+        run_async(self, lambda: self._ctx.repo.toggle_favorite(room.id, favorite), lambda *_: None)
+
+    def _ask_nickname(self, then) -> None:  # noqa: ANN001
+        """입장하기 전에 이 방에서 쓸 닉네임부터 고른다(웹과 같다). 고르면 then(nickname_id)."""
+
+        def got(ctx: object, err: Exception | None) -> None:
+            if err is not None or ctx is None:
+                QMessageBox.warning(self.window(), "PoRoom", "닉네임 정보를 불러오지 못했어요.")
+                return
+            dialog = NicknameDialog(self, ctx, self._ctx.repo)  # type: ignore[arg-type]
+            if dialog.exec_over():
+                then(dialog.result_id)
+
+        run_async(self, self._ctx.repo.nickname_context, got)
 
     def _enter_system(self, kind: str) -> None:
-        run_async(
-            self,
-            lambda: self._ctx.repo.join_system_room(kind),
-            lambda room_id, err: self.open_room.emit(room_id)
-            if isinstance(room_id, str) and err is None
-            else self._empty.setText("입장하지 못했어요."),
-        )
+        assert self._data is not None
+        is_member = self._data.deadline_member if kind == "deadline" else self._data.dawn_member
+        card = self._deadline if kind == "deadline" else self._dawn
+
+        def go(nickname_id: str | None) -> None:
+            card.set_pending(True)
+
+            def done(room_id: object, err: Exception | None) -> None:
+                card.set_pending(False)
+                if isinstance(room_id, str) and not room_id.startswith("error:") and err is None:
+                    self.open_room.emit(room_id)
+                else:
+                    QMessageBox.warning(self.window(), "PoRoom", str(room_id).removeprefix("error:") if room_id else "입장하지 못했어요.")
+
+            run_async(self, lambda: self._ctx.repo.join_system_room_with(kind, nickname_id), done)
+
+        # 이미 들어가 있는 방이면 닉네임을 다시 묻지 않고 바로 이동한다.
+        if is_member:
+            go(None)
+        else:
+            self._ask_nickname(go)
+
+    def _join_open(self, room: RoomItem) -> None:
+        assert self._data is not None
+        if room.target_position and room.target_position != self._data.position:
+            QMessageBox.information(
+                self.window(), "PoRoom", "웹툰 작가 전용입니다." if room.target_position == "webtoon" else "웹소설 작가 전용입니다."
+            )
+            return
+
+        def go(nickname_id: str | None) -> None:
+            run_async(
+                self,
+                lambda: self._ctx.repo.join_open_room_with(room.id, nickname_id),
+                lambda ok, err: self.open_room.emit(room.id) if ok and err is None else QMessageBox.warning(self.window(), "PoRoom", "입장하지 못했어요."),
+            )
+
+        self._ask_nickname(go)
+
+    def _create_room(self) -> None:
+        dialog = CreateRoomDialog(self)
+        if not dialog.exec_over():
+            return
+        values = dialog.values
+
+        def go(nickname_id: str | None) -> None:
+            def done(room_id: object, err: Exception | None) -> None:
+                if isinstance(room_id, str) and not room_id.startswith("error:") and err is None:
+                    self.open_room.emit(room_id)
+                else:
+                    QMessageBox.warning(self.window(), "PoRoom", str(room_id).removeprefix("error:") if room_id else "방을 만들지 못했어요.")
+
+            run_async(
+                self,
+                lambda: self._ctx.repo.create_room(
+                    values["name"], values["color"], values["tags"], values["join_type"], values["target_position"], values["record_visibility"], nickname_id
+                ),
+                done,
+            )
+
+        self._ask_nickname(go)
+
+    def _join_by_code(self, error: str = "") -> None:
+        dialog = InviteCodeDialog(self)
+        if error:
+            dialog.show_error(error)
+        if not dialog.exec_over():
+            return
+        code = dialog.code
+
+        def go(nickname_id: str | None) -> None:
+            def done(room_id: object, err: Exception | None) -> None:
+                if isinstance(room_id, str) and not room_id.startswith("error:") and err is None:
+                    self.open_room.emit(room_id)
+                else:
+                    self._join_by_code(str(room_id).removeprefix("error:") if room_id else "입장하지 못했어요.")
+
+            run_async(self, lambda: self._ctx.repo.join_room_by_code(code, nickname_id), done)
+
+        self._ask_nickname(go)

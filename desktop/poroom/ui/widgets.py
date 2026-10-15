@@ -6,7 +6,7 @@ from typing import Callable
 
 from PySide6.QtCore import QObject, QPointF, QRectF, QSize, Qt, Signal
 from PySide6.QtGui import QBrush, QColor, QFont, QPainter, QPainterPath, QPen, QPixmap
-from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QWidget
+from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QRadioButton, QWidget
 
 from . import theme
 
@@ -198,3 +198,33 @@ class Stepper(QWidget):
         self._label.setText(f"{self._value}{self._suffix}")
         self._minus.setEnabled(self._value > self._min)
         self._plus.setEnabled(self._value < self._max)
+
+
+class DotRadio(QRadioButton):
+    """웹의 라디오 버튼처럼: 가는 테두리 원, 선택되면 가운데에 검정 점. 글씨는 오른쪽에 그린다."""
+
+    def __init__(self, text: str, parent: QWidget | None = None) -> None:
+        super().__init__(text, parent)
+        self.setCursor(Qt.PointingHandCursor)
+
+    def sizeHint(self) -> QSize:  # noqa: N802
+        fm = self.fontMetrics()
+        return QSize(14 + 6 + fm.horizontalAdvance(self.text()) + 2, max(18, fm.height() + 2))
+
+    def paintEvent(self, _event) -> None:  # noqa: N802
+        p = QPainter(self)
+        p.setRenderHint(QPainter.Antialiasing)
+        cy = self.height() / 2
+        circle = QRectF(1, cy - 7, 14, 14)
+        p.setPen(QPen(QColor("#171717" if self.isChecked() else "#A3A3A3"), 1))
+        p.setBrush(QColor("white"))
+        p.drawEllipse(circle)
+        if self.isChecked():
+            p.setPen(Qt.NoPen)
+            p.setBrush(QColor("#171717"))
+            p.drawEllipse(QRectF(4.5, cy - 3.5, 7, 7))
+        p.setPen(QColor(theme.TEXT))
+        font = QFont(self.font())
+        font.setPixelSize(12)
+        p.setFont(font)
+        p.drawText(QRectF(22, 0, self.width() - 22, self.height()), Qt.AlignVCenter | Qt.AlignLeft, self.text())

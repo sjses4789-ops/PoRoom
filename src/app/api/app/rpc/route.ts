@@ -14,7 +14,8 @@ import { setDailyCharGoal } from "@/lib/daily-goal";
 import { sendNote, getInbox, getUnreadNoteCount, markNoteRead, deleteNote } from "@/lib/notes";
 import { createFeedPost, deleteFeedPost, toggleFeedReaction, getFeedPostById, getMyChallengeOptions } from "@/lib/feed";
 import { joinChallenge, leaveChallenge } from "@/lib/challenges";
-import { createTodo, setTodoCompleted, deleteTodo } from "@/lib/todos";
+import { createTodo, setTodoCompleted, deleteTodo, completeTodo, updateTodo, getTodosForDate } from "@/lib/todos";
+import { createNickname } from "@/lib/nicknames";
 import { submitTypingScore } from "@/lib/rest";
 import { setChatColor, setCharacter, markAttendanceToday } from "@/lib/profile";
 import { blockUser, unblockUser, reportUser } from "@/lib/safety";
@@ -78,6 +79,10 @@ const ACTIONS: Record<string, (...args: any[]) => Promise<unknown>> = {
   createTodo,
   setTodoCompleted,
   deleteTodo,
+  completeTodo,
+  updateTodo,
+  getTodosForDate,
+  createNickname,
   submitTypingScore,
   // 프로필 / 안전
   setChatColor,

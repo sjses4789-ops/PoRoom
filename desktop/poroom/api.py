@@ -108,6 +108,16 @@ class Api:
             return None
         return body.get("result")
 
+    def get_json(self, path: str) -> Any:
+        """서버가 집계해서 돌려주는 읽기 전용 데이터(/api/app/<path>). 실패하면 None."""
+        res = self._request("GET", f"{self._config.web_url}/api/app/{path}")
+        if res.status_code != 200:
+            raise ApiError(f"get {path}: {res.status_code}")
+        body = res.json()
+        if body.get("ok") is not True:
+            raise ApiError(f"get {path}: not ok")
+        return body
+
     def get_bytes(self, url: str) -> bytes | None:
         """캐릭터 이미지 같은 공개 파일을 받는다."""
         try:

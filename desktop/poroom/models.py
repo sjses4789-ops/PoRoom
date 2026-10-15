@@ -116,3 +116,67 @@ class Presence:
             pomodoro_duration_seconds=float(meta.get("pomodoroDurationSeconds") or 0.0),
             screen_sharing=meta.get("screenSharing"),
         )
+
+
+@dataclass
+class RoomItem:
+    """[포룸] 방 목록의 방 하나(웹의 RoomListItem)."""
+
+    id: str
+    name: str
+    member_count: int = 0
+    color: str = "neutral"
+    tags: list[str] = field(default_factory=list)
+    join_type: str = "invite"  # open | invite
+    target_position: str | None = None
+    is_member: bool = False
+    is_favorite: bool = False
+    invite_code: str | None = None
+    created_at: str = ""
+    all_time_chars: int = 0
+    month_chars: int = 0
+
+
+@dataclass
+class Todo:
+    id: str
+    content: str
+
+
+@dataclass
+class Dashboard:
+    today_chars: int = 0
+    month_goal_chars: int = 0
+    month_progress_chars: int = 0
+    overall_rank: int = 1
+    total_users: int = 0
+    streak_days: int = 0
+    year: int = 0
+    month: int = 0  # 1~12
+    attended_dates: set[str] = field(default_factory=set)
+    todos: list[Todo] = field(default_factory=list)
+
+
+@dataclass
+class HomeData:
+    position: str = "novelist"
+    rooms: list[RoomItem] = field(default_factory=list)
+    deadline_count: int = 0
+    deadline_member: bool = False
+    dawn_count: int = 0
+    dawn_member: bool = False
+    system_capacity: int = 50
+    dashboard: Dashboard = field(default_factory=Dashboard)
+
+
+@dataclass
+class NicknameContext:
+    default_name: str
+    nicknames: list[tuple[str, str]]  # (id, nickname)
+
+
+@dataclass
+class TodoHistoryItem:
+    id: str
+    content: str
+    completed: bool

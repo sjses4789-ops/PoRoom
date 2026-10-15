@@ -33,3 +33,40 @@ def tint(hex_color: str, amount: float = 0.1) -> str:
     r, g, b = (int(h[i : i + 2], 16) for i in (0, 2, 4))
     r, g, b = (int(c + (255 - c) * (1 - amount)) for c in (r, g, b))
     return f"#{r:02X}{g:02X}{b:02X}"
+
+
+# ── 방 색상 팔레트(웹 src/lib/palette.ts의 PALETTE와 같은 22색) ─────────────────────────
+# (키, 이름, 점 색(500), 카드 바탕(50 — 회색 계열은 100))
+PALETTE = [
+    ("neutral", "회색", "#737373", "#F5F5F5"),
+    ("slate", "슬레이트", "#64748B", "#F1F5F9"),
+    ("zinc", "징크", "#71717A", "#F4F4F5"),
+    ("stone", "스톤", "#78716C", "#F5F5F4"),
+    ("red", "빨강", "#EF4444", "#FEF2F2"),
+    ("rose", "장미", "#F43F5E", "#FFF1F2"),
+    ("pink", "분홍", "#EC4899", "#FDF2F8"),
+    ("fuchsia", "자홍", "#D946EF", "#FDF4FF"),
+    ("purple", "보라", "#A855F7", "#FAF5FF"),
+    ("violet", "바이올렛", "#8B5CF6", "#F5F3FF"),
+    ("indigo", "인디고", "#6366F1", "#EEF2FF"),
+    ("blue", "파랑", "#3B82F6", "#EFF6FF"),
+    ("sky", "하늘", "#0EA5E9", "#F0F9FF"),
+    ("cyan", "시안", "#06B6D4", "#ECFEFF"),
+    ("teal", "청록", "#14B8A6", "#F0FDFA"),
+    ("emerald", "에메랄드", "#10B981", "#ECFDF5"),
+    ("green", "초록", "#22C55E", "#F0FDF4"),
+    ("lime", "연두", "#84CC16", "#F7FEE7"),
+    ("yellow", "노랑", "#EAB308", "#FEFCE8"),
+    ("amber", "호박", "#F59E0B", "#FFFBEB"),
+    ("orange", "주황", "#F97316", "#FFF7ED"),
+    ("gray", "그레이", "#6B7280", "#F3F4F6"),
+]
+_BY_KEY = {p[0]: p for p in PALETTE}
+
+
+def palette_dot(key: str) -> str:
+    return _BY_KEY.get(key, PALETTE[0])[2]
+
+
+def palette_card(key: str) -> str:
+    return _BY_KEY.get(key, PALETTE[0])[3]
