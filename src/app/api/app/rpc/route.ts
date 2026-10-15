@@ -19,6 +19,8 @@ import { submitTypingScore } from "@/lib/rest";
 import { setChatColor, setCharacter, markAttendanceToday } from "@/lib/profile";
 import { blockUser, unblockUser, reportUser } from "@/lib/safety";
 import { joinSystemRoom } from "@/lib/system-rooms";
+import { createRoomForApp, joinRoomByCodeForApp } from "@/lib/app-rooms";
+import { getNicknameContext } from "@/lib/nicknames";
 import {
   getNotifications,
   getUnreadNotificationCount,
@@ -36,6 +38,9 @@ import {
 const ACTIONS: Record<string, (...args: any[]) => Promise<unknown>> = {
   joinOpenRoom,
   joinSystemRoom,
+  createRoomForApp,
+  joinRoomByCodeForApp,
+  getNicknameContext,
   leaveRoom,
   touchLastSeen,
   setWorkStatus,
