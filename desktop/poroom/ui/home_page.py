@@ -21,6 +21,7 @@ from .dashboard import DashboardPanel
 from .dialogs import Chip, CreateRoomDialog, InviteCodeDialog, NicknameDialog
 from .layouts import FlowLayout, MasonryColumns
 from .room_cards import MyRoomCard, RoomCard
+from .scale import N400, N500, N700, RADIUS, fs, sp
 from .widgets import run_async
 
 SORT_OPTIONS = [("chars", "누적 글자순"), ("members", "모임 인원순"), ("created", "생성 날짜순")]
@@ -36,22 +37,27 @@ class SystemRoomCard(QFrame):
         self._kind = kind
         self._label_text = label
         self._emoji = emoji
-        self.setStyleSheet(f"SystemRoomCard {{ background: {bg}; border: 1px solid rgba(229,229,229,0.6); border-radius: 8px; }}")
+        self.setStyleSheet(
+            f"SystemRoomCard {{ background: {bg}; border: 1px solid rgba(229,229,229,0.6); border-radius: {RADIUS['lg']}px; }}"
+        )
         lay = QVBoxLayout(self)
-        lay.setContentsMargins(12, 14, 12, 14)
-        lay.setSpacing(10)
+        lay.setContentsMargins(sp(3), sp(4), sp(3), sp(4))  # px-3 py-4
+        lay.setSpacing(sp(3))  # gap-3
+        texts = QVBoxLayout()
+        texts.setSpacing(sp(1))
         title = QLabel(label)
         title.setAlignment(Qt.AlignCenter)
-        title.setStyleSheet("font-size: 13px; font-weight: 500; border: none; background: transparent;")
+        title.setStyleSheet(f"{fs('sm')} border: none; background: transparent;")
         self._hint = QLabel()
         self._hint.setAlignment(Qt.AlignCenter)
-        self._hint.setStyleSheet("color: #737373; font-size: 11px; border: none; background: transparent;")
-        lay.addWidget(title)
-        lay.addWidget(self._hint)
+        self._hint.setStyleSheet(f"color: {N500}; {fs(11)} border: none; background: transparent;")
+        texts.addWidget(title)
+        texts.addWidget(self._hint)
+        lay.addLayout(texts)
         self._button = QPushButton()
         self._button.setCursor(Qt.PointingHandCursor)
         self._button.setStyleSheet(
-            f"QPushButton {{ background: {button_bg}; color: white; border: none; border-radius: 6px; padding: 8px 10px; font-size: 13px; font-weight: 500; }}"
+            f"QPushButton {{ background: {button_bg}; color: white; border: none; border-radius: {RADIUS['md']}px; padding: {sp(2)}px {sp(3)}px; {fs('sm')} }}"
             f"QPushButton:hover {{ background: {hover_bg}; }} QPushButton:disabled {{ background: {button_bg}; color: rgba(255,255,255,0.6); }}"
         )
         self._button.clicked.connect(lambda: self.clicked.emit(self._kind))
@@ -93,18 +99,27 @@ class HomePage(QWidget):
         body = QWidget()
         body.setObjectName("page")
         scroll.setWidget(body)
-        self._root = QVBoxLayout(body)
-        self._root.setContentsMargins(32, 24, 32, 32)
-        self._root.setSpacing(36)
+        # 웹: <main px-8 py-8> 안에 mx-auto max-w-6xl(72rem = 1224px) — 가운데 정렬된 한 칸
+        outer_row = QHBoxLayout(body)
+        outer_row.setContentsMargins(sp(8), sp(8), sp(8), sp(8))
+        content = QWidget()
+        content.setObjectName("page")
+        content.setMaximumWidth(round(72 * 17))
+        outer_row.addStretch(1)
+        outer_row.addWidget(content, 100)
+        outer_row.addStretch(1)
+        self._root = QVBoxLayout(content)
+        self._root.setContentsMargins(0, 0, 0, 0)
+        self._root.setSpacing(sp(10))  # flex-col gap-10
 
         # 위: 내 현황 | 마감방·새벽방(고정 폭 220)
         self._top = QHBoxLayout()
-        self._top.setSpacing(24)
+        self._top.setSpacing(sp(6))  # gap-6
         self._dashboard_slot = QVBoxLayout()
         self._dashboard_slot.setContentsMargins(0, 0, 0, 0)
         self._top.addLayout(self._dashboard_slot, 1)
         sys_col = QVBoxLayout()
-        sys_col.setSpacing(12)
+        sys_col.setSpacing(sp(3))  # gap-3
         self._deadline = SystemRoomCard("deadline", "마감방", "🔥", "#FAF3F3", "#A86363", "#966161")
         self._dawn = SystemRoomCard("dawn", "새벽방", "🌛", "#F2F3F9", "#5F6D97", "#556087")
         self._deadline.clicked.connect(self._enter_system)
@@ -121,7 +136,7 @@ class HomePage(QWidget):
 
         # 아래: 내가 입장한 방(260) | 전체/추천 방
         bottom = QHBoxLayout()
-        bottom.setSpacing(24)
+        bottom.setSpacing(sp(6))  # gap-6
         bottom.setAlignment(Qt.AlignTop)
         bottom.addWidget(self._build_my_rooms(), 0, Qt.AlignTop)
         bottom.addWidget(self._build_all_rooms(), 1, Qt.AlignTop)
@@ -144,17 +159,17 @@ class HomePage(QWidget):
         host.setFixedWidth(260)
         lay = QVBoxLayout(host)
         lay.setContentsMargins(0, 0, 0, 0)
-        lay.setSpacing(12)
+        lay.setSpacing(sp(3))
         heading = QLabel("내가 입장한 방")
-        heading.setStyleSheet("font-size: 13px; font-weight: 600;")
+        heading.setStyleSheet(f"{fs('sm')} font-weight: 700;")
         lay.addWidget(heading)
         buttons = QHBoxLayout()
-        buttons.setSpacing(6)
+        buttons.setSpacing(sp(1.5))
         for text, slot in (("새 방 만들기", self._create_room), ("초대코드로 입장", self._join_by_code)):
             btn = QPushButton(text)
             btn.setCursor(Qt.PointingHandCursor)
             btn.setStyleSheet(
-                "QPushButton { border: 1px solid #E5E5E5; border-radius: 6px; padding: 6px 10px; font-size: 12px; font-weight: 500; color: #404040; }"
+                f"QPushButton {{ border: 1px solid #E5E5E5; border-radius: {RADIUS['md']}px; padding: {sp(1.5)}px {sp(3)}px; {fs('xs')} color: {N700}; background: white; }}"
                 "QPushButton:hover { background: #FAFAFA; }"
             )
             btn.clicked.connect(slot)
@@ -162,7 +177,7 @@ class HomePage(QWidget):
         buttons.addStretch(1)
         lay.addLayout(buttons)
         self._my_list = QVBoxLayout()
-        self._my_list.setSpacing(8)
+        self._my_list.setSpacing(sp(2))
         lay.addLayout(self._my_list)
         lay.addStretch(1)
         return host
@@ -171,28 +186,28 @@ class HomePage(QWidget):
         host = QWidget()
         lay = QVBoxLayout(host)
         lay.setContentsMargins(0, 0, 0, 0)
-        lay.setSpacing(12)
+        lay.setSpacing(sp(3))
 
         self._filter_host = QWidget()
-        self._filter_flow = FlowLayout(self._filter_host, 6, 6)
+        self._filter_flow = FlowLayout(self._filter_host, sp(1.5), sp(1.5))
         lay.addWidget(self._filter_host)
         self._build_filters()
 
         header = QHBoxLayout()
-        header.setSpacing(6)
+        header.setSpacing(sp(1.5))
         heading = QLabel("전체 / 추천 방")
-        heading.setStyleSheet("font-size: 13px; font-weight: 600;")
+        heading.setStyleSheet(f"{fs('sm')} font-weight: 700;")
         header.addWidget(heading)
         self._search_btn = QPushButton("🔍")
-        self._search_btn.setFixedSize(22, 22)
+        self._search_btn.setFixedSize(sp(5), sp(5))  # h-5 w-5
         self._search_btn.setCursor(Qt.PointingHandCursor)
         self._search_btn.setToolTip("방 이름 검색")
         self._search_btn.clicked.connect(self._toggle_search)
         header.addWidget(self._search_btn)
         self._search = QLineEdit()
         self._search.setPlaceholderText("방 이름 검색 후 Enter")
-        self._search.setFixedWidth(190)
-        self._search.setStyleSheet("border-radius: 11px; padding: 3px 10px; font-size: 12px;")
+        self._search.setFixedWidth(sp(48))  # w-48
+        self._search.setStyleSheet(f"border-radius: 11px; padding: {sp(0.5)}px {sp(2.5)}px; {fs(12)} color: {N700};")
         self._search.returnPressed.connect(self._apply_search)
         self._search.hide()
         header.addWidget(self._search)
@@ -208,9 +223,9 @@ class HomePage(QWidget):
         self._style_sort_and_search()
 
         self._empty = QLabel()
-        self._empty.setStyleSheet("color: #A3A3A3; font-size: 12px;")
+        self._empty.setStyleSheet(f"color: {N400}; {fs(12)}")
         lay.addWidget(self._empty)
-        self._grid = MasonryColumns()
+        self._grid = MasonryColumns(gap=sp(3))
         lay.addWidget(self._grid)
         lay.addStretch(1)
         return host
@@ -224,7 +239,7 @@ class HomePage(QWidget):
             reset = QPushButton("초기화")
             reset.setCursor(Qt.PointingHandCursor)
             reset.setStyleSheet(
-                "QPushButton { border: 1px solid #D4D4D4; border-radius: 10px; padding: 2px 9px; font-size: 12px; background: #E5E5E5; color: #525252; }"
+                f"QPushButton {{ border: 1px solid #D4D4D4; border-radius: 11px; padding: {sp(0.5)}px {sp(2)}px; {fs(12)} background: #E5E5E5; color: #525252; }}"
                 "QPushButton:hover { background: #D4D4D4; }"
             )
             reset.clicked.connect(self._reset_filters)
@@ -252,15 +267,15 @@ class HomePage(QWidget):
             active = key == self._sort_mode
             btn.setText(label + ((" ▼" if self._sort_desc else " ▲") if active else ""))
             btn.setStyleSheet(
-                "QPushButton { background: #171717; color: white; border: none; border-radius: 6px; padding: 4px 8px; font-size: 12px; font-weight: 500; }"
+                f"QPushButton {{ background: #171717; color: white; border: none; border-radius: {RADIUS['md']}px; padding: {sp(1)}px {sp(2)}px; {fs(12)} }}"
                 if active
-                else "QPushButton { background: transparent; color: #A3A3A3; border: none; border-radius: 6px; padding: 4px 8px; font-size: 12px; font-weight: 500; }"
+                else f"QPushButton {{ background: transparent; color: {N400}; border: none; border-radius: {RADIUS['md']}px; padding: {sp(1)}px {sp(2)}px; {fs(12)} }}"
                 "QPushButton:hover { background: #F5F5F5; }"
             )
         self._search_btn.setStyleSheet(
-            "QPushButton { background: #171717; color: white; border: none; border-radius: 11px; font-size: 11px; padding: 0; }"
+            f"QPushButton {{ background: #171717; color: white; border: none; border-radius: 11px; {fs(10)} padding: 0; }}"
             if self._search_open
-            else "QPushButton { background: transparent; color: #A3A3A3; border: none; border-radius: 11px; font-size: 11px; padding: 0; }"
+            else f"QPushButton {{ background: transparent; color: {N400}; border: none; border-radius: 11px; {fs(10)} padding: 0; }}"
             "QPushButton:hover { background: #F5F5F5; }"
         )
 
@@ -361,7 +376,7 @@ class HomePage(QWidget):
         if not mine:
             empty = QLabel("아직 입장한 방이 없습니다. 새 방을 만들거나 초대코드로 입장해보세요.")
             empty.setWordWrap(True)
-            empty.setStyleSheet("color: #A3A3A3; font-size: 12px;")
+            empty.setStyleSheet(f"color: {N400}; {fs(12)}")
             self._my_list.addWidget(empty)
             return
         for room in mine:

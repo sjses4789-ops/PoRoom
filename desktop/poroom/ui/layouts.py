@@ -96,10 +96,10 @@ class MasonryColumns(QWidget):
         self._rebuild(force=True)
 
     def _wanted_columns(self) -> int:
-        width = self.width()
-        if width >= 760:
+        width = self.window().width() if self.window() is not None else self.width()
+        if width >= 1024:
             return 3
-        if width >= 480:
+        if width >= 640:
             return 2
         return 1
 

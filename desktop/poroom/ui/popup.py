@@ -9,7 +9,7 @@ from PySide6.QtWidgets import QDialog, QFrame, QGraphicsDropShadowEffect, QVBoxL
 class Popup(QDialog):
     """흰 상자 팝업 — exec_over()로 열면 부모 창 위에 어두운 막이 깔리고 팝업이 가운데에 뜬다."""
 
-    def __init__(self, parent: QWidget | None, width: int = 340) -> None:
+    def __init__(self, parent: QWidget | None, width: int = 340, padding: int = 17, gap: int = 13) -> None:
         super().__init__(parent.window() if parent is not None else None)
         self.setWindowFlags(Qt.Dialog | Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
@@ -21,7 +21,7 @@ class Popup(QDialog):
         self.box = QFrame()
         self.box.setObjectName("popupbox")
         self.box.setStyleSheet(
-            "QFrame#popupbox { background: white; border: 1px solid #D4D4D4; border-radius: 6px; }"
+            "QFrame#popupbox { background: white; border: 1px solid #D4D4D4; border-radius: 3px; }"
         )
         shadow = QGraphicsDropShadowEffect(self.box)
         shadow.setBlurRadius(28)
@@ -30,8 +30,8 @@ class Popup(QDialog):
         self.box.setGraphicsEffect(shadow)
         outer.addWidget(self.box)
         self.body = QVBoxLayout(self.box)
-        self.body.setContentsMargins(18, 16, 18, 16)
-        self.body.setSpacing(10)
+        self.body.setContentsMargins(padding, padding, padding, padding)
+        self.body.setSpacing(gap)
         self.setFixedWidth(width + 28)
 
     def exec_over(self) -> int:

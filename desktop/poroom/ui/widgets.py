@@ -171,7 +171,7 @@ class Stepper(QWidget):
         self._plus = QPushButton("+")
         for btn in (self._minus, self._plus):
             btn.setFixedSize(26, 26)
-            btn.setStyleSheet("padding: 0; font-size: 15px;")
+            btn.setStyleSheet("padding: 0; font-size: 11.25pt;")
             btn.setCursor(Qt.PointingHandCursor)
         self._label = QLabel()
         self._label.setAlignment(Qt.AlignCenter)
@@ -225,6 +225,6 @@ class DotRadio(QRadioButton):
             p.drawEllipse(QRectF(4.5, cy - 3.5, 7, 7))
         p.setPen(QColor(theme.TEXT))
         font = QFont(self.font())
-        font.setPixelSize(12)
+        font.setPixelSize(13)
         p.setFont(font)
         p.drawText(QRectF(22, 0, self.width() - 22, self.height()), Qt.AlignVCenter | Qt.AlignLeft, self.text())

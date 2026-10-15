@@ -21,11 +21,12 @@ from ..repo import RepositoryProtocol
 from ..tags import ROOM_TAGS
 from .layouts import FlowLayout
 from .popup import Popup
+from .scale import N400, N500, N600, N700, fs, sp
 from .widgets import DotRadio, run_async
 
 MAX_EXTRA_NICKNAMES = 2
 
-LABEL_STYLE = "color: #737373; font-size: 12px; font-weight: 500;"
+LABEL_STYLE = f"color: {N500}; {fs(12)}"
 RADIO_STYLE = (
     "QRadioButton { font-size: 12px; spacing: 6px; }"
     "QRadioButton::indicator { width: 14px; height: 14px; border-radius: 8px; border: 1px solid #A3A3A3; background: white; }"
@@ -36,13 +37,13 @@ RADIO_STYLE = (
 def _title_row(popup: Popup, text: str, closable: bool = True) -> QLabel:
     row = QHBoxLayout()
     title = QLabel(text)
-    title.setStyleSheet("font-size: 13px; font-weight: 600;")
+    title.setStyleSheet(f"{fs('sm')} font-weight: 700;")
     row.addWidget(title, 1)
     if closable:
         close = QPushButton("✕")
         close.setFlat(True)
         close.setCursor(Qt.PointingHandCursor)
-        close.setStyleSheet("border: none; color: #A3A3A3; padding: 0 4px; background: transparent;")
+        close.setStyleSheet(f"border: none; color: {N400}; padding: 0 4px; background: transparent; {fs('sm')}")
         close.clicked.connect(popup.reject)
         row.addWidget(close)
     popup.body.addLayout(row)
@@ -57,8 +58,8 @@ class Chip(QPushButton):
         self.setCheckable(checkable)
         self.setCursor(Qt.PointingHandCursor)
         self.setStyleSheet(
-            "QPushButton { border: 1px solid #E5E5E5; border-radius: 10px; padding: 2px 9px; font-size: 12px;"
-            " color: #525252; background: white; font-weight: 400; }"
+            f"QPushButton {{ border: 1px solid #E5E5E5; border-radius: 11px; padding: {sp(0.5)}px {sp(2)}px; {fs(12)}"
+            " color: #525252; background: white; }"
             "QPushButton:hover { background: #FAFAFA; }"
             "QPushButton:checked { background: #171717; color: white; border: 1px solid #171717; }"
         )
@@ -69,7 +70,7 @@ class NicknameDialog(Popup):
     """이 방에서 쓸 닉네임 고르기(입장 전). result_id: 고른 닉네임 id(기본이면 None), accepted()면 고른 것."""
 
     def __init__(self, parent: QWidget | None, ctx: NicknameContext, repo: RepositoryProtocol) -> None:
-        super().__init__(parent, 384)
+        super().__init__(parent, 408, padding=sp(5))
         self._repo = repo
         self._nicknames = list(ctx.nicknames)
         self._default_name = ctx.default_name
@@ -183,7 +184,7 @@ class CreateRoomDialog(Popup):
     """새 방 만들기 폼(웹의 create-room-button 팝업과 같은 항목·순서). 확인하면 values에 값이 담긴다."""
 
     def __init__(self, parent: QWidget | None) -> None:
-        super().__init__(parent, 320)
+        super().__init__(parent, 340)
         self.values: dict = {}
         self._color = PALETTE[0][0]
         self._tags: set[str] = set()
@@ -195,7 +196,7 @@ class CreateRoomDialog(Popup):
         self.body.addWidget(self._label("방 색상"))
         self._color_buttons: dict[str, QPushButton] = {}
         flow_host = QWidget()
-        flow = FlowLayout(flow_host, 6, 6)
+        flow = FlowLayout(flow_host, sp(1.5), sp(1.5))
         for key, label, dot, _bg in PALETTE:
             btn = QPushButton()
             btn.setFixedSize(24, 24)
@@ -204,25 +205,25 @@ class CreateRoomDialog(Popup):
             btn.clicked.connect(lambda _c=False, k=key: self._pick_color(k))
             self._color_buttons[key] = btn
             flow.addWidget(btn)
-        flow_host.setMinimumHeight(flow.heightForWidth(284))
+        flow_host.setMinimumHeight(flow.heightForWidth(306))
         self.body.addWidget(flow_host)
         self._pick_color(self._color)
 
         self.body.addWidget(self._label("태그"))
         tag_scroll = QScrollArea()
         tag_scroll.setWidgetResizable(True)
-        tag_scroll.setFixedHeight(128)
+        tag_scroll.setFixedHeight(sp(32))  # max-h-32
         tag_host = QWidget()
         tag_host.setObjectName("taghost")
         tag_host.setStyleSheet("QWidget#taghost { background: white; }")
         tag_scroll.setStyleSheet("QScrollArea { background: white; border: none; }")
         tag_scroll.viewport().setStyleSheet("background: white;")
-        tag_flow = FlowLayout(tag_host, 6, 6)
+        tag_flow = FlowLayout(tag_host, sp(1.5), sp(1.5))
         for tag in ROOM_TAGS:
             chip = Chip(tag)
             chip.toggled.connect(lambda on, t=tag: (self._tags.add(t) if on else self._tags.discard(t)))
             tag_flow.addWidget(chip)
-        tag_host.setMinimumHeight(tag_flow.heightForWidth(262))
+        tag_host.setMinimumHeight(tag_flow.heightForWidth(284))
         tag_scroll.setWidget(tag_host)
         self.body.addWidget(tag_scroll)
 
@@ -317,7 +318,7 @@ class CreateRoomDialog(Popup):
 # ── 초대코드로 입장 ───────────────────────────────────────────────
 class InviteCodeDialog(Popup):
     def __init__(self, parent: QWidget | None) -> None:
-        super().__init__(parent, 256)
+        super().__init__(parent, 272, padding=sp(3))
         self.code = ""
         self._input = QLineEdit()
         self._input.setPlaceholderText("초대코드 입력")
@@ -350,7 +351,7 @@ class InviteCodeDialog(Popup):
 # ── 할 일 기록(+ 더보기) ──────────────────────────────────────────
 class TodoHistoryDialog(Popup):
     def __init__(self, parent: QWidget | None, repo: RepositoryProtocol) -> None:
-        super().__init__(parent, 352)
+        super().__init__(parent, 374)
         self._repo = repo
         self._date = today_kst()
         self._cache: dict[str, list[TodoHistoryItem]] = {}

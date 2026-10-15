@@ -21,6 +21,7 @@ from ..models import ChatMessage, Presence, RoomInfo, RoomMember
 from ..palette import BRAND, BREAK_BLUE, room_color, tint
 from ..realtime import latest_meta
 from . import theme
+from .scale import fs
 from .widgets import Avatar, DonutRing, StatusDot, Stepper, run_async
 
 TYPING_WINDOW_MS = 5000
@@ -59,9 +60,9 @@ class ParticipantCard(QFrame):
         info = QVBoxLayout()
         info.setSpacing(1)
         self._name = QLabel()
-        self._name.setStyleSheet("font-weight: 700; font-size: 14px; border: none; background: transparent;")
+        self._name.setStyleSheet(f"font-weight: 700; {fs('sm')} border: none; background: transparent;")
         self._status_label = QLabel()
-        self._status_label.setStyleSheet(f"color: {theme.MUTED}; font-size: 12px; border: none; background: transparent;")
+        self._status_label.setStyleSheet(f"color: {theme.MUTED}; {fs(12)} border: none; background: transparent;")
         info.addWidget(self._name)
         status_row = QHBoxLayout()
         status_row.setSpacing(5)
@@ -73,13 +74,13 @@ class ParticipantCard(QFrame):
         lay.addLayout(top)
 
         self._work = QLabel()
-        self._work.setStyleSheet(f"color: {theme.SUBTEXT}; font-size: 12px; border: none; background: transparent;")
+        self._work.setStyleSheet(f"color: {theme.SUBTEXT}; {fs(12)} border: none; background: transparent;")
         lay.addWidget(self._work)
         self._pomodoro = QLabel()
-        self._pomodoro.setStyleSheet("font-size: 12px; border: none; background: transparent;")
+        self._pomodoro.setStyleSheet(f"{fs(12)} border: none; background: transparent;")
         lay.addWidget(self._pomodoro)
         self._chars = QLabel()
-        self._chars.setStyleSheet(f"color: {theme.MUTED}; font-size: 12px; border: none; background: transparent;")
+        self._chars.setStyleSheet(f"color: {theme.MUTED}; {fs(12)} border: none; background: transparent;")
         lay.addWidget(self._chars)
 
         self._load_avatar()
@@ -141,14 +142,14 @@ class ChatBubble(QWidget):
         lay.setSpacing(2)
         align = Qt.AlignRight if is_self else Qt.AlignLeft
         who = QLabel(name)
-        who.setStyleSheet(f"color: {theme.MUTED}; font-size: 11px;")
+        who.setStyleSheet(f"color: {theme.MUTED}; {fs(11)}")
         who.setAlignment(align)
         bubble = QLabel(text)
         bubble.setWordWrap(True)
         bubble.setTextInteractionFlags(Qt.TextSelectableByMouse)
         base = room_color(color) if color else "#737373"
         bg = tint(base, 0.14) if not is_self else tint(base, 0.22)
-        bubble.setStyleSheet(f"background: {bg}; border-radius: 12px; padding: 7px 11px; color: {theme.TEXT};")
+        bubble.setStyleSheet(f"background: {bg}; border-radius: 4px; padding: 6px 12px; color: {theme.TEXT}; {fs('sm')}")
         # 글자 길이에 맞는 너비(최대 300px)로 고정해 필요 이상으로 줄바꿈되지 않게 한다.
         text_width = bubble.fontMetrics().boundingRect(0, 0, 4000, 0, Qt.TextSingleLine, text).width()
         bubble.setFixedWidth(min(300, text_width + 34))

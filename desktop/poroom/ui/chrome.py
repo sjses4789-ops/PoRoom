@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 from PySide6.QtCore import QPoint, Qt
-from PySide6.QtGui import QIcon, QMouseEvent
+from PySide6.QtGui import QFont, QIcon, QMouseEvent
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
 
 from ..config import app_dir
@@ -43,19 +43,23 @@ class TitleBar(QWidget):
         super().__init__(parent)
         self._window = window
         self.setObjectName("topbar")
-        self.setFixedHeight(52)
+        self.setFixedHeight(66)  # 웹 헤더: py-4 + 탭 높이
         self.layout_ = QHBoxLayout(self)
-        self.layout_.setContentsMargins(16, 0, 0, 0)
-        self.layout_.setSpacing(6)
+        self.layout_.setContentsMargins(34, 0, 0, 0)  # 웹 헤더 px-8
+        self.layout_.setSpacing(4)
 
         logo = QLabel()
         logo.setPixmap(app_icon().pixmap(24, 24))
         logo.setFixedSize(24, 24)
         brand = QLabel("PoRoom")
         brand.setObjectName("brand")
+        brand_font = brand.font()
+        brand_font.setLetterSpacing(QFont.AbsoluteSpacing, -0.37)  # tracking-tight
+        brand.setFont(brand_font)
         self.layout_.addWidget(logo)
+        self.layout_.addSpacing(4)
         self.layout_.addWidget(brand)
-        self.layout_.addSpacing(18)
+        self.layout_.addSpacing(30)  # 웹 gap-8
 
         # 창 버튼(맨 오른쪽)
         self._min = WindowButton("—")
@@ -69,7 +73,7 @@ class TitleBar(QWidget):
         """앞쪽 내용을 다 넣은 뒤 창 버튼을 맨 오른쪽에 붙인다."""
         self.layout_.addSpacing(10)
         for btn in (self._min, self._max, self._close):
-            self.layout_.addWidget(btn)
+            self.layout_.addWidget(btn, 0, Qt.AlignTop)
 
     def toggle_maximize(self) -> None:
         if self._window.isMaximized():
