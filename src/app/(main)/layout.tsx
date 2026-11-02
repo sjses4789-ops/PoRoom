@@ -70,6 +70,16 @@ export default async function MainLayout({
     if (!profile?.name || !profile?.position) {
       redirect("/onboarding");
     }
+
+    // 나이 확인·약관 동의 기록이 없는 기존 회원은 한 번 확인한다(0076). 열이 아직 없으면(SQL 실행 전) 이 확인은 건너뛴다.
+    const { data: consentRow, error: consentError } = await supabase
+      .from("users")
+      .select("terms_agreed_at")
+      .eq("id", user.id)
+      .maybeSingle<{ terms_agreed_at: string | null }>();
+    if (!consentError && consentRow && !consentRow.terms_agreed_at) {
+      redirect("/consent");
+    }
   }
 
   return (

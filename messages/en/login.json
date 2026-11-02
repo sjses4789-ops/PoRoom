@@ -169,5 +169,6 @@
     "pomowriterCtaTitle": "Need a free writing app?\n(Windows only)",
     "pomowriterCtaButton": "Download PomoWriter",
     "enterRoomCta": "Enter PoRoom"
-  }
+  },
+  "underageNotice": "PoRoom is not available to users under 14. All information you entered has been deleted."
 }

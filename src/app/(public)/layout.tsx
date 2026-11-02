@@ -44,6 +44,9 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
                 {item.label}
               </Link>
             ))}
+            <Link href="/terms" className="hover:underline">
+              이용약관
+            </Link>
             <Link href="/privacy" className="hover:underline">
               개인정보처리방침
             </Link>

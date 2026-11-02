@@ -346,6 +346,10 @@ export default async function Home() {
               {tFooter("feedback")}
             </Link>
             <span aria-hidden>·</span>
+            <Link href="/terms" className="hover:text-neutral-600 hover:underline">
+              {tFooter("terms")}
+            </Link>
+            <span aria-hidden>·</span>
             <Link href="/privacy" className="hover:text-neutral-600 hover:underline">
               {tFooter("privacy")}
             </Link>

@@ -104,5 +104,10 @@
     "hoursAgo": "{count} hr ago"
   },
   "selfLabel": "Me",
-  "profileSaveFailed": "Could not save your profile. Please try again in a moment."
+  "profileSaveFailed": "Could not save your profile. Please try again in a moment.",
+  "birthDateRequired": "Please enter your date of birth.",
+  "birthDateInvalid": "Please enter a valid date of birth.",
+  "termsRequired": "Please agree to the Terms of Service and Privacy Policy.",
+  "charsTooHigh": "You can enter at most {max} characters per day.",
+  "recordDateInvalid": "You can only edit dates within the last {days} days."
 }

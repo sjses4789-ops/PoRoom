@@ -169,5 +169,6 @@
     "pomowriterCtaTitle": "需要免费的写作软件吗？\n(仅支持 Windows)",
     "pomowriterCtaButton": "下载 PomoWriter",
     "enterRoomCta": "进入 PoRoom"
-  }
+  },
+  "underageNotice": "未满14岁无法使用 PoRoom。您输入的所有信息已被删除。"
 }

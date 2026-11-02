@@ -9,5 +9,13 @@
     "novelist": "Web小説作家",
     "webtoon": "ウェブトゥーン作家"
   },
-  "start": "はじめる"
+  "start": "はじめる",
+  "birthLabel": "生年月日",
+  "birthHint": "満14歳以上のみ登録できます。生年月日全体は保存せず、生まれた年だけを保管します。",
+  "agreePrefix": "次に同意します(必須):",
+  "termsLink": "利用規約・運営ポリシー",
+  "privacyLink": "プライバシーポリシー",
+  "consentTitle": "年齢確認と同意",
+  "consentDescription": "引き続きご利用いただくには、生年月日の確認と規約への同意が必要です。満14歳未満はご利用いただけません。",
+  "consentSubmit": "確認して続ける"
 }

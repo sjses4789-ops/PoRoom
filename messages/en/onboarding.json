@@ -9,5 +9,13 @@
     "novelist": "Web novelist",
     "webtoon": "Webtoon artist"
   },
-  "start": "Get started"
+  "start": "Get started",
+  "birthLabel": "Date of birth",
+  "birthHint": "You must be 14 or older to join. We do not store your full date of birth, only the year.",
+  "agreePrefix": "I agree to (required):",
+  "termsLink": "Terms & Community Policy",
+  "privacyLink": "Privacy Policy",
+  "consentTitle": "Age check and agreement",
+  "consentDescription": "To keep using PoRoom, please confirm your date of birth and agree to the terms. Users under 14 cannot use the Service.",
+  "consentSubmit": "Confirm and continue"
 }

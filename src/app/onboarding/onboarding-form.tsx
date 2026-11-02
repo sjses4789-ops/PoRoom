@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { completeOnboarding, type ProfilePosition } from "@/lib/profile";
 import type { ActionResult } from "@/lib/rooms";
 import { CharacterPicker } from "../(main)/me/character-picker";
+import { ConsentFields } from "@/components/consent-fields";
 
 const POSITIONS: ProfilePosition[] = ["novelist", "webtoon"];
 
@@ -66,6 +67,8 @@ export function OnboardingForm({
         </div>
         <p className="text-[11px] text-neutral-400">{t("positionHint")}</p>
       </div>
+
+      <ConsentFields />
 
       {state?.error && <p className="text-xs text-red-500">{state.error}</p>}
 

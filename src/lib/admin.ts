@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { ActionResult } from "@/lib/rooms";
 import { uploadPostImage } from "@/lib/uploads";
 import { purgeExpiredChatImages, purgeRoomChatImages } from "@/lib/chat-image-purge";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 // 관리자 여부는 항상 서버에서(클라이언트 번들에 노출되지 않는 곳에서)
 // DB의 users.is_admin 플래그로 판단한다 — 이메일을 코드에 하드코딩해
@@ -185,5 +186,33 @@ export async function adminPurgeExpiredChatImages(): Promise<{ removed: number }
   if (!(await isCurrentUserAdmin())) return { error: await err("adminOnly") };
   const supabase = await createClient();
   const removed = await purgeExpiredChatImages(supabase, 200);
+  return { removed };
+}
+
+// 고아 계정 정리 — 로그인 계정(auth)은 있는데 프로필(users) 행이 없는 계정을 지운다. 예전에 탈퇴하면서 프로필만 지워진 계정이
+// 여기에 해당한다. 방금 가입 중인 계정을 건드리지 않도록 만든 지 1시간이 안 된 계정은 남긴다. 서비스 키가 있어야 한다.
+export async function adminCleanOrphanAccounts(): Promise<{ removed: number } | { error: string }> {
+  if (!(await isCurrentUserAdmin())) return { error: await err("adminOnly") };
+  const admin = createAdminClient();
+  if (!admin) return { error: "SUPABASE_SERVICE_ROLE_KEY가 설정되지 않았어요." };
+
+  const cutoff = Date.now() - 60 * 60 * 1000;
+  const authUsers: { id: string; created_at: string }[] = [];
+  for (let page = 1; page <= 50; page++) {
+    const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 1000 });
+    if (error) return { error: error.message };
+    authUsers.push(...data.users.map((u) => ({ id: u.id, created_at: u.created_at })));
+    if (data.users.length < 1000) break;
+  }
+  const { data: profileRows, error: profileError } = await admin.from("users").select("id").limit(100000);
+  if (profileError) return { error: profileError.message };
+  const profileIds = new Set((profileRows ?? []).map((r: { id: string }) => r.id));
+
+  let removed = 0;
+  for (const u of authUsers) {
+    if (profileIds.has(u.id) || new Date(u.created_at).getTime() > cutoff) continue;
+    const { error } = await admin.auth.admin.deleteUser(u.id);
+    if (!error) removed += 1;
+  }
   return { removed };
 }

@@ -104,5 +104,10 @@
     "hoursAgo": "{count}時間前"
   },
   "selfLabel": "自分",
-  "profileSaveFailed": "プロフィールを保存できませんでした。しばらくしてからもう一度お試しください。"
+  "profileSaveFailed": "プロフィールを保存できませんでした。しばらくしてからもう一度お試しください。",
+  "birthDateRequired": "生年月日を入力してください。",
+  "birthDateInvalid": "生年月日を正しく入力してください。",
+  "termsRequired": "利用規約とプライバシーポリシーに同意してください。",
+  "charsTooHigh": "1日の文字数は最大{max}文字までです。",
+  "recordDateInvalid": "直近{days}日以内の日付のみ修正できます。"
 }

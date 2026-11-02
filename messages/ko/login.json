@@ -169,5 +169,6 @@
     "pomowriterCtaTitle": "무료 집필 프로그램이 필요하다면,\n(Windows 전용)",
     "pomowriterCtaButton": "PomoWriter 다운받기",
     "enterRoomCta": "포룸 입장"
-  }
+  },
+  "underageNotice": "만 14세 미만은 PoRoom을 이용할 수 없어요. 입력하신 정보는 모두 삭제했어요."
 }

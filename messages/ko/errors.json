@@ -104,5 +104,10 @@
     "hoursAgo": "{count}시간 전"
   },
   "selfLabel": "나",
-  "profileSaveFailed": "프로필을 저장하지 못했어요. 잠시 뒤 다시 시도해 주세요."
+  "profileSaveFailed": "프로필을 저장하지 못했어요. 잠시 뒤 다시 시도해 주세요.",
+  "birthDateRequired": "생년월일을 입력해 주세요.",
+  "birthDateInvalid": "생년월일을 올바르게 입력해 주세요.",
+  "termsRequired": "이용약관과 개인정보처리방침에 동의해 주세요.",
+  "charsTooHigh": "하루 글자수는 최대 {max}자까지 입력할 수 있어요.",
+  "recordDateInvalid": "최근 {days}일 안의 날짜만 고칠 수 있어요."
 }

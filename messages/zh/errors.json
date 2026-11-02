@@ -104,5 +104,10 @@
     "hoursAgo": "{count}小时前"
   },
   "selfLabel": "我",
-  "profileSaveFailed": "无法保存个人资料，请稍后重试。"
+  "profileSaveFailed": "无法保存个人资料，请稍后重试。",
+  "birthDateRequired": "请输入出生日期。",
+  "birthDateInvalid": "请正确输入出生日期。",
+  "termsRequired": "请同意服务条款和隐私政策。",
+  "charsTooHigh": "每天最多可输入{max}字。",
+  "recordDateInvalid": "只能修改最近{days}天内的日期。"
 }

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { GoogleSignInButton } from "./google-sign-in-button";
 
-export function AuthLanding({ banned = false }: { banned?: boolean }) {
+export function AuthLanding({ banned = false, underage = false }: { banned?: boolean; underage?: boolean }) {
   const t = useTranslations("login");
 
   return (
@@ -24,6 +24,9 @@ export function AuthLanding({ banned = false }: { banned?: boolean }) {
       </div>
       {banned && (
         <p className="max-w-xs text-center text-sm text-red-500">{t("bannedNotice")}</p>
+      )}
+      {underage && (
+        <p className="max-w-xs text-center text-sm text-red-500">{t("underageNotice")}</p>
       )}
       <GoogleSignInButton label={t("google")} />
       <Link href="/" className="text-xs text-neutral-400 hover:text-neutral-600 hover:underline">

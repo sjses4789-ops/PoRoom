@@ -9,5 +9,13 @@
     "novelist": "网络小说作者",
     "webtoon": "webtoon作者"
   },
-  "start": "开始使用"
+  "start": "开始使用",
+  "birthLabel": "出生日期",
+  "birthHint": "仅限年满14岁的用户注册。我们不保存完整出生日期，只保留出生年份。",
+  "agreePrefix": "我同意(必填):",
+  "termsLink": "服务条款·社区政策",
+  "privacyLink": "隐私政策",
+  "consentTitle": "年龄确认与同意",
+  "consentDescription": "要继续使用，请确认出生日期并同意条款。未满14岁无法使用本服务。",
+  "consentSubmit": "确认并继续"
 }

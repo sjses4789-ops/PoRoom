@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { isCurrentUserAdmin } from "@/lib/admin";
+import { loadAdminMetrics, type DayCount } from "@/lib/admin-metrics";
+import { AdminOrphanButton } from "./admin-orphan-button";
 import { AdminEventForm } from "./admin-event-form";
 import { AdminEventDeleteButton } from "./admin-event-delete-button";
 import { AdminEventEditButton } from "./admin-event-edit-button";
@@ -65,6 +67,8 @@ export default async function AdminPage() {
     { data: nicknameRows },
     { data: reportRowsFull, error: reportError },
     { data: feedbackRows },
+    { data: clientErrors },
+    metrics,
   ] =
     await Promise.all([
       supabase
@@ -105,6 +109,14 @@ export default async function AdminPage() {
         .returns<
           { id: string; user_id: string; category: "suggestion" | "bug"; title: string; content: string; created_at: string }[]
         >(),
+      // 화면 오류 기록(0076) — 테이블이 없으면 빈 목록.
+      supabase
+        .from("client_errors")
+        .select("id,created_at,user_id,message,url")
+        .order("created_at", { ascending: false })
+        .limit(50)
+        .returns<{ id: string; created_at: string; user_id: string | null; message: string; url: string | null }[]>(),
+      loadAdminMetrics(),
     ]);
 
   const displayName = new Map((users ?? []).map((u) => [u.id, u.name || u.email]));
@@ -244,6 +256,101 @@ export default async function AdminPage() {
     </>
   );
 
+  const bars = (rows: DayCount[]) => {
+    const max = Math.max(1, ...rows.map((r) => r.count));
+    return (
+      <div className="flex h-24 items-end gap-1">
+        {rows.map((r) => (
+          <div key={r.date} className="flex flex-1 flex-col items-center justify-end gap-1" title={`${r.date}: ${r.count}`}>
+            <span className="text-[10px] text-neutral-400">{r.count}</span>
+            <div className="w-full rounded-sm bg-neutral-800 dark:bg-neutral-200" style={{ height: `${Math.max(2, (r.count / max) * 56)}px` }} />
+            <span className="text-[9px] text-neutral-400">{r.date.slice(8)}</span>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  const metricsTab = (
+    <>
+      {!metrics ? (
+        <p className="text-xs text-neutral-400">SUPABASE_SERVICE_ROLE_KEY가 설정되지 않아 지표를 불러올 수 없어요.</p>
+      ) : (
+        <>
+          <section className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            {[
+              { label: "전체 회원", value: metrics.totalUsers.toLocaleString() },
+              { label: "최근 7일 가입", value: metrics.newUsers7d.toLocaleString() },
+              {
+                label: "가입 후 방 입장률 (7일)",
+                value: metrics.newUsers7d ? `${Math.round((metrics.newUsers7dJoinedRoom / metrics.newUsers7d) * 100)}%` : "-",
+              },
+            ].map((c) => (
+              <div key={c.label} className="rounded-md border border-neutral-200 p-4 dark:border-neutral-700">
+                <p className="text-[11px] text-neutral-400">{c.label}</p>
+                <p className="mt-1 text-xl font-semibold tabular-nums text-neutral-900 dark:text-white">{c.value}</p>
+              </div>
+            ))}
+          </section>
+          <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <div className="flex flex-col gap-2 rounded-md border border-neutral-200 p-4 dark:border-neutral-700">
+              <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">일별 가입자 (최근 14일)</h2>
+              {bars(metrics.signups)}
+            </div>
+            <div className="flex flex-col gap-2 rounded-md border border-neutral-200 p-4 dark:border-neutral-700">
+              <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">일별 접속 인원 (최근 14일)</h2>
+              {bars(metrics.dau)}
+            </div>
+          </section>
+          <section className="flex flex-col gap-3 rounded-md border border-neutral-200 p-4 dark:border-neutral-700">
+            <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">의심 기록 ({metrics.suspicious.length}건)</h2>
+            <p className="text-xs text-neutral-400">최근 30일 중 하루 글자수가 5만 자 이상인 기록이에요. 사람이 직접 쓴 양인지 확인해 보세요.</p>
+            {metrics.suspicious.length === 0 ? (
+              <p className="text-xs text-neutral-400">해당하는 기록이 없어요.</p>
+            ) : (
+              <ul className="flex max-h-72 flex-col gap-1 overflow-y-auto text-[13px]">
+                {metrics.suspicious.map((r) => (
+                  <li key={`${r.userId}-${r.roomId}-${r.date}`} className="flex flex-wrap gap-x-2 text-neutral-700 dark:text-neutral-300">
+                    <span className="tabular-nums text-neutral-400">{r.date}</span>
+                    <span className="font-medium">{displayName.get(r.userId) ?? "알 수 없음"}</span>
+                    <span className="text-neutral-400">{roomName.get(r.roomId) ?? "삭제된 방"}</span>
+                    <span className="tabular-nums">{r.chars.toLocaleString()}자</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </>
+      )}
+      <section className="flex flex-col gap-3 rounded-md border border-neutral-200 p-4 dark:border-neutral-700">
+        <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">화면 오류 기록 ({(clientErrors ?? []).length}건)</h2>
+        <p className="text-xs text-neutral-400">회원 화면에서 난 오류가 자동으로 쌓여요. 최근 50건까지 보여 줘요.</p>
+        {(clientErrors ?? []).length === 0 ? (
+          <p className="text-xs text-neutral-400">기록된 오류가 없어요.</p>
+        ) : (
+          <ul className="flex max-h-72 flex-col gap-2 overflow-y-auto text-[12px]">
+            {(clientErrors ?? []).map((e) => (
+              <li key={e.id} className="rounded-md border border-neutral-100 px-3 py-2 dark:border-neutral-800">
+                <p className="break-words font-medium text-neutral-800 dark:text-neutral-200">{e.message}</p>
+                <p className="text-neutral-400">
+                  {new Date(e.created_at).toLocaleString("ko-KR")} · {e.user_id ? (displayName.get(e.user_id) ?? "회원") : "비로그인"}
+                  {e.url ? ` · ${e.url}` : ""}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+      <section className="flex flex-col gap-3 rounded-md border border-neutral-200 p-4 dark:border-neutral-700">
+        <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">고아 계정 정리</h2>
+        <p className="text-xs text-neutral-400">
+          예전 탈퇴로 프로필만 지워지고 로그인 계정이 남은 경우를 정리해요. 만든 지 1시간이 안 된 계정은 건드리지 않아요.
+        </p>
+        <AdminOrphanButton />
+      </section>
+    </>
+  );
+
   const manageTab = (
     <>
       <section className="flex flex-col gap-3 rounded-md border border-neutral-200 p-4 dark:border-neutral-700">
@@ -326,6 +433,7 @@ export default async function AdminPage() {
           { key: "rooms", label: "방 & 회원", content: roomsAndMembers },
           { key: "challenge", label: "챌린지", content: challengeTab },
           { key: "manage", label: "관리", badge: pendingReports, content: manageTab },
+          { key: "metrics", label: "지표", content: metricsTab },
         ]}
       />
     </div>

@@ -62,6 +62,7 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/invite/") ||
     request.nextUrl.pathname.startsWith("/auth") ||
     request.nextUrl.pathname.startsWith("/privacy") ||
+    request.nextUrl.pathname.startsWith("/terms") ||
     // 로그인 없이 읽는 공개 정보 페이지(작가 가이드·서비스 소개·자주 묻는 질문)
     request.nextUrl.pathname.startsWith("/guide") ||
     request.nextUrl.pathname === "/about" ||
@@ -80,6 +81,7 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/api/app/") ||
     // Vercel Cron이 부르는 정기 작업 — 로그인 없이 오고, 자체 비밀값(CRON_SECRET)으로 확인한다.
     request.nextUrl.pathname.startsWith("/api/cron/") ||
+    request.nextUrl.pathname.startsWith("/api/client-error") ||
     isGoogleVerificationFile;
 
   // ADSENSE_REVIEW_MODE 동안은 "/"와 같은 논리로, 로그인 리다이렉트를

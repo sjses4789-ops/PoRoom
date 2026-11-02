@@ -9,5 +9,13 @@
     "novelist": "웹소설 작가",
     "webtoon": "웹툰 작가"
   },
-  "start": "시작하기"
+  "start": "시작하기",
+  "birthLabel": "생년월일",
+  "birthHint": "만 14세 이상만 가입할 수 있어요. 생년월일 전체는 저장하지 않고 출생 연도만 보관해요.",
+  "agreePrefix": "다음에 동의합니다(필수):",
+  "termsLink": "이용약관·운영정책",
+  "privacyLink": "개인정보처리방침",
+  "consentTitle": "나이 확인과 약관 동의",
+  "consentDescription": "서비스를 계속 이용하려면 생년월일을 확인하고 약관에 동의해 주세요. 만 14세 미만은 이용할 수 없어요.",
+  "consentSubmit": "확인하고 계속하기"
 }

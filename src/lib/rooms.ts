@@ -8,7 +8,8 @@ import { logActivity } from "@/lib/activity";
 import { isRoomTag } from "@/lib/room-tags";
 import { checkDailyMilestones } from "@/lib/system-challenges";
 import { resolveJoinNickname } from "@/lib/nickname-join";
-import { todayKst } from "@/lib/time";
+import { todayKst, kstDatePlusDays } from "@/lib/time";
+import { MANUAL_EDIT_WINDOW_DAYS, MAX_DAILY_TOTAL_CHARS, MAX_MANUAL_DAILY_CHARS } from "@/lib/record-limits";
 import { purgeRoomChatImages } from "@/lib/chat-image-purge";
 
 const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -341,6 +342,20 @@ export async function recordChars(
   if (!user) return;
 
   const date = dateOverride ?? todayKst();
+
+  // 하루 합계 상한 — 사람이 쓸 수 있는 양을 넘는 값은 더 쌓지 않는다(조작·오류 방지).
+  if (delta > 0) {
+    const { data: dayBefore } = await supabase
+      .from("daily_records")
+      .select("chars")
+      .eq("user_id", user.id)
+      .eq("record_date", date)
+      .returns<{ chars: number }[]>();
+    const totalBefore = (dayBefore ?? []).reduce((sum, r) => sum + r.chars, 0);
+    if (totalBefore >= MAX_DAILY_TOTAL_CHARS) return;
+    if (totalBefore + delta > MAX_DAILY_TOTAL_CHARS) delta = MAX_DAILY_TOTAL_CHARS - totalBefore;
+  }
+
   const { data: existing } = await supabase
     .from("daily_records")
     .select("id,chars")
@@ -397,7 +412,16 @@ export async function setDailyChars(roomId: string, date: string, chars: number)
   } = await supabase.auth.getUser();
   if (!user) return { error: await err("loginRequired") };
 
+  // 직접 고칠 수 있는 날짜(오늘 포함 최근 N일)와 최대 글자수를 제한한다 — 아주 오래된 기록·비현실적인 값은 받지 않는다.
+  const today = todayKst();
+  const oldest = kstDatePlusDays(-MANUAL_EDIT_WINDOW_DAYS, today);
+  if (!/^d{4}-d{2}-d{2}$/.test(date) || date > today || date < oldest) {
+    return { error: await err("recordDateInvalid", { days: MANUAL_EDIT_WINDOW_DAYS }) };
+  }
   const safeChars = Math.max(0, Math.floor(chars) || 0);
+  if (safeChars > MAX_MANUAL_DAILY_CHARS) {
+    return { error: await err("charsTooHigh", { max: MAX_MANUAL_DAILY_CHARS.toLocaleString() }) };
+  }
 
   const { data: existing } = await supabase
     .from("daily_records")

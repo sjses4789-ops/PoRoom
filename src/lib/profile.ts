@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { ActionResult } from "@/lib/rooms";
 import { ensureMyProfile } from "@/lib/ensure-profile";
 import { dateInTimezone } from "@/lib/time";
+import { recordConsent } from "@/lib/consent-core";
 
 // 폼으로 받은 돌아갈 주소는 이 사이트 안의 경로("/..."로 시작, "//"나 "/\" 제외)만 허용한다 — 바깥 주소로 보내는 데 쓰이지 못하게.
 function safeRedirectPath(path: string): string {
@@ -133,6 +134,16 @@ export async function completeOnboarding(
 
   // 프로필 행이 없는 계정(탈퇴 뒤 재가입)이면 먼저 만든다 — 없으면 아래 저장이 0건이어도 오류 없이 지나가 화면만 새로 고쳐진다.
   await ensureMyProfile(supabase);
+
+  // 나이 확인·약관 동의(만 14세 미만이면 가입을 거절하고 계정을 지운다).
+  const consent = await recordConsent(
+    supabase,
+    user.id,
+    String(formData.get("birthDate") ?? ""),
+    formData.get("agreeTerms") === "on"
+  );
+  if ("underage" in consent) redirect("/login?underage=1");
+  if ("error" in consent) return { error: consent.error };
   const { data: saved, error } = await supabase
     .from("users")
     .update({ name: nickname, position })

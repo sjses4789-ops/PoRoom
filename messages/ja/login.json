@@ -169,5 +169,6 @@
     "pomowriterCtaTitle": "無料の執筆プログラムが必要なら、\n(Windows専用)",
     "pomowriterCtaButton": "PomoWriterをダウンロード",
     "enterRoomCta": "ポルームに入る"
-  }
+  },
+  "underageNotice": "満14歳未満の方はPoRoomをご利用いただけません。入力された情報はすべて削除しました。"
 }
