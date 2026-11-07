@@ -49,3 +49,6 @@ next-env.d.ts
 # 테스트용 앱 설치 파일
 *.apk
 *.aab
+
+# 꼬바(GGobar) 설치 파일 원본 폴더 — 저장소에 올리지 않는다(설치 파일은 GitHub Releases에 있다)
+/ggobar/
