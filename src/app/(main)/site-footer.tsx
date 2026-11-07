@@ -21,6 +21,17 @@ export async function SiteFooter() {
             >
               PomoWriter
             </a>
+            <span className="shrink-0 whitespace-nowrap text-xs text-neutral-400 dark:text-neutral-500">
+              {t("writingFriend")}
+            </span>
+            {/* 정적 HTML 사이트라 next/link가 아니라 일반 링크로 이동한다. */}
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+            <a
+              href="/ggobar"
+              className="shrink-0 rounded-md border border-stone-300 bg-stone-100 px-2.5 py-1 text-xs font-bold text-stone-700 transition hover:bg-stone-200"
+            >
+              꼬발(GGobar)
+            </a>
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
@@ -33,6 +44,12 @@ export async function SiteFooter() {
             className="hover:text-neutral-600 hover:underline dark:hover:text-neutral-300"
           >
             {t("writingApp")}
+          </a>
+          <span aria-hidden>·</span>
+          {/* 정적 HTML 사이트라 next/link가 아니라 일반 링크로 이동한다. */}
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+          <a href="/ggobar" className="hover:text-neutral-600 hover:underline dark:hover:text-neutral-300">
+            {t("writingFriend")} - 꼬발(GGobar)
           </a>
           <span aria-hidden>·</span>
           {/* 누르면 [포룸]·[방]·[피드]·[도전]·[랭킹]·[휴식] 사용 방법 안내창이 뜬다. */}

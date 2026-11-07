@@ -63,6 +63,8 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/auth") ||
     request.nextUrl.pathname.startsWith("/privacy") ||
     request.nextUrl.pathname.startsWith("/terms") ||
+    // 꼬바(GGobar) 소개 사이트(정적 HTML) — 누구나 열 수 있다.
+    request.nextUrl.pathname.startsWith("/ggobar") ||
     // 로그인 없이 읽는 공개 정보 페이지(작가 가이드·서비스 소개·자주 묻는 질문)
     request.nextUrl.pathname.startsWith("/guide") ||
     request.nextUrl.pathname === "/about" ||

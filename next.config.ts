@@ -2,6 +2,14 @@ import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 
 const nextConfig: NextConfig = {
+  async rewrites() {
+    // 꼬바(GGobar) 소개 사이트 — public/ggobar 의 정적 HTML을 /ggobar 주소로 보여 준다.
+    return {
+      beforeFiles: [{ source: "/ggobar", destination: "/ggobar/index.html" }],
+      afterFiles: [],
+      fallback: [],
+    };
+  },
   async headers() {
     return [
       {
