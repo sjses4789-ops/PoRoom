@@ -333,7 +333,7 @@ export default async function Home() {
             {/* 정적 HTML 사이트라 next/link가 아니라 일반 링크로 이동한다. */}
             {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a href="/ggobar" className="hover:text-neutral-600 hover:underline">
-              {tFooter("writingFriend")} - 꼬발(GGobar)
+              {tFooter("writingFriend")} - 꼬바(GGobar)
             </a>
             <span aria-hidden>·</span>
             <Link href={`${intlBase}/guide`} className="hover:text-neutral-600 hover:underline">
